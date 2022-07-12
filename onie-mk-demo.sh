@@ -23,9 +23,9 @@ if  [ ! -d $installer_dir ] || \
     exit 1
 fi
 
-if  [ ! -d $installer_dir/$arch ] || \
-    [ ! -r $installer_dir/$arch/install.sh ] ; then
-    echo "Error: Invalid arch installer directory: $installer_dir/$arch"
+if  [ ! -d $installer_dir ] || \
+    [ ! -r $installer_dir/install.sh ] ; then
+    echo "Error: Invalid arch installer directory: $installer_dir"
     exit 1
 fi
 
@@ -75,9 +75,9 @@ tmp_dir=$(mktemp --directory)
 tmp_installdir="$tmp_dir/installer"
 mkdir $tmp_installdir || clean_up 1
 
-cp -r $installer_dir/$arch/* $tmp_installdir || clean_up 1
+cp -r $installer_dir/* $tmp_installdir || clean_up 1
 cp onie-image.conf $tmp_installdir
-cp onie-image-*.conf $tmp_installdir
+cp onie-image-$arch.conf $tmp_installdir
 
 # Set sonic fips config for the installer script
 if [ "$ENABLE_FIPS" = "y" ]; then

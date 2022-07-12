@@ -1,7 +1,16 @@
 #!/bin/sh
 
-#  Copyright (C) Marvell Inc
+#  Copyright (C) 2020      Marvell Inc
+#  Copyright (C) 2014-2015 Curt Brune <curt@cumulusnetworks.com>
+#  Copyright (C) 2014-2015 david_yang <david_yang@accton.com>
 #
+#  SPDX-License-Identifier:     GPL-2.0
+
+# Appends a command to a trap, which is needed because default trap behavior is to replace
+# previous trap for the same signal
+# - 1st arg:  code to add
+# - ref: http://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+
 
 _trap_push() {
     local next="$1"
@@ -13,6 +22,26 @@ _trap_push() {
     }"
 }
 _trap_push true
+
+read_conf_file() {
+    local conf_file=$1
+    while IFS='=' read -r var value || [ -n "$var" ]
+    do
+        # remove newline character
+        var=$(echo $var | tr -d '\r\n')
+        value=$(echo $value | tr -d '\r\n')
+        # remove comment string
+        var=${var%#*}
+        value=${value%#*}
+        # skip blank line
+        [ -z "$var" ] && continue
+        # remove double quote in the beginning
+        tmp_val=${value#\"}
+        # remove double quote in the end
+        value=${tmp_val%\"}
+        eval "$var=\"$value\""
+    done < "$conf_file"
+}
 
 set -e
 
@@ -30,11 +59,17 @@ fi
 
 cd $(dirname $0)
 if [ -r ./machine.conf ]; then
-    . ./machine.conf
+    read_conf_file "./machine.conf"
 fi
 
-if [ -r ./onie-image-armhf.conf ]; then
-    . ./onie-image-armhf.conf
+# Load generic onie-image.conf
+if [ -r ./onie-image.conf ]; then
+. ./onie-image.conf
+fi
+
+# Load arch-specific onie-image-[arch].conf if exists
+if [ -r ./onie-image-*.conf ]; then
+. ./onie-image-*.conf
 fi
 
 echo "ONIE Installer: platform: $platform"
@@ -45,14 +80,16 @@ if [ $(id -u) -ne 0 ]
     exit 1
 fi
 
+# get running machine from conf file
 if [ -r /etc/machine.conf ]; then
-    . /etc/machine.conf
+    read_conf_file "/etc/machine.conf"
 elif [ -r /host/machine.conf ]; then
-    . /host/machine.conf
+    read_conf_file "/host/machine.conf"
 elif [ "$install_env" != "build" ]; then
     echo "cannot find machine.conf"
     exit 1
 fi
+
 
 echo "onie_platform: $onie_platform"
 
@@ -110,7 +147,12 @@ demo_volume_label="SONiC-${demo_type}"
 demo_volume_revision_label="SONiC-${demo_type}-${image_version}"
 
 
-. ./platform.conf
+. ./default_platform.conf
+
+if [ -r ./platform.conf ]; then
+    . ./platform.conf
+fi
+
 
 image_dir="image-$image_version"
 
@@ -139,7 +181,18 @@ elif [ "$install_env" = "sonic" ]; then
             rm -rf $f
         fi
     done
+else
+    demo_mnt="build_raw_image_mnt"
+    demo_dev=$cur_wd/"%%OUTPUT_RAW_IMAGE%%"
+
+    mkfs.ext4 -L $demo_volume_label $demo_dev
+
+    echo "Mounting $demo_dev on $demo_mnt..."
+    mkdir $demo_mnt
+    mount -t auto -o loop $demo_dev $demo_mnt
 fi
+
+echo "Installing SONiC to $demo_mnt/$image_dir"
 
 # Create target directory or clean it up if exists
 if [ -d $demo_mnt/$image_dir ]; then

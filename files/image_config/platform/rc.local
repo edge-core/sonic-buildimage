@@ -293,7 +293,7 @@ if [ -f $FIRST_BOOT_FILE ]; then
     # we now install a grub for SONiC.
     if [ -n "$onie_platform" ] && [ -n  "$grub_installation_needed" ]; then
 
-        grub_bin=$(ls /host/image-$SONIC_VERSION/platform/x86_64-grub/grub-pc-bin*.deb 2> /dev/null)
+        grub_bin=$(ls /host/image-$SONIC_VERSION/platform/grub/grub*.deb 2> /dev/null)
         if [ -z "$grub_bin" ]; then
             log_migration "Unable to locate grub package !"
             firsttime_exit
