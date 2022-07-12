@@ -8,6 +8,7 @@ from .log import log_warn, log_err, log_info, log_debug, log_crit
 from .manager import Manager
 from .template import TemplateFabric
 from .utils import run_command
+from .managers_device_global import DeviceGlobalCfgMgr
 
 
 class BGPPeerGroupMgr(object):
@@ -23,6 +24,7 @@ class BGPPeerGroupMgr(object):
         tf = common_objs['tf']
         self.policy_template = tf.from_file(base_template + "policies.conf.j2")
         self.peergroup_template = tf.from_file(base_template + "peer-group.conf.j2")
+        self.device_global_cfgmgr = DeviceGlobalCfgMgr(common_objs, "CONFIG_DB", swsscommon.CFG_BGP_DEVICE_GLOBAL_TABLE_NAME)
 
     def update(self, name, **kwargs):
         """
@@ -56,14 +58,15 @@ class BGPPeerGroupMgr(object):
         """
         try:
             pg = self.peergroup_template.render(**kwargs)
+            tsa_rm = self.device_global_cfgmgr.check_state_and_get_tsa_routemaps(pg)
         except jinja2.TemplateError as e:
             log_err("Can't render peer-group template: '%s': %s" % (name, str(e)))
             return False
 
         if kwargs['vrf'] == 'default':
-            cmd = ('router bgp %s\n' % kwargs['bgp_asn']) + pg
+            cmd = ('router bgp %s\n' % kwargs['bgp_asn']) + pg + tsa_rm
         else:
-            cmd = ('router bgp %s vrf %s\n' % (kwargs['bgp_asn'], kwargs['vrf'])) + pg
+            cmd = ('router bgp %s vrf %s\n' % (kwargs['bgp_asn'], kwargs['vrf'])) + pg + tsa_rm
         self.update_entity(cmd, "Peer-group for peer '%s'" % name)
         return True
 
