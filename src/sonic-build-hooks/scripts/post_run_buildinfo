@@ -11,3 +11,6 @@ rm -rf $BUILD_VERSION_PATH/*
 # Disable the build hooks
 symlink_build_hooks -d
 set_reproducible_mirrors -d
+
+# Remove the version deb preference
+rm -f $VERSION_DEB_PREFERENCE
