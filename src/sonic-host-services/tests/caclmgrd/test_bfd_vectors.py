@@ -15,6 +15,12 @@ CACLMGRD_BFD_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                    "bgp": {
+                        "auto_restart": "enabled",
+                        "state": "enabled",
+                    }
+                },
             },
             "expected_subprocess_calls": [
                 call("iptables -I INPUT 2 -p udp -m multiport --dports 3784,4784 -j ACCEPT", shell=True, universal_newlines=True, stdout=subprocess.PIPE),

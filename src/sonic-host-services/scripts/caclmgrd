@@ -52,6 +52,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
     Attributes:
         config_db: Handle to Config Redis database via SwSS SDK
     """
+    FEATURE_TABLE = "FEATURE"
     ACL_TABLE = "ACL_TABLE"
     ACL_RULE = "ACL_RULE"
     DEVICE_METADATA_TABLE = "DEVICE_METADATA"
@@ -116,6 +117,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         self.namespace_mgmt_ipv6 = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[DEFAULT_NAMESPACE], DEFAULT_NAMESPACE)
         self.namespace_docker_mgmt_ip = {}
         self.namespace_docker_mgmt_ipv6 = {}
+
+        # Get all features that are present {feature_name : True/False}
+        self.feature_present = {}
+        self.update_feature_present()
 
         metadata = self.config_db_map[DEFAULT_NAMESPACE].get_table(self.DEVICE_METADATA_TABLE)
         if 'subtype' in metadata['localhost'] and metadata['localhost']['subtype'] == 'DualToR':
@@ -200,6 +205,12 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         # Delete the trailing comma
         tcp_flags_str = tcp_flags_str[:-1]
         return tcp_flags_str
+
+    def update_feature_present(self):
+        feature_tb_info = self.config_db_map[DEFAULT_NAMESPACE].get_table(self.FEATURE_TABLE)
+        if feature_tb_info:
+            for k, v in feature_tb_info.items():
+                self.feature_present[k] = True
 
     def generate_block_ip2me_traffic_iptables_commands(self, namespace):
         INTERFACE_TABLE_NAME_LIST = [
