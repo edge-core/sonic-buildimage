@@ -37,7 +37,7 @@ resources:
     ref: master
 
 variables:
-- template: .azure-pipelines/azure-pipelines-repd-build-variables.yml
+- template: .azure-pipelines/azure-pipelines-repd-build-variables.yml@buildimage
 - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
   - template: .azure-pipelines/template-variables.yml
 - ${{ else }}:
