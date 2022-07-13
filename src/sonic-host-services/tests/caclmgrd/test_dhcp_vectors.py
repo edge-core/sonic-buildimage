@@ -14,6 +14,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "active"}),
@@ -42,6 +44,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "active"}),
@@ -66,6 +70,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
@@ -93,6 +99,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "active"}),
@@ -116,6 +124,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
@@ -143,6 +153,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "standby"}),
@@ -166,6 +178,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
@@ -195,6 +209,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "standby"}),
@@ -219,6 +235,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
@@ -248,6 +266,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "type": "ToRRouter",
                     }
                 },
+                "FEATURE": {
+                },
             },
             "mux_update": [
                 ("Ethernet4", {"state": "unknown"}),
@@ -272,6 +292,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
@@ -298,6 +320,8 @@ CACLMGRD_DHCP_TEST_VECTOR = [
                         "subtype": "DualToR",
                         "type": "ToRRouter",
                     }
+                },
+                "FEATURE": {
                 },
             },
             "mux_update": [
