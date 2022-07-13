@@ -1,8 +1,8 @@
 .ONESHELL:
 SHELL = /bin/bash
 
-MAIN_TARGET = iproute2_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = iproute2-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb iproute2-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+MAIN_TARGET = iproute2_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = iproute2-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb iproute2-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
 PACKAGE_NAME = iproute2-3.19.0
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

@@ -21,14 +21,14 @@ MFT_REVISION = 34
 
 export MFT_VERSION MFT_REVISION
 
-MFT = mft_$(MFT_VERSION)-$(MFT_REVISION)_amd64.deb
+MFT = mft_$(MFT_VERSION)-$(MFT_REVISION)_$(CONFIGURED_ARCH).deb
 $(MFT)_SRC_PATH = $(PLATFORM_PATH)/mft
 SONIC_MAKE_DEBS += $(MFT)
 
 $(MFT)_DEPENDS += $(LINUX_HEADERS) $(LINUX_HEADERS_COMMON)
 
-KERNEL_MFT = kernel-mft-dkms-modules-$(KVERSION)_$(MFT_VERSION)_amd64.deb
+KERNEL_MFT = kernel-mft-dkms-modules-$(KVERSION)_$(MFT_VERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(MFT),$(KERNEL_MFT)))
 
-MFT_OEM = mft-oem_$(MFT_VERSION)-$(MFT_REVISION)_amd64.deb
+MFT_OEM = mft-oem_$(MFT_VERSION)-$(MFT_REVISION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(MFT),$(MFT_OEM)))

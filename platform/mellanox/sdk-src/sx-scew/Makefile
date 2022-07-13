@@ -1,10 +1,10 @@
 .ONESHELL:
 SHELL = /bin/bash
 
-MAIN_TARGET = sx-scew_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = sx-scew-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sx-scew-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sx-scew-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+MAIN_TARGET = sx-scew_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = sx-scew-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb \
+				  sx-scew-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb \
+				  sx-scew-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
 PACKAGE_NAME = sx_scew
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

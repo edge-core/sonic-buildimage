@@ -1,10 +1,10 @@
 .ONESHELL:
 SHELL = /bin/bash
 
-MAIN_TARGET = sx-acl-helper_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = sx-acl-helper-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sx-acl-helper-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sx-acl-helper-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+MAIN_TARGET = sx-acl-helper_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = sx-acl-helper-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb \
+				  sx-acl-helper-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb \
+				  sx-acl-helper-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_$(CONFIGURED_ARCH).deb
 PACKAGE_NAME = sx_acl_helper
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
