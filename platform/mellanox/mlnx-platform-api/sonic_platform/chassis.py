@@ -112,7 +112,8 @@ class Chassis(ChassisBase):
         self.sfp_module = None
 
         # Build the RJ45 port list from platform.json and hwsku.json
-        self.RJ45_port_list = extract_RJ45_ports_index()
+        self._RJ45_port_inited = False
+        self._RJ45_port_list = None
 
         logger.log_info("Chassis loaded successfully")
 
@@ -123,6 +124,13 @@ class Chassis(ChassisBase):
         if self._sfp_list:
             if self.sfp_module.SFP.shared_sdk_handle:
                 self.sfp_module.deinitialize_sdk_handle(sfp_module.SFP.shared_sdk_handle)
+
+    @property
+    def RJ45_port_list(self):
+        if not self._RJ45_port_inited:
+            self._RJ45_port_list = extract_RJ45_ports_index()
+            self._RJ45_port_inited = True
+        return self._RJ45_port_list
 
     ##############################################
     # PSU methods
