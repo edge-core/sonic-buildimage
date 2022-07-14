@@ -1102,27 +1102,45 @@ attributes in those objects.
 ***NTP server***
 ```
 {
-"NTP_SERVER": {
+    "NTP_SERVER": {
         "2.debian.pool.ntp.org": {},
         "1.debian.pool.ntp.org": {},
         "3.debian.pool.ntp.org": {},
         "0.debian.pool.ntp.org": {}
     },
 
-"NTP_SERVER": {
-    "23.92.29.245": {},
-    "204.2.134.164": {}
+    "NTP_SERVER": {
+        "23.92.29.245": {},
+        "204.2.134.164": {}
     }
 }
 ```
 
-***Syslogserver***
+***Syslog server***
 ```
 {
-"SYSLOG_SERVER": {
-    "10.0.0.5": {},
-    "10.0.0.6": {},
-    "10.11.150.5": {}
+    "SYSLOG_SERVER": {
+        "10.0.0.5": {},
+        "10.0.0.6": {},
+        "10.11.150.5": {}
+    },
+
+    "SYSLOG_SERVER" : {
+        "2.2.2.2": {
+            "source": "1.1.1.1",
+            "port": "514",
+            "vrf": "default"
+        },
+        "4.4.4.4": {
+            "source": "3.3.3.3",
+            "port": "514",
+            "vrf": "mgmt"
+        },
+        "2222::2222": {
+            "source": "1111::1111",
+            "port": "514",
+            "vrf": "Vrf-Data"
+        }
     }
 }
 ```
