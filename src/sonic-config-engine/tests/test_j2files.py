@@ -354,7 +354,8 @@ class TestJ2Files(TestCase):
             '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64',
             '../../../device/arista/x86_64-arista_7050cx3_32s/Arista-7050CX3-32S-D48C8',
             '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-D108C8',
-            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64'
+            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64',
+            '../../../device/arista/x86_64-arista_7050_qx32s/Arista-7050-QX-32S'
             ]
         sample_outputs = [
             'qos-arista7050cx3-dualtor.json',
@@ -362,7 +363,8 @@ class TestJ2Files(TestCase):
             'qos-arista7260-t1.json',
             'qos-arista7050cx3-dualtor-remap-disabled.json',
             'qos-arista7260-dualtor-remap-disabled.json',
-            'qos-arista7260-t1-remap-disabled.json'
+            'qos-arista7260-t1-remap-disabled.json',
+            'qos-arista7050-t0-storage-backend.json'
         ]
         sample_minigraph_files = [
             'sample-arista-7050cx3-dualtor-minigraph.xml',
@@ -370,7 +372,8 @@ class TestJ2Files(TestCase):
             'sample-arista-7260-t1-minigraph.xml',
             'sample-arista-7050cx3-dualtor-minigraph-remap-disabled.xml',
             'sample-arista-7260-dualtor-minigraph-remap-disabled.xml',
-            'sample-arista-7260-t1-minigraph-remap-disabled.xml'
+            'sample-arista-7260-t1-minigraph-remap-disabled.xml',
+            'sample-arista-7050-t0-storage-backend-minigraph.xml'
         ]
         for i, path in enumerate(dir_paths):
             device_template_path = os.path.join(self.test_dir, path)
