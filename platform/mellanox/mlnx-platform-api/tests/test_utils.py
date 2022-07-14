@@ -113,10 +113,15 @@ class TestUtils:
         @utils.default_return(100, log_func=mock_log)
         def func():
             raise RuntimeError('')
-        
+
         assert func() == 100
         assert mock_log.call_count == 1
 
     def test_run_command(self):
         output = utils.run_command('ls')
         assert output
+
+    @mock.patch('sonic_py_common.device_info.get_path_to_hwsku_dir', mock.MagicMock(return_value='/tmp'))
+    def test_extract_RJ45_ports_index(self):
+        rj45_list = utils.extract_RJ45_ports_index()
+        assert rj45_list is None
