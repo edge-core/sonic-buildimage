@@ -7,8 +7,10 @@ PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
 
 if [[ $1 == "TSA" ]]; then 
     TSA_STATE_UPDATE='{"BGP_DEVICE_GLOBAL":{"STATE":{"tsa_enabled": "true"}}}'
+    log_msg='System Mode: Normal -> Maintenance'
 elif [[ $1 == "TSB" ]]; then
     TSA_STATE_UPDATE='{"BGP_DEVICE_GLOBAL":{"STATE":{"tsa_enabled": "false"}}}'
+    log_msg='System Mode: Maintenance -> Normal'
 fi
 
 # Parse the device specific asic conf file, if it exists
@@ -28,8 +30,8 @@ if [[ ($NUM_ASIC -gt 1) ]]; then
             echo -e "BGP"$asic" : \c"
             if [[ -n "$TSA_STATE_UPDATE" ]]; then 
                 sonic-cfggen -a "$TSA_STATE_UPDATE" -w -n $NAMESPACE_PREFIX$asic
-                logger -t $1 -p user.info "BGP$asic: System Mode: Normal -> Maintenance"
-                echo "BGP$asic: System Mode: Normal -> Maintenance"
+                logger -t $1 -p user.info "BGP$asic: $log_msg"
+                echo "$log_msg"
             else
                 # If TSC is executed, invoke FRR script to check installed route-maps
                 docker exec -i bgp$asic /usr/bin/$1
@@ -40,11 +42,10 @@ if [[ ($NUM_ASIC -gt 1) ]]; then
 else
         if [[ -n "$TSA_STATE_UPDATE" ]]; then 
             sonic-cfggen -a "$TSA_STATE_UPDATE" -w
-            logger -t $1 -p user.info "System Mode: Normal -> Maintenance"
-            echo "System Mode: Normal -> Maintenance"
+            logger -t $1 -p user.info "$log_msg"
+            echo "$log_msg"
         else
             # If TSC is executed, invoke FRR script to check installed route-maps
             docker exec -i bgp /usr/bin/$1
         fi
 fi
-
