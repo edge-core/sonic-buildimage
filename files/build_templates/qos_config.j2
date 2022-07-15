@@ -45,6 +45,8 @@
 {%- set backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter'] -%}
 {%- set apollo_resource_types = ['DL-NPU-Apollo'] -%}
 
+{%- set require_global_dscp_to_tc_map = true -%}
+
 {
 {% if (generate_tc_to_pg_map is defined) and tunnel_qos_remap_enable %}
     {{- generate_tc_to_pg_map() }}
@@ -91,6 +93,7 @@
     },
 {% endif %}
 {% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types and 'storage_device' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['storage_device'] == 'true' %}
+{%- set require_global_dscp_to_tc_map = false %}
     "DOT1P_TO_TC_MAP": {
         "AZURE": {
             "0": "1",
@@ -224,7 +227,7 @@
     "PORT_QOS_MAP": {
 {% if generate_global_dscp_to_tc_map is defined %}
         {{- generate_global_dscp_to_tc_map() }}
-{% else %}
+{% elif require_global_dscp_to_tc_map %}
         "global": {
             "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]"
         }{% if PORT_ACTIVE %},{% endif %}
