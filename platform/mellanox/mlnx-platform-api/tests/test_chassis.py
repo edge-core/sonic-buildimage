@@ -286,7 +286,8 @@ class TestChassis:
 
     def test_get_port_or_cage_type(self):
         chassis = Chassis()
-        chassis.RJ45_port_list = [0]
+        chassis._RJ45_port_inited = True
+        chassis._RJ45_port_list = [0]
         assert SfpBase.SFP_PORT_TYPE_BIT_RJ45 == chassis.get_port_or_cage_type(1)
 
         exceptionRaised = False
