@@ -206,7 +206,7 @@ RUN mkdir -p /var/log/supervisor
 # Install Python-based GNMI client
 RUN git clone https://github.com/lguohan/gnxi.git \
     && cd gnxi \
-    && git checkout 53901ab \
+    && git checkout f2b11e4 \
     && cd gnmi_cli_py \
     && pip install -r requirements.txt
 
