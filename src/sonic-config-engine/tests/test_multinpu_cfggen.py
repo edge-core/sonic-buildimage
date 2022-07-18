@@ -304,6 +304,7 @@ class TestMultiNpuCfgGen(TestCase):
                 self.assertEqual(output['localhost']['sub_role'], 'FrontEnd')
             else:
                 self.assertEqual(output['localhost']['sub_role'], 'BackEnd')
+            self.assertEqual(output['localhost']['deployment_id'], "1")
 
     def test_global_asic_acl(self):
         argument = "-m {} -p {}  --var-json \"ACL_TABLE\"".format(self.sample_graph, self.sample_port_config)

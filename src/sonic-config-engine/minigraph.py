@@ -1040,6 +1040,7 @@ def parse_asic_meta(meta, hname):
     switch_id = None
     switch_type = None
     max_cores = None
+    deployment_id = None
     macsec_profile = {}
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
@@ -1056,10 +1057,12 @@ def parse_asic_meta(meta, hname):
                     switch_type = value
                 elif name == "MaxCores":
                     max_cores = value
+                elif name == "DeploymentId":
+                    deployment_id = value
                 elif name == 'MacSecProfile':
                     macsec_profile = parse_macsec_profile(value)
 
-    return sub_role, switch_id, switch_type, max_cores, macsec_profile
+    return sub_role, switch_id, switch_type, max_cores, deployment_id, macsec_profile
 
 def parse_deviceinfo(meta, hwsku):
     port_speeds = {}
@@ -1413,7 +1416,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "PngDec")):
                 (neighbors, devices, port_speed_png) = parse_asic_png(child, asic_name, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (sub_role, switch_id, switch_type, max_cores, macsec_profile) = parse_asic_meta(child, asic_name)
+                (sub_role, switch_id, switch_type, max_cores, deployment_id, macsec_profile) = parse_asic_meta(child, asic_name)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1987,7 +1990,7 @@ def parse_asic_sub_role(filename, asic_name):
     root = ET.parse(filename).getroot()
     for child in root:
         if child.tag == str(QName(ns, "MetadataDeclaration")):
-            sub_role, _, _, _, _= parse_asic_meta(child, asic_name)
+            sub_role, _, _, _, _, _= parse_asic_meta(child, asic_name)
             return sub_role
 
 def parse_asic_switch_type(filename, asic_name):
@@ -1995,7 +1998,7 @@ def parse_asic_switch_type(filename, asic_name):
         root = ET.parse(filename).getroot()
         for child in root:
             if child.tag == str(QName(ns, "MetadataDeclaration")):
-                _, _, switch_type, _, _ = parse_asic_meta(child, asic_name)
+                _, _, switch_type, _, _, _ = parse_asic_meta(child, asic_name)
                 return switch_type
     return None
 
