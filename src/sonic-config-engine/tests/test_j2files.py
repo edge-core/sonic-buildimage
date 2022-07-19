@@ -320,6 +320,9 @@ class TestJ2Files(TestCase):
     def test_qos_dell6100_render_template(self):
         self._test_qos_render_template('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'qos-dell6100.json')
 
+    def test_qos_arista7260_render_template(self):
+        self._test_qos_render_template('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-D96C16', 'sample-arista-7260-t1-minigraph-remap-disabled.xml', 'qos-arista7260.json')
+
     def _test_qos_render_template(self, vendor, platform, sku, minigraph, expected):
         file_exist, dir_exist = self.create_machine_conf(platform, vendor)
         dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', vendor, platform, sku)
