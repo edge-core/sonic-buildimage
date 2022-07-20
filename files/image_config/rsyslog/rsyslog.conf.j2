@@ -40,11 +40,6 @@ $UDPServerRun 514
 $template SONiCFileFormat,"%timegenerated%.%timegenerated:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
 $ActionFileDefaultTemplate SONiCFileFormat
 
-#Set remote syslog server
-{% for server in SYSLOG_SERVER %}
-*.* @[{{ server }}]:514;SONiCFileFormat
-{% endfor %}
-
 #
 # Set the default permissions for all log files.
 #
@@ -72,3 +67,30 @@ $RepeatedMsgReduction on
 ###############
 #### RULES ####
 ###############
+
+#
+# Remote syslog logging
+#
+
+# The omfwd plug-in provides the core functionality of traditional message forwarding via UDP and plain TCP.
+# It is a built-in module that does not need to be loaded.
+
+{% if SYSLOG_SERVER is defined %}
+{% for server, data in SYSLOG_SERVER.items() %}
+{% set params_list = [] %}
+{% if 'source' in data %}
+{% set dummy = params_list.append('address=' + '"' + data.source|string + '"') %}
+{% endif %}
+{% if 'port' in data %}
+{% set dummy = params_list.append('port=' + '"' + data.port|string + '"') %}
+{% endif %}
+{% if 'vrf' in data and data['vrf'] != "default" %}
+{% set dummy = params_list.append('device=' + '"' + data.vrf|string + '"') %}
+{% endif %}
+{% if params_list %}
+*.* action(type="omfwd" target="{{ server }}" protocol="udp" {{ params_list|join(' ') }} template="SONiCFileFormat")
+{% else %}
+*.* action(type="omfwd" target="{{ server }}" protocol="udp" template="SONiCFileFormat")
+{% endif %}
+{% endfor %}
+{% endif %}
