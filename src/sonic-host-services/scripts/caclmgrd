@@ -41,6 +41,22 @@ def _ip_prefix_in_key(key):
     """
     return (isinstance(key, tuple))
 
+def get_ip_from_interface_table(table, intf_name):
+
+    if table:
+        for key, _ in table.items():
+            if not _ip_prefix_in_key(key):
+                continue
+
+            iface_name, iface_cidr = key
+            if iface_name.startswith(intf_name):
+                ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
+                if isinstance(ip_ntwrk, ipaddress.IPv4Network):
+                    ip_addr = ip_ntwrk.network_address
+                    return ip_addr
+
+    return None
+
 # ============================== Classes ==============================
 
 
@@ -57,6 +73,8 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
     ACL_RULE = "ACL_RULE"
     DEVICE_METADATA_TABLE = "DEVICE_METADATA"
     MUX_CABLE_TABLE = "MUX_CABLE_TABLE"
+    CONFIG_MUX_CABLE = "MUX_CABLE"
+    LOOPBACK_TABLE = "LOOPBACK_INTERFACE"
 
     ACL_TABLE_TYPE_CTRLPLANE = "CTRLPLANE"
 
@@ -283,6 +301,28 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                                                      (docker_mgmt_ipv6, self.namespace_mgmt_ipv6))
 
         return allow_internal_docker_ip_cmds
+
+
+    def generate_fwd_traffic_from_host_to_soc(self, namespace):
+
+        fwd_dualtor_grpc_traffic_from_host_to_soc_cmds = []
+        if self.DualToR:
+            loopback_table = self.config_db_map[DEFAULT_NAMESPACE].get_table(self.LOOPBACK_TABLE)
+            loopback_name = 'Loopback3'
+            loopback_address = get_ip_from_interface_table(loopback_table, loopback_name)
+            fwd_dualtor_grpc_traffic_from_host_to_soc_cmds.append(self.iptables_cmd_ns_prefix[namespace] + 
+                    "iptables -t nat --flush POSTROUTING")
+            
+            if loopback_address is not None:
+                mux_table = self.config_db_map[DEFAULT_NAMESPACE].get_table(self.CONFIG_MUX_CABLE)
+                mux_table_keys = mux_table.keys()
+                for key in mux_table_keys:
+                    kvp = mux_table.get(key)
+                    if 'cable_type' in kvp and kvp['cable_type'] == 'active-active':
+                        fwd_dualtor_grpc_traffic_from_host_to_soc_cmds.append(self.iptables_cmd_ns_prefix[namespace] + 
+                                "iptables -t nat -A POSTROUTING --destination {} -j SNAT --to-source {}".format(kvp['soc_ipv4'], loopback_address))
+
+        return fwd_dualtor_grpc_traffic_from_host_to_soc_cmds
 
     def generate_fwd_traffic_from_namespace_to_host_commands(self, namespace, acl_source_ip_map):
         """
@@ -684,6 +724,13 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             self.log_info("  " + cmd)
 
         self.run_commands(iptables_cmds)
+
+        if self.DualToR:
+            dualtor_iptables_cmds = self.generate_fwd_traffic_from_host_to_soc(namespace)
+            for cmd in dualtor_iptables_cmds:
+                self.log_info("  " + cmd)
+            self.run_commands(dualtor_iptables_cmds)
+
 
     def check_and_update_control_plane_acls(self, namespace, num_changes):
         """
