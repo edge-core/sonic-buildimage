@@ -2,19 +2,53 @@
     "chassis": {
         "name": "CCS-720DT-48S",
         "components": [],
-        "fans": [],
+        "fans": [
+            {
+                "name": "fan1"
+            },
+            {
+                "name": "fan2"
+            }
+        ],
         "fan_drawers": [],
         "psus": [
             {
                 "name": "psu1",
-                "fans": []
+                "current": false,
+                "fans": [],
+                "max_power": false,
+                "power": false,
+                "temperature": false,
+                "voltage": false,
+                "voltage_high_threshold": false,
+                "voltage_low_threshold": false
             },
             {
                 "name": "psu2",
-                "fans": []
+                "current": false,
+                "fans": [],
+                "max_power": false,
+                "power": false,
+                "temperature": false,
+                "voltage": false,
+                "voltage_high_threshold": false,
+                "voltage_low_threshold": false
             }
         ],
-        "thermals": [],
+        "thermals": [
+            {
+                "name": "Cpu temp sensor"
+            },
+            {
+                "name": "Psu temp sensor"
+            },
+            {
+                "name": "SFP+ connector temp sensor"
+            },
+            {
+                "name": "MAC external temp sensor"
+            }
+        ],
         "sfps": [
             {
                 "name": "ethernet1"
