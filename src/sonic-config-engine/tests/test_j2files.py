@@ -358,8 +358,10 @@ class TestJ2Files(TestCase):
             '../../../device/arista/x86_64-arista_7050cx3_32s/Arista-7050CX3-32S-D48C8',
             '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-D108C8',
             '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64',
+            '../../../device/mellanox/x86_64-mlnx_msn4600c-r0/Mellanox-SN4600C-C64',
+            '../../../device/mellanox/x86_64-mlnx_msn4600c-r0/Mellanox-SN4600C-C64',
             '../../../device/arista/x86_64-arista_7050_qx32s/Arista-7050-QX-32S'
-            ]
+        ]
         sample_outputs = [
             'qos-arista7050cx3-dualtor.json',
             'qos-arista7260-dualtor.json',
@@ -367,6 +369,8 @@ class TestJ2Files(TestCase):
             'qos-arista7050cx3-dualtor-remap-disabled.json',
             'qos-arista7260-dualtor-remap-disabled.json',
             'qos-arista7260-t1-remap-disabled.json',
+            'qos-mellanox4600c-c64.json',
+            'qos-mellanox4600c-c64-remap-disabled.json',
             'qos-arista7050-t0-storage-backend.json'
         ]
         sample_minigraph_files = [
@@ -376,8 +380,11 @@ class TestJ2Files(TestCase):
             'sample-arista-7050cx3-dualtor-minigraph-remap-disabled.xml',
             'sample-arista-7260-dualtor-minigraph-remap-disabled.xml',
             'sample-arista-7260-t1-minigraph-remap-disabled.xml',
+            'sample-mellanox-4600c-t1-minigraph.xml',
+            'sample-mellanox-4600c-t1-minigraph-remap-disabled.xml',
             'sample-arista-7050-t0-storage-backend-minigraph.xml'
         ]
+
         for i, path in enumerate(dir_paths):
             device_template_path = os.path.join(self.test_dir, path)
             sample_output = sample_outputs[i]
@@ -483,7 +490,7 @@ class TestJ2Files(TestCase):
         if utils.PYvX_DIR != 'py3':
             # Skip on python2 as the change will not be backported to previous version
             return
-        
+
         TEST_DATA = [
             # (vendor, platform, sku, minigraph, buffer_template, sample_output )
             ('arista', 'x86_64-arista_7050cx3_32s', 'Arista-7050CX3-32S-D48C8', 'sample-arista-7050cx3-dualtor-minigraph.xml', 'buffers.json.j2', 'buffer-arista7050cx3-dualtor.json'),
@@ -491,7 +498,11 @@ class TestJ2Files(TestCase):
             ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-D108C8', 'sample-arista-7260-dualtor-minigraph.xml', 'buffers.json.j2', 'buffer-arista7260-dualtor.json'),
             ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-D108C8', 'sample-arista-7260-dualtor-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7260-dualtor-remap-disabled.json'),
             ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-C64', 'sample-arista-7260-t1-minigraph.xml', 'buffers.json.j2', 'buffer-arista7260-t1.json'),
-            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-C64', 'sample-arista-7260-t1-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7260-t1-remap-disabled.json')
+            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-C64', 'sample-arista-7260-t1-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7260-t1-remap-disabled.json'),
+            ('mellanox', 'x86_64-mlnx_msn4600c-r0', 'Mellanox-SN4600C-C64', 'sample-mellanox-4600c-t1-minigraph.xml', 'buffers_dynamic.json.j2', 'buffers-mellanox4600c-t1-dynamic.json'),
+            ('mellanox', 'x86_64-mlnx_msn4600c-r0', 'Mellanox-SN4600C-C64', 'sample-mellanox-4600c-t1-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox4600c-t1.json'),
+            ('mellanox', 'x86_64-mlnx_msn4600c-r0', 'Mellanox-SN4600C-C64', 'sample-mellanox-4600c-t1-minigraph-remap-disabled.xml', 'buffers_dynamic.json.j2', 'buffers-mellanox4600c-t1-dynamic-remap-disabled.json'),
+            ('mellanox', 'x86_64-mlnx_msn4600c-r0', 'Mellanox-SN4600C-C64', 'sample-mellanox-4600c-t1-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffers-mellanox4600c-t1-remap-disabled.json')
         ]
 
         for test_data in TEST_DATA:

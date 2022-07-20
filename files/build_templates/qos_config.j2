@@ -212,6 +212,14 @@
 {% endif %}
 {% if asic_type in pfc_to_pg_map_supported_asics  %}
     "PFC_PRIORITY_TO_PRIORITY_GROUP_MAP": {
+{% if port_names_list_extra_queues|length > 0 %}
+        "AZURE_DUALTOR": {
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "6": "6"
+        },
+{% endif %}
         "AZURE": {
             "3": "3",
             "4": "4"
@@ -231,13 +239,21 @@
 {% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types and 'storage_device' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['storage_device'] == 'true' %}
             "dot1p_to_tc_map" : "AZURE",
 {% else %}
+{% if different_dscp_to_tc_map and port not in port_names_list_extra_queues and tunnel_qos_remap_enable %}
+            "dscp_to_tc_map"  : "AZURE_UPLINK",
+{% else %}
             "dscp_to_tc_map"  : "AZURE",
+{% endif %}
 {% endif %}
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
 {% if asic_type in pfc_to_pg_map_supported_asics %}
+{% if port in port_names_list_extra_queues %}
+            "pfc_to_pg_map"   : "AZURE_DUALTOR",
+{% else %}
             "pfc_to_pg_map"   : "AZURE",
+{% endif %}
 {% endif %}
 {% if port in port_names_list_extra_queues %}
             "pfc_enable"      : "2,3,4,6",
