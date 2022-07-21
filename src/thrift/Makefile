@@ -27,7 +27,11 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# (https://jira.apache.org/jira/browse/THRIFT-3650)
 	patch -p1 < ../patch/0001-Revert-THRIFT-3650-incorrect-union-serialization.patch
 	patch -p1 < ../patch/0002-cve-2017-1000487.patch
+ifeq ($(CROSS_BUILD_ENVIRON), y)
+	CC=$(CROSS_CC) LDSHARED=$(CROSS_CC) CXXFLAGS="-DFORCE_BOOST_SMART_PTR -DSIGNED_RIGHT_SHIFT_IS=1 -DARITHMETIC_RIGHT_SHIFT=1" CFLAGS="-DSIGNED_RIGHT_SHIFT_IS=1 -DARITHMETIC_RIGHT_SHIFT=1" dpkg-buildpackage -d -rfakeroot -b -us -uc -a$(CONFIGURED_ARCH) -Pcross,nocheck -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
+else
 	CXXFLAGS="-DFORCE_BOOST_SMART_PTR" DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
+endif
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/

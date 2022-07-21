@@ -68,7 +68,7 @@ sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay2\"\" >> $FILESYSTEM_
 # Copy docker start script to be able to start docker in chroot
 sudo mkdir -p "$FILESYSTEM_ROOT/$DOCKER_CTL_DIR"
 sudo cp $DOCKER_SCRIPTS_DIR/docker "$FILESYSTEM_ROOT/$DOCKER_CTL_SCRIPT"
-if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
+if [[ $MULTIARCH_QEMU_ENVIRON == y  || $CROSS_BUILD_ENVIRON == y ]]; then
     DOCKER_HOST="unix:///dockerfs/var/run/docker.sock"
     SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID="cat `pwd`/dockerfs/var/run/docker.pid"
 else
@@ -670,7 +670,7 @@ EOF
 {% endif %}
 
 ## Bind docker path
-if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
+if [[ $MULTIARCH_QEMU_ENVIRON == y || $CROSS_BUILD_ENVIRON == y ]]; then
     sudo mkdir -p $FILESYSTEM_ROOT/dockerfs
     sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs
 fi
@@ -755,7 +755,7 @@ sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT sonic-package-man
 
 sudo umount $FILESYSTEM_ROOT/target
 sudo rm -r $FILESYSTEM_ROOT/target
-if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
+if [[ $MULTIARCH_QEMU_ENVIRON == y || $CROSS_BUILD_ENVIRON == y ]]; then
     sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs
     sudo kill -9 `sudo $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID` || true

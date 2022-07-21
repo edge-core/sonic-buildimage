@@ -68,7 +68,7 @@ diff -ruN a/DEBIAN_build/rules b/DEBIAN_build/rules
 +	dpkg-deb --build debian/hsflowd hsflowd_$(HSFLOWD_VERSION)-$(HSFLOWD_SUBVERSION)_$(CONFIGURED_ARCH).deb
 +
 +override_dh_auto_build:
-+	make sonic-deb FEATURES="SONIC"
++	make sonic-deb FEATURES="SONIC" CC=$(CC) CXX=$(CXX) LD=$(CC)
 +
 +override_dh_auto_configure:
 +

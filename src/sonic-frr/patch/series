@@ -7,3 +7,4 @@
 0007-Add-support-of-bgp-l3vni-evpn.patch
 0008-Link-local-scope-was-not-set-while-binding-socket-for-bgp-ipv6-link-local-neighbors.patch
 Disable-ipv6-src-address-test-in-pceplib.patch
+cross-compile-changes.patch

@@ -173,6 +173,17 @@ To build Arm32 bit for (ARMHF) platform
 
     make target/sonic-marvell-armhf.bin
 
+To build Arm32 bit for (ARMHF) Marvell platform on amd64 host for debian buster using cross-compilation run the following commands:
+
+    # Execute make configure once to configure ASIC and ARCH for cross-compilation build
+
+    NOJESSIE=1 NOSTRETCH=1 BLDENV=buster CROSS_BLDENV=1 make configure PLATFORM=marvell-armhf PLATFORM_ARCH=armhf
+
+    # Execute Arm32 build using cross-compilation environment
+
+    NOJESSIE=1 NOSTRETCH=1 BLDENV=buster CROSS_BLDENV=1 make target/sonic-marvell-armhf.bin
+
+Running the above Arm32 build using cross-compilation instead of qemu emulator drastically reduces the build time. 
 
 
 To build Arm64 bit for platform

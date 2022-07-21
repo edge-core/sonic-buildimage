@@ -1,8 +1,8 @@
 {% set prefix = DEFAULT_CONTAINER_REGISTRY %}
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
-{% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
+{% if CONFIGURED_ARCH == "armhf" and (MULTIARCH_QEMU_ENVIRON == "y" or CROSS_BUILD_ENVIRON == "y") %}
 FROM {{ prefix }}multiarch/debian-debootstrap:armhf-buster
-{% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
+{% elif CONFIGURED_ARCH == "arm64" and (MULTIARCH_QEMU_ENVIRON == "y" or CROSS_BUILD_ENVIRON == "y") %}
 FROM {{ prefix }}multiarch/debian-debootstrap:arm64-buster
 {% else %}
 FROM {{ prefix }}{{DOCKER_BASE_ARCH}}/debian:buster

@@ -56,7 +56,11 @@ endif
 	stg init
 	stg import -s ../patch-$(SNMPD_VERSION)/series
 
+ifneq ($(CROSS_BUILD_ENVIRON), y)
 	dpkg-buildpackage -rfakeroot -b -d -us -uc -j1 --admindir $(SONIC_DPKG_ADMINDIR)
+else
+	PYTHONPATH=/usr/lib/python2.7/plat-arm-linux-gnueabihf/ dpkg-buildpackage -rfakeroot -b -d -us -uc -a$(CONFIGURED_ARCH) -Pcross,nocheck -j1 --admindir $(SONIC_DPKG_ADMINDIR)
+endif
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
