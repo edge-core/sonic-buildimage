@@ -1,13 +1,27 @@
 import click
 import utilities_common.cli as clicommon
+from sonic_py_common import multi_asic
+from swsscommon.swsscommon import ConfigDBConnector
+from utilities_common.constants import DEFAULT_NAMESPACE
+from utilities_common.db import Db
 
 #
 # 'macsec' group ('config macsec ...')
 #
 @click.group(cls=clicommon.AbbreviationGroup, name='macsec')
-def macsec():
+# TODO add "hidden=True if this is a single ASIC platform, once we have click 7.0 in all branches.
+@click.option('-n', '--namespace', help='Namespace name',
+             required=True if multi_asic.is_multi_asic() else False, type=click.Choice(multi_asic.get_namespace_list()))
+@click.pass_context
+def macsec(ctx, namespace):
     """MACsec-related configuration tasks"""
-    pass
+    if not ctx.obj or isinstance(ctx.obj, Db):
+        # Set namespace to default_namespace if it is None.
+        if namespace is None:
+            namespace = DEFAULT_NAMESPACE
+        config_db = ConfigDBConnector(use_unix_socket_path=True, namespace=str(namespace))
+        config_db.connect()
+        ctx.obj = config_db
 
 
 #
@@ -24,31 +38,29 @@ def macsec_port():
 @macsec_port.command('add')
 @click.argument('port', metavar='<port_name>', required=True)
 @click.argument('profile', metavar='<profile_name>', required=True)
-@clicommon.pass_db
-def add_port(db, port, profile):
+def add_port(port, profile):
     """
     Add MACsec port
     """
     ctx = click.get_current_context()
+    config_db = ctx.obj
 
     if clicommon.get_interface_naming_mode() == "alias":
-        alias = port
-        iface_alias_converter = clicommon.InterfaceAliasConverter(db)
-        port = iface_alias_converter.alias_to_name(alias)
+        port = interface_alias_to_name(config_db, port)
         if port is None:
-            ctx.fail("cannot find port name for alias {}".format(alias))
+            ctx.fail("cannot find port name for alias {}".format(port))
 
-    profile_entry = db.cfgdb.get_entry('MACSEC_PROFILE', profile)
+    profile_entry = config_db.get_entry('MACSEC_PROFILE', profile)
     if len(profile_entry) == 0:
         ctx.fail("profile {} doesn't exist".format(profile))
 
-    port_entry = db.cfgdb.get_entry('PORT', port)
+    port_entry = config_db.get_entry('PORT', port)
     if len(port_entry) == 0:
         ctx.fail("port {} doesn't exist".format(port))
 
     port_entry['macsec'] = profile
 
-    db.cfgdb.set_entry("PORT", port, port_entry)
+    config_db.set_entry("PORT", port, port_entry)
 
 
 #
@@ -56,27 +68,25 @@ def add_port(db, port, profile):
 #
 @macsec_port.command('del')
 @click.argument('port', metavar='<port_name>', required=True)
-@clicommon.pass_db
-def del_port(db, port):
+def del_port(port):
     """
     Delete MACsec port
     """
     ctx = click.get_current_context()
+    config_db = ctx.obj
 
     if clicommon.get_interface_naming_mode() == "alias":
-        alias = port
-        iface_alias_converter = clicommon.InterfaceAliasConverter(db)
-        port = iface_alias_converter.alias_to_name(alias)
+        port = interface_alias_to_name(config_db, port)
         if port is None:
-            ctx.fail("cannot find port name for alias {}".format(alias))
+            ctx.fail("cannot find port name for alias {}".format(port))
 
-    port_entry = db.cfgdb.get_entry('PORT', port)
+    port_entry = config_db.get_entry('PORT', port)
     if len(port_entry) == 0:
         ctx.fail("port {} doesn't exist".format(port))
 
     del port_entry['macsec']
 
-    db.cfgdb.set_entry("PORT", port, port_entry)
+    config_db.set_entry("PORT", port, port_entry)
 
 
 #
@@ -109,13 +119,14 @@ def is_hexstring(hexstring: str):
 @click.option('--replay_window', metavar='<enable_replay_protect>', required=False, default=0, show_default=True, type=click.IntRange(0, 2**32), help="Replay window size that is the number of packets that could be out of order. This field works only if ENABLE_REPLAY_PROTECT is true.")
 @click.option('--send_sci/--no_send_sci', metavar='<send_sci>', required=False, default=True, show_default=True, is_flag=True, help="Send SCI in SecTAG field of MACsec header.")
 @click.option('--rekey_period', metavar='<rekey_period>', required=False, default=0, show_default=True, type=click.IntRange(min=0), help="The period of proactively refresh (Unit second).")
-@clicommon.pass_db
-def add_profile(db, profile, priority, cipher_suite, primary_cak, primary_ckn, policy, enable_replay_protect, replay_window, send_sci, rekey_period):
+def add_profile(profile, priority, cipher_suite, primary_cak, primary_ckn, policy, enable_replay_protect, replay_window, send_sci, rekey_period):
     """
     Add MACsec profile
     """
     ctx = click.get_current_context()
-    profile_entry = db.cfgdb.get_entry('MACSEC_PROFILE', profile)
+    config_db = ctx.obj
+
+    profile_entry = config_db.get_entry('MACSEC_PROFILE', profile)
     if not len(profile_entry) == 0:
         ctx.fail("{} already exists".format(profile))
 
@@ -157,7 +168,7 @@ def add_profile(db, profile, priority, cipher_suite, primary_cak, primary_ckn, p
                 profile_table[k] = "false"
         else:
             profile_table[k] = str(v)
-    db.cfgdb.set_entry("MACSEC_PROFILE", profile, profile_table)
+    config_db.set_entry("MACSEC_PROFILE", profile, profile_table)
 
 
 #
@@ -165,24 +176,24 @@ def add_profile(db, profile, priority, cipher_suite, primary_cak, primary_ckn, p
 #
 @macsec_profile.command('del')
 @click.argument('profile', metavar='<profile_name>', required=True)
-@clicommon.pass_db
-def del_profile(db, profile):
+def del_profile( profile):
     """
     Delete MACsec profile
     """
     ctx = click.get_current_context()
+    config_db = ctx.obj
 
-    profile_entry = db.cfgdb.get_entry('MACSEC_PROFILE', profile)
+    profile_entry = config_db.get_entry('MACSEC_PROFILE', profile)
     if len(profile_entry) == 0:
         ctx.fail("{} doesn't exist".format(profile))
 
     # Check if the profile is being used by any port
-    for port in db.cfgdb.get_keys('PORT'):
-        attr = db.cfgdb.get_entry('PORT', port)
+    for port in config_db.get_keys('PORT'):
+        attr = config_db.get_entry('PORT', port)
         if 'macsec' in attr and attr['macsec'] == profile:
             ctx.fail("{} is being used by port {}, Please remove the MACsec from the port firstly".format(profile, port))
 
-    db.cfgdb.set_entry("MACSEC_PROFILE", profile, None)
+    config_db.set_entry("MACSEC_PROFILE", profile, None)
 
 
 def register(cli):

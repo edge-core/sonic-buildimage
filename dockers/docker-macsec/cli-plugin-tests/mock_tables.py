@@ -125,7 +125,10 @@ class CounterTable:
 
     def get(self, macsec, name):
         key = self.db.hget("COUNTERS_MACSEC_NAME_MAP", name)
-        return self.db.get("COUNTERS:" + key)
+        if key:
+            fvs = self.db.get("COUNTERS:" + key)
+            if fvs: return True, fvs
+        return False, ()
 
 
 swsssdk.interface.DBInterface._subscribe_keyspace_notification = _subscribe_keyspace_notification

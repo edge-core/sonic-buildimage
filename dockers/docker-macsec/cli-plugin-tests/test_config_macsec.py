@@ -2,7 +2,6 @@ import sys
 
 from unittest import mock
 from click.testing import CliRunner
-from utilities_common.db import Db
 
 sys.path.append('../cli/config/plugins/')
 import macsec
@@ -20,14 +19,13 @@ class TestConfigMACsec(object):
         cli.add_command.assert_called_once_with(macsec.macsec)
 
     def test_default_profile(self, mock_cfgdb):
+        cfgdb = mock_cfgdb
         runner = CliRunner()
-        db = Db()
-        db.cfgdb = mock_cfgdb
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"],
-                                [profile_name, "--primary_cak=" + primary_cak,"--primary_ckn=" + primary_ckn],
-                                obj=db)
+        result = runner.invoke(macsec.macsec,
+                ["profile", "add", profile_name, "--primary_cak=" + primary_cak,"--primary_ckn=" + primary_ckn],
+                obj=cfgdb)
         assert result.exit_code == 0
-        profile_table = db.cfgdb.get_entry("MACSEC_PROFILE", profile_name)
+        profile_table = cfgdb.get_entry("MACSEC_PROFILE", profile_name)
         assert profile_table
         assert profile_table["priority"] == "255"
         assert profile_table["cipher_suite"] == "GCM-AES-128"
@@ -39,15 +37,14 @@ class TestConfigMACsec(object):
         assert profile_table["send_sci"] == "true"
         assert "rekey_period" not in profile_table
 
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["del"], [profile_name], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "del", profile_name], obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
-        profile_table = db.cfgdb.get_entry("MACSEC_PROFILE", profile_name)
+        profile_table = cfgdb.get_entry("MACSEC_PROFILE", profile_name)
         assert not profile_table
 
     def test_macsec_valid_profile(self, mock_cfgdb):
+        cfgdb = mock_cfgdb
         runner = CliRunner()
-        db = Db()
-        db.cfgdb = mock_cfgdb
 
         profile_name = "test"
         profile_map = {
@@ -67,9 +64,9 @@ class TestConfigMACsec(object):
             if v is not None:
                 options[-1] += "=" + str(v)
 
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], options, obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add"] + options, obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
-        profile_table = db.cfgdb.get_entry("MACSEC_PROFILE", profile_name)
+        profile_table = cfgdb.get_entry("MACSEC_PROFILE", profile_name)
         assert profile_table
         assert profile_table["priority"] == str(profile_map["priority"])
         assert profile_table["cipher_suite"] == profile_map["cipher_suite"]
@@ -87,62 +84,65 @@ class TestConfigMACsec(object):
             assert profile_table["rekey_period"] == str(profile_map["rekey_period"])
 
     def test_macsec_invalid_profile(self, mock_cfgdb):
+        cfgdb = mock_cfgdb
         runner = CliRunner()
-        db = Db()
-        db.cfgdb = mock_cfgdb
 
         # Loss primary cak and primary ckn
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test"], obj=cfgdb)
         assert result.exit_code != 0
 
         # Invalid primary cak
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test", "--primary_cak=abcdfghjk90123456789012345678912","--primary_ckn=01234567890123456789012345678912", "--cipher_suite=GCM-AES-128"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test",
+                "--primary_cak=abcdfghjk90123456789012345678912","--primary_ckn=01234567890123456789012345678912",
+                "--cipher_suite=GCM-AES-128"], obj=cfgdb)
         assert result.exit_code != 0
 
         # Invalid primary cak length
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912", "--cipher_suite=GCM-AES-256"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test",
+                "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912",
+                "--cipher_suite=GCM-AES-256"], obj=cfgdb)
         assert result.exit_code != 0
 
 
     def test_macsec_port(self, mock_cfgdb):
+        cfgdb = mock_cfgdb
         runner = CliRunner()
-        db = Db()
-        db.cfgdb = mock_cfgdb
 
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test",
+                "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"],
+                obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
-        result = runner.invoke(macsec.macsec.commands["port"].commands["add"], ["Ethernet0", "test"], obj=db)
+        result = runner.invoke(macsec.macsec, ["port", "add", "Ethernet0", "test"], obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
-        port_table = db.cfgdb.get_entry("PORT", "Ethernet0")
+        port_table = cfgdb.get_entry("PORT", "Ethernet0")
         assert port_table 
         assert port_table["macsec"] == "test"
         assert port_table["admin_status"] == "up"
 
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["del"], ["test"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "del", "test"], obj=cfgdb)
         assert result.exit_code != 0
 
-        result = runner.invoke(macsec.macsec.commands["port"].commands["del"], ["Ethernet0"], obj=db)
+        result = runner.invoke(macsec.macsec, ["port", "del", "Ethernet0"], obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
-        port_table = db.cfgdb.get_entry("PORT", "Ethernet0")
+        port_table = cfgdb.get_entry("PORT", "Ethernet0")
         assert "macsec" not in port_table or not port_table["macsec"]
         assert port_table["admin_status"] == "up"
 
 
     def test_macsec_invalid_operation(self, mock_cfgdb):
+        cfgdb = mock_cfgdb
         runner = CliRunner()
-        db = Db()
-        db.cfgdb = mock_cfgdb
 
         # Enable nonexisted profile 
-        result = runner.invoke(macsec.macsec.commands["port"].commands["add"], ["Ethernet0", "test"], obj=db)
+        result = runner.invoke(macsec.macsec, ["port", "add", "Ethernet0", "test"], obj=cfgdb)
         assert result.exit_code != 0
 
         # Delete nonexisted profile
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["del"], ["test"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "del", "test"], obj=cfgdb)
         assert result.exit_code != 0
 
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"], obj=cfgdb)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
         # Repeat add profile
-        result = runner.invoke(macsec.macsec.commands["profile"].commands["add"], ["test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"], obj=db)
+        result = runner.invoke(macsec.macsec, ["profile", "add", "test", "--primary_cak=01234567890123456789012345678912","--primary_ckn=01234567890123456789012345678912"], obj=cfgdb)
         assert result.exit_code != 0

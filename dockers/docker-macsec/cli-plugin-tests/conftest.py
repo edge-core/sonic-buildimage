@@ -1,5 +1,6 @@
 import pytest
 import mock_tables # lgtm [py/unused-import]
+import mock_single_asic # lgtm[py/unused-import]
 from unittest import mock
 
 
