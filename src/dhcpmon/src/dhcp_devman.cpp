@@ -110,7 +110,7 @@ void dhcp_devman_shutdown()
 int dhcp_devman_add_intf(const char *name, char intf_type)
 {
     int rv = -1;
-    struct intf *dev = malloc(sizeof(struct intf));
+    struct intf *dev = (struct intf*) malloc(sizeof(struct intf));
 
     if (dev != NULL) {
         dev->name = name;
