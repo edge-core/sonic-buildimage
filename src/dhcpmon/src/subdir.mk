@@ -1,11 +1,11 @@
 # Add inputs and outputs from these tool invocations to the build variables 
-CC := gcc
+CC := g++
 
 C_SRCS += \
-../src/dhcp_device.c \
-../src/dhcp_devman.c \
-../src/dhcp_mon.c \
-../src/main.c 
+../src/dhcp_device.cpp \
+../src/dhcp_devman.cpp \
+../src/dhcp_mon.cpp \
+../src/main.cpp 
 
 OBJS += \
 ./src/dhcp_device.o \
@@ -21,9 +21,9 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.c
+src/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	$(CC) -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	$(CC) -O3 -g3 -Wall -I$(PWD)/../sonic-swss-common/common -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
