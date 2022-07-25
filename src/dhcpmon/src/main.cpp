@@ -16,9 +16,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "subscriberstatetable.h"
+#include "select.h"
 
 #include "dhcp_mon.h"
 #include "dhcp_devman.h"
+#include "dhcp_device.h"
 
 /** dhcpmon_default_snaplen: default snap length of packet being captured */
 static const size_t dhcpmon_default_snaplen = 65535;
@@ -28,6 +31,8 @@ static const uint32_t dhcpmon_default_health_check_window = 18;
 /** dhcpmon_default_unhealthy_max_count: default max consecutive unhealthy status reported before reporting an issue
  *  with DHCP relay */
 static const uint32_t dhcpmon_default_unhealthy_max_count = 10;
+
+bool dual_tor_sock = false;
 
 /**
  * @code usage(prog);
@@ -134,6 +139,7 @@ int main(int argc, char **argv)
             i += 2;
             break;
         case 'u':
+            dual_tor_sock = true;
             if (dhcp_devman_setup_dual_tor_mode(argv[i + 1]) != 0) {
                 usage(basename(argv[0]));
             }

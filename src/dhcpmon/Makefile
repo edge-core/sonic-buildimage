@@ -2,8 +2,9 @@ RM := rm -rf
 DHCPMON_TARGET := dhcpmon
 CP := cp
 MKDIR := mkdir
-CC := gcc
+CC := g++
 MV := mv
+PWD := $(shell pwd)
 
 # All of the sources participating in the build are defined here
 -include src/subdir.mk
@@ -23,7 +24,7 @@ all: sonic-dhcpmon
 # Tool invocations
 sonic-dhcpmon: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C Linker'
+	@echo 'Invoking: G++ C Linker'
 	$(CC) -o "$(DHCPMON_TARGET)" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
