@@ -12,6 +12,34 @@ ARP_UPDATE_VARS_FILE="/usr/share/sonic/templates/arp_update_vars.j2"
 while /bin/true; do
   # find L3 interfaces which are UP, send ipv6 multicast pings
   ARP_UPDATE_VARS=$(sonic-cfggen -d -t ${ARP_UPDATE_VARS_FILE})
+  SWITCH_TYPE=$(echo $ARP_UPDATE_VARS | jq -r '.switch_type')
+  if [[ "$SWITCH_TYPE" == "chassis-packet" ]]; then
+      STATIC_ROUTE_NEXTHOPS=$(echo $ARP_UPDATE_VARS | jq -r '.static_route_nexthops')
+      # on supervisor/rp exit the script gracefully
+      if [[ -z "$STATIC_ROUTE_NEXTHOPS" ]]; then
+          logger "arp_update: exiting as no static route in packet based chassis"
+          exit 0
+      fi
+      for nexthop in $STATIC_ROUTE_NEXTHOPS; do
+          if [[ $nexthop == *"."* ]]; then
+              neigh_state=( $(ip -4 neigh show | grep $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
+              ping_prefix=ping
+          elif [[ $nexthop == *":"* ]] ; then
+              neigh_state=( $(ip -6 neigh show | grep $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
+              ping_prefix=ping6
+          fi
+       
+          if [[ "${neigh_state[1]}" == "INCOMPLETE" ]] || [[ "${neigh_state[1]}" == "FAILED" ]]; then
+              pingcmd="timeout 0.2 $ping_prefix -I ${neigh_state[0]} -n -q -i 0 -c 1 -W 1 $nexthop >/dev/null"
+              eval $pingcmd
+              logger "arp_update: sttaic route nexthop not resolved, pinging $nexthop on ${neigh_state[0]}"
+          fi
+      done
+
+      sleep 300
+      continue
+  fi
+  # find L3 interfaces which are UP, send ipv6 multicast pings
   INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.interface')
   PC_INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.pc_interface')
   VLAN_SUB_INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.vlan_sub_interface')
