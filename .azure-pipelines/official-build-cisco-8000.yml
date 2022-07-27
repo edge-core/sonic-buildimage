@@ -83,7 +83,7 @@ stages:
           fi
           cd $(dirname $filename)
           echo "PWD=$(pwd)"
-          ls -l *.deb
+          ls -l cisco-*.deb
           while read -r package; do
             # Cisco version format: <VERSION>-sai-<sai-ver>-<distribution>-<COMMIT HASH>
             # The <sai-ver> may contain several values in one build, the part is skipped when publishing to storage
@@ -93,7 +93,7 @@ stages:
             package_url="$PACKAGE_URL/sai/ciscosai/master/$version/$package"
             echo "Override package $package from $package_url"
             wget "$package_url$StorageSASKey" -O "$package"
-          done < <(ls *.deb)
+          done < <(ls cisco-*.deb)
         env:
           StorageSASKey: $(StorageSASKey)
         condition: ne(variables['Build.Reason'], 'PullRequest')
