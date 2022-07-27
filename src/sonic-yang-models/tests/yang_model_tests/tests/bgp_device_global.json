@@ -1,0 +1,16 @@
+{
+    "BGP_DEVICE_GLOBAL_WITH_DEFAULT_VALUES": {
+        "desc": "Load bgp device global table with fields set to default values"
+    },
+    "BGP_DEVICE_GLOBAL_WITH_TSA_TEST": {
+        "desc": "Load bgp device global table with tsa_enabled set to true"
+    },
+    "BGP_DEVICE_GLOBAL_WITH_TSB_TEST": {
+        "desc": "Load bgp device global table with tsa_enabled set to false"        
+    },
+    "BGP_DEVICE_GLOBAL_WITH_INVALID_VALUE": {
+        "desc": "Load bgp device global table with invalid value",
+        "eStrKey": "InvalidValue",
+        "eStr": ["tsa_enabled"]
+    }
+}

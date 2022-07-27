@@ -1,0 +1,38 @@
+{
+    "BGP_DEVICE_GLOBAL_WITH_DEFAULT_VALUES": {
+        "sonic-bgp-device-global:sonic-bgp-device-global": {
+            "sonic-bgp-device-global:BGP_DEVICE_GLOBAL": {
+                "STATE":{
+                    "tsa_enabled": "false"
+                }
+            }
+        }
+    },
+    "BGP_DEVICE_GLOBAL_WITH_TSA_TEST": {
+        "sonic-bgp-device-global:sonic-bgp-device-global": {
+            "sonic-bgp-device-global:BGP_DEVICE_GLOBAL": {
+                "STATE":{
+                    "tsa_enabled": "true"
+                }
+            }
+        }
+    },
+    "BGP_DEVICE_GLOBAL_WITH_TSB_TEST": {
+        "sonic-bgp-device-global:sonic-bgp-device-global": {
+            "sonic-bgp-device-global:BGP_DEVICE_GLOBAL": {
+                "STATE":{
+                    "tsa_enabled": "false"
+                }
+            }
+        }
+    },
+    "BGP_DEVICE_GLOBAL_WITH_INVALID_VALUE": {
+        "sonic-bgp-device-global:sonic-bgp-device-global": {
+            "sonic-bgp-device-global:BGP_DEVICE_GLOBAL": {
+                "STATE":{
+                    "tsa_enabled": "FALSE"
+                }
+            }
+        }
+    }
+}

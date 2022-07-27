@@ -1282,6 +1282,11 @@
             "default|ipv4_unicast|21.0.0.0/8": {
             }
         },
+        "BGP_DEVICE_GLOBAL": {
+            "STATE": {
+                "tsa_enabled": "false"
+            }
+        },
         "BGP_PEER_RANGE": {
             "BGPSLBPassive": {
                 "ip_range": [
