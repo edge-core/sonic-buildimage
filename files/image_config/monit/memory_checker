@@ -96,6 +96,19 @@ def check_memory_usage(container_name, threshold_value):
         sys.exit(4)
 
 
+def is_service_active(service_name):
+    """Test if service is running.
+
+    Args:
+        service_name: A string contains the service name
+
+    Returns:
+        True if service is running, False otherwise
+    """
+    status = subprocess.run("systemctl is-active --quiet {}".format(service_name), shell=True, check=False)
+    return status.returncode == 0
+
+
 def get_running_container_names():
     """Retrieves names of running containers by talking to the docker daemon.
 
@@ -127,6 +140,12 @@ def main():
     # remove this in the new version since we want to read this value from 'CONFIG_DB'.
     parser.add_argument("threshold_value", type=int, help="threshold value in bytes")
     args = parser.parse_args()
+
+    if not is_service_active("docker"):
+        syslog.syslog(syslog.LOG_INFO,
+                      "[memory_checker] Exits without checking memory usage of container '{}' since docker daemon is not running!"
+                      .format(args.container_name))
+        sys.exit(0)
 
     running_container_names = get_running_container_names()
     if args.container_name in running_container_names:
