@@ -208,3 +208,17 @@ stages:
         ptf_name: ptf_vms6-1
         tbtype: t0-sonic
         vmtype: vsonic
+
+  - job:
+    pool: sonictest-ma
+    displayName: "kvmtest-multi-asic-t1-lag"
+    timeoutInMinutes: 240
+
+    steps:
+    - template: .azure-pipelines/run-test-template.yml
+      parameters:
+        dut: vlab-08
+        tbname: vms-kvm-four-asic-t1-lag
+        ptf_name: ptf_vms6-4
+        tbtype: multi-asic-t1-lag-pr
+        image: sonic-4asic-vs.img.gz
