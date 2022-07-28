@@ -29,8 +29,8 @@ resources:
   repositories:
   - repository: sonic-mgmt
     type: github
-    name: Azure/sonic-mgmt
-    endpoint: build
+    name: sonic-net/sonic-mgmt
+    endpoint: sonic-net
   - repository: buildimage
     type: github
     name: Azure/sonic-buildimage
