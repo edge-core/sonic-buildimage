@@ -8,7 +8,7 @@
 
 try:
     import time
-    from ctypes import create_string_buffer
+    from ctypes import c_char
     from sonic_platform_base.sfp_base import SfpBase
     from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
     from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
@@ -121,8 +121,8 @@ SFP_VOLT_OFFSET = 98
 SFP_VOLT_WIDTH = 2
 SFP_CHANNL_MON_OFFSET = 100
 SFP_CHANNL_MON_WIDTH = 6
-SFP_CHANNL_STATUS_OFFSET = 110
-SFP_CHANNL_STATUS_WIDTH = 1
+SFP_STATUS_CONTROL_OFFSET = 110
+SFP_STATUS_CONTROL_WIDTH = 1
 SFP_TX_DISABLE_HARD_BIT = 7
 SFP_TX_DISABLE_SOFT_BIT = 6
 
@@ -869,7 +869,7 @@ class Sfp(SfpBase):
         elif self.sfp_type == SFP_TYPE:
             offset = 256
             dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
-                (offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+                (offset + SFP_STATUS_CONTROL_OFFSET), SFP_STATUS_CONTROL_WIDTH)
             if dom_channel_monitor_raw is not None:
                 rx_los_data = int(dom_channel_monitor_raw[0], 16)
                 rx_los_list.append(rx_los_data & 0x02 != 0)
@@ -901,7 +901,7 @@ class Sfp(SfpBase):
         elif self.sfp_type == SFP_TYPE:
             offset = 256
             dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
-                (offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+                (offset + SFP_STATUS_CONTROL_OFFSET), SFP_STATUS_CONTROL_WIDTH)
             if dom_channel_monitor_raw is not None:
                 tx_fault_data = int(dom_channel_monitor_raw[0], 16)
                 tx_fault_list.append(tx_fault_data & 0x04 != 0)
@@ -936,7 +936,7 @@ class Sfp(SfpBase):
         elif self.sfp_type == SFP_TYPE:
             offset = 256
             dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
-                (offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+                (offset + SFP_STATUS_CONTROL_OFFSET), SFP_STATUS_CONTROL_WIDTH)
             if dom_channel_monitor_raw is not None:
                 tx_disable_data = int(dom_channel_monitor_raw[0], 16)
                 tx_disable_list.append(tx_disable_data & 0xC0 != 0)
@@ -1170,31 +1170,36 @@ class Sfp(SfpBase):
         Returns:
             A boolean, True if tx_disable is set successfully, False if not
         """
-        sysfs_sfp_i2c_client_eeprom_path = self.port_to_eeprom_mapping[self.port_num]
-        status_control_raw = self._read_eeprom_specific_bytes(
-            SFP_CHANNL_STATUS_OFFSET, SFP_CHANNL_STATUS_WIDTH)
-        if status_control_raw is not None:
-            # Set bit 6 for Soft TX Disable Select
-            # 01000000 = 64 and 10111111 = 191
-            tx_disable_bit = 64 if tx_disable else 191
-            status_control = int(status_control_raw[0], 16)
-            tx_disable_ctl = (status_control | tx_disable_bit) if tx_disable else (
-                status_control & tx_disable_bit)
-            try:
-                sysfsfile_eeprom = open(
-                    sysfs_sfp_i2c_client_eeprom_path, mode="r+b", buffering=0)
-                buffer = create_string_buffer(1)
-                buffer[0] = chr(tx_disable_ctl)
-                # Write to eeprom
-                sysfsfile_eeprom.seek(SFP_CHANNL_STATUS_OFFSET)
-                sysfsfile_eeprom.write(buffer[0])
-            except Exception:
-                return False
-            finally:
-                if sysfsfile_eeprom:
-                    sysfsfile_eeprom.close()
-                    time.sleep(0.01)
-            return True
+        if not self.get_presence():
+            return False
+
+        if self.dom_tx_disable_supported:
+            # SFP status/control register at address A2h, byte 110
+            offset = 256
+            sysfs_sfp_i2c_client_eeprom_path = self.port_to_eeprom_mapping[self.port_num]
+            status_control_raw = self._read_eeprom_specific_bytes(
+                (offset + SFP_STATUS_CONTROL_OFFSET), SFP_STATUS_CONTROL_WIDTH)
+            if status_control_raw is not None:
+                # Set bit 6 for Soft TX Disable Select
+                # 01000000 = 64 and 10111111 = 191
+                tx_disable_bit = 64 if tx_disable else 191
+                status_control = int(status_control_raw[0], 16)
+                tx_disable_ctl = (status_control | tx_disable_bit) if tx_disable else (
+                    status_control & tx_disable_bit)
+                try:
+                    sysfsfile_eeprom = open(
+                        sysfs_sfp_i2c_client_eeprom_path, mode="r+b", buffering=0)
+                    tx_disable_data = c_char(tx_disable_ctl)
+                    # Write to eeprom
+                    sysfsfile_eeprom.seek(offset + SFP_STATUS_CONTROL_OFFSET)
+                    sysfsfile_eeprom.write(tx_disable_data)
+                except Exception:
+                    return False
+                finally:
+                    if sysfsfile_eeprom:
+                        sysfsfile_eeprom.close()
+                        time.sleep(0.01)
+                return True
         return False
 
     def tx_disable_channel(self, channel, disable):
