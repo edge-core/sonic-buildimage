@@ -10,6 +10,7 @@ declare -A RECONCILE_COMPONENTS=( \
                         ["swss"]="orchagent neighsyncd" \
                         ["bgp"]="bgp"                   \
                         ["nat"]="natsyncd"              \
+                        ["mux"]="linkmgrd"              \
                        )
 EXP_STATE="reconciled"
 
