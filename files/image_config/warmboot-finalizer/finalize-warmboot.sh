@@ -108,14 +108,10 @@ function restore_counters_folder()
 {
     debug "Restoring counters folder after warmboot..."
 
-    modules=("portstat-0" "dropstat" "pfcstat-0" "queuestat-0" "intfstat-0")
-    for module in ${modules[@]}
-    do
-        statfile="/host/counters/$module"
-        if [[ -d $statfile ]]; then
-            mv $statfile /tmp/
-        fi
-    done
+    cache_counters_folder="/host/counters"
+    if [[ -d $cache_counters_folder ]]; then
+        mv $cache_counters_folder /tmp/cache
+    fi
 }
 
 
