@@ -10,6 +10,7 @@ declare -A RECONCILE_COMPONENTS=( \
                         ["swss"]="orchagent neighsyncd" \
                         ["bgp"]="bgp"                   \
                         ["nat"]="natsyncd"              \
+                        ["mux"]="linkmgrd"              \
                        )
 
 for reconcile_file in $(find /etc/sonic/ -iname '*_reconcile' -type f); do
