@@ -58,5 +58,6 @@ def test_set_handler_invalid_ip(mocked_log_err):
 @patch('bgpcfgd.managers_setsrc.log_warn')
 def test_del_handler(mocked_log_warn):
     m = constructor()
-    m.del_handler("Loopback0|10.1.0.32/32")
-    mocked_log_warn.assert_called_with("Delete command is not supported for 'zebra set src' templates")
+    del_key = "Loopback0|10.1.0.32/32"
+    m.del_handler(del_key)
+    mocked_log_warn.assert_called_with("Delete key '%s' is not supported for 'zebra set src' templates" % del_key)
