@@ -76,6 +76,8 @@ RUN pip install cffi==1.10.0 \
                 retry \
                 thrift==0.11.0 \
                 allure-pytest==2.8.22 \
+                celery[redis]==4.4.7 \
+                msrest==0.6.21 \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -246,7 +248,9 @@ RUN python3 -m pip install setuptools-rust \
                             retry \
                             thrift==0.11.0 \
                             ptf \
-                            scapy==2.4.5
+                            scapy==2.4.5 \
+                            celery[redis]==4.4.7 \
+                            msrest==0.6.21
 
 # Deactivating a virtualenv.
 ENV PATH="$BACKUP_OF_PATH"
