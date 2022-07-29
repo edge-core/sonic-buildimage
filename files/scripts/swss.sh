@@ -9,7 +9,7 @@ LOCKFILE="/tmp/swss-syncd-lock$DEV"
 NAMESPACE_PREFIX="asic"
 ETC_SONIC_PATH="/etc/sonic/"
 
-DEPENDENT="radv"
+DEPENDENT="radv bgp"
 MULTI_INST_DEPENDENT="teamd"
 
 . /usr/local/bin/asic_status.sh
