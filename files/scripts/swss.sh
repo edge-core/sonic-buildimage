@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEPENDENT="radv dhcp_relay"
+DEPENDENT="radv dhcp_relay bgp"
 MULTI_INST_DEPENDENT="teamd"
 
 function debug()
