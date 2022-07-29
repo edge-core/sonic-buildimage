@@ -14,7 +14,7 @@ parameters:
 steps:
 - checkout: self
   clean: true
-  displayName: 'checkout sonic-mgmt repo'
+  displayName: 'checkout sonic-buildimage repo'
 
 - task: DownloadPipelineArtifact@2
   inputs:
@@ -31,7 +31,7 @@ steps:
 
     pushd /data/sonic-mgmt
     git remote update
-    git reset --hard origin/master
+    git reset --hard origin/202012
     sed -i s/use_own_value/${username}/ ansible/veos_vtb
     echo aaa > ansible/password.txt
     docker exec sonic-mgmt bash -c "pushd /data/sonic-mgmt/ansible;./testbed-cli.sh -d /data/sonic-vm -m $(inventory) -t $(testbed_file) -k ceos refresh-dut ${{ parameters.tbname }} password.txt" && sleep 180
