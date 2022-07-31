@@ -7,9 +7,15 @@ from . import swsscommon_test
 from .util import load_constants
 import bgpcfgd.managers_device_global
 from swsscommon import swsscommon
+from copy import deepcopy
 
 TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')
 BASE_PATH = os.path.abspath('../sonic-bgpcfgd/tests/data/general/peer-group.conf/')
+global_constants = {
+    "bgp":  {
+        "traffic_shift_community" :"12345:12345"
+    }
+}
 
 def constructor():
     cfg_mgr = MagicMock()
@@ -32,7 +38,7 @@ def constructor():
     cfg_mgr.push = push
     cfg_mgr.get_config = get_config
     
-    constants = load_constants()['constants']
+    constants = deepcopy(global_constants)
     common_objs = {
         'directory': Directory(),
         'cfg_mgr':   cfg_mgr,
