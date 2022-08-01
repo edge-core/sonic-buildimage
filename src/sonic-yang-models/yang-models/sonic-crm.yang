@@ -404,6 +404,58 @@ module sonic-crm {
                     type threshold;
                 }
 
+                leaf srv6_my_sid_entry_threshold_type {
+                    description "CRM threshold support for SRV6 my_sid entries";
+
+                    must "(((current()='PERCENTAGE' or current()='percentage') and
+                        ../srv6_my_sid_entry_high_threshold<100 and
+                        ../srv6_my_sid_entry_low_threshold<100) or
+                        (current()!='PERCENTAGE' and current()!='percentage'))";
+                    type stypes:crm_threshold_type;
+                }
+
+                leaf srv6_my_sid_entry_high_threshold {
+                    description "CRM threshold support for SRV6 my_sid entries";
+
+                    must "(current() > ../srv6_my_sid_entry_low_threshold)"
+                    {
+                        error-message "high_threshold should be more than low_threshold";
+                    }
+                    type threshold;
+                }
+
+                leaf srv6_my_sid_entry_low_threshold {
+                    description "CRM threshold support for SRV6 my_sid entries";
+
+                    type threshold;
+                }
+
+                leaf srv6_nexthop_threshold_type {
+                    description "CRM threshold support for SRV6 next-hops";
+
+                    must "(((current()='PERCENTAGE' or current()='percentage') and
+                        ../srv6_nexthop_high_threshold<100 and
+                        ../srv6_nexthop_low_threshold<100) or
+                        (current()!='PERCENTAGE' and current()!='percentage'))";
+                    type stypes:crm_threshold_type;
+                }
+
+                leaf srv6_nexthop_high_threshold {
+                    description "CRM threshold support for SRV6 next-hops";
+
+                    must "(current() > ../srv6_nexthop_low_threshold)"
+                    {
+                        error-message "high_threshold should be more than low_threshold";
+                    }
+                    type threshold;
+                }
+
+                leaf srv6_nexthop_low_threshold {
+                    description "CRM threshold support for SRV6 next-hops";
+
+                    type threshold;
+                }
+
             }
             /* end of Config */
         }

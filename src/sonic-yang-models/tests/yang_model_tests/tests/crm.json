@@ -115,5 +115,43 @@
     },
     "MPLS_NH_WITH_CORRECT_USED_VALUE": {
 	"desc": "MPLS_NH_WITH_CORRECT_USED_VALUE no failure."
+    },
+    "SRV6_MY_SID_ENTRY_WITH_WRONG_THRESHOLD_TYPE": {
+	"desc": "SRV6_MY_SID_ENTRY_WITH_WRONG_THRESHOLD_TYPE pattern failure.",
+        "eStrKey": "Pattern",
+	"eStr": ["wrong" ]
+    },
+    "SRV6_MY_SID_ENTRY_WITH_WRONG_PERCENTAGE": {
+	"desc": "SRV6_MY_SID_ENTRY_WITH_WRONG_PERCENTAGE must condition failure.",
+        "eStrKey": "Must"
+    },
+    "SRV6_MY_SID_ENTRY_WITH_HIGH_THRESHOLD_ERR": {
+	"desc": "SRV6_MY_SID_ENTRY_WITH_HIGH_THRESHOLD_ERR must condition failure  about high threshold being lower than low threshold.",
+	"eStr": ["high_threshold should be more than low_threshold"]
+    },
+    "SRV6_MY_SID_ENTRY_WITH_CORRECT_USED_VALUE": {
+	"desc": "SRV6_MY_SID_ENTRY_WITH_CORRECT_USED_VALUE no failure."
+    },
+    "SRV6_MY_SID_ENTRY_WITH_CORRECT_FREE_VALUE": {
+	"desc": "SRV6_MY_SID_ENTRY_WITH_CORRECT_FREE_VALUE no failure."
+    },
+    "SRV6_NH_WITH_WRONG_THRESHOLD_TYPE": {
+	"desc": "SRV6_NH_WITH_WRONG_THRESHOLD_TYPE pattern failure.",
+        "eStrKey": "Pattern",
+	"eStr": ["wrong" ]
+    },
+    "SRV6_NH_WITH_WRONG_PERCENTAGE": {
+	"desc": "SRV6_NH_WITH_WRONG_PERCENTAGE must condition failure.",
+        "eStrKey": "Must"
+    },
+    "SRV6_NH_WITH_HIGH_THRESHOLD_ERR": {
+	"desc": "SRV6_NH_WITH_HIGH_THRESHOLD_ERR must condition failure  about high threshold being lower than low threshold.",
+	"eStr": ["high_threshold should be more than low_threshold"]
+    },
+    "SRV6_NH_WITH_CORRECT_USED_VALUE": {
+	"desc": "SRV6_NH_WITH_CORRECT_USED_VALUE no failure."
+    },
+    "SRV6_NH_WITH_CORRECT_USED_VALUE": {
+	"desc": "SRV6_NH_WITH_CORRECT_USED_VALUE no failure."
     }
 }

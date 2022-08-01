@@ -328,5 +328,115 @@
                 }
             }
         }
+    },
+    "SRV6_MY_SID_ENTRY_WITH_CORRECT_FREE_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_my_sid_entry_high_threshold": 90,
+                    "srv6_my_sid_entry_low_threshold": 70,
+                    "srv6_my_sid_entry_threshold_type": "free"
+                }
+            }
+        }
+    },
+    "SRV6_MY_SID_ENTRY_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_my_sid_entry_high_threshold": 85,
+                    "srv6_my_sid_entry_low_threshold": 25,
+                    "srv6_my_sid_entry_threshold_type": "used"
+                }
+            }
+        }
+    },
+    "SRV6_MY_SID_ENTRY_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_my_sid_entry_high_threshold": 80,
+                    "srv6_my_sid_entry_low_threshold": 81,
+                    "srv6_my_sid_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+    "SRV6_MY_SID_ENTRY_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_my_sid_entry_high_threshold": 110,
+                    "srv6_my_sid_entry_low_threshold": 85,
+                    "srv6_my_sid_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+    "SRV6_MY_SID_ENTRY_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_my_sid_entry_high_threshold": 90,
+                    "srv6_my_sid_entry_low_threshold": 70,
+                    "srv6_my_sid_entry_threshold_type": "wrong"
+                }
+            }
+        }
+    },
+    "SRV6_NH_WITH_CORRECT_FREE_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_nexthop_high_threshold": 90,
+                    "srv6_nexthop_low_threshold": 70,
+                    "srv6_nexthop_threshold_type": "free"
+                }
+            }
+        }
+    },
+    "SRV6_NH_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_nexthop_high_threshold": 85,
+                    "srv6_nexthop_low_threshold": 25,
+                    "srv6_nexthop_threshold_type": "used"
+                }
+            }
+        }
+    },
+    "SRV6_NH_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_nexthop_high_threshold": 80,
+                    "srv6_nexthop_low_threshold": 81,
+                    "srv6_nexthop_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+    "SRV6_NH_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_nexthop_high_threshold": 110,
+                    "srv6_nexthop_low_threshold": 85,
+                    "srv6_nexthop_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+    "SRV6_NH_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "srv6_nexthop_high_threshold": 90,
+                    "srv6_nexthop_low_threshold": 70,
+                    "srv6_nexthop_threshold_type": "wrong"
+                }
+            }
+        }
     }
 }
