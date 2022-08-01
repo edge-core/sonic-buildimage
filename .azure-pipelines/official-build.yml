@@ -44,3 +44,5 @@ stages:
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       jobFilters: none
+      ${{ if contains(variables['Build.DefinitionName'], 'cross') }}:
+        qemuOrCrossBuild: true
