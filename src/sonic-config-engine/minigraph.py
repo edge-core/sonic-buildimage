@@ -615,7 +615,6 @@ def parse_meta(meta, hname):
     cloudtype = None
     downstream_subrole = None
     qos_profile = None
-    resource_type = None
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
@@ -646,9 +645,7 @@ def parse_meta(meta, hname):
                     downstream_subrole = value
                 elif name == "SonicQosProfile":
                     qos_profile = value
-                elif name == "ResourceType":
-                    resource_type = value
-    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type
+    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile
 
 
 def parse_linkmeta(meta, hname):
@@ -927,7 +924,6 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     devices = None
     sub_role = None
     downstream_subrole = None
-    resource_type = None
     docker_routing_config_mode = "separated"
     port_speeds_default = {}
     port_speed_png = {}
@@ -985,7 +981,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type) = parse_meta(child, hostname)
+                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile) = parse_meta(child, hostname)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1037,8 +1033,6 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
 
     if downstream_subrole is not None:
         results['DEVICE_METADATA']['localhost']['downstream_subrole'] = downstream_subrole
-    if resource_type is not None:
-        results['DEVICE_METADATA']['localhost']['resource_type'] = resource_type
 
     results['BGP_NEIGHBOR'] = bgp_sessions
     results['BGP_MONITORS'] = bgp_monitors

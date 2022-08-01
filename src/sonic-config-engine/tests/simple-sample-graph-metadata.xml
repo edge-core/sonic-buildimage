@@ -257,9 +257,6 @@
      <a:Name>DownStreamSubRole</a:Name>
      <a:Reference i:nil="true"/>
      <a:Value>downstream_subrole_y</a:Value>
-     <a:Name>ResourceType</a:Name>
-     <a:Reference i:nil="true"/>
-     <a:Value>resource_type_x</a:Value>
     </a:DeviceProperty>
   </a:Properties>
   </a:DeviceMetadata>
