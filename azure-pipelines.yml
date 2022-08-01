@@ -185,7 +185,7 @@ stages:
   - job:
     pool: sonictest-t1-lag
     displayName: "kvmtest-t1-lag"
-    timeoutInMinutes: 300
+    timeoutInMinutes: 360
 
     steps:
     - template: .azure-pipelines/run-test-template.yml
