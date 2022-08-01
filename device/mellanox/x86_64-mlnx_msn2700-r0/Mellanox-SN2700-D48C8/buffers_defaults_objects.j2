@@ -143,7 +143,11 @@
 {% endfor %}
 {% for port in port_names_active.split(',') %}
 {% if port not in port_names_extra_queues.split(',') %}
+{% if port_names_extra_queues|length > 0 %}
+        "{{ port }}|5-7": {
+{% else %}
         "{{ port }}|5-6": {
+{% endif %}
             "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
         }{% if not loop.last %},{% endif %}
 
@@ -187,7 +191,11 @@
         },
 {% endfor %}
 {% for port in port_names_inactive.split(',') %}
+{% if port_names_extra_queues|length > 0 %}
+        "{{ port }}|5-7": {
+{% else %}
         "{{ port }}|5-6": {
+{% endif %}
             "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
         }{% if not loop.last %},{% endif %}
 
@@ -204,7 +212,11 @@
         },
 {% endfor %}
 {% for port in port_names_inactive.split(',') %}
+{% if port_names_extra_queues|length > 0 %}
+        "{{ port }}|5-7": {
+{% else %}
         "{{ port }}|5-6": {
+{% endif %}
             "profile" : "[BUFFER_PROFILE|egress_lossy_zero_profile]"
         }{% if not loop.last %},{% endif %}
 
