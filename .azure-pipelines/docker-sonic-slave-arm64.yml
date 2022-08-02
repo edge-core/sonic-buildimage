@@ -7,9 +7,9 @@ resources:
   repositories:
   - repository: buildimage
     type: github
-    name: Azure/sonic-buildimage
+    name: sonic-net/sonic-buildimage
     ref: master
-    endpoint: build
+    endpoint: sonic-net
 
 schedules:
 - cron: "0 8 * * *"
