@@ -236,6 +236,9 @@ if [ "$install_env" = "onie" ]; then
     fi
 fi
 
+demo_part_size="%%ONIE_IMAGE_PART_SIZE%%"
+echo "ONIE_IMAGE_PART_SIZE=$demo_part_size"
+
 extra_cmdline_linux=%%EXTRA_CMDLINE_LINUX%%
 echo "EXTRA_CMDLINE_LINUX=$extra_cmdline_linux"
 
