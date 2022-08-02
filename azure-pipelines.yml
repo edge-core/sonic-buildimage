@@ -33,8 +33,8 @@ resources:
     endpoint: sonic-net
   - repository: buildimage
     type: github
-    name: Azure/sonic-buildimage
-    endpoint: build
+    name: sonic-net/sonic-buildimage
+    endpoint: sonic-net
     ref: master
 
 variables:
