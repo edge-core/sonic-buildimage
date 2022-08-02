@@ -11,9 +11,9 @@ resources:
   repositories:
   - repository: buildimage
     type: github
-    name: Azure/sonic-buildimage
+    name: sonic-net/sonic-buildimage
     ref: master
-    endpoint: build
+    endpoint: sonic-net
 
 jobs:
 - template: .azure-pipelines/template-commonlib.yml@buildimage
