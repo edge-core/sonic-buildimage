@@ -79,7 +79,7 @@ rm $db_cfg_file_tmp
 
 # copy dump.rdb file to each instance for restoration
 DUMPFILE=/var/lib/redis/dump.rdb
-redis_inst_list=`/usr/bin/python3 -c "import swsssdk; print(' '.join(swsssdk.SonicDBConfig.get_instancelist().keys()))"`
+redis_inst_list=`/usr/bin/python3 -c "from swsscommon import swsscommon; print(' '.join(swsscommon.SonicDBConfig.getInstanceList().keys()))"`
 for inst in $redis_inst_list
 do
     mkdir -p /var/lib/$inst
