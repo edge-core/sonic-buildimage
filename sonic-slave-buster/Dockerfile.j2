@@ -142,6 +142,7 @@ RUN apt-get update && apt-get install -y \
         dh-systemd \
         libzmq5 \
         libzmq3-dev \
+        uuid-dev \
         jq \
 # For quagga build
         libreadline-dev \
@@ -406,6 +407,7 @@ RUN apt-get update && apt-get install -y \
         libbz2-dev \
 # For linkmgrd
         libboost1.71-dev \
+        libboost-serialization1.71-dev \
         libboost-program-options1.71-dev \
         libboost-system1.71-dev \
         libboost-thread1.71-dev \
