@@ -48,7 +48,6 @@ RUN apt-get update &&        \
         python3              \
         python3-distutils    \
         python3-pip          \
-        rsyslog              \
         vim-tiny             \
 # Install redis-tools
         redis-tools          \
@@ -64,6 +63,10 @@ RUN apt-get update &&        \
 # for sairedis zmq rpc channel
         libzmq5              \
         libwrap0
+
+# default rsyslog version is 8.2110.0 which has a bug on log rate limit,
+# use backport version 8.2206.0-1~bpo11+1
+RUN apt-get -t bullseye-backports -y install rsyslog
 
 # Upgrade pip via PyPI and uninstall the Debian version
 RUN pip3 install --upgrade pip
