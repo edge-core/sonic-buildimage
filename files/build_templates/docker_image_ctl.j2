@@ -190,8 +190,9 @@ function postStartAction()
        fi
     fi
     # Setup ebtables configuration
+{%- if sonic_asic_platform != "vs" %}
     ebtables_config
-
+{%- endif %}
     # chassisdb starts before database starts, bypass the PING check since other
     # databases are not availbale until database container is ready.
     # also chassisdb doesn't support warm/fast reboot, its dump.rdb is deleted
