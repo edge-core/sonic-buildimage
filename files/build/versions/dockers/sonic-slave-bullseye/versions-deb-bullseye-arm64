@@ -1,11 +1,8 @@
-base-files==11.1+deb11u4
-bash==5.1-2+deb11u1
 binutils-aarch64-linux-gnu==2.35.2-2
 binutils-arm-linux-gnueabihf==2.35.2-2
 cpp-10-arm-linux-gnueabihf==10.2.1-6cross1
 cpp-arm-linux-gnueabihf==4:10.2.1-1
 dctrl-tools==2.24-3
-dpkg==1.20.11
 dvipng==1.15-1.1
 gcc-10-arm-linux-gnueabihf==10.2.1-6cross1
 gcc-10-arm-linux-gnueabihf-base==10.2.1-6cross1
@@ -20,6 +17,6 @@ libgomp1-armhf-cross==10.2.1-6cross1
 libstdc++6-armhf-cross==10.2.1-6cross1
 libubsan1-armhf-cross==10.2.1-6cross1
 libxslt1-dev==1.1.34-4
-linux-headers-5.10.0-16-arm64==5.10.127-1
-linux-headers-arm64==5.10.127-1
+linux-headers-5.10.0-16-arm64==5.10.127-2
+linux-headers-arm64==5.10.127-2
 nodejs==14.20.0-deb-1nodesource1
