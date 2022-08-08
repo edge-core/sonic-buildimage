@@ -1,16 +1,18 @@
-From 113d482704198685fba09cd2597fd93ca9d297c5 Mon Sep 17 00:00:00 2001
+From bf2966cbb0f3747c66434fd8f923e69e9fe3774e Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
 Date: Tue, 1 Oct 2019 09:23:23 -0700
-Subject: [PATCH 1/1] [libteam]: Reimplement Warm-Reboot procedure
+Subject: [PATCH] From 113d482704198685fba09cd2597fd93ca9d297c5 Mon Sep 17
+ 00:00:00 2001 Subject: [PATCH 1/1] [libteam]: Reimplement Warm-Reboot
+ procedure
 
 ---
  libteam/ifinfo.c          |   6 +-
- teamd/teamd.c             |  51 +++-
+ teamd/teamd.c             |  51 ++++-
  teamd/teamd.h             |   6 +
  teamd/teamd_events.c      |  13 ++
  teamd/teamd_per_port.c    |   6 +
- teamd/teamd_runner_lacp.c | 474 +++++++++++++++++++++++++++++++++++---
- 6 files changed, 512 insertions(+), 44 deletions(-)
+ teamd/teamd_runner_lacp.c | 475 ++++++++++++++++++++++++++++++++++++++++++----
+ 6 files changed, 513 insertions(+), 44 deletions(-)
 
 diff --git a/libteam/ifinfo.c b/libteam/ifinfo.c
 index 46d56a2..b86d34c 100644
@@ -220,7 +222,7 @@ index f98a90d..a87e809 100644
  		      tdport->ifname, tdport->ifindex);
  	err = team_port_remove(ctx->th, tdport->ifindex);
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 4016b15..81be5b7 100644
+index 83c69a5..b57d6aa 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -31,6 +31,7 @@
@@ -473,7 +475,7 @@ index 4016b15..81be5b7 100644
  static struct lacp_port *lacp_port_get(struct lacp *lacp,
  				       struct teamd_port *tdport)
  {
-@@ -486,20 +697,95 @@ static int lacp_set_carrier(struct lacp *lacp, bool carrier_up)
+@@ -488,20 +699,95 @@ static int lacp_set_carrier(struct lacp *lacp, bool carrier_up)
  	return 0;
  }
  
@@ -523,7 +525,7 @@ index 4016b15..81be5b7 100644
 +						/* the port was up before the WR. Trying to restore it */
 +						struct lacpdu lacpdu;
 +						err = lacpdu_read(lacp_port, &lacpdu);
-+						if (err) /* Can't read, so the port will start from scratch */ 
++						if (err) /* Can't read, so the port will start from scratch */
 +							continue;
 +						teamd_log_info("WR-mode. State of the LAG member port '%s' was restored.",
 +							tdport->ifname);
@@ -572,7 +574,7 @@ index 4016b15..81be5b7 100644
  	}
  
  	return lacp_set_carrier(lacp, false);
-@@ -919,6 +1205,18 @@ static void lacp_port_actor_system_update(struct lacp_port *lacp_port)
+@@ -921,6 +1207,18 @@ static void lacp_port_actor_system_update(struct lacp_port *lacp_port)
  	memcpy(actor->system, lacp_port->ctx->hwaddr, ETH_ALEN);
  }
  
@@ -591,7 +593,7 @@ index 4016b15..81be5b7 100644
  static void lacp_port_actor_init(struct lacp_port *lacp_port)
  {
  	struct lacpdu_info *actor = &lacp_port->actor;
-@@ -926,7 +1224,7 @@ static void lacp_port_actor_init(struct lacp_port *lacp_port)
+@@ -928,7 +1226,7 @@ static void lacp_port_actor_init(struct lacp_port *lacp_port)
  	actor->system_priority = htons(lacp_port->lacp->cfg.sys_prio);
  	actor->key = htons(lacp_port->cfg.lacp_key);
  	actor->port_priority = htons(lacp_port->cfg.lacp_prio);
@@ -600,7 +602,7 @@ index 4016b15..81be5b7 100644
  	lacp_port_actor_system_update(lacp_port);
  }
  
-@@ -1006,6 +1304,13 @@ static int lacp_port_set_state(struct lacp_port *lacp_port,
+@@ -1008,6 +1306,13 @@ static int lacp_port_set_state(struct lacp_port *lacp_port,
  		break;
  	}
  
@@ -614,7 +616,7 @@ index 4016b15..81be5b7 100644
  	teamd_log_info("%s: Changed port state: \"%s\" -> \"%s\"",
  		       lacp_port->tdport->ifname,
  		       lacp_port_state_name[lacp_port->state],
-@@ -1095,34 +1400,23 @@ static int lacpdu_send(struct lacp_port *lacp_port)
+@@ -1097,34 +1402,23 @@ static int lacpdu_send(struct lacp_port *lacp_port)
  	return err;
  }
  
@@ -657,7 +659,7 @@ index 4016b15..81be5b7 100644
  		err = lacp_port_partner_update(lacp_port);
  		if (err)
  			return err;
-@@ -1138,21 +1432,56 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+@@ -1140,21 +1434,56 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
  	lacp_port_actor_update(lacp_port);
  
  	/* Check if the other side has correct info about us */
@@ -717,7 +719,7 @@ index 4016b15..81be5b7 100644
  static int lacp_callback_timeout(struct teamd_context *ctx, int events,
  				 void *priv)
  {
-@@ -1258,6 +1587,8 @@ static int lacp_port_added(struct teamd_context *ctx,
+@@ -1260,6 +1589,8 @@ static int lacp_port_added(struct teamd_context *ctx,
  	struct lacp *lacp = creator_priv;
  	int err;
  
@@ -726,7 +728,7 @@ index 4016b15..81be5b7 100644
  	lacp_port->ctx = ctx;
  	lacp_port->tdport = tdport;
  	lacp_port->lacp = lacp;
-@@ -1304,6 +1635,13 @@ static int lacp_port_added(struct teamd_context *ctx,
+@@ -1306,6 +1637,13 @@ static int lacp_port_added(struct teamd_context *ctx,
  		goto periodic_callback_del;
  	}
  
@@ -740,7 +742,7 @@ index 4016b15..81be5b7 100644
  	/* Newly added ports are disabled */
  	err = team_set_port_enabled(ctx->th, tdport->ifindex, false);
  	if (err) {
-@@ -1341,7 +1679,13 @@ static void lacp_port_removed(struct teamd_context *ctx,
+@@ -1343,7 +1681,13 @@ static void lacp_port_removed(struct teamd_context *ctx,
  {
  	struct lacp_port *lacp_port = priv;
  
@@ -755,7 +757,7 @@ index 4016b15..81be5b7 100644
  	teamd_loop_callback_del(ctx, LACP_TIMEOUT_CB_NAME, lacp_port);
  	teamd_loop_callback_del(ctx, LACP_PERIODIC_CB_NAME, lacp_port);
  	teamd_loop_callback_del(ctx, LACP_SOCKET_CB_NAME, lacp_port);
-@@ -1449,16 +1793,51 @@ static int lacp_event_watch_port_changed(struct teamd_context *ctx,
+@@ -1451,16 +1795,51 @@ static int lacp_event_watch_port_changed(struct teamd_context *ctx,
  	return lacp_port_link_update(lacp_port);
  }
  
@@ -810,7 +812,7 @@ index 4016b15..81be5b7 100644
  static const struct teamd_event_watch_ops lacp_event_watch_ops = {
  	.hwaddr_changed = lacp_event_watch_hwaddr_changed,
  	.port_hwaddr_changed = lacp_event_watch_port_hwaddr_changed,
-@@ -1467,21 +1846,35 @@ static const struct teamd_event_watch_ops lacp_event_watch_ops = {
+@@ -1469,21 +1848,36 @@ static const struct teamd_event_watch_ops lacp_event_watch_ops = {
  	.port_changed = lacp_event_watch_port_changed,
  	.admin_state_changed = lacp_event_watch_admin_state_changed,
  	.refresh = lacp_event_watch_refresh,
@@ -832,6 +834,7 @@ index 4016b15..81be5b7 100644
 +		if (lacp->wr.carrier_up) {
 +			teamd_log_info("WR-mode. Starting in WR mode");
 +		} else {
++			stop_wr_mode(lacp);
 +			teamd_log_info("WR-mode. Starting in normal mode. The LAG interface was down before restart");
 +		}
 +		ctx->warm_start_mode = lacp->wr.carrier_up;
@@ -851,7 +854,7 @@ index 4016b15..81be5b7 100644
  	return 0;
  }
  
-@@ -1949,6 +2342,12 @@ static int lacp_init(struct teamd_context *ctx, void *priv)
+@@ -1951,6 +2345,12 @@ static int lacp_init(struct teamd_context *ctx, void *priv)
  	}
  
  	lacp->ctx = ctx;
@@ -864,7 +867,7 @@ index 4016b15..81be5b7 100644
  	err = teamd_hash_func_set(ctx);
  	if (err)
  		return err;
-@@ -1990,10 +2389,13 @@ static void lacp_fini(struct teamd_context *ctx, void *priv)
+@@ -1992,10 +2392,13 @@ static void lacp_fini(struct teamd_context *ctx, void *priv)
  {
  	struct lacp *lacp = priv;
  
@@ -880,5 +883,5 @@ index 4016b15..81be5b7 100644
  
  const struct teamd_runner teamd_runner_lacp = {
 -- 
-2.17.1.windows.2
+2.11.0
 
