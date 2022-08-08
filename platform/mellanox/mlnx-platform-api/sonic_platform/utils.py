@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import ctypes
 import functools
 import subprocess
 import json
@@ -43,7 +44,14 @@ def read_from_file(file_path, target_type, default='', raise_exception=False, lo
     """
     try:
         with open(file_path, 'r') as f:
-            value = target_type(f.read().strip())
+            value = f.read()
+            if value is None:
+                # None return value is not allowed in any case, so we log error here for further debug.
+                logger.log_error('Failed to read from {}, value is None, errno is {}'.format(file_path, ctypes.get_errno()))
+                # Raise ValueError for the except statement to handle this as a normal exception
+                raise ValueError('File content of {} is None'.format(file_path))
+            else:
+                value = target_type(value.strip())
     except (ValueError, IOError) as e:
         if log_func:
             log_func('Failed to read from file {} - {}'.format(file_path, repr(e)))
