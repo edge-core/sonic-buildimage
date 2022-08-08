@@ -26,6 +26,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	patch -p1 < ../patch/0001-Remove-unneeded-packages.patch
 	patch -p1 < ../patch/0002-Remove-minimist-packages.patch
 	patch -p1 < ../patch/0003-Remove-underscore-packages.patch
+	patch -p1 < ../patch/0002-cve-2017-1000487.patch
 	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
