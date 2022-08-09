@@ -270,6 +270,15 @@ module sonic-types {
             "VXLAN Network Identifier";
     }
 
+    typedef tc_type {
+        type uint8 {
+            range "0..15" {
+                error-message "Invalid Traffic Class";
+                error-app-tag tc-invalid;
+            }
+        }
+    }
+
     {% if yang_model_type == "cvl" %}
     /* Required for CVL */
     container operation {
