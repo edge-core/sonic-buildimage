@@ -288,15 +288,3 @@ dependent_startup_wait_for=swssconfig:exited
 environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
-
-{% if is_fabric_asic == 0 %}
-[program:tunnel_packet_handler]
-command=/usr/bin/tunnel_packet_handler.py
-priority=12
-autostart=false
-autorestart=unexpected
-stdout_logfile=syslog
-stderr_logfile=syslog
-dependent_startup=true
-dependent_startup_wait_for=swssconfig:exited
-{%- endif %}
