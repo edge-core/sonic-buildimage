@@ -6,6 +6,10 @@ module sonic-dot1p-tc-map {
 
     prefix dot1ptm;
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     organization
         "SONiC";
 
@@ -54,12 +58,7 @@ module sonic-dot1p-tc-map {
                     }
 
                     leaf tc {
-                        type string {
-                            pattern "[0-7]?"{
-                                error-message "Invalid Traffic Class";
-                                error-app-tag tc-invalid;
-                            }
-                        }
+                        type stypes:tc_type;
                     }
                 }
             }

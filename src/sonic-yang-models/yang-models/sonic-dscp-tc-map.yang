@@ -6,6 +6,10 @@ module sonic-dscp-tc-map {
 
     prefix dtm;
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     organization
         "SONiC";
 
@@ -54,12 +58,7 @@ module sonic-dscp-tc-map {
                     }
 
                     leaf tc {
-                        type string {
-                            pattern "[0-7]?" {
-                                error-message "Invalid Traffic Class";
-                                error-app-tag tc-invalid;
-                            }
-                        }
+                        type stypes:tc_type;
                     }
                 }
             }
