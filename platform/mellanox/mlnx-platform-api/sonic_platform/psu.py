@@ -190,12 +190,32 @@ class FixedPsu(PsuBase):
         """
         return None
 
-     
+    def get_input_voltage(self):
+        """
+        Retrieves current PSU voltage input
+
+        Returns:
+            A float number, the input voltage in volts, 
+            e.g. 12.1 
+        """
+        return None
+
+    def get_input_current(self):
+        """
+        Retrieves the input current draw of the power supply
+
+        Returns:
+            A float number, the electric current in amperes, e.g 15.4
+        """
+        return None
+
 class Psu(FixedPsu):
     """Platform-specific Psu class"""
     PSU_CURRENT = "power/psu{}_curr"
     PSU_POWER = "power/psu{}_power"
     PSU_VPD = "eeprom/psu{}_vpd"
+    PSU_CURRENT_IN = "power/psu{}_curr_in"
+    PSU_VOLT_IN = "power/psu{}_volt_in"
 
     shared_led = None
 
@@ -207,7 +227,10 @@ class Psu(FixedPsu):
         self._psu_voltage_max = None
         self._psu_voltage_capability = None
 
+        self.psu_voltage_in = os.path.join(PSU_PATH, self.PSU_VOLT_IN.format(self.index))
+
         self.psu_current = os.path.join(PSU_PATH, self.PSU_CURRENT.format(self.index))
+        self.psu_current_in = os.path.join(PSU_PATH, self.PSU_CURRENT_IN.format(self.index))
         self.psu_power = os.path.join(PSU_PATH, self.PSU_POWER.format(self.index))
         self.psu_power_max = self.psu_power + "_max"
         self.psu_presence = os.path.join(PSU_PATH, "thermal/psu{}_status".format(self.index))
@@ -457,6 +480,30 @@ class Psu(FixedPsu):
         else:
             return None
 
+    def get_input_voltage(self):
+        """
+        Retrieves current PSU voltage input
+
+        Returns:
+            A float number, the input voltage in volts, 
+            e.g. 12.1 
+        """
+        if self.get_powergood_status():
+            voltage = utils.read_int_from_file(self.psu_voltage_in, log_func=logger.log_info)
+            return float(voltage) / 1000
+        return None
+
+    def get_input_current(self):
+        """
+        Retrieves the input current draw of the power supply
+
+        Returns:
+            A float number, the electric current in amperes, e.g 15.4
+        """
+        if self.get_powergood_status():
+            amperes = utils.read_int_from_file(self.psu_current_in, log_func=logger.log_info)
+            return float(amperes) / 1000
+        return None
 
 class InvalidPsuVolWA:
     """This class is created as a workaround for a known hardware issue that the PSU voltage threshold could be a 

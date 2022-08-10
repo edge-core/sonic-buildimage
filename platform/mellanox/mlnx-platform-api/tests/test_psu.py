@@ -49,6 +49,8 @@ class TestPsu:
         assert psu.is_replaceable() is False
         assert psu.get_temperature() is None
         assert psu.get_temperature_high_threshold() is None
+        assert psu.get_input_voltage() is None
+        assert psu.get_input_current() is None
 
     @mock.patch('os.path.exists', mock.MagicMock(return_value=True))
     def test_psu(self):
@@ -64,7 +66,9 @@ class TestPsu:
             psu.psu_current: 20345,
             psu.psu_power: 30456,
             psu.psu_temp: 40567,
-            psu.psu_temp_threshold: 50678
+            psu.psu_temp_threshold: 50678,
+            psu.psu_voltage_in: 102345,
+            psu.psu_current_in: 676,
         }
 
         def mock_read_int_from_file(file_path, **kwargs):
@@ -85,6 +89,8 @@ class TestPsu:
         assert psu.get_power() is None
         assert psu.get_temperature() is None
         assert psu.get_temperature_high_threshold() is None
+        assert psu.get_input_voltage() is None
+        assert psu.get_input_current() is None
 
         mock_sysfs_content[psu.psu_oper_status] = 1
         assert psu.get_voltage() == 10.234
@@ -94,6 +100,8 @@ class TestPsu:
         assert psu.get_power() == 0.030456
         assert psu.get_temperature() == 40.567
         assert psu.get_temperature_high_threshold() == 50.678
+        assert psu.get_input_voltage() == 102.345
+        assert psu.get_input_current() == 0.676
 
         assert psu.get_position_in_parent() == 1
         assert psu.is_replaceable() is True
