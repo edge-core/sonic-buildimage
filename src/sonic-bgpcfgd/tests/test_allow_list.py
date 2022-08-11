@@ -866,6 +866,131 @@ def test_set_handler_no_community_update_prefixes_remove():
         ]
     )
 
+def test_set_handler_with_neighbor_type():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5|NEIGHBOR_TYPE|OpticalLonghaulTerminal", {
+            "prefixes_v4": "10.62.64.0/22 ge 30,"\
+                           "10.1.44.0/23 ge 30,"\
+                           "10.17.92.0/23 ge 30,"\
+                           "10.73.92.0/23 ge 30,"\
+                           "10.26.170.0/24 ge 30,"\
+                           "10.26.171.0/24 ge 30,"\
+                           "10.26.255.0/24 ge 30",
+            "prefixes_v6": "fc01:20::/64",
+        }),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 30 permit 40.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 10 deny ::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 20 deny ::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 40 permit fc01:30::/64 le 128',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 30000',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 30000',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 65535',
+            ' set community 123:123 additive',
+            ""
+        ],
+        [
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 20 permit 10.62.64.0/22 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 30 permit 10.1.44.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 40 permit 10.17.92.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 50 permit 10.73.92.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 60 permit 10.26.170.0/24 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 70 permit 10.26.171.0/24 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V4 seq 80 permit 10.26.255.0/24 ge 30',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 10 deny ::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 20 deny ::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 le 128',
+        ]
+    )
+
+def test_set_handler_with_neighbor_type_and_community():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5|NEIGHBOR_TYPE|OpticalLonghaulTerminal|1010:2020", {
+            "prefixes_v4": "10.62.64.0/22 ge 30,"\
+                           "10.1.44.0/23 ge 30,"\
+                           "10.17.92.0/23 ge 30,"\
+                           "10.73.92.0/23 ge 30,"\
+                           "10.26.170.0/24 ge 30,"\
+                           "10.26.171.0/24 ge 30,"\
+                           "10.26.255.0/24 ge 30",
+            "prefixes_v6": "fc01:20::/64",
+        }),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 20 permit 20.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 30 permit 40.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 10 deny ::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 20 deny ::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 30 permit fc01:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 40 permit fc01:30::/64 le 128',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 65535',
+            ' set community 123:123 additive',
+            ""
+        ],
+        [
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 20 permit 10.62.64.0/22 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 30 permit 10.1.44.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 40 permit 10.17.92.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 50 permit 10.73.92.0/23 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 60 permit 10.26.170.0/24 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 70 permit 10.26.171.0/24 ge 30',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V4 seq 80 permit 10.26.255.0/24 ge 30',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 10 deny ::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 20 deny ::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_COMMUNITY_1010:2020_V6 seq 30 permit fc01:20::/64 le 128',
+        ]
+    )
+
+def test_del_handler_with_neighbor_type_community_no_data():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|NEIGHBOR_TYPE|OpticalLonghaulTerminal|1010:2020",),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
+        []
+    )
+
+def test_del_handler_with_neighbor_type_no_data():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|NEIGHBOR_TYPE|OpticalLonghaulTerminal",),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_NEIGHBOR_OpticalLonghaulTerminal_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
+        []
+    )
+
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
 def test___set_handler_validate():
     from bgpcfgd.managers_allow_list import BGPAllowListMgr
@@ -894,7 +1019,7 @@ def test___set_handler_validate():
     })
 
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
-def test___find_peer_group_by_deployment_id():
+def test___find_peer_group():
     from bgpcfgd.managers_allow_list import BGPAllowListMgr
     cfg_mgr = MagicMock()
     cfg_mgr.update.return_value = None
@@ -984,7 +1109,7 @@ def test___find_peer_group_by_deployment_id():
         'constants': global_constants,
     }
     mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
-    values = mgr._BGPAllowListMgr__find_peer_group_by_deployment_id(0)
+    values = mgr._BGPAllowListMgr__find_peer_group(0, '')
     assert set(values) == {'PEER_V4_INT', 'PEER_V6_INT', 'PEER_V6', 'PEER_V4'}
 
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
