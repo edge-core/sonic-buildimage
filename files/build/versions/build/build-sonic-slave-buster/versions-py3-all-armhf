@@ -1,3 +1,4 @@
 bitarray==1.5.3
+filelock==3.7.1
 lxml==4.6.3
 requests==2.28.1

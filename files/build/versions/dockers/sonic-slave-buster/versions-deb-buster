@@ -51,7 +51,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.6-1
+containerd.io==1.6.7-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -180,7 +180,7 @@ gsettings-desktop-schemas==3.28.1-1
 gsfonts==1:8.11+urwcyr1.0.7~pre44-4.4
 gstreamer1.0-libav==1.15.0.1+git20180723+db823502-2+deb10u1
 gstreamer1.0-plugins-base==1.14.4-2+deb10u1
-gstreamer1.0-plugins-good==1.14.4-1+deb10u1
+gstreamer1.0-plugins-good==1.14.4-1+deb10u2
 gstreamer1.0-plugins-ugly==1.14.4-1+deb10u1
 gstreamer1.0-x==1.14.4-2+deb10u1
 gtk-update-icon-cache==3.24.5-1

@@ -18,7 +18,7 @@ bzip2==1.0.8-4
 ca-certificates==20210119
 cgroup-tools==0.41-11
 conntrack==1:1.4.6-2
-containerd.io==1.6.6-1
+containerd.io==1.6.7-1
 cpio==2.13+dfsg-4
 cpp==4:10.2.1-1
 cpp-10==10.2.1-6
@@ -159,6 +159,7 @@ libglib2.0-bin==2.66.8-1
 libglib2.0-data==2.66.8-1
 libglib2.0-dev==2.66.8-1
 libglib2.0-dev-bin==2.66.8-1
+libgnutls30==3.7.1-5+deb11u2
 libgomp1==10.2.1-6
 libgpm2==1.20.7-8
 libgrpc++-dev==1.30.2-3
@@ -386,7 +387,7 @@ traceroute==1:2.1.0-2+b1
 u-boot-tools==2021.01+dfsg-5
 ucf==3.0043
 udev==247.3-7
-unzip==6.0-26
+unzip==6.0-26+deb11u1
 usbutils==1:013-3
 uuid-dev==2.36.1-8+deb11u1
 vim==2:8.2.2434-3+deb11u1
