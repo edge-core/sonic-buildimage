@@ -3,11 +3,11 @@
 #
 # common functions used by "syncd" scipts (syncd.sh, gbsyncd.sh, etc..)
 # scripts using this must provide implementations of the following functions:
-# 
+#
 # startplatform
 # waitplatform
 # stopplatform1 and stopplatform2
-# 
+#
 # For examples of these, see gbsyncd.sh and syncd.sh.
 #
 
@@ -25,7 +25,7 @@ function lock_service_state_change()
 
     exec {LOCKFD}>${LOCKFILE}
     /usr/bin/flock -x ${LOCKFD}
-    trap "/usr/bin/flock -u ${LOCKFD}" 0 2 3 15
+    trap "/usr/bin/flock -u ${LOCKFD}" EXIT
 
     debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
 }
