@@ -1,0 +1,978 @@
+#!/bin/bash
+#
+# Simple script implementing a temperature dependent fan speed control
+# Supported Linux kernel versions: 2.6.5 and later
+#
+# Version 0.70
+#
+# Usage: fancontrol [CONFIGFILE]
+#
+# Dependencies:
+#   bash, egrep, sed, cut, sleep, readlink, lm_sensors :)
+#
+# Please send any questions, comments or success stories to
+# marius.reiner@hdev.de
+# Thanks!
+#
+# For configuration instructions and warnings please see fancontrol.txt, which
+# can be found in the doc/ directory or at the website mentioned above.
+#
+#
+#    Copyright 2003 Marius Reiner <marius.reiner@hdev.de>
+#    Copyright (C) 2007-2009 Jean Delvare <khali@linux-fr.org>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#    MA 02110-1301 USA.
+#
+#
+
+PIDFILE="/var/run/fancontrol.pid"
+THERMAL_OVERLOAD_CONTROL_FILE="/usr/local/bin/thermal_overload_control.sh"
+
+DEBUG=0
+MAX=150
+#innovium temp calculation factor
+INVA=124.28
+INVB=422.03
+INVC=384.62
+
+# Baseboard CPLD file
+BASECPLD_GETREG_FILE="/sys/devices/platform/sys_cpld/getreg"
+# PSUs status register in baseboard CPLD
+PSUPRS_REG="0xA160"
+# PSUs present bits in baseboard CPLD
+PSUPRS_BIT=(3 2)
+
+START=1
+
+function log() {
+    if [ $DEBUG -eq 1 ]; then
+        echo -e "$*"
+    fi
+}
+
+function LoadConfig
+{
+    local fcvcount fcv
+
+    log "Loading configuration from $1 ..."
+    if [ ! -r "$1" ]
+    then
+        log "Error: Can't read configuration file" >&2
+        exit 1
+    fi
+
+    # grep configuration from file
+    INTERVAL=`egrep '^INTERVAL=.*$' $1 | sed -e 's/INTERVAL=//g'`
+    DEVPATH=`egrep '^DEVPATH=.*$' $1 | sed -e 's/DEVPATH= *//g'`
+    DEVNAME=`egrep '^DEVNAME=.*$' $1 | sed -e 's/DEVNAME= *//g'`
+    FCTEMPS=`egrep '^FCTEMPS=.*$' $1 | sed -e 's/FCTEMPS=//g'`
+    MINTEMP=`egrep '^MINTEMP=.*$' $1 | sed -e 's/MINTEMP=//g'`
+    MAXTEMP=`egrep '^MAXTEMP=.*$' $1 | sed -e 's/MAXTEMP=//g'`
+    MINSTART=`egrep '^MINSTART=.*$' $1 | sed -e 's/MINSTART=//g'`
+    MINSTOP=`egrep '^MINSTOP=.*$' $1 | sed -e 's/MINSTOP=//g'`
+    # optional settings:
+    FCFANS=`egrep '^FCFANS=.*$' $1 | sed -e 's/FCFANS=//g'`
+    MINPWM=`egrep '^MINPWM=.*$' $1 | sed -e 's/MINPWM=//g'`
+    MAXPWM=`egrep '^MAXPWM=.*$' $1 | sed -e 's/MAXPWM=//g'`
+    THYST=`egrep '^THYST=.*$' $1 | sed -e 's/THYST=//g'`
+    MAXTEMPCRIT=`egrep '^MAXTEMPCRIT=.*$' $1 | sed -e 's/MAXTEMPCRIT=//g'`
+    MAXTEMPTYPE=`egrep '^MAXTEMPTYPE=.*$' $1 | sed -e 's/MAXTEMPTYPE=//g'`
+    #pid sensors config
+    PVALUE=`egrep '^PVALUE=.*$' $1 | sed -e 's/PVALUE=//g'`
+    IVALUE=`egrep '^IVALUE=.*$' $1 | sed -e 's/IVALUE=//g'`
+    DVALUE=`egrep '^DVALUE=.*$' $1 | sed -e 's/DVALUE=//g'`
+    SETPOINT=`egrep '^SETPOINT=.*$' $1 | sed -e 's/SETPOINT=//g'`    
+
+    log 
+    # Check whether all mandatory settings are set
+    if [[ -z ${INTERVAL} || -z ${FCTEMPS} || -z ${MINTEMP} || -z ${MAXTEMP} || -z ${MINSTART} || -z ${MINSTOP} ]]
+    then
+        log "Some mandatory settings missing, please check your config file!" >&2
+        exit 1
+    fi
+    if [ "$INTERVAL" -le 0 ]
+    then
+        log "Error in configuration file:" >&2
+        log "INTERVAL must be at least 1" >&2
+        exit 1
+    fi
+
+    # write settings to arrays for easier use and print them
+    log
+    log "Common settings:"
+    log "  INTERVAL=$INTERVAL"
+
+    let fcvcount=0
+    for fcv in $FCTEMPS
+    do
+        if ! echo $fcv | egrep -q '='
+        then
+            log "Error in configuration file:" >&2
+            log "FCTEMPS value is improperly formatted" >&2
+            exit 1
+        fi
+
+        AFCPWM[$fcvcount]=`echo $fcv |cut -d'=' -f1`
+        AFCTEMP[$fcvcount]=`echo $fcv |cut -d'=' -f2`
+        AFCFAN[$fcvcount]=`echo $FCFANS |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCFANFAULT[$fcvcount]=`echo "${AFCFAN[$fcvcount]}" |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCMINTEMP[$fcvcount]=`echo $MINTEMP |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCMAXTEMP[$fcvcount]=`echo $MAXTEMP |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCMINSTART[$fcvcount]=`echo $MINSTART |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCMINSTOP[$fcvcount]=`echo $MINSTOP |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        AFCMINPWM[$fcvcount]=`echo $MINPWM |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        [ -z "${AFCMINPWM[$fcvcount]}" ] && AFCMINPWM[$fcvcount]=0
+        AFCMAXPWM[$fcvcount]=`echo $MAXPWM |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        [ -z "${AFCMAXPWM[$fcvcount]}" ] && AFCMAXPWM[$fcvcount]=100
+        AFCTHYST[$fcvcount]=`echo $THYST |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        [ -z "${AFCTHYST[$fcvcount]}" ] && AFCTHYST[$fcvcount]=0
+        AFCSETPOINT[$fcvcount]=`echo $SETPOINT |sed -e 's/ /\n/g' |egrep "${AFCPWM[$fcvcount]}" |cut -d'=' -f2`
+        [ -z "${AFCSETPOINT[$fcvcount]}" ] && AFCSETPOINT[$fcvcount]=0
+        
+        # verify the validity of the settings
+        if [ "${AFCMINTEMP[$fcvcount]}" -ge "${AFCMAXTEMP[$fcvcount]}" ]
+        then
+            log "Error in configuration file (${AFCPWM[$fcvcount]}):" >&2
+            log "MINTEMP must be less than MAXTEMP" >&2
+            exit 1
+        fi
+        if [ "${AFCMAXPWM[$fcvcount]}" -gt 255 ]
+        then
+            log "Error in configuration file (${AFCPWM[$fcvcount]}):" >&2
+            log "MAXPWM must be at most 255" >&2
+            exit 1
+        fi
+        if [ "${AFCMINSTOP[$fcvcount]}" -ge "${AFCMAXPWM[$fcvcount]}" ]
+        then
+            log "Error in configuration file (${AFCPWM[$fcvcount]}):" >&2
+            log "MINSTOP must be less than MAXPWM" >&2
+            exit 1
+        fi
+        if [ "${AFCMINSTOP[$fcvcount]}" -lt "${AFCMINPWM[$fcvcount]}" ]
+        then
+            log "Error in configuration file (${AFCPWM[$fcvcount]}):" >&2
+            log "MINSTOP must be greater than or equal to MINPWM" >&2
+            exit 1
+        fi
+        if [ "${AFCMINPWM[$fcvcount]}" -lt 0 ]
+        then
+            log "Error in configuration file (${AFCPWM[$fcvcount]}):" >&2
+            log "MINPWM must be at least 0" >&2
+            exit 1
+        fi
+
+        log
+        log "Settings for ${AFCPWM[$fcvcount]}:"
+        log "  Depends on ${AFCTEMP[$fcvcount]}"
+        log "  Controls ${AFCFAN[$fcvcount]}"
+        log "  MINTEMP=${AFCMINTEMP[$fcvcount]}"
+        log "  MAXTEMP=${AFCMAXTEMP[$fcvcount]}"
+        log "  MINSTART=${AFCMINSTART[$fcvcount]}"
+        log "  MINSTOP=${AFCMINSTOP[$fcvcount]}"
+        log "  MINPWM=${AFCMINPWM[$fcvcount]}"
+        log "  MAXPWM=${AFCMAXPWM[$fcvcount]}"
+        log "  THYST=${AFCTHYST[$fcvcount]}"
+        log "  SETPOINT=${AFCSETPOINT[$fcvcount]}"
+        let fcvcount=fcvcount+1
+    done
+    log
+    log "  PVALUE=${PVALUE}"
+    log "  IVALUE=${IVALUE}"
+    log "  DVALUE=${DVALUE}"
+    let tscount=0
+    for ts in $MAXTEMPCRIT
+    do
+        CSTEMP[$tscount]=`echo $ts | cut -d '=' -f1`
+        CSMAXTEMPCRIT[$tscount]=`echo $ts | cut -d '=' -f2`
+        CSMAXTEMPTYPE=($(echo $MAXTEMPTYPE |sed -e 's/ /\n/g'| cut -d'=' -f2))
+
+        log
+        log "Settings for ${CSMAXTEMPTYPE[$tscount]} temperature sensor:"
+        log "  Depends on ${CSTEMP[$tscount]}"
+        log "  MAXTEMPCRIT=${CSMAXTEMPCRIT[$tscount]}"
+        let tscount=tscount+1
+    done
+    log
+
+}
+
+function CheckFanFault()
+{
+    let fancount=0 fault_cnt=0 
+    local rear_fan_node
+
+    while (( $fancount < ${#AFCFANFAULT[@]} )) # go through all fan fault.
+    do
+        fault=`cat ${AFCFAN[$fancount]}`
+        log "CheckFanFault:fault=$fault"
+        if [[ "$fault" == "0" ]]
+        then
+            let fault_cnt=$fault_cnt+1
+        fi
+        let fancount=$fancount+1
+    done
+
+    # check the rear fans
+    fancount=0
+    while (( $fancount < ${#AFCFANFAULT[@]} )) # go through all fan fault.
+    do
+        rear_fan_node=$(echo ${AFCFAN[$fancount]} | sed 's/front/rear/g')
+        fault=`cat $rear_fan_node`
+        log "CheckFanFault:fault=$fault"
+        if [[ "$fault" == "0" ]]
+        then
+            let fault_cnt=$fault_cnt+1
+        fi
+        let fancount=$fancount+1
+    done
+
+    # in silverstone-x, 2 or more fans fault is regarded as fan fault.
+    if [ $fault_cnt -ge 2 ]; then
+        return 0
+    fi
+    return 1
+}
+
+function CheckPSUFault()
+{
+    echo $PSUPRS_REG > $BASECPLD_GETREG_FILE
+    PSU_STA=$(cat $BASECPLD_GETREG_FILE)
+
+    for(( i = 0; i < ${#PSUPRS_BIT[@]}; i++ )); do
+        psu_absent=$(($PSU_STA >> ${PSUPRS_BIT[i]} & 1))
+        if [ $psu_absent -eq 1 ]; then
+            log "One PSU is absent"
+            return 0  # PSU fault detected
+        fi
+    done
+    return 1
+}
+
+function GetInnoviumSensorTemp
+{   #$1:value of voltage of MCP3425
+    local t1 t2 t3 t4
+
+    t1=$(echo $1 | awk '{printf "%0.3f",$1/1000}')
+    t2=$(echo $INVB $t1 | awk '{printf "%0.3f",$1*$2}')
+    t3=$(echo $INVA $t1 | awk '{printf "%0.3f",$1*$2*$2}')
+    t4=$(echo $INVC $t2 $t3 | awk '{printf "%0.3f",$1-$2-$3}')
+    inno_temp=$(echo $t4 | awk -F. '{print $1*1000}')
+    log "GetInnoviumSensorTemp:$inno_temp"
+}
+
+function CheckTempOver()
+{
+    local te1 te2 te3 te4
+    
+    let tempcount=0
+    while (( $tempcount < ${#CSTEMP[@]} )) # go through all temp.
+    do
+        ctemp=`cat ${CSTEMP[$tempcount]}`
+
+        if [ "$tempcount" -eq 1 ]
+        then 
+            GetInnoviumSensorTemp $ctemp
+            ctemp[${tempcount}]=$inno_temp
+        fi
+        
+        let maxcrit="${CSMAXTEMPCRIT[$tempcount]}*1000"
+
+        if [ $ctemp -ge $maxcrit ]
+        then
+            logger "Thermal overload : ${CSMAXTEMPTYPE[$tempcount]} temperature ${ctemp} > ${maxcrit}"
+            if [ -f "$THERMAL_OVERLOAD_CONTROL_FILE" ]
+            then
+                toc_cmd="${THERMAL_OVERLOAD_CONTROL_FILE} ${CSMAXTEMPTYPE[$tempcount],,}"
+                bash $toc_cmd
+                exit 1
+            fi
+        fi
+        let tempcount=$tempcount+1
+    done
+
+    return 0
+}
+
+function DevicePath()
+{
+    if [ -h "$1/device" ]
+    then
+        readlink -f "$1/device" | sed -e 's/^\/sys\///'
+    fi
+}
+
+function DeviceName()
+{
+    if [ -r "$1/name" ]
+    then
+        cat "$1/name" | sed -e 's/[[:space:]=]/_/g'
+    elif [ -r "$1/device/name" ]
+    then
+        cat "$1/device/name" | sed -e 's/[[:space:]=]/_/g'
+    fi
+}
+
+function ValidateDevices()
+{
+    local OLD_DEVPATH="$1" OLD_DEVNAME="$2" outdated=0
+    local entry device name path
+
+    for entry in $OLD_DEVPATH
+    do
+        device=`echo "$entry" | sed -e 's/=[^=]*$//'`
+        path=`echo "$entry" | sed -e 's/^[^=]*=//'`
+
+        if [ "`DevicePath "$device"`" != "$path" ]
+        then
+            log "Device path of $device has changed" >&2
+            outdated=1
+        fi
+    done
+
+    for entry in $OLD_DEVNAME
+    do
+        device=`echo "$entry" | sed -e 's/=[^=]*$//'`
+        name=`echo "$entry" | sed -e 's/^[^=]*=//'`
+
+        if [ "`DeviceName "$device"`" != "$name" ]
+        then
+            log "Device name of $device has changed" >&2
+            outdated=1
+        fi
+    done
+
+    return $outdated
+}
+
+# Check that all referenced sysfs files exist
+function CheckFiles
+{
+    local outdated=0 fcvcount pwmo tsen fan
+
+    let fcvcount=0
+    while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+    do
+        pwmo=${AFCPWM[$fcvcount]}
+        if [ ! -w $pwmo ]
+        then
+            log "Error: file $pwmo doesn't exist" >&2
+            outdated=1
+        fi
+        let fcvcount=$fcvcount+1
+    done
+
+    let fcvcount=0
+    while (( $fcvcount < ${#AFCTEMP[@]} )) # go through all temp inputs
+    do
+        tsen=${AFCTEMP[$fcvcount]}
+        if [ ! -r $tsen ]
+        then
+            log "Error: file $tsen doesn't exist" >&2
+            outdated=1
+        fi
+        let fcvcount=$fcvcount+1
+    done
+
+    let fcvcount=0
+    while (( $fcvcount < ${#AFCFAN[@]} )) # go through all fan inputs
+    do
+        # A given PWM output can control several fans
+        for fan in $(echo ${AFCFAN[$fcvcount]} | sed -e 's/+/ /')
+        do
+            if [ ! -r $fan ]
+            then
+                log "Error: file $fan doesn't exist" >&2
+                outdated=1
+            fi
+        done
+        let fcvcount=$fcvcount+1
+    done
+
+    if [ $outdated -eq 1 ]
+    then
+        log >&2
+        log "At least one referenced file is missing. Either some required kernel" >&2
+        log "modules haven't been loaded, or your configuration file is outdated." >&2
+        log "In the latter case, you should run pwmconfig again." >&2
+    fi
+
+    return $outdated
+}
+
+if [ "$1" == "--check" ]
+then
+    if [ -f "$2" ]
+    then
+        LoadConfig $2
+    else
+        LoadConfig /etc/fancontrol
+    fi
+    exit 0
+fi
+
+if [ -f "$1" ]
+then
+    LoadConfig $1
+else
+    LoadConfig /etc/fancontrol
+fi
+
+# Detect path to sensors
+if echo "${AFCPWM[0]}" | egrep -q '^/'
+then
+    DIR=/
+elif echo "${AFCPWM[0]}" | egrep -q '^hwmon[0-9]'
+then
+    DIR=/sys/class/hwmon
+elif echo "${AFCPWM[0]}" | egrep -q '^[1-9]*[0-9]-[0-9abcdef]{4}'
+then
+    DIR=/sys/bus/i2c/devices
+else
+    log "$0: Invalid path to sensors" >&2
+    exit 1
+fi
+
+if [ ! -d $DIR ]
+then
+    log $0: 'No sensors found! (did you load the necessary modules?)' >&2
+    exit 1
+fi
+cd $DIR
+
+# Check for configuration change
+# if [ "$DIR" != "/" ] && [ -z "$DEVPATH" -o -z "$DEVNAME" ]
+# then
+#    echo "Configuration is too old, please run pwmconfig again" >&2
+#      exit 1
+# fi
+
+if [ "$DIR" = "/" -a -n "$DEVPATH" ]
+then
+    log "Unneeded DEVPATH with absolute device paths" >&2
+    exit 1
+fi
+if ! ValidateDevices "$DEVPATH" "$DEVNAME"
+then
+    log "Configuration appears to be outdated, please run pwmconfig again" >&2
+    exit 1
+fi
+CheckFiles || exit 1
+
+if [ -f "$PIDFILE" ]
+then
+    log "File $PIDFILE exists, is fancontrol already running?" >&2
+    exit 1
+fi
+echo $$ > "$PIDFILE"
+
+# $1 = pwm file name
+function pwmdisable()
+{
+    local ENABLE=${1}_enable
+
+    # No enable file? Just set to max
+    if [ ! -f $ENABLE ]
+    then
+        echo $MAX > $1
+        return 0
+    fi
+
+    # Try pwmN_enable=0
+    echo 0 > $ENABLE 2> /dev/null
+    if [ `cat $ENABLE` -eq 0 ]
+    then
+        # Success
+        echo $MAX > $1
+        return 0
+    fi
+
+    # It didn't work, try pwmN_enable=1 pwmN=255
+    echo 1 > $ENABLE 2> /dev/null
+    echo $MAX > $1
+    if [ `cat $ENABLE` -eq 1 -a `cat $1` -ge 190 ]
+    then
+        # Success
+        return 0
+    fi
+
+    # Nothing worked
+    log "$ENABLE stuck to" `cat $ENABLE` >&2
+    return 1
+}
+
+# $1 = pwm file name
+function pwmenable()
+{
+    local ENABLE=${1}_enable
+
+    if [ -f $ENABLE ]
+    then
+        echo 1 > $ENABLE 2> /dev/null
+        if [ $? -ne 0 ]
+        then
+            return 1
+        fi
+    fi
+    echo $MAX > $1
+}
+
+function restorefans()
+{
+    local status=$1 fcvcount pwmo
+
+    log 'Aborting, restoring fans...'
+    let fcvcount=0
+    while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+    do
+        pwmo=${AFCPWM[$fcvcount]}
+        pwmdisable $pwmo
+        let fcvcount=$fcvcount+1
+    done
+    log 'Verify fans have returned to full speed'
+    rm -f "$PIDFILE"
+    exit $status
+}
+
+trap 'restorefans 0' SIGQUIT SIGTERM
+trap 'restorefans 1' SIGHUP SIGINT
+
+function upperBound
+{
+    # $1: temperature
+    # $2: Tmin
+    # $3: Tmax
+    # $4: MinPWM
+    # $5: MaxPWM
+    # $6 Thyst
+    # upper_bound = (temperature-Tmin+2) * (MaxPWM-MinPWM)/(Tmax-Tmin-Thyst)+MinPWM
+    
+    # let a="($1-$2+$6)*($5-$4)/($3-$2)+$4"
+    a=$(echo $1 $2 $3 $4 $5 $6 | awk '{printf "%d",($1-$2)*($5-$4)/($3-$2-$6)+$4}')
+    up_b=$a
+}
+function lowerBound
+{
+    # $1: temperature
+    # $2: Tmin
+    # $3: Tmax
+    # $4: MinPWM
+    # $5: MaxPWM
+    # $6 Thyst
+    # lower_bound = (temperature-Tmin-Thyst) *(MaxPWM-MinPWM)/(Tmax-Tmin-Thyst)+MinPWM
+    
+    # let a="($1-$2)*($5-$4)/($3-$2)+$4"
+    a=$(echo $1 $2 $3 $4 $5 $6 | awk '{printf "%d",($1-$2-$6)*($5-$4)/($3-$2-$6)+$4}')
+    lw_b=$a
+}
+
+
+function FancontrolPid
+{
+    # $1: currenttemp
+    # $2: SetPonit
+    # $3: fcvcount
+    # $4: minpwm
+    # $5: maxpwm
+    # $6: CPU internal sensor--1; not--0
+    # current_pwm = $lastpwm+PVALUE*$p_temp+IVALUE*$i_temp+DVALUE*$d_temp
+    #FAN PWM (k) =PWM(k-1)+5*(T(k)-T(k-1))+0.5*(T(k)-90)
+    local p_temp i_temp d_temp
+    local lastpwmpercent=0 pidpwmpercent=0 CPU_pidpwm_min=64 pidpwm_min=0
+
+    lastpwm_pid=$lastpwm
+    pidpwm_min=$4
+
+    # store CPU last pwm indepentently to avoid fan jitter caused by CPU pid pwm soaring and restoring at a short time
+    # to avoid CPU pid pwm decrease continuously to a very low value and lead to nonsensitive pwm when CPU temperature rises.
+    if [ $6 -eq 1 -a $START -eq 0 ]; then
+        lastpwm_pid=$cpu_last_pwm
+        pidpwm_min=$CPU_pidpwm_min
+
+    # use the final pwm as the last CPU pid pwm at the 1st time
+    elif [ $6 -eq 1 -a $START -eq 1 ]; then
+        START=0
+    fi
+
+    p_temp=$(($1-${lasttemp[$3]}))
+    # temperature unit is 0.001 C, so setpoint multiple 1000 to be the same level
+    i_temp=$(($1-$2*1000))
+    d_temp=$(($1-2*${lasttemp[$3]}+${lastlasttemp[$3]}))
+    log ==============FancontrolPid========temper$3 currenttemp: $1 lasttemp:${lasttemp[$3]} 
+    log PID: $p_temp $i_temp $d_temp
+
+    lastpwmpercent=$(echo ${lastpwm_pid} | awk '{printf "%0.2f",$1/255*100}')
+    pidpwmpercent=$(echo ${lastpwmpercent} $PVALUE $p_temp $IVALUE $i_temp $DVALUE $d_temp | awk '{printf "%0.3f",$1+$2*($3/1000)+$4*($5/1000)+$6*($7/1000)}')
+    log lastpwmpercent:$lastpwmpercent pidpwmpercent:$pidpwmpercent
+    pidpwm=$(echo ${pidpwmpercent} | awk '{printf "%d",$1*255/100}')
+    
+    if [[ "$pidpwm" -gt "$5" ]]
+    then 
+       pidpwm=$5
+    elif [[ "$pidpwm" -lt "$pidpwm_min" ]]
+    then
+       pidpwm=$pidpwm_min
+    fi
+
+    log "pid temp_pwm=$pidpwm lastpwm=$lastpwm_pid"
+
+}
+
+function FancontrolLinear
+{   # $1: temperature
+    # $2: Tmin
+    # $3: Tmax
+    # $4: MinPWM
+    # $5: MaxPWM
+    # $6: Thyst
+    # $7: fcvcount 
+    # calculate the new value from temperature and settings
+    # pwmval="(${tval}-${mint})*(${maxpwm}-${minso})/(${maxt}-${mint})+${minso}
+
+    lowerBound $1 $2 $3 $4 $5 $6
+    lb=$lw_b
+    upperBound $1 $2 $3 $4 $5 $6
+    ub=$up_b
+
+    log ==============FancontrolLinear========temper$7 currenttemp: $1 lasttemp:${lasttemp[$7]}
+    log "lowerBound $lb, upperBound $ub, lastpwm $linearpwm"
+    #temp rising
+    if [[ "$1" -gt "${lasttemp[0]}" ]]
+    then
+        log "Temperature rises from ${lasttemp[0]} to $1"
+        if [[ "$lb" -lt "$linearpwm" ]]
+        then 
+            linearpwm=$linearpwm
+        else
+            linearpwm=$lb
+        fi
+    #temp declining
+    elif [[ "$1" -lt "${lasttemp[0]}" ]]
+    then
+        log "Temperature declines from ${lasttemp[0]} to $1"
+        if [[ "$ub" -gt "$linearpwm" ]]
+        then
+            linearpwm=$linearpwm
+        else
+            linearpwm=$ub
+        fi
+    #temp no change   
+    else
+        log "Temperature keeps to $1"
+        linearpwm=$linearpwm
+    fi
+    
+    if [[ "$linearpwm" -gt "$5" ]]
+    then 
+       linearpwm=$5
+    elif [[ "$linearpwm" -lt "$4" ]]
+    then
+       linearpwm=$4
+    fi
+        
+    log "linear  linearpwm=$linearpwm"
+
+}
+
+
+# According to fan control strategy
+# During system fan replacement, a fault condition shall be alerted, and all remaining fans should be run at full speed to provide sufficient cooling capacity until replacement completion. When the new fan is reinserted into the system, all fans should run at 70% duty for 30 seconds first, and then all fans return to the normal sensor drive speed.
+function FanIsInsert
+{
+    local i status
+    FAN_IS_INSERT=0
+    
+    for i in {1..7}; do
+        status=$(cat /sys/bus/i2c/devices/i2c-9/9-000d/fan${i}_present) # 1--absent,0--present
+        if [[ "$status"x = "0"x && "${FAN_LAST_STATUS[$i-1]}"x = "1"x ]]; then
+            FAN_IS_INSERT=1
+        fi
+        FAN_LAST_STATUS[$i-1]=$status
+    done
+    
+}
+# main function
+function UpdateFanSpeeds
+{
+    local fcvcount
+    local pwmo tsens fan mint maxt minsa minso minpwm maxpwm tHyst
+    local tval pwmpval fanval min_fanval=0 one_fan one_fanval
+    local i pwmval ret
+    
+    let fcvcount=0
+    pwmvalmaxinfans=0
+    
+    log "---------------Entering fans update--------------"
+    # Add for SilverstoneX only, because SilverstoneX fans are too powerful and lead to reverse rotation of new plugged fan even with electricity power
+    FanIsInsert
+    if [ $FAN_IS_INSERT -eq 1 ]; then 
+        while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+        do
+            pwmo=${AFCPWM[$fcvcount]}
+            read pwmpval < ${pwmo}
+            if [ $pwmpval -gt 178 ]; then   # write 70% pwm to output
+                pwmval=178
+                echo $pwmval > $pwmo
+                lastpwm=$pwmval
+                log "Set final pwmval=$pwmval due to fan fault"
+            fi
+            let fcvcount=$fcvcount+1
+        done
+        sleep 30
+        return 0
+    fi
+        
+    while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+    do
+        log "----Entering fan $fcvcount update-----"
+        #hopefully shorter vars will improve readability:
+        pwmo=${AFCPWM[$fcvcount]}
+        tsens=${AFCTEMP[$fcvcount]}
+        fan=${AFCFAN[$fcvcount]}
+        let mint="${AFCMINTEMP[$fcvcount]}*1000"
+        let maxt="${AFCMAXTEMP[$fcvcount]}*1000"
+        minsa=${AFCMINSTART[$fcvcount]}
+        minso=${AFCMINSTOP[$fcvcount]}
+        minpwm=${AFCMINPWM[$fcvcount]}
+        maxpwm=${AFCMAXPWM[$fcvcount]}
+        let tHyst="${AFCTHYST[$fcvcount]}*1000"
+
+        if [ "$fcvcount" -eq 0 ]; then
+            pwmval=$minpwm
+        fi
+        
+        #if some fan  or PSU fault detected all pwm=100%
+        log "update start count=$fcvcount"
+        CheckFanFault
+        ret=$?
+        CheckPSUFault
+        if [ $? -eq 0 -o $ret -eq 0 ]; then
+            # pwmval=$maxpwm
+            pwmvalmaxinfans=$maxpwm
+            let fcvcount=$fcvcount+1
+            log "update  force to set max pwm  "
+            continue
+        fi
+
+        #check thermal overload
+        CheckTempOver
+
+        read tval < ${tsens}
+        if [ $? -ne 0 ]
+        then
+.            log "Error reading temperature from $DIR/$tsens"
+            restorefans 1
+        fi
+        
+        # The 2nd sensor should be Innovium switch internal sensor
+        if [ "$fcvcount" -eq 1 ]
+        then 
+            GetInnoviumSensorTemp $tval
+            tval=$inno_temp
+            log "update inno temp tval=$tval"
+        fi
+
+        # Use highest temperature of all CPU cores
+        ret=$(echo $tsens | grep coretemp)
+        if [ -n "$ret" ]; then
+            local core_temp_node core_temp_max rise=5000 retry_second=2
+            core_temp_node=$(echo $tsens | sed  's%temp[^/]*_input%temp\*_input%g')
+            core_temp_max=$(cat $core_temp_node | sort -n | tail -n 1)
+
+            # in SilverstoneX, Because the SONiC monit service periodically occupies the CPU, the temperature, frequency and power of the CPU rise and fall rapidly at a fixed cycle. 
+            # read it again after $retry_second second as real temperature because this soaring temperature wont last long.            
+            let rise=${lasttemp[$fcvcount]}+$rise
+            if [ $core_temp_max -ge $rise ]; then
+                sleep $retry_second
+                log "Revise CPU soaring temperature $core_temp_max to "
+                core_temp_max=$(cat $core_temp_node | sort -n | tail -n 1)
+                log "$core_temp_max"
+            fi
+
+            tval=$core_temp_max
+            log "update CPU temp tval=$core_temp_max"
+        fi
+        
+        read pwmpval < ${pwmo}
+        if [ $? -ne 0 ]
+        then
+            log "Error reading PWM value from $DIR/$pwmo"
+            restorefans 1
+        fi
+        
+        # If fanspeed-sensor output shall be used, do it
+        if [[ -n ${fan} ]]
+        then
+            log "fan:$fan"
+            min_fanval=100000
+            fanval=
+            # A given PWM output can control several fans
+            for one_fan in $(echo $fan | sed -e 's/+/ /')
+            do
+                read one_fanval < ${one_fan}
+                if [ $? -ne 0 ]
+                then
+                    log "Error reading Fan value from $DIR/$one_fan" >&2
+                    restorefans 1
+                fi
+
+                # Remember the minimum, it only matters if it is 0
+                if [ $one_fanval -lt $min_fanval ]
+                then
+                    min_fanval=$one_fanval
+                fi
+
+                if [ -z "$fanval" ]
+                then
+                    fanval=$one_fanval
+                else
+                    fanval="$fanval/$one_fanval"
+                fi
+            done
+        else
+            fanval=1  # set it to a non zero value, so the rest of the script still works
+        fi
+
+        log "pwmo=$pwmo"
+        log "tsens=$tsens"
+        log "fan=$fan"
+        log "mint=$mint"
+        log "maxt=$maxt"
+        log "minsa=$minsa"
+        log "minso=$minso"
+        log "minpwm=$minpwm"
+        log "maxpwm=$maxpwm"
+        log "tval $fcvcount=$tval"
+        log "fanval=$fanval"
+        log "min_fanval=$min_fanval"
+        log "tHyst=$tHyst"
+        
+        log "cal before  pwmval=$pwmval tval=$tval"
+        if (( $tval+$tHyst <= $mint ))
+            then pwmval=$minpwm # below min temp, use defined min pwm
+        elif (( $tval >= $maxt ))
+            then pwmval=$maxpwm # over max temp, use defined max pwm
+        elif (( $tval+$tHyst >= $maxt )) && (( $pwmpval == $maxpwm ))
+            then pwmval=$maxpwm
+        else
+            local temp_pwm
+            # The 1st sensor should use linear control strategy
+            if [ "$fcvcount" -eq 0 ]
+            then
+                FancontrolLinear ${tval} ${mint} ${maxt} ${minpwm} ${maxpwm} ${tHyst} ${fcvcount}
+                temp_pwm=$linearpwm
+                log "cal update linear  temp_pwm=$temp_pwm pwmval=$pwmval"
+            # The 3rd sensor should be CPU internal sensor
+            elif [ "$fcvcount" -eq 2 ]; then
+                FancontrolPid ${tval} ${AFCSETPOINT[$fcvcount]} ${fcvcount} ${minpwm} ${maxpwm} 1
+                temp_pwm=$pidpwm
+                # CPU use it's own pidpwm but not the final pwm as the last pid pwm to eliminate effect from CPU soaring temperature at a short time.
+                cpu_last_pwm=$pidpwm
+                log "cal update pid  temp_pwm=$temp_pwm pwmval=$pwmval"
+            else
+                FancontrolPid ${tval} ${AFCSETPOINT[$fcvcount]} ${fcvcount} ${minpwm} ${maxpwm} 0
+                temp_pwm=$pidpwm
+                log "cal update pid  temp_pwm=$temp_pwm pwmval=$pwmval"
+            fi
+            
+            if [[ "$temp_pwm" -gt "$pwmval" ]]
+            then
+                pwmval=$temp_pwm    
+            fi                
+        fi
+        # lastpwm=$pwmval
+        lastlasttemp[$fcvcount]=lasttemp[$fcvcount]
+        lasttemp[$fcvcount]=$tval
+        
+        log "cal new  pwmval=$pwmval"
+        if [ $pwmvalmaxinfans -lt $pwmval ]; then
+            pwmvalmaxinfans=$pwmval
+        fi
+        let fcvcount=$fcvcount+1
+    done
+    
+    #update new pwm to all fans
+    if [[ "$pwmvalmaxinfans" -gt "$maxpwm" ]]
+    then 
+       pwmvalmaxinfans=$maxpwm
+    elif [[ "$pwmvalmaxinfans" -lt "$minsa" ]]
+    then
+       pwmvalmaxinfans=$minsa
+    fi
+  
+    if [ $pwmvalmaxinfans -ne $lastpwm ]; then
+        let fcvcount=0
+        while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+        do
+            pwmo=${AFCPWM[$fcvcount]}
+            read pwmpval < ${pwmo}
+            if [ $? -ne 0 ]
+            then
+                log "Error reading PWM value from $DIR/$pwmo"
+                restorefans 1
+            fi
+
+            # if [ $pwmpval -eq 0 -o $min_fanval -eq 0 ]
+            # then ## if fan was stopped start it using a safe value
+                    # echo $minsa > $pwmo
+                    # Sleep while still handling signals
+                    # sleep 1 &
+                    # wait $!
+            # fi            
+            echo $pwmvalmaxinfans > $pwmo # write new value to pwm output
+            let fcvcount=$fcvcount+1
+        done
+    fi
+    log "final pwmval=$pwmvalmaxinfans"
+    lastpwm=$pwmvalmaxinfans
+}
+
+log 'Enabling PWM on fans...'
+let fcvcount=0
+let cpu_last_pwm=0
+lastpwm=$MAX
+while (( $fcvcount < ${#AFCPWM[@]} )) # go through all pwm outputs
+do
+    pwmo=${AFCPWM[$fcvcount]}
+    pwmenable $pwmo
+    if [ $? -ne 0 ]
+    then
+        log "Error enabling PWM on $DIR/$pwmo" >&2
+        restorefans 1
+    fi
+
+    #get sensors lasttemp/lastlasttemp for init_once
+    lasttemp[${fcvcount}]=`cat ${AFCTEMP[$fcvcount]}`
+    if [ "$fcvcount" -eq 1 ]
+    then 
+       GetInnoviumSensorTemp ${lasttemp[${fcvcount}]}
+       lasttemp[${fcvcount}]=$inno_temp
+    fi
+    
+    lastlasttemp[${fcvcount}]=${lasttemp[${fcvcount}]}    
+
+    let fcvcount=$fcvcount+1
+done
+
+log 'Starting automatic fan control...'
+
+# main loop calling the main function at specified intervals
+while true
+do
+    UpdateFanSpeeds
+    # Sleep while still handling signals
+    sleep $INTERVAL &
+    wait $!
+done
