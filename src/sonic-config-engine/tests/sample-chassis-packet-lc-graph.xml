@@ -222,6 +222,25 @@
       </IPNextHops>
     </DeviceDataPlaneInfo>
   </DpgDec>
+  <LinkMetadataDeclaration>
+    <Link xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>Frequency</a:Name>
+            <a:Value>131</a:Value>
+          </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>TxPower</a:Name>
+            <a:Value>7.5</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>str2-8808-lc2-1:Eth1/1/13;ARISTA01-RH:Ethernet1/1</a:Key>
+      </a:LinkMetadata>
+    </Link>
+    <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+  </LinkMetadataDeclaration>
   <PngDec>
     <DeviceInterfaceLinks>
       <DeviceLinkBase>
