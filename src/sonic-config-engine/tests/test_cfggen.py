@@ -1008,3 +1008,17 @@ class TestCfgGen(TestCase):
             utils.to_dict(output.strip()),
             utils.to_dict("{('PortChannel32.2', '192.168.1.4/24'): {}, 'PortChannel32.2': {'admin_status': 'up'}, ('PortChannel33.2', '192.168.2.4/24'): {}, 'PortChannel33.2': {'admin_status': 'up'}}")
         )
+
+    def test_minigraph_voq_400g_zr_port_config(self):
+        argument = "-j {} -m {} -p {} -v \"PORT[\'Ethernet4\']\"".format(self.macsec_profile, self.sample_graph_voq, self.voq_port_config)
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
+        self.assertEqual(output_dict['tx_power'], '-10')
+        self.assertEqual(output_dict['laser_freq'], 195875)
+
+    def test_minigraph_packet_chassis_400g_zr_port_config(self):
+        argument = "-m {} -p {} -n asic1 -v \"PORT[\'Ethernet13\']\"".format(self.packet_chassis_graph, self.packet_chassis_port_ini)
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
+        self.assertEqual(output_dict['tx_power'], '7.5')
+        self.assertEqual(output_dict['laser_freq'], 131000)

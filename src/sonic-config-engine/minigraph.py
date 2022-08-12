@@ -973,7 +973,8 @@ def parse_linkmeta(meta, hname):
         lower_tor_hostname = ''
         auto_negotiation = None
         macsec_enabled = False
-
+        tx_power = None
+        laser_freq = None
         properties = linkmeta.find(str(QName(ns1, "Properties")))
         for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
             name = device_property.find(str(QName(ns1, "Name"))).text
@@ -990,6 +991,10 @@ def parse_linkmeta(meta, hname):
                 auto_negotiation = value
             elif name == "MacSecEnabled":
                 macsec_enabled = value
+            elif name == "TxPower":
+                tx_power = value
+            elif name == "Frequency":
+                laser_freq = value
 
         linkmetas[port] = {}
         if fec_disabled:
@@ -1003,6 +1008,11 @@ def parse_linkmeta(meta, hname):
             linkmetas[port]["AutoNegotiation"] = auto_negotiation
         if macsec_enabled:
             linkmetas[port]["MacSecEnabled"] = macsec_enabled
+        if tx_power:
+            linkmetas[port]["tx_power"] = tx_power
+        # Convert the freq in GHz
+        if laser_freq:
+            linkmetas[port]["laser_freq"] = int(float(laser_freq)*1000)
     return linkmetas
 
 def parse_macsec_profile(val_string):
@@ -1614,6 +1624,14 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         macsec_enabled = linkmetas.get(alias, {}).get('MacSecEnabled')
         if macsec_enabled and 'PrimaryKey' in macsec_profile:
             port['macsec'] = macsec_profile['PrimaryKey']
+
+        tx_power = linkmetas.get(alias, {}).get('tx_power')
+        if tx_power:
+            port['tx_power'] = tx_power
+
+        laser_freq = linkmetas.get(alias, {}).get('laser_freq')
+        if laser_freq:
+            port['laser_freq'] = laser_freq
 
     # set port description if parsed from deviceinfo
     for port_name in port_descriptions:
