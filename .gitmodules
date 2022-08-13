@@ -35,6 +35,10 @@
 	path = src/sonic-utilities
 	url = https://github.com/Azure/sonic-utilities
     branch = 202205
+[submodule "src/sonic-linux-kernel"]
+	path = src/sonic-linux-kernel
+	url = https://github.com/sonic-net/sonic-linux-kernel
+    branch = 202205
 [submodule "platform/broadcom/sonic-platform-modules-arista"]
 	path = platform/broadcom/sonic-platform-modules-arista
 	url = https://github.com/aristanetworks/sonic
