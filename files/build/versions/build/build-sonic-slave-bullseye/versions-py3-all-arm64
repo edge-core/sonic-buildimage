@@ -1,4 +1,5 @@
 bitarray==1.5.3
 click==7.0
+filelock==3.7.1
 lxml==4.6.5
 redis==3.5.3
