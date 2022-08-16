@@ -14,7 +14,7 @@ bzip2==1.0.6-9.2~deb10u1
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.6.6-1
+containerd.io==1.6.7-1
 cpio==2.12+dfsg-9
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
@@ -128,6 +128,7 @@ libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
 libgirepository-1.0-1==1.58.3-2
 libglib2.0-0==2.58.3-2+deb10u3
+libgnutls30==3.6.7-4+deb10u9
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
 libgssapi-krb5-2==1.17-3+deb10u3
