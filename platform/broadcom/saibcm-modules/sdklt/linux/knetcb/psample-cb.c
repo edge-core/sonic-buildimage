@@ -251,6 +251,7 @@ psample_task(struct work_struct *work)
     unsigned long flags;
     struct list_head *list_ptr, *list_next;
     psample_pkt_t *pkt;
+    struct psample_metadata md = {0};
 
     spin_lock_irqsave(&psample_work->lock, flags);
     list_for_each_safe(list_ptr, list_next, &psample_work->pkt_list) {
@@ -267,12 +268,13 @@ psample_task(struct work_struct *work)
                     pkt->meta.trunc_size, pkt->meta.src_ifindex, 
                     pkt->meta.dst_ifindex, pkt->meta.sample_rate);
 
+            md.trunc_size = pkt->meta.trunc_size;
+            md.in_ifindex = pkt->meta.src_ifindex;
+            md.out_ifindex = pkt->meta.dst_ifindex;
             psample_sample_packet(pkt->group, 
                                   pkt->skb, 
-                                  pkt->meta.trunc_size,
-                                  pkt->meta.src_ifindex,
-                                  pkt->meta.dst_ifindex,
-                                  pkt->meta.sample_rate);
+                                  pkt->meta.sample_rate,
+                                  &md);
             g_psample_stats.pkts_f_psample_mod++;
  
             dev_kfree_skb_any(pkt->skb);

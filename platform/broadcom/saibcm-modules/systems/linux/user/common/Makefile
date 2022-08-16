@@ -106,9 +106,6 @@ KNET_CB := $(DEST_DIR)/$(KNET_CB_LOCAL)
 BCM_KNET_LOCAL :=linux-bcm-knet.$(KOBJ)
 BCM_KNET=$(DEST_DIR)/$(BCM_KNET_LOCAL)
 
-PSAMPLE_LOCAL := psample.$(KOBJ)
-PSAMPLE := $(DEST_DIR)/$(PSAMPLE_LOCAL)
-
 ifeq (,$(findstring DELIVER,$(MAKECMDGOALS)))
 .DEFAULT_GOAL := all
 all_targets := kernel_modules $(KERNEL_BDE) $(USER_BDE)
@@ -145,7 +142,6 @@ endif
 endif
 
 ifdef BUILD_PSAMPLE
-all_targets += $(PSAMPLE)
 ADD_TO_CFLAGS += -DPSAMPLE_SUPPORT
 endif
 ADD_TO_CFLAGS += -I$(SDK)/systems/linux/kernel/modules/include
@@ -178,10 +174,6 @@ kernel_modules:
 ifeq ($(BUILD_KNET),1)
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="shared bcm-knet" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
-ifdef BUILD_PSAMPLE
-	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
-		subdirs="psample" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
-endif
 ifdef BUILD_KNET_CB
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="knet-cb" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
@@ -201,11 +193,6 @@ $(BCM_KNET): $(KERN_BLDROOT)/linux-bcm-knet.$(KOBJ)
 $(KNET_CB): $(KERN_BLDROOT)/linux-knet-cb.$(KOBJ)
 	$(OBJCOPY) --strip-debug $< $@
 
-$(PSAMPLE): $(KERN_BLDROOT)/psample.$(KOBJ)
-	$(OBJCOPY) --strip-debug $< $@
-
-
-
 ifeq ($(NO_LOCAL_TARGETS),)
 $(foreach targ,$(LOCAL_TARGETS),$(eval $(call LOCAL_TARGET_DEF,$(targ))))
 endif
@@ -214,7 +201,7 @@ clean::
 	$(MAKE) -C $(SDK)/systems/bde/linux/kernel $@
 	$(MAKE) -C $(SDK)/systems/bde/linux/user/kernel $@
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules \
-		subdirs="shared bcm-knet knet-cb psample" \
+		subdirs="shared bcm-knet knet-cb" \
 		override-target=linux-$(platform) $@
 	$(RM) $(KERNEL_BDE) $(USER_BDE)
 	$(RM) $(BCM_KNET) $(KNET_CB) $(PSAMPLE)
@@ -222,7 +209,6 @@ clean::
 	$(RM) $(KERN_BLDROOT)/linux-user-bde.$(KOBJ)
 	$(RM) $(KERN_BLDROOT)/linux-bcm-knet.$(KOBJ)
 	$(RM) $(KERN_BLDROOT)/linux-knet-cb.$(KOBJ)
-	$(RM) $(KERN_BLDROOT)/psample.$(KOBJ)
 	$(RM) $(LOCAL_TARGETS)
 
 distclean:: clean

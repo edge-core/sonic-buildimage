@@ -44,12 +44,7 @@ export CROSS_COMPILE
 
 override SDK := $(CURDIR)
 
-ifeq ($(BUILD_PSAMPLE),1)
-PSAMPLE=psample
-PSAMPLE_SYMVERS=$(SDK)/linux/psample/Module.symvers
-endif
-
-kmod: bde knet knetcb $(PSAMPLE)
+kmod: bde knet knetcb
 
 bde:
 	$(MAKE) -C $(SDK)/linux/bde SDK=$(SDK) \
@@ -62,19 +57,11 @@ knet: bde
 		$(TARGET)
 	ln -sf $(SDK)/linux/knet/*.ko
 
-knetcb: knet $(PSAMPLE)
+knetcb: knet
 	$(MAKE) -C $(SDK)/linux/knetcb SDK=$(SDK) \
 		KBUILD_EXTRA_SYMBOLS=$(SDK)/linux/knet/Module.symvers \
-		KBUILD_EXTRA_SYMBOLS+=$(PSAMPLE_SYMVERS) \
 		$(TARGET)
 	ln -sf $(SDK)/linux/knetcb/*.ko
-
-ifeq ($(BUILD_PSAMPLE),1)
-$(PSAMPLE):
-	$(MAKE) -C $(SDK)/linux/psample SDK=$(SDK) \
-		$(TARGET)
-	ln -sf $(SDK)/linux/psample/*.ko
-endif
 
 clean:
 	$(MAKE) kmod TARGET=clean
