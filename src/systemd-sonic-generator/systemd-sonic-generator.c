@@ -99,6 +99,7 @@ static int get_install_targets_from_line(char* target_string, char* install_type
     ***/
     char* token;
     char* target;
+    char* saveptr;
     char final_target[PATH_MAX];
     int num_targets = 0;
 
@@ -113,8 +114,8 @@ static int get_install_targets_from_line(char* target_string, char* install_type
         strip_trailing_newline(target);
 
         if (strstr(target, "%") != NULL) {
-            char* prefix = strtok(target, ".");
-            char* suffix = strtok(NULL, ".");
+            char* prefix = strtok_r(target, ".", &saveptr);
+            char* suffix = strtok_r(NULL, ".", &saveptr);
             int prefix_len = strlen(prefix);
 
             strncpy(final_target, prefix, prefix_len - 2);
@@ -501,6 +502,7 @@ static int get_num_of_asic() {
     char *line = NULL;
     char* token;
     char* platform;
+    char* saveptr;
     size_t len = 0;
     ssize_t nread;
     bool ans;
@@ -518,8 +520,8 @@ static int get_num_of_asic() {
     while ((nread = getline(&line, &len, fp)) != -1) {
         if ((strstr(line, "onie_platform") != NULL) ||
             (strstr(line, "aboot_platform") != NULL)) {
-            token = strtok(line, "=");
-            platform = strtok(NULL, "=");
+            token = strtok_r(line, "=", &saveptr);
+            platform = strtok_r(NULL, "=", &saveptr);
             strip_trailing_newline(platform);
             break;
         }
@@ -532,8 +534,8 @@ static int get_num_of_asic() {
         if (fp != NULL) {
             while ((nread = getline(&line, &len, fp)) != -1) {
                 if (strstr(line, "NUM_ASIC") != NULL) {
-                    token = strtok(line, "=");
-                    str_num_asic = strtok(NULL, "=");
+                    token = strtok_r(line, "=", &saveptr);
+                    str_num_asic = strtok_r(NULL, "=", &saveptr);
                     strip_trailing_newline(str_num_asic);
                     if (str_num_asic != NULL){
                         sscanf(str_num_asic, "%d",&num_asic);
@@ -557,6 +559,7 @@ int main(int argc, char **argv) {
     char* unit_instance;
     char* prefix;
     char* suffix;
+    char* saveptr;
     int num_unit_files;
     int num_targets;
     int r;
@@ -577,8 +580,8 @@ int main(int argc, char **argv) {
     for (int i = 0; i < num_unit_files; i++) {
         unit_instance = strdup(unit_files[i]);
         if ((num_asics == 1) && strstr(unit_instance, "@") != NULL) {
-            prefix = strtok(unit_instance, "@");
-            suffix = strtok(NULL, "@");
+            prefix = strtok_r(unit_instance, "@", &saveptr);
+            suffix = strtok_r(NULL, "@", &saveptr);
 
             strcpy(unit_instance, prefix);
             strcat(unit_instance, suffix);
