@@ -1,0 +1,28 @@
+{
+    "SNMP_SYSTEM_TEST": {
+        "desc": "Load SNMP sysContact and sysLocation."
+    },
+    "SNMP_SYSTEM_CONTACT_NEG_TEST": {
+        "desc": "Load SNMP sysContact with empty string",
+        "eStrKey": "Range"
+    },
+    "SNMP_SYSTEM_LOCATION_NEG_TEST": {
+        "desc": "Load SNMP sysContact with empty string",
+        "eStrKey": "Range"
+    },
+    "SNMP_COMMUNITY_TEST": {
+        "desc": "Load SNMP community string."
+    },
+    "SNMP_COMMUNITY_MIN_NEG_TEST": {
+        "desc": "Load SNMP community string of length < 3.",
+        "eStrKey": "Range"
+    },
+    "SNMP_COMMUNITY_MAX_NEG_TEST": {
+        "desc": "Load SNMP community string of lenth > 32.",
+        "eStrKey": "Range"
+    },
+    "SNMP_COMMUNITY_WRONG_TYPE_TEST": {
+        "desc": "Load SNMP community string with un supported type.",
+        "eStrKey": "InvalidValue"
+    }
+}

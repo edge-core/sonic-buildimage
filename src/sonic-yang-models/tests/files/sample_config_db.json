@@ -1924,10 +1924,28 @@
                  ]
              }
         },
+
+        "SNMP": {
+            "CONTACT": {
+                "Contact": "testuser@contoso.com"
+            },
+            "LOCATION": {
+                "Location": "SNMP Server Location"
+            }
+        },
+        "SNMP_COMMUNITY": {
+            "public": {
+                "TYPE": "RO"
+            },
+            "private": {
+                "TYPE": "RW"
+            }
+        },
+
         "SYSTEM_DEFAULTS": {
             "tunnel_qos_remap": {
                 "status": "enabled"
-	    }
+            }
          },
         "LOSSLESS_TRAFFIC_PATTERN": {
             "AZURE": {

@@ -1,0 +1,74 @@
+module sonic-snmp {
+  namespace "http://github.com/Azure/sonic-snmp";
+  prefix ssnmp;
+  yang-version 1.1;
+
+
+  organization
+    "SONiC";
+
+  contact
+    "SONiC";
+
+  description
+    "SONIC SNMP";
+
+  revision 2022-05-13 {
+    description
+      "Initial revision.";
+  }
+
+
+  container sonic-snmp {
+
+    container SNMP {
+      container CONTACT {
+        leaf Contact {
+          type string {
+             length "1..255";
+          }
+          description
+            "SNMP System Contact.";
+        }
+      }
+      container LOCATION {
+        leaf Location {
+          type string {
+             length "1..255";
+          }
+          description
+            "SNMP System Location.";
+        }
+
+      }
+    }
+
+    container SNMP_COMMUNITY {
+      list SNMP_COMMUNITY_LIST {
+        key name;
+        description
+          "List of communities.";
+
+        leaf name {
+          type string {
+              length "4..32";
+              pattern '[^ @,\\' +"']*" {
+                  error-message 'Invalid snmp community string (Valid chars are ASCII printable except SPACE, single quote,"@", "," and "\")';
+              }
+          }
+          description
+            "Index into the community list which must be the community name.";
+        }
+
+        leaf TYPE {
+          type enumeration {
+            enum RO;
+            enum RW;
+          }
+          description
+            "Type of community, read-only or read-write.";
+        }
+      }
+    }
+  }
+}
