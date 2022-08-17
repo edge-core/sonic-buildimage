@@ -14,7 +14,7 @@
   ],
   "ports": [
     {
-      "index": 22,
+      "index": 23,
       "mdio_addr": "",
       "system_speed": 1000,
       "system_fec": "none",
