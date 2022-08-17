@@ -82,13 +82,13 @@ module sonic-port-qos-map {
 
                 leaf pfc_enable {
                     type string {
-                        pattern "[0-7](,[0-7])?";
+                        pattern "[0-7](,[0-7])*";
                     }
                 }
 
                 leaf pfcwd_sw_enable {
                     type string {
-                        pattern "[0-7](,[0-7])?";
+                        pattern "[0-7](,[0-7])*";
                     }
                     description
                         "Specify the queue(s) on which software pfc watchdog are enabled.";
