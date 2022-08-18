@@ -111,3 +111,11 @@ class TestSfp:
         sfp = SFP(0)
         assert output_sfp.y_cable_part_number == sfp.read_eeprom(offset, 16).decode()
         MlxregManager.read_mlxred_eeprom.assert_called_with(132, 4, 16)
+
+    @mock.patch('sonic_platform.sfp.SFP._fetch_port_status')
+    def test_is_port_admin_status_up(self, mock_port_status):
+        mock_port_status.return_value = (0, True)
+        assert SFP.is_port_admin_status_up(None, None)
+
+        mock_port_status.return_value = (0, False)
+        assert not SFP.is_port_admin_status_up(None, None)
