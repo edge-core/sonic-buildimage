@@ -53,6 +53,8 @@ try:
         SX_PORT_MODULE_STATUS_UNPLUGGED = 2
         SX_PORT_MODULE_STATUS_PLUGGED_WITH_ERROR = 3
         SX_PORT_MODULE_STATUS_PLUGGED_DISABLED = 4
+        SX_PORT_ADMIN_STATUS_UP = True
+        SX_PORT_ADMIN_STATUS_DOWN = False
 except KeyError:
     pass
 
@@ -571,7 +573,7 @@ class SFP(NvidiaSFPCommon):
     @classmethod
     def is_port_admin_status_up(cls, sdk_handle, log_port):
         _, admin_state = cls._fetch_port_status(sdk_handle, log_port);
-        admin_state == SX_PORT_ADMIN_STATUS_UP
+        return admin_state == SX_PORT_ADMIN_STATUS_UP
 
 
     @classmethod
