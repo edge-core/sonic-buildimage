@@ -88,7 +88,7 @@
 
 # Description
 
-Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatible network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/Azure/SONiC/wiki/Supported-Devices-and-Platforms)
+Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatible network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/sonic-net/SONiC/wiki/Supported-Devices-and-Platforms)
 
 # Hardware
 
@@ -97,6 +97,8 @@ Any server can be a build image server as long as it has:
   * Multiple cores to increase build speed
   * Plenty of RAM (less than 8 GiB is likely to cause issues)
   * 300G of free disk space
+  * KVM Virtualization Support.
+> Note: If you are in a VM, make sure you have support for nested virtualization.
 
 A good choice of OS for building SONiC is currently Ubuntu 20.04.
 
@@ -116,7 +118,7 @@ sudo pip3 install j2cli
 ## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer:
 
-    git clone https://github.com/Azure/sonic-buildimage.git
+    git clone https://github.com/sonic-net/sonic-buildimage.git
 
 ## Usage
 
@@ -151,7 +153,6 @@ To build SONiC installer image and docker images, run the following commands:
 - PLATFORM=centec
 - PLATFORM=nephos
 - PLATFORM=innovium
-- PLATFORM=p4
 - PLATFORM=vs
 
 ## Usage for ARM Architecture
@@ -238,10 +239,10 @@ Every target has a clean target, so in order to clean swss, execute:
 It is recommended to use clean targets to clean all packages that are built together, like dev packages for instance. In order to be more familiar with build process and make some changes to it, it is recommended to read this short [Documentation](README.buildsystem.md).
 
 ## Build debug dockers and debug SONiC installer image:
-SONiC build system supports building dockers and ONIE-image with debug tools and debug symbols, to help with live & core debugging. For details refer to [(SONiC Buildimage Guide)](https://github.com/Azure/sonic-buildimage/blob/master/README.buildsystem.md).
+SONiC build system supports building dockers and ONIE-image with debug tools and debug symbols, to help with live & core debugging. For details refer to [(SONiC Buildimage Guide)](https://github.com/sonic-net/sonic-buildimage/blob/master/README.buildsystem.md).
 
 ## SAI Version
-Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release.
+Please refer to [SONiC roadmap](https://github.com/sonic-net/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release.
 
 ## Notes:
 - If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
@@ -263,11 +264,11 @@ This may take a while, but it is a one-time action, so please be patient.
   - docker-syncd-invm.gz: docker image for the daemon to sync database and Innovium switch ASIC (gzip tar archive)
   - docker-sonic-p4.gz: docker image for all-in-one for p4 software switch (gzip tar archive)
   - docker-sonic-vs.gz: docker image for all-in-one for software virtual switch (gzip tar archive)
-  - docker-sonic-mgmt.gz: docker image for [managing, configuring and monitoring SONiC](https://github.com/Azure/sonic-mgmt) (gzip tar archive)
+  - docker-sonic-mgmt.gz: docker image for [managing, configuring and monitoring SONiC](https://github.com/sonic-net/sonic-mgmt) (gzip tar archive)
 
 ## Contribution Guide
 
-All contributors must sign a contribution license agreement before contributions can be accepted.  Contact [sonic-cla-agreements@microsoft.com](mailto:sonic-cla-agreements@microsoft.com).
+All contributors must sign a contribution license agreement before contributions can be accepted.  Visit [EasyCLA - Linux Foundation](https://easycla.lfx.linuxfoundation.org).
 
 ## GitHub Workflow
 
