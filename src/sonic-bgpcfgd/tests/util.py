@@ -13,8 +13,8 @@ def load_constants_dir_mappings():
         result[name] = value["template_dir"]
     return result
 
-def load_constants():
-    with open(CONSTANTS_PATH) as f:
+def load_constants(constants = CONSTANTS_PATH):
+    with open(constants) as f:
         data = yaml.load(f) # FIXME" , Loader=yaml.FullLoader)
     assert "constants" in data, "'constants' key not found in constants.yml"
     return data
