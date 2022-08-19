@@ -1,4 +1,5 @@
 soc_family.BCM8869X=BCM8869X
+system_ref_core_clock_khz=1600000
 
 dpp_db_path=/usr/share/bcm/db
 custom_feature_ucode_path=u_code_db2pem.txt

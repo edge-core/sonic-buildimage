@@ -317,3 +317,4 @@ sai_verify_incoming_chksum
 phy_an_lt_msft
 xflow_macsec_secure_chan_to_num_secure_assoc_encrypt
 xflow_macsec_secure_chan_to_num_secure_assoc_decrypt
+system_ref_core_clock_khz
