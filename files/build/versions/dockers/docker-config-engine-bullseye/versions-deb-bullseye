@@ -51,12 +51,13 @@ libtsan0==10.2.1-6
 libubsan1==10.2.1-6
 libyang==1.0.73
 libyang-cpp==1.0.73
-linux-libc-dev==5.10.127-2
+linux-libc-dev==5.10.136-1
 make==4.3-4.1
 patch==2.7.6-7
 python3-dev==3.9.2-3
 python3-swsscommon==1.0.0
 python3-yang==1.0.73
 python3.9-dev==3.9.2-1
+sonic-db-cli==1.0.0
 xz-utils==5.2.5-2.1~deb11u1
 zlib1g-dev==1:1.2.11.dfsg-2+deb11u1
