@@ -344,6 +344,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python3-apt             \
     traceroute              \
     iputils-ping            \
+    arping                  \
     net-tools               \
     bsdmainutils            \
     ca-certificates         \
