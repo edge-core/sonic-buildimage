@@ -122,7 +122,12 @@ def find_hardware_reboot_cause():
     else:
         sonic_logger.log_info("No reboot cause found from platform api")
 
-    hardware_reboot_cause = "{} ({})".format(hardware_reboot_cause_major, hardware_reboot_cause_minor)
+    hardware_reboot_cause_minor_str = ""
+    if hardware_reboot_cause_minor:
+        hardware_reboot_cause_minor_str = " ({})".format(hardware_reboot_cause_minor)
+
+    hardware_reboot_cause = hardware_reboot_cause_major + hardware_reboot_cause_minor_str
+
     return hardware_reboot_cause
 
 
@@ -158,6 +163,50 @@ def get_reboot_cause_dict(previous_reboot_cause, comment, gen_time):
  
     return reboot_cause_dict
 
+def determine_reboot_cause():
+    # This variable is kept for future-use purpose. When proc_cmd_line/vendor/software provides
+    # any additional_reboot_info it will be stored as a "comment" in REBOOT_CAUSE_HISTORY_FILE
+    additional_reboot_info = "N/A"
+
+    # 1. Check if the previous reboot was warm/fast reboot by testing whether there is "fast|fastfast|warm" in /proc/cmdline
+    proc_cmdline_reboot_cause = find_proc_cmdline_reboot_cause()
+
+    # 2. Check if the previous reboot was caused by hardware
+    #    If yes, the hardware reboot cause will be treated as the reboot cause
+    hardware_reboot_cause = find_hardware_reboot_cause()
+
+    # 3. If there is a REBOOT_CAUSE_FILE, it will contain any software-related
+    #    reboot info. We will use it as the previous cause.
+    software_reboot_cause = find_software_reboot_cause()
+
+    # The main decision logic of the reboot cause:
+    # If there is a valid hardware reboot cause indicated by platform API, 
+    #    check the software reboot cause to add additional rebot cause.
+    # If there is a reboot cause indicated by /proc/cmdline, and/or warmreboot/fastreboot/softreboot
+    #   the software_reboot_cause which is the content of /hosts/reboot-cause/reboot-cause.txt
+    #   will be treated as the additional reboot cause
+    # Elif there is a cmdline reboot cause, 
+    #   the software_reboot_cause will be treated as the reboot cause if it's not unknown
+    #   otherwise, the cmdline_reboot_cause will be treated as the reboot cause if it's not none
+    # Else the software_reboot_cause will be treated as the reboot cause
+    if REBOOT_CAUSE_NON_HARDWARE not in hardware_reboot_cause:
+        previous_reboot_cause = hardware_reboot_cause
+        # Check if any software reboot was issued before this hardware reboot happened
+        if REBOOT_CAUSE_UNKNOWN not in software_reboot_cause:
+            additional_reboot_info = software_reboot_cause
+        elif proc_cmdline_reboot_cause is not None:
+            additional_reboot_info = proc_cmdline_reboot_cause
+    elif proc_cmdline_reboot_cause is not None:
+        if REBOOT_CAUSE_UNKNOWN not in software_reboot_cause:
+            # Get the reboot cause from REBOOT_CAUSE_FILE
+            previous_reboot_cause = software_reboot_cause
+        else:
+            previous_reboot_cause = proc_cmdline_reboot_cause
+    else:
+        previous_reboot_cause = software_reboot_cause
+
+    return previous_reboot_cause, additional_reboot_info
+
 
 def main():
     # Configure logger to log all messages INFO level and higher
@@ -177,22 +226,7 @@ def main():
     if os.path.exists(PREVIOUS_REBOOT_CAUSE_FILE):
         os.remove(PREVIOUS_REBOOT_CAUSE_FILE)
 
-    # This variable is kept for future-use purpose. When proc_cmd_line/vendor/software provides
-    # any additional_reboot_info it will be stored as a "comment" in REBOOT_CAUSE_HISTORY_FILE
-    additional_reboot_info = "N/A"
-
-    # Check if the previous reboot was warm/fast reboot by testing whether there is "fast|fastfast|warm" in /proc/cmdline
-    proc_cmdline_reboot_cause = find_proc_cmdline_reboot_cause()
-
-    # If /proc/cmdline does not indicate reboot cause, check if the previous reboot was caused by hardware
-    if proc_cmdline_reboot_cause is None:
-        previous_reboot_cause = find_hardware_reboot_cause()
-        if previous_reboot_cause.startswith(REBOOT_CAUSE_NON_HARDWARE):
-            # If the reboot cause is non-hardware, get the reboot cause from REBOOT_CAUSE_FILE
-            previous_reboot_cause = find_software_reboot_cause()
-    else:
-        # Get the reboot cause from REBOOT_CAUSE_FILE
-        previous_reboot_cause = find_software_reboot_cause()
+    previous_reboot_cause, additional_reboot_info = determine_reboot_cause()
 
     # Current time
     reboot_cause_gen_time = str(datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
