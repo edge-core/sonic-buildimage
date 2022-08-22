@@ -54,11 +54,16 @@ REBOOT_CAUSE_KERNEL_PANIC = "Kernel Panic [Time: Sun Mar 28 13:45:12 UTC 2021]"
 GEN_TIME_KERNEL_PANIC = "2021_3_28_13_48_49"
 
 
+REBOOT_CAUSE_UNKNOWN = "Unknown"
+REBOOT_CAUSE_NON_HARDWARE = "Non-Hardware"
+EXPECTED_NON_HARDWARE_REBOOT_CAUSE = {REBOOT_CAUSE_NON_HARDWARE, "N/A"}
+REBOOT_CAUSE_HARDWARE_OTHER = "Hardware - Other"
+EXPECTED_HARDWARE_REBOOT_CAUSE = {REBOOT_CAUSE_HARDWARE_OTHER, ""}
+
 EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE = "warm-reboot"
 EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER = "User issued 'warm-reboot' command [User: admin, Time: Mon Nov  2 22:37:45 UTC 2020]"
 EXPECTED_FIND_FIRSTBOOT_VERSION = " (First boot of SONiC version 20191130.52)"
 EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_FIRSTBOOT = "Unknown (First boot of SONiC version 20191130.52)"
-EXPECTED_HARDWARE_REBOOT_CAUSE = {"warm-reboot", ""}
 
 EXPECTED_WATCHDOG_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_15_08', 'cause': 'Watchdog', 'user': 'N/A', 'time': 'N/A'}
 EXPECTED_USER_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_14_07', 'cause': 'reboot', 'user': 'admin', 'time': 'Thu Oct 22 03:11:08 UTC 2020'}
@@ -104,7 +109,12 @@ class TestDetermineRebootCause(object):
     def test_find_hardware_reboot_cause(self):
         with mock.patch("determine_reboot_cause.get_reboot_cause_from_platform", return_value=("Powerloss", None)):
             result = determine_reboot_cause.find_hardware_reboot_cause()
-            assert result == "Powerloss (None)"
+            assert result == "Powerloss"
+
+    def test_find_hardware_reboot_cause_with_minor(self):
+        with mock.patch("determine_reboot_cause.get_reboot_cause_from_platform", return_value=("Powerloss", "under-voltage")):
+            result = determine_reboot_cause.find_hardware_reboot_cause()
+            assert result == "Powerloss (under-voltage)"
 
     def test_get_reboot_cause_dict_watchdog(self):
         reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_WATCHDOG, "", GEN_TIME_WATCHDOG)
@@ -117,3 +127,52 @@ class TestDetermineRebootCause(object):
     def test_get_reboot_cause_dict_kernel_panic(self):
         reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_KERNEL_PANIC, "", GEN_TIME_KERNEL_PANIC)
         assert reboot_cause_dict == EXPECTED_KERNEL_PANIC_REBOOT_CAUSE_DICT
+
+    def test_determine_reboot_cause_hardware(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=None):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=REBOOT_CAUSE_UNKNOWN):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_reboot_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_HARDWARE_REBOOT_CAUSE
+                    assert additional_reboot_info == "N/A"
+
+    def test_determine_reboot_cause_software(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=None):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_NON_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER
+                    assert additional_info == "N/A"
+
+    def test_determine_reboot_cause_cmdline_software(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_NON_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER
+                    assert additional_info == "N/A"
+
+    def test_determine_reboot_cause_cmdline_no_software(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=REBOOT_CAUSE_UNKNOWN):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_NON_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE
+                    assert additional_info == "N/A"
+
+    def test_determine_reboot_cause_cmdline_hardware(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=REBOOT_CAUSE_UNKNOWN):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_HARDWARE_REBOOT_CAUSE
+                    assert additional_info == EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE
+
+    def test_determine_reboot_cause_software_hardware(self):
+        with mock.patch("determine_reboot_cause.find_proc_cmdline_reboot_cause", return_value=EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE):
+            with mock.patch("determine_reboot_cause.find_software_reboot_cause", return_value=EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER):
+                with mock.patch("determine_reboot_cause.find_hardware_reboot_cause", return_value=EXPECTED_HARDWARE_REBOOT_CAUSE):
+                    previous_reboot_cause, additional_info = determine_reboot_cause.determine_reboot_cause()
+                    assert previous_reboot_cause == EXPECTED_HARDWARE_REBOOT_CAUSE
+                    assert additional_info == EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER
+
