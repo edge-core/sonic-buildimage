@@ -16,6 +16,8 @@ BACKEND_ASIC_SUB_ROLE = 'BackEnd'
 FABRIC_ASIC_SUB_ROLE = 'Fabric'
 EXTERNAL_PORT = 'Ext'
 INTERNAL_PORT = 'Int'
+INBAND_PORT = 'Inb'
+RECIRC_PORT ='Rec'
 PORT_CHANNEL_CFG_DB_TABLE = 'PORTCHANNEL'
 PORT_CFG_DB_TABLE = 'PORT'
 BGP_NEIGH_CFG_DB_TABLE = 'BGP_NEIGHBOR'
@@ -327,7 +329,7 @@ def is_port_internal(port_name, namespace=None):
 
     role = get_port_role(port_name, namespace)
 
-    if role == INTERNAL_PORT:
+    if role in [INTERNAL_PORT, INBAND_PORT, RECIRC_PORT]:
         return True
 
     return False
