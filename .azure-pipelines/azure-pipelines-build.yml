@@ -139,6 +139,9 @@ jobs:
             fi
             if [ $(docker_syncd_rpc_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-rpc.gz
+              if [ $(GROUP_NAME) == broadcom ]; then
+                make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-dnx-rpc.gz
+              fi
             fi
             if [ $(syncd_rpc_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/sonic-$(GROUP_NAME).bin
