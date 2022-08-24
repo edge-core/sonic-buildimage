@@ -354,6 +354,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            PLATFORM=$(PLATFORM) \
                            PLATFORM_ARCH=$(PLATFORM_ARCH) \
                            MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON)  \
+                           TARGET_BOOTLOADER=$(TARGET_BOOTLOADER) \
                            CROSS_BUILD_ENVIRON=$(CROSS_BUILD_ENVIRON) \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
