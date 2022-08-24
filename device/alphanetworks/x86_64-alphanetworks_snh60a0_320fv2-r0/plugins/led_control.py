@@ -3,7 +3,7 @@
 
 # try:
 #     from sonic_led.led_control_base import LedControlBase
-#     import swsssdk
+#     from swsscommon import swsscommon
 # except ImportError as e:
 #     raise ImportError (str(e) + " - required module not found")
 
@@ -181,7 +181,7 @@ class LedControl(LedControlBase):
 
         sonic_port_num = int(port_name[len(self.SONIC_PORT_NAME_PREFIX):])
 
-        swss = swsssdk.SonicV2Connector()
+        swss = swsscommon.SonicV2Connector()
         swss.connect(swss.APPL_DB)
 
         lanes = swss.get(
