@@ -36,6 +36,7 @@ REBOOT_TYPE_KEXEC_PATTERN_WARM = ".*SONIC_BOOT_TYPE=(warm|fastfast).*"
 REBOOT_TYPE_KEXEC_PATTERN_FAST = ".*SONIC_BOOT_TYPE=(fast|fast-reboot).*"
 
 REBOOT_CAUSE_UNKNOWN = "Unknown"
+REBOOT_CAUSE_NON_HARDWARE = "Non-Hardware"
 
 
 # Global logger class instance
@@ -154,16 +155,30 @@ def main():
     software_reboot_cause = find_software_reboot_cause()
 
     # The main decision logic of the reboot cause:
-    # If there is a reboot cause indicated by /proc/cmdline, it should be warmreboot/fastreboot
-    #   the software_reboot_cause which is the content of /hosts/reboot-cause/reboot-cause.txt 
-    #   will be treated as the reboot cause
-    # Elif there is a reboot cause indicated by platform API,
-    #   the hardware_reboot_cause will be treated as the reboot cause
+    # If there is a valid hardware reboot cause indicated by platform API,
+    #    check the software reboot cause to add additional rebot cause.
+    # If there is a reboot cause indicated by /proc/cmdline, and/or warmreboot/fastreboot/softreboot
+    #   the software_reboot_cause which is the content of /hosts/reboot-cause/reboot-cause.txt
+    #   will be treated as the additional reboot cause
+    # Elif there is a cmdline reboot cause,
+    #   the software_reboot_cause will be treated as the reboot cause if it's not unknown
+    #   otherwise, the cmdline_reboot_cause will be treated as the reboot cause if it's not none
     # Else the software_reboot_cause will be treated as the reboot cause
-    if proc_cmdline_reboot_cause is not None:
-        previous_reboot_cause = software_reboot_cause
-    elif hardware_reboot_cause is not None:
-        previous_reboot_cause = hardware_reboot_cause
+    if hardware_reboot_cause is not None:
+        # Check if any software reboot was issued before this hardware reboot happened
+        if REBOOT_CAUSE_UNKNOWN not in software_reboot_cause:
+            # Add the hardware_reboot_cause as actual reboot cause
+            previous_reboot_cause = software_reboot_cause + " Actual reboot cause : " + hardware_reboot_cause
+        elif proc_cmdline_reboot_cause is not None:
+            previous_reboot_cause = proc_cmdline_reboot_cause + " Actual reboot cause : " + hardware_reboot_cause
+        else:
+            previous_reboot_cause = hardware_reboot_cause
+    elif proc_cmdline_reboot_cause is not None:
+        if REBOOT_CAUSE_UNKNOWN not in software_reboot_cause:
+            # Get the reboot cause from REBOOT_CAUSE_FILE
+            previous_reboot_cause = software_reboot_cause
+        else:
+            previous_reboot_cause = proc_cmdline_reboot_cause
     else:
         previous_reboot_cause = software_reboot_cause
 
