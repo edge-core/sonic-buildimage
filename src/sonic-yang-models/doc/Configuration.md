@@ -36,6 +36,7 @@ Table of Contents
          * [MAP_PFC_PRIORITY_TO_QUEUE](#map_pfc_priority_to_queue)  
          * [NTP Global Configuration](#ntp-global-configuration)  
          * [NTP and SYSLOG servers](#ntp-and-syslog-servers)  
+         * [Peer Switch](#peer-switch)
          * [Policer](#policer)   
          * [Port](#port)   
          * [Port Channel](#port-channel)  
@@ -1155,6 +1156,19 @@ attributes in those objects.
             "source": "1111::1111",
             "port": "514",
             "vrf": "Vrf-Data"
+        }
+    }
+}
+```
+
+### Peer Switch
+
+Below is an exmaple of the peer switch table configuration. 
+```
+{
+    "PEER_SWITCH": {
+        "vlab-05": {
+            "address_ipv4":  "10.1.0.33"
         }
     }
 }

@@ -152,6 +152,7 @@ setup(
                          './yang-models/sonic-storm-control.yang',
                          './yang-models/sonic-tc-priority-group-map.yang',
                          './yang-models/sonic-tc-queue-map.yang',
+                         './yang-models/sonic-peer-switch.yang',
                          './yang-models/sonic-pfc-priority-queue-map.yang',
                          './yang-models/sonic-pfc-priority-priority-group-map.yang',
                          './yang-models/sonic-port-qos-map.yang',
