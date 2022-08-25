@@ -19,7 +19,6 @@ check program container_checker with path "/usr/bin/container_checker"
 import docker
 import sys
 
-import swsssdk
 from sonic_py_common import multi_asic, device_info
 from swsscommon import swsscommon
 
@@ -34,7 +33,7 @@ def get_expected_running_containers():
     @return:  A set which contains the expected running containers and a set that has
               containers marked as "always_enabled".
     """
-    config_db = swsssdk.ConfigDBConnector()
+    config_db = swsscommon.ConfigDBConnector()
     config_db.connect()
     feature_table = config_db.get_table("FEATURE")
 

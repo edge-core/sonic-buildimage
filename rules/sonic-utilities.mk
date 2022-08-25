@@ -8,7 +8,6 @@ $(SONIC_UTILITIES_PY3)_PYTHON_VERSION = 3
 $(SONIC_UTILITIES_PY3)_NAME = $(SONIC_UTILITIES_PY3_NAME)
 $(SONIC_UTILITIES_PY3)_VERSION = $(SONIC_UTILITIES_PY3_VERSION)
 $(SONIC_UTILITIES_PY3)_DEPENDS += $(SONIC_PY_COMMON_PY3) \
-                                  $(SWSSSDK_PY3) \
                                   $(SONIC_CONFIG_ENGINE_PY3) \
                                   $(SONIC_PLATFORM_COMMON_PY3) \
                                   $(SONIC_YANG_MGMT_PY3) \

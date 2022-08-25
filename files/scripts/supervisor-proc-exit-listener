@@ -10,7 +10,7 @@ import syslog
 import time
 from collections import defaultdict
 
-import swsssdk
+from swsscommon import swsscommon
 
 from supervisor import childutils
 
@@ -87,7 +87,7 @@ def get_autorestart_state(container_name):
     @summary: Read the status of auto-restart feature from Config_DB.
     @return: Return the status of auto-restart feature.
     """
-    config_db = swsssdk.ConfigDBConnector()
+    config_db = swsscommon.ConfigDBConnector()
     config_db.connect()
     features_table = config_db.get_table(FEATURE_TABLE_NAME)
     if not features_table:
