@@ -31,26 +31,12 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf net-snmp-$(SNMPD_VERSION)
 
 	# download debian net-snmp
-ifneq (,$(findstring 5.9,$(SNMPD_VERSION)))
-	dget -u https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_$(SNMPD_VERSION)-3.dsc
-else
 	dget -u https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_$(SNMPD_VERSION_FULL).dsc
-endif
 
 	pushd net-snmp-$(SNMPD_VERSION)
 	git init
 	git add -f *
 	git commit -m "unmodified snmpd source"
-
-ifneq (,$(findstring 5.9,$(SNMPD_VERSION)))
-	# Looks like Debian did a binNMU (binary non-maintainer upload), so the latest dsc
-	# file that we can get doesn't actually have the exact version number that Debian's
-	# repos have.
-	DEBEMAIL="$(shell git config --get user.name) <$(shell git config --get user.email)>" dch --bin-nmu "Rebuild against perl 5.32.0"
-	dch -r ""
-	git add debian/changelog
-	git commit -m "fix package version"
-endif
 
 	# Apply patches
 	stg init
