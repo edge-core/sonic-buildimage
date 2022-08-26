@@ -442,7 +442,7 @@ def is_multi_npu():
 
 def is_voq_chassis():
     switch_type = get_platform_info().get('switch_type')
-    return True if switch_type and switch_type == 'voq' else False
+    return True if switch_type and (switch_type == 'voq' or switch_type == 'fabric') else False
 
 
 def is_packet_chassis():
@@ -469,6 +469,14 @@ def is_supervisor():
                     return True
         return False
 
+def get_device_runtime_metadata():
+    chassis_metadata = {}
+    if is_chassis():
+        chassis_metadata = {'CHASSIS_METADATA': {'module_type' : 'supervisor' if is_supervisor() else 'linecard', 
+                                                'chassis_type': 'voq' if is_voq_chassis() else 'packet'}}
+
+    port_metadata = {'ETHERNET_PORTS_PRESENT': True if get_path_to_port_config_file(hwsku=None, asic="0" if is_multi_npu() else None) else False}
+    return {'DEVICE_RUNTIME_METADATA': chassis_metadata | port_metadata }
 
 def get_npu_id_from_name(npu_name):
     if npu_name.startswith(NPU_NAME_PREFIX):
