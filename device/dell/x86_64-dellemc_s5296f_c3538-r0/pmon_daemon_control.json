@@ -1,8 +1,3 @@
 {
-    "skip_sensors": true,
-    "skip_fancontrol": true,
-    "skip_ledd": true,
-    "skip_psud": true,
-    "skip_syseepromd": true,
-    "skip_thermalctld": true
+    "skip_ledd": true
 }
