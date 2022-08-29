@@ -136,6 +136,34 @@ wait() {
     /usr/bin/${SERVICE}.sh wait $DEV
 }
 
+collect_mst() {
+    debug "Collecting MST dump before syncd restart"
+    TMPDIR=/tmp/mlnxdump
+    MSTDIR=$TMPDIR/mstdump
+    DUMPDIR=/var/dump/mstdump
+    mkdir -p $MSTDIR
+    if ! mst status -v &> $MSTDIR/mststatus; then
+        debug "mst status command returned error"
+    else
+        local mst_dump_filename="$MSTDIR/mstdump"
+        local max_dump_count="3"
+        for i in $(seq 1 $max_dump_count); do
+            if ! ${CMD_PREFIX}/usr/bin/mstdump /dev/mst/mt*pci_cr0 > "${mst_dump_filename}${i}"; then
+                debug "mstdump failed"
+                break
+            fi
+        done
+    fi
+    mkdir -p $DUMPDIR
+    TARFILE=mstdump_`date +%Y%m%d_%H%M%S`.tar
+    tar -C $TMPDIR -cf $DUMPDIR/$TARFILE  .
+    gzip -f $DUMPDIR/$TARFILE
+    debug "MST dump created $DUMPDIR/$TARFILE.gz"
+    rm -rf $TMPDIR
+    # Maintaining the recent 3 files and removing the rest
+    ls -1td $DUMPDIR/* | tail -n +4 | xargs rm -rf
+}
+
 stop() {
     debug "Stopping ${SERVICE}$DEV service..."
 
@@ -154,7 +182,12 @@ stop() {
         /bin/systemctl stop pmon
         debug "Stopped pmon service"
     fi
-
+    if [[ x$sonic_asic_platform == x"mellanox" ]]; then
+        # In case of SAI failure the last line of sairedis.rec would contain switch_shutdown_request
+        if tail -1 /var/log/swss/sairedis.rec | grep -q switch_shutdown_request; then
+            collect_mst
+        fi
+    fi
     if [[ x$sonic_asic_platform != x"mellanox" ]] || [[ x$TYPE != x"cold" ]]; then
         debug "${TYPE} shutdown syncd process ..."
         /usr/bin/docker exec -i syncd$DEV /usr/bin/syncd_request_shutdown --${TYPE}
