@@ -16,8 +16,8 @@ https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/l
 https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang_1.0.184-2.debian.tar.xz==f159fbedc0b69d00b2bdb08db283c0bb
 https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang_1.0.184-2.dsc==98c68654fadc116346007be9282ae357
 https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang_1.0.184.orig.tar.gz==0ddfdf2dba5e73486c133c1fba1b3e8e
-https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-3.debian.tar.xz==8757281c6b6ff9c0a36fc552dd276a3c
-https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-3.dsc==4afc4c6302ad4d1e6ebea1daf43dffa8
+https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.debian.tar.xz==a3e626b1ed5adc26430e1727d81641df
+https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.dsc==a36ed553b5034b7400d9e9a8d529b27e
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg.orig.tar.xz==6c2d346ce3320e8999500497e9bacc99
 https://sonicstorage.blob.core.windows.net/packages/debian/smartmontools_6.6-1.debian.tar.xz?sv=2015-04-05&sr=b&sig=H0RFeC41MCvhTQCln85DuPLn5v2goozwz%2FB9sA9p5eQ%3D&se=2046-08-20T23%3A46%3A02Z&sp=r==47a284f4762f86ba24753ea75d85e6cb
 https://sonicstorage.blob.core.windows.net/packages/debian/smartmontools_6.6-1.dsc?sv=2015-04-05&sr=b&sig=IS7FKUN%2Bvq0T55f4X2hGAViB70Y%2FgzjGgvzpUJLyUfA%3D&se=2046-08-20T23%3A46%3A57Z&sp=r==151f97b46df2dafbd5bb954bb419642c

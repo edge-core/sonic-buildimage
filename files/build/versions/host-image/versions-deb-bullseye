@@ -18,7 +18,7 @@ bzip2==1.0.8-4
 ca-certificates==20210119
 cgroup-tools==0.41-11
 conntrack==1:1.4.6-2
-containerd.io==1.6.7-1
+containerd.io==1.6.8-1
 cpio==2.13+dfsg-4
 cpp==4:10.2.1-1
 cpp-10==10.2.1-6
@@ -298,7 +298,7 @@ libyang==1.0.73
 libyang-cpp==1.0.73
 linux-base==4.6
 linux-image-5.10.0-8-2-amd64-unsigned==5.10.46-4
-linux-libc-dev==5.10.127-2
+linux-libc-dev==5.10.136-1
 locales==2.31-13+deb11u3
 logrotate==3.18.0-2+deb11u1
 lsb-release==11.1.0
@@ -400,4 +400,5 @@ xorg-sgml-doctools==1:1.11-1.1
 xtrans-dev==1.4.0-1
 xxd==2:8.2.2434-3+deb11u1
 xz-utils==5.2.5-2.1~deb11u1
-zlib1g-dev==1:1.2.11.dfsg-2+deb11u1
+zlib1g==1:1.2.11.dfsg-2+deb11u2
+zlib1g-dev==1:1.2.11.dfsg-2+deb11u2

@@ -28,12 +28,12 @@ https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==e5d99d3f369b50a7b0290811926de82a
 https://deb.nodesource.com/node_14.x/dists/buster/Release==2c6b9d29a3e20816e0ed35475d52e0d3
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==badb28cf0604d9ff24c5fc3396b594d4
+https://deb.nodesource.com/setup_14.x==b692a224c718ad6e1cbd17eda8aaa673
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==bfd21cd7274888c066d39fe95b88a442
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==fd883cc3e0900a7137c49722e29576bf
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==beb7abb07eb7c08d48f3a48fc1e58569
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==b31a9884a677446492486f3fa70a4ed7
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/sai/libsai_1.9.1-0_amd64.deb==08e1a82bd42ca1cba08fd6deec43c02a
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/_Susi4.so==5e1b8daef522c9da00af400abe25810b
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0
@@ -58,8 +58,8 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.debian.tar.xz==ad957e90207d0669beb2109e4e325def
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.dsc==2443e4dffbdb020e7ab4f947a7904912
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
-https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-3.debian.tar.xz==8757281c6b6ff9c0a36fc552dd276a3c
-https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-3.dsc==4afc4c6302ad4d1e6ebea1daf43dffa8
+https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.debian.tar.xz==a3e626b1ed5adc26430e1727d81641df
+https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.dsc==a36ed553b5034b7400d9e9a8d529b27e
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg.orig.tar.xz==6c2d346ce3320e8999500497e9bacc99
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275

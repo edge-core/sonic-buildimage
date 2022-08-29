@@ -22,9 +22,9 @@ dirmngr==2.2.12-1+deb10u2
 dmsetup==2:1.02.155-3
 dpkg-dev==1.19.8
 ethtool==1:4.19-1
-exim4-base==4.92-8+deb10u6
-exim4-config==4.92-8+deb10u6
-exim4-daemon-light==4.92-8+deb10u6
+exim4-base==4.92-8+deb10u7
+exim4-config==4.92-8+deb10u7
+exim4-daemon-light==4.92-8+deb10u7
 fakeroot==1.23-1
 file==1:5.35-4+deb10u2
 g++==4:8.3.0-1
