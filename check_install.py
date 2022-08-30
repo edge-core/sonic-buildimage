@@ -19,6 +19,7 @@ def main():
     passwd_prompt = 'Password:'
     cmd_prompt = "{}@sonic:~\$ $".format(args.u)
     grub_selection = "The highlighted entry will be executed"
+    firsttime_prompt = 'firsttime_exit'
 
     i = 0
     while True:
@@ -38,13 +39,17 @@ def main():
 
     # bootup sonic image
     while True:
-        i = p.expect([login_prompt, passwd_prompt, cmd_prompt])
+        i = p.expect([login_prompt, passwd_prompt, firsttime_prompt, cmd_prompt])
         if i == 0:
             # send user name
             p.sendline(args.u)
         elif i == 1:
             # send password
             p.sendline(args.P)
+        elif i == 2:
+            # fix a login timeout issue, caused by the login_prompt message mixed with the output message of the rc.local
+            time.sleep(1)
+            p.sendline()
         else:
             break
 
