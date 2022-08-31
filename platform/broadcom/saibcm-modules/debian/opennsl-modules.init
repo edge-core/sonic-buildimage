@@ -45,17 +45,14 @@ function create_devices()
 function load_kernel_modules()
 {
     if [[ $is_ltsw_chip -eq 1 ]]; then
-        insmod /lib/modules/$(uname -r)/extra/psample.ko
+        modprobe psample
         modprobe linux_ngbde
         modprobe linux_ngknet
         modprobe linux_ngknetcb
     else
         modprobe linux-kernel-bde dmasize=$dmasize maxpayload=128 debug=4 dma_debug=1 usemsi=$usemsi
         modprobe linux-user-bde
-
-        # Using insmod with absolute path for psample to make sure bcm psample is loaded.
-        # There is a different psample.ko module getting created at net/psample/psample.ko 
-        insmod /lib/modules/$(uname -r)/extra/psample.ko
+        modprobe psample
 
         modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238 debug=0x5020 default_mtu=9100
         modprobe linux-knet-cb
@@ -69,9 +66,9 @@ function remove_kernel_modules()
         rmmod linux_ngknetcb
         rmmod linux_ngknet
         rmmod linux_ngbde
-        rmmod psample.ko
+        rmmod psample
     else
-        rmmod psample.ko
+        rmmod psample
         rmmod linux-knet-cb
         rmmod linux-bcm-knet
         rmmod linux-user-bde
