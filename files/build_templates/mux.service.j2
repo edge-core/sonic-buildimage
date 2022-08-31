@@ -14,7 +14,7 @@ ExecStartPre=/usr/local/bin/mark_dhcp_packet.py
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
 ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
-ExecStopPost=/usr/local/bin/write_standby.py
+ExecStopPost=/usr/local/bin/write_standby.py --shutdown mux
 Restart=always
 RestartSec=30
 
