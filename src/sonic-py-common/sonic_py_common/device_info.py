@@ -476,7 +476,10 @@ def get_device_runtime_metadata():
                                                 'chassis_type': 'voq' if is_voq_chassis() else 'packet'}}
 
     port_metadata = {'ETHERNET_PORTS_PRESENT': True if get_path_to_port_config_file(hwsku=None, asic="0" if is_multi_npu() else None) else False}
-    return {'DEVICE_RUNTIME_METADATA': chassis_metadata | port_metadata }
+    runtime_metadata = {}
+    runtime_metadata.update(chassis_metadata)
+    runtime_metadata.update(port_metadata)
+    return {'DEVICE_RUNTIME_METADATA': runtime_metadata }
 
 def get_npu_id_from_name(npu_name):
     if npu_name.startswith(NPU_NAME_PREFIX):
