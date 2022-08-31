@@ -1964,6 +1964,23 @@
                 "default_dynamic_th": "0",
                 "over_subscribe_ratio": "0"
             }
+        },
+
+        "CONSOLE_PORT": {
+            "1": {
+                "baud_rate": "115200",
+                "flow_control": "0",
+                "remote_device": "host-1"
+            },
+            "2": {
+                "baud_rate": "9600",
+                "flow_control": "1"
+            }
+        },
+        "CONSOLE_SWITCH": {
+            "console_mgmt": {
+                "enabled": "yes"
+            }
         }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {

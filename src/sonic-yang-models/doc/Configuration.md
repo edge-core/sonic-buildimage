@@ -19,6 +19,7 @@ Table of Contents
          * [Buffer port egress profile list](#buffer-port-egress-profile-list)  
          * [Cable length](#cable-length)  
          * [COPP_TABLE](#copp_table)  
+         * [Console](#console)  
          * [CRM](#crm)  
          * [Data Plane L3 Interfaces](#data-plane-l3-interfaces)  
          * [DEFAULT_LOSSLESS_BUFFER_PARAMETER](#DEFAULT_LOSSLESS_BUFFER_PARAMETER)  
@@ -684,6 +685,29 @@ This kind of profiles will be handled by buffer manager and won't be applied to 
 	 "trap_priority": "1"
       }
     }
+}
+```
+
+### Console
+
+```
+{
+"CONSOLE_PORT": {
+    "1": {
+        "baud_rate": "115200",
+        "flow_control": "0",
+        "remote_device": "host-1"
+    },
+    "2": {
+        "baud_rate": "9600",
+        "flow_control": "1"
+    }
+  },
+"CONSOLE_SWITCH": {
+    "console_mgmt": {
+        "enabled": "yes"
+    }
+  }
 }
 ```
 
