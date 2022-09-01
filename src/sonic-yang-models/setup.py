@@ -116,6 +116,7 @@ setup(
                          './yang-models/sonic-mgmt_port.yang',
                          './yang-models/sonic-mgmt_vrf.yang',
                          './yang-models/sonic-mirror-session.yang',
+                         './yang-models/sonic-mux-cable.yang',
                          './yang-models/sonic-ntp.yang',
                          './yang-models/sonic-nat.yang',
                          './yang-models/sonic-nvgre-tunnel.yang',
