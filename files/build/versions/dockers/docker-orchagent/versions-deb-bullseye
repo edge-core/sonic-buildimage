@@ -83,4 +83,4 @@ tcpdump==4.99.0-2+deb11u1
 vim==2:8.2.2434-3+deb11u1
 vim-runtime==2:8.2.2434-3+deb11u1
 xz-utils==5.2.5-2.1~deb11u1
-zlib1g-dev==1:1.2.11.dfsg-2+deb11u1
+zlib1g-dev==1:1.2.11.dfsg-2+deb11u2

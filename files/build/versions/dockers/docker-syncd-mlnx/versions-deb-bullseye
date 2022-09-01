@@ -38,7 +38,7 @@ libtirpc-dev==1.3.1-1+deb11u1
 libunwind8==1.3.2-2
 libxml2==2.9.10+dfsg-6.7+deb11u2
 linux-libc-dev==5.10.136-1
-mft==4.20.0-34
+mft==4.21.0-100
 mlnx-sai==1.mlnx.SAIRel1.21.2.0
 openssh-client==1:8.4p1-5+deb11u1
 python-is-python3==3.9.2-1
@@ -70,4 +70,4 @@ vim==2:8.2.2434-3+deb11u1
 vim-runtime==2:8.2.2434-3+deb11u1
 wjh-libs==1.mlnx.4.5.2318
 wjh-libs-dev==1.mlnx.4.5.2318
-zlib1g-dev==1:1.2.11.dfsg-2+deb11u1
+zlib1g-dev==1:1.2.11.dfsg-2+deb11u2
