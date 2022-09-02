@@ -51,9 +51,6 @@ steps:
     rm -rf $(Build.ArtifactStagingDirectory)/*
     docker exec sonic-mgmt bash -c "/data/sonic-mgmt/tests/kvmtest.sh -en -T ${{ parameters.tbtype }} ${{ parameters.tbname }} ${{ parameters.dut }} ${{ parameters.section }}"
   displayName: "Run tests"
-  ${{ if eq(parameters.tbtype, 'multi-asic-t1-lag-pr') }}:
-      continueOnError: true
-
 - script: |
     # save dut state if test fails
     virsh_version=$(virsh --version)
