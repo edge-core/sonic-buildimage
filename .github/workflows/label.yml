@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: approve
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         set -e
         echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
