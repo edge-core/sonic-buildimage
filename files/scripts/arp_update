@@ -78,6 +78,17 @@ while /bin/true; do
       eval `eval $ip6cmd`
  
       if [[ $SUBTYPE == "dualtor" ]]; then
+        # manually set any remaining FAILED/INCOMPLETE entries to permanently INCOMPLETE
+        # this prevents any remaining INCOMPLETE entries from automatically transitioning to FAILED
+        # once these entries are incomplete, any subsequent neighbor advertisement messages
+        # are able to resolve the entry
+
+        # generates the following command for each failed or incomplete IPv6 neighbor
+        # ip neigh replace <neighbor IPv6> dev <VLAN name> nud incomplete
+        neigh_replace_template="sed -e 's/^/ip neigh replace /' -e 's/,/ dev /' -e 's/$/ nud incomplete;/'" 
+        ip_neigh_replace_cmd="ip -6 neigh show | grep -v fe80 | grep Vlan1000 | grep -E 'FAILED|INCOMPLETE' | cut -d ' ' -f 1,3 --output-delimiter=',' | $neigh_replace_template"
+        eval `eval $ip_neigh_replace_cmd`
+
         # on dual ToR devices, try to resolve failed neighbor entries since
         # these entries will have tunnel routes installed, preventing normal 
         # neighbor resolution (SWSS PR #2137)
