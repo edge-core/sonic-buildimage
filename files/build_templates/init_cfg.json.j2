@@ -39,6 +39,7 @@
                    ("pmon", "enabled", false, "enabled"),
                    ("radv", "enabled", false, "enabled"),
                    ("snmp", "enabled", true, "enabled"),
+                   ("eventd", "enabled", true, "enabled"),
                    ("swss", "enabled", false, "enabled"),
                    ("syncd", "enabled", false, "enabled"),
                    ("teamd", "enabled", false, "enabled")] %}
@@ -69,7 +70,7 @@
             "check_up_status" : "false",
 {%- endif %}
 {%- if include_kubernetes == "y" %}
-{%- if feature in ["lldp", "pmon", "radv", "snmp", "telemetry"] %}
+{%- if feature in ["lldp", "pmon", "radv", "eventd", "snmp", "telemetry"] %}
             "set_owner": "kube", {% else %}
             "set_owner": "local", {% endif %} {% endif %}
             "high_mem_alert": "disabled"
