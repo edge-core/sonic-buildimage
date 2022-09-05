@@ -38,8 +38,8 @@ https://deb.nodesource.com/setup_14.x==b692a224c718ad6e1cbd17eda8aaa673
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==beb7abb07eb7c08d48f3a48fc1e58569
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==b31a9884a677446492486f3fa70a4ed7
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==1227b24db77557d552701f6add122edc
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==9d20e147b108fb9638dd65b1ad9a1503
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/sai/libsai_1.9.1-0_amd64.deb==08e1a82bd42ca1cba08fd6deec43c02a
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/_Susi4.so==5e1b8daef522c9da00af400abe25810b
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0

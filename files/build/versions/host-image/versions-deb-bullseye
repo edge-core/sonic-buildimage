@@ -99,6 +99,7 @@ libasan6==10.2.1-6
 libassuan0==2.5.3-7.1
 libatomic1==10.2.1-6
 libauparse0==1:3.0-2
+libbabeltrace1==1.5.8-1+b3
 libbinutils==2.35.2-2
 libblkid-dev==2.36.1-8+deb11u1
 libbpf0==1:0.3-2
@@ -218,7 +219,9 @@ libnpth0==1.6-3
 libnsl-dev==1.3.0-2
 libnss-radius==1.0.1-1
 libnss-tacplus==1.0.4-1
+libnuma1==2.0.12-1+b1
 libonig5==6.9.6-1.1
+libopencsd0==0.14.4-1
 libopts25==1:5.18.16-4
 libpackagekit-glib2-18==1.2.2-2
 libpam-cracklib==1.4.0-9+deb11u1
@@ -257,6 +260,7 @@ libsasl2-2==2.1.27+dfsg-2.1+deb11u1
 libsasl2-modules-db==2.1.27+dfsg-2.1+deb11u1
 libselinux1-dev==3.1-3
 libsepol1-dev==3.1-1
+libslang2==2.3.2-5
 libsm-dev==2:1.2.3-1
 libsm6==2:1.2.3-1
 libsqlite3-0==3.34.1-3
@@ -276,6 +280,7 @@ libtsan0==10.2.1-6
 libubootenv-tool==0.3.2-0.1
 libubootenv0.1==0.3.2-0.1
 libubsan1==10.2.1-6
+libunwind8==1.3.2-2
 libusb-1.0-0==2:1.0.24-3
 libutempter0==1.2.1-2
 libwrap0==7.6.q-31
@@ -303,6 +308,8 @@ libyang-cpp==1.0.73
 linux-base==4.6
 linux-image-5.10.0-12-2-amd64-unsigned==5.10.103-1
 linux-libc-dev==5.10.136-1
+linux-perf==5.10.136-1
+linux-perf-5.10==5.10.136-1
 locales==2.31-13+deb11u3
 logrotate==3.18.0-2+deb11u1
 lsb-release==11.1.0
