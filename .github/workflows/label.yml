@@ -20,15 +20,6 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-    - name: approve
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        set -e
-        echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
-        url=$(echo $GITHUB_CONTEXT | jq -r '.event.pull_request._links.html.href')
-        echo PR: $url
-        gh pr review $url --approve
     - uses: actions/labeler@main
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
