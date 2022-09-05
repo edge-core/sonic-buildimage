@@ -4,8 +4,8 @@ https://github.com/CESNET/libyang.git==0c609c35080f523c9696db48976de8257d174102
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/dyninc/OpenBFDD.git==e35f43ad8d2b3f084e96a84c392528a90d05a287
-https://github.com/flashrom/flashrom.git==b6f3c00fbdec538154d4424da4ed117366ccae7e
-https://github.com/FreeRADIUS/freeradius-server.git==e1664880e98dc4e47db7a21a044ca7c227ba0d1c
+https://github.com/flashrom/flashrom.git==33af2e695d28a89e0eaf9b058310bc5bf0e6e80f
+https://github.com/FreeRADIUS/freeradius-server.git==63a5736e75c88cb4343108e9ebb7474912d93347
 https://github.com/FreeRADIUS/pam_radius.git==272f6420c5c01f9bdb27c98e5edb44de406f4631
 https://github.com/jeroennijhof/pam_tacplus.git==453c7b6fc78eceeaaf39a59b6b87c124628f2fe8
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592

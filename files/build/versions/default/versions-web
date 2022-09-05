@@ -48,7 +48,7 @@ https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py==6289
 https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.5/swagger-codegen-cli-2.4.5.jar==219f1453ff22482d9e080effbfa7fa81
 https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.46-4.debian.tar.xz==a4552fc829b1fa6c2559cd4feb79378d
 https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.46-4.dsc==cde18df720117efed4f86bbae3af6f59
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.46.orig.tar.xz==af295413f90d3e38a3850fed74d36686
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.46.orig.tar.xz==20074caf4bbf7773920f6e5f08beb771
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.debian.tar.xz==0a529cf8d1717b5c3dbe0c61b3512aa1
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.dsc==b88b922d96688c948e90987fcaa3a2de
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4.orig.tar.gz==33e8d58623f99184e4e709cbbfe45db3
