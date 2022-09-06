@@ -56,14 +56,14 @@ COPY ["TS", "/usr/bin/TS"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["zsocket.sh", "/usr/bin/"]
 COPY ["*.json", "/etc/rsyslog.d/"]
-COPY ["files/rsyslog_plugin.conf.j2", "/etc/rsyslog.d/"]
+# COPY ["files/rsyslog_plugin.conf.j2", "/etc/rsyslog.d/"]
 RUN chmod a+x /usr/bin/TSA && \
     chmod a+x /usr/bin/TSB && \
     chmod a+x /usr/bin/TSC && \
     chmod a+x /usr/bin/zsocket.sh
 
-RUN j2 -f json /etc/rsyslog.d/rsyslog_plugin.conf.j2 /etc/rsyslog.d/events_info.json  > /etc/rsyslog.d/bgp_events.conf
-RUN rm -f /etc/rsyslog.d/rsyslog_plugin.conf.j2*
+# RUN j2 -f json /etc/rsyslog.d/rsyslog_plugin.conf.j2 /etc/rsyslog.d/events_info.json  > /etc/rsyslog.d/bgp_events.conf
+# RUN rm -f /etc/rsyslog.d/rsyslog_plugin.conf.j2*
 RUN rm -f /etc/rsyslog.d/events_info.json*
 
 ENTRYPOINT ["/usr/bin/docker_init.sh"]

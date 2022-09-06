@@ -43,5 +43,6 @@ $(DOCKER_EVENTD)_PLUGIN = rsyslog_plugin
 $($(DOCKER_EVENTD)_PLUGIN)_PATH = $($(DOCKER_EVENTD)_FILESPATH)
 
 SONIC_COPY_FILES += $($(DOCKER_EVENTD)_PLUGIN)
-$(DOCKER_EVENTD)_SHARED_FILES = $($(DOCKER_EVENTD)_PLUGIN)
+# Some builds fails to find this file. Remove until we root cause it.
+# $(DOCKER_EVENTD)_SHARED_FILES = $($(DOCKER_EVENTD)_PLUGIN)
 
