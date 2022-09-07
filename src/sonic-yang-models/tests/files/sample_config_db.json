@@ -1997,6 +1997,15 @@
             "console_mgmt": {
                 "enabled": "yes"
             }
+        },
+	"STATIC_ROUTE": {
+            "default|20.20.20.0/24": {
+                "blackhole": "false",
+                "distance": "1",
+                "ifname": "Ethernet14",
+                "nexthop": "10.184.229.212",
+                "nexthop-vrf": "default"
+            }
         }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
