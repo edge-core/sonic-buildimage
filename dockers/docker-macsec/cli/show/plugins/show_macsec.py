@@ -1,12 +1,19 @@
 import typing
 from natsort import natsorted
+import datetime
+import pickle
+import os
+import copy
 
 import click
 from tabulate import tabulate
 
 import utilities_common.multi_asic as multi_asic_util
 from swsscommon.swsscommon import CounterTable, MacsecCounter
+from utilities_common.cli import UserCache
 
+CACHE_MANAGER = UserCache(app_name="macsec")
+CACHE_FILE = os.path.join(CACHE_MANAGER.get_directory(), "macsecstats{}")
 
 DB_CONNECTOR = None
 COUNTER_TABLE = None
@@ -15,12 +22,12 @@ COUNTER_TABLE = None
 class MACsecAppMeta(object):
     def __init__(self, *args) -> None:
         SEPARATOR = DB_CONNECTOR.get_db_separator(DB_CONNECTOR.APPL_DB)
-        key = self.__class__.get_appl_table_name() + SEPARATOR + \
+        self.key = self.__class__.get_appl_table_name() + SEPARATOR + \
             SEPARATOR.join(args)
         self.meta = DB_CONNECTOR.get_all(
-            DB_CONNECTOR.APPL_DB, key)
+            DB_CONNECTOR.APPL_DB, self.key)
         if len(self.meta) == 0:
-            raise ValueError("No such MACsecAppMeta: {}".format(key))
+            raise ValueError("No such MACsecAppMeta: {}".format(self.key))
         for k, v in self.meta.items():
             setattr(self, k, v)
 
@@ -39,10 +46,15 @@ class MACsecSA(MACsecAppMeta, MACsecCounters):
         MACsecAppMeta.__init__(self, port_name, sci, an)
         MACsecCounters.__init__(self, port_name, sci, an)
 
-    def dump_str(self) -> str:
+    def dump_str(self, cache = None) -> str:
         buffer = self.get_header()
         meta = sorted(self.meta.items(), key=lambda x: x[0])
-        counters = sorted(self.counters.items(), key=lambda x: x[0])
+        counters = copy.deepcopy(self.counters)
+        if cache:
+            for k, v in counters.items():
+                if k in cache.counters:
+                    counters[k] = int(counters[k]) - int(cache.counters[k])
+        counters = sorted(counters.items(), key=lambda x: x[0])
         buffer += tabulate(meta + counters)
         buffer = "\n".join(["\t\t" + line for line in buffer.splitlines()])
         return buffer
@@ -87,7 +99,7 @@ class MACsecIngressSC(MACsecSC):
     def get_appl_table_name(cls) -> str:
         return "MACSEC_INGRESS_SC_TABLE"
 
-    def dump_str(self) -> str:
+    def dump_str(self, cache = None) -> str:
         buffer = self.get_header()
         buffer = "\n".join(["\t" + line for line in buffer.splitlines()])
         return buffer
@@ -104,7 +116,7 @@ class MACsecEgressSC(MACsecSC):
     def get_appl_table_name(cls) -> str:
         return "MACSEC_EGRESS_SC_TABLE"
 
-    def dump_str(self) -> str:
+    def dump_str(self, cache = None) -> str:
         buffer = self.get_header()
         buffer += tabulate(sorted(self.meta.items(), key=lambda x: x[0]))
         buffer = "\n".join(["\t" + line for line in buffer.splitlines()])
@@ -123,7 +135,7 @@ class MACsecPort(MACsecAppMeta):
     def get_appl_table_name(cls) -> str:
         return "MACSEC_PORT_TABLE"
 
-    def dump_str(self) -> str:
+    def dump_str(self, cache = None) -> str:
         buffer = self.get_header()
         buffer += tabulate(sorted(self.meta.items(), key=lambda x: x[0]))
         return buffer
@@ -148,6 +160,7 @@ def create_macsec_obj(key: str) -> MACsecAppMeta:
         raise TypeError("Unknown MACsec object type")
     except ValueError as e:
         return None
+
 
 def create_macsec_objs(interface_name: str) -> typing.List[MACsecAppMeta]:
     objs = []
@@ -179,12 +192,25 @@ def create_macsec_objs(interface_name: str) -> typing.List[MACsecAppMeta]:
     return objs
 
 
+def cache_find(cache: dict, target: MACsecAppMeta) -> MACsecAppMeta:
+    if not cache or not cache["objs"]:
+        return None
+    for obj in cache["objs"]:
+        if type(obj) == type(target) and obj.key == target.key:
+            # MACsec SA may be refreshed by a cycle that use the same key
+            # So, use the SA as the identifier
+            if isinstance(obj, MACsecSA) and obj.sak != target.sak:
+                continue
+            return obj
+    return None
+
+
 @click.command()
 @click.argument('interface_name', required=False)
+@click.option('--dump-file', is_flag=True, required=False, default=False)
 @multi_asic_util.multi_asic_click_options
-def macsec(interface_name, namespace, display):
-    MacsecContext(namespace, display).show(interface_name)
-
+def macsec(interface_name, dump_file, namespace, display):
+    MacsecContext(namespace, display).show(interface_name, dump_file)
 
 class MacsecContext(object):
 
@@ -194,7 +220,7 @@ class MacsecContext(object):
             display_option, namespace_option)
 
     @multi_asic_util.run_on_multi_asic
-    def show(self, interface_name):
+    def show(self, interface_name, dump_file):
         global DB_CONNECTOR
         global COUNTER_TABLE
         DB_CONNECTOR = self.db
@@ -205,13 +231,29 @@ class MacsecContext(object):
             if interface_name not in interface_names:
                 return
             interface_names = [interface_name]
-
         objs = []
+
         for interface_name in natsorted(interface_names):
             objs += create_macsec_objs(interface_name)
-        for obj in objs:
-            print(obj.dump_str())
 
+        cache = {}
+        if os.path.isfile(CACHE_FILE.format(self.multi_asic.current_namespace)):
+            cache = pickle.load(open(CACHE_FILE.format(self.multi_asic.current_namespace), "rb"))
+
+        if not dump_file:
+            if cache and cache["time"] and objs:
+                print("Last cached time was {}".format(cache["time"]))
+            for obj in objs:
+                cache_obj = cache_find(cache, obj)
+                print(obj.dump_str(cache_obj))
+        else:
+            dump_obj = {
+                "time": datetime.datetime.now(),
+                "objs": objs
+            }
+            with open(CACHE_FILE.format(self.multi_asic.current_namespace), 'wb') as dump_file:
+                pickle.dump(dump_obj, dump_file)
+                dump_file.flush()
 
 def register(cli):
     cli.add_command(macsec)
