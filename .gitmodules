@@ -72,7 +72,7 @@
 	url = https://github.com/Azure/sonic-mgmt-framework
 [submodule "src/sonic-telemetry"]
 	path = src/sonic-telemetry
-	url = https://github.com/Azure/sonic-telemetry
+	url = https://github.com/sonic-net/sonic-gnmi
 [submodule "Switch-SDK-drivers"]
 	path = platform/mellanox/sdk-src/sx-kernel/Switch-SDK-drivers
 	url = https://github.com/Mellanox/Switch-SDK-drivers
