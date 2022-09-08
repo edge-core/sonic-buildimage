@@ -90,10 +90,3 @@
 	path = src/linkmgrd
 	url = https://github.com/Azure/sonic-linkmgrd.git
 	branch = 202012
-[submodule "src/dhcprelay"]
-	path = src/dhcprelay
-	url = https://github.com/sonic-net/sonic-dhcp-relay.git
-	branch = 202012
-[submodule "sonic-dhcp-relay"]
-	path = sonic-dhcp-relay
-	url = https://github.com/kellyyeh/sonic-dhcp-relay.git
