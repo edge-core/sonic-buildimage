@@ -72,7 +72,8 @@ RUN apt-get install -y net-tools \
                        {%- if ENABLE_ASAN == "y" %}
                        libasan5 \
                        {%- endif %}
-                       libsystemd0
+                       libsystemd0 \
+                       dbus
 
 # Install redis-server
 {% if CONFIGURED_ARCH == "armhf" %}
