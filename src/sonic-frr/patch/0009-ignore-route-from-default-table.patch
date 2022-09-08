@@ -1,0 +1,32 @@
+From 96dadc6719dafdd7d58e715f59e0d1a8edc3d58f Mon Sep 17 00:00:00 2001
+From: Arvindsrinivasan Lakshmi Narasimhan <arlakshm@microsoft.com>
+Date: Wed, 7 Sep 2022 23:59:03 +0000
+Subject: [PATCH] ignore route from default table
+
+Signed-off-by: Arvindsrinivasan Lakshmi Narasimhan <arlakshm@microsoft.com>
+---
+ zebra/zebra_fpm_netlink.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/zebra/zebra_fpm_netlink.c b/zebra/zebra_fpm_netlink.c
+index 60ea7f97e..c6a2edf03 100644
+--- a/zebra/zebra_fpm_netlink.c
++++ b/zebra/zebra_fpm_netlink.c
+@@ -284,6 +284,14 @@ static int netlink_route_info_fill(struct netlink_route_info *ri, int cmd,
+ {
+ 	struct nexthop *nexthop;
+ 
++    struct rib_table_info *table_info =
++        rib_table_info(rib_dest_table(dest));
++
++    if (table_info->table_id == RT_TABLE_DEFAULT) {
++        zfpm_debug("%s: Discard default table route", __func__);
++        return 0;
++    }
++
+ 	memset(ri, 0, sizeof(*ri));
+ 
+ 	ri->prefix = rib_dest_prefix(dest);
+-- 
+2.25.1
+
