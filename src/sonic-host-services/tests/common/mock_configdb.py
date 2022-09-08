@@ -43,7 +43,10 @@ class MockConfigDb(object):
         MockConfigDb.CONFIG_DB[key][field] = data
 
     def get_table(self, table_name):
-        return MockConfigDb.CONFIG_DB[table_name]
+        data = {}
+        for k, v in MockConfigDb.CONFIG_DB[table_name].items():
+            data[self.deserialize_key(k)] = v
+        return data
 
     def subscribe(self, table_name, callback):
         self.handlers[table_name] = callback

@@ -98,6 +98,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             "dst_ports": ["22"],
             "multi_asic_ns_to_host_fwd":True
         },
+        "EXTERNAL_CLIENT": {
+            "ip_protocols": ["tcp"],
+            "multi_asic_ns_to_host_fwd":True
+        },
         "ANY": {
             "ip_protocols": ["any"],
             "dst_ports": ["0"],
@@ -586,7 +590,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
                 # Obtain default IP protocol(s) and destination port(s) for this service
                 ip_protocols = self.ACL_SERVICES[acl_service]["ip_protocols"]
-                dst_ports = self.ACL_SERVICES[acl_service]["dst_ports"]
+                if "dst_ports" in self.ACL_SERVICES[acl_service]:
+                    dst_ports = self.ACL_SERVICES[acl_service]["dst_ports"]
+                else:
+                    dst_ports = []
 
                 acl_rules = {}
 
@@ -612,6 +619,19 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                             elif self.is_rule_ipv4(rule_props):
                                 table_ip_version = 4
 
+                        # Read DST_PORT info from Config DB, insert it back to ACL_SERVICES
+                        if acl_service == 'EXTERNAL_CLIENT' and "L4_DST_PORT" in rule_props:
+                            dst_ports = [rule_props["L4_DST_PORT"]]
+                            self.ACL_SERVICES[acl_service]["dst_ports"] = dst_ports
+                        elif acl_service == 'EXTERNAL_CLIENT' and "L4_DST_PORT_RANGE" in rule_props:
+                            dst_ports = []
+                            port_ranges = rule_props["L4_DST_PORT_RANGE"].split("-")
+                            port_start = int(port_ranges[0])
+                            port_end = int(port_ranges[1])
+                            for port in range(port_start, port_end + 1):
+                                dst_ports.append(port)
+                            self.ACL_SERVICES[acl_service]["dst_ports"] = dst_ports
+
                         if (self.is_rule_ipv6(rule_props) and (table_ip_version == 4)):
                             self.log_error("CtrlPlane ACL table {} is a IPv4 based table and rule {} is a IPV6 rule! Ignoring rule."
                                            .format(table_name, rule_id))
@@ -625,6 +645,12 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 # IPv4 or IPv6 rules, log a message and skip processing this table.
                 if not table_ip_version:
                     self.log_warning("Unable to determine if ACL table '{}' contains IPv4 or IPv6 rules. Skipping table..."
+                                     .format(table_name))
+                    continue
+                # If no destination port found for this ACL table,
+                # log a message and skip processing this table.
+                if len(dst_ports) == 0:
+                    self.log_warning("Required destination port not found for ACL table '{}'. Skipping table..."
                                      .format(table_name))
                     continue
                 ipv4_src_ip_set = set()
