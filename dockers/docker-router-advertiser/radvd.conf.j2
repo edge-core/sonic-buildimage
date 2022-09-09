@@ -23,7 +23,6 @@
 {% set _ = vlan_list.update({name: prefix_list}) %}
 {% endif %}
 {% endfor %}
-{% endif %}
 {% for name, prefixes in vlan_list.items() %}
 interface {{ name }}
 {
@@ -47,3 +46,4 @@ interface {{ name }}
 };
 
 {% endfor %}
+{% endif %}
