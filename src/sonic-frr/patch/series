@@ -8,3 +8,4 @@
 0008-Link-local-scope-was-not-set-while-binding-socket-for-bgp-ipv6-link-local-neighbors.patch
 Disable-ipv6-src-address-test-in-pceplib.patch
 cross-compile-changes.patch
+0009-ignore-route-from-default-table.patch
