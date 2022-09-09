@@ -311,7 +311,7 @@ squashfs-tools==1:4.3-12+deb10u2
 sudo==1.8.27-1+deb10u3
 swig==3.0.12-2
 swig3.0==3.0.12-2
-sx-kernel==1.mlnx.4.5.2318
+sx-kernel==1.mlnx.4.5.2320
 sysfsutils==2.1.0+repack-5
 systemd==247.3-6~bpo10+1
 systemd-sonic-generator==1.0.0

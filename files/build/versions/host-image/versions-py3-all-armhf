@@ -1,1 +1,2 @@
+certifi==2022.6.15
 cryptography==3.3.1
