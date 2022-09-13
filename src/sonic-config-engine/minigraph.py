@@ -260,14 +260,24 @@ def parse_png(png, hname, dpg_ecmp_content = None):
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
                 (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id, cluster, d_subtype) = parse_device(device)
-                device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku}
-                if cluster:
+                device_data = {}
+                if hwsku != None:
+                    device_data['hwsku'] = hwsku
+                if cluster != None:
                     device_data['cluster'] = cluster
-                if deployment_id:
+                if deployment_id != None:
                     device_data['deployment_id'] = deployment_id
-                if lo_prefix_v6:
+                if lo_prefix != None:
+                    device_data['lo_addr'] = lo_prefix
+                if lo_prefix_v6 != None:
                     device_data['lo_addr_v6'] = lo_prefix_v6
-                if d_subtype:
+                if mgmt_prefix != None:
+                    device_data['mgmt_addr'] = mgmt_prefix
+                if mgmt_prefix_v6 != None:
+                    device_data['mgmt_addr_v6'] = mgmt_prefix_v6
+                if d_type != None:
+                    device_data['type'] = d_type
+                if d_subtype != None:
                     device_data['subtype'] = d_subtype
                 devices[name] = device_data
 
@@ -393,13 +403,23 @@ def parse_asic_png(png, asic_name, hostname):
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
                 (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id, cluster, _) = parse_device(device)
-                device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
-                if cluster:
+                device_data = {}
+                if hwsku != None:
+                    device_data['hwsku'] = hwsku
+                if cluster != None:
                     device_data['cluster'] = cluster
-                if deployment_id:
+                if deployment_id != None:
                     device_data['deployment_id'] = deployment_id
-                if lo_prefix_v6:
-                    device_data['lo_addr_v6']= lo_prefix_v6
+                if lo_prefix != None:
+                    device_data['lo_addr'] = lo_prefix
+                if lo_prefix_v6 != None:
+                    device_data['lo_addr_v6'] = lo_prefix_v6
+                if mgmt_prefix != None:
+                    device_data['mgmt_addr'] = mgmt_prefix
+                if mgmt_prefix_v6 != None:
+                    device_data['mgmt_addr_v6'] = mgmt_prefix_v6
+                if d_type != None:
+                    device_data['type'] = d_type
                 devices[name] = device_data
 
     return (neighbors, devices, port_speeds)
