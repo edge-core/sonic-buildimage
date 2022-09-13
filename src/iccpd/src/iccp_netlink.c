@@ -461,7 +461,7 @@ void iccp_set_interface_ipadd_mac(struct LocalInterface *lif, char * mac_addr )
 {
     struct IccpSyncdHDr * msg_hdr;
     mclag_sub_option_hdr_t * sub_msg;
-    char msg_buf[4096];
+    char msg_buf[4096] = { 0 };
     struct System *sys;
 
     int src_len = 0, dst_len = 0;
@@ -469,8 +469,6 @@ void iccp_set_interface_ipadd_mac(struct LocalInterface *lif, char * mac_addr )
     sys = system_get_instance();
     if (sys == NULL)
         return;
-
-    memset(msg_buf, 0, 4095);
 
     msg_hdr = (struct IccpSyncdHDr *)msg_buf;
     msg_hdr->ver = 1;
@@ -572,9 +570,10 @@ static int iccp_netlink_set_portchannel_iff_flag(
 {
     int rv, ret_rv = 0;
     char* token;
+    char* saveptr;
     struct LocalInterface* member_if;
     char *tmp_member_buf = NULL;
-
+    
     if (!lif_po)
         return MCLAG_ERROR;
 
@@ -592,7 +591,7 @@ static int iccp_netlink_set_portchannel_iff_flag(
             lif_po->portchannel_member_buf);
     }
     /* Port-channel members are stored as comma separated strings */
-    token = strtok(tmp_member_buf, ",");
+    token = strtok_r(tmp_member_buf, ",", &saveptr);
     while (token != NULL)
     {
         member_if = local_if_find_by_name(token);
@@ -616,7 +615,7 @@ static int iccp_netlink_set_portchannel_iff_flag(
                 "Can't find member %s:%s, if_up(%d), location %d",
                 lif_po->name, token, is_iff_up, location);
         }
-        token = strtok(NULL, ",");
+        token = strtok_r(NULL, ",", &saveptr);
     }
     if (tmp_member_buf)
         free(tmp_member_buf);
@@ -1942,13 +1941,11 @@ int iccp_receive_ndisc_packet_handler(struct System *sys)
     struct nd_msg *ndmsg = NULL;
     struct nd_opt_hdr *nd_opt = NULL;
     struct in6_addr target;
-    uint8_t mac_addr[ETHER_ADDR_LEN];
+    uint8_t mac_addr[ETHER_ADDR_LEN] = { 0 };
     int8_t *opt = NULL;
     int opt_len = 0, l = 0;
     int len;
     struct CSM* csm = NULL;
-
-    memset(mac_addr, 0, ETHER_ADDR_LEN);
 
     /* Fill in message and iovec. */
     msg.msg_name = (void *)(&from);
@@ -2375,9 +2372,9 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
     struct CSM *csm = NULL;
     struct System* sys = NULL;
     uint8_t null_mac[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    char macaddr[64];
-    char remote_macaddr[64];
-    uint8_t system_mac[ETHER_ADDR_LEN];
+    char macaddr[64] = { 0 };
+    char remote_macaddr[64] = { 0 };
+    uint8_t system_mac[ETHER_ADDR_LEN] = { 0 };
     int ret = 0;
     int vid = 0;
 
@@ -2404,9 +2401,6 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
 
     sscanf (lif_vlan->name, "Vlan%d", &vid);
 
-    memset(macaddr, 0, 64);
-    memset(remote_macaddr, 0, 64);
-    memset(system_mac, 0, ETHER_ADDR_LEN);
     ICCPD_LOG_DEBUG(__FUNCTION__, " ifname %s, l3_proto %d, dir %d\n",
             lif_vlan->name, lif_vlan->is_l3_proto_enabled, dir);
     if (lif_vlan->is_l3_proto_enabled == true)

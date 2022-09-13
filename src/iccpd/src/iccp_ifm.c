@@ -128,7 +128,7 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
     uint16_t vlan_id = 0;
     struct VLAN_ID vlan_key = { 0 };
 
-    char buf[MAX_BUFSIZE];
+    char buf[MAX_BUFSIZE] = { 0 };
     size_t msg_len = 0;
 
     struct LocalInterface *lif_po = NULL, *arp_lif = NULL;
@@ -144,7 +144,6 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
         return;
 
     /* create ARP msg*/
-    memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct ARPMsg);
     arp_msg = (struct ARPMsg *)&buf;
     arp_msg->op_type = NEIGH_SYNC_LIF;
@@ -388,7 +387,7 @@ static void do_ndisc_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], i
     uint16_t vlan_id = 0;
     struct VLAN_ID vlan_key = { 0 };
 
-    char buf[MAX_BUFSIZE];
+    char buf[MAX_BUFSIZE] = { 0 };
     size_t msg_len = 0;
     char addr_null[16] = { 0 };
 
@@ -406,7 +405,6 @@ static void do_ndisc_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], i
         return;
 
     /* create NDISC msg */
-    memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct NDISCMsg);
     ndisc_msg = (struct NDISCMsg *)&buf;
     ndisc_msg->op_type = NEIGH_SYNC_LIF;
@@ -815,7 +813,7 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
     uint16_t vlan_id = 0;
     struct VLAN_ID vlan_key = { 0 };
 
-    char buf[MAX_BUFSIZE];
+    char buf[MAX_BUFSIZE] = { 0 };
     size_t msg_len = 0;
 
     struct LocalInterface *lif_po = NULL, *arp_lif = NULL;
@@ -830,7 +828,6 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
         return;
 
     /* create ARP msg*/
-    memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct ARPMsg);
     arp_msg = (struct ARPMsg*)&buf;
     arp_msg->op_type = NEIGH_SYNC_LIF;
@@ -1033,7 +1030,7 @@ void do_ndisc_update_from_reply_packet(unsigned int ifindex, char *ipv6_addr, ui
     struct LocalInterface *peer_link_if = NULL;
     int is_link_local = 0;
 
-    char buf[MAX_BUFSIZE];
+    char buf[MAX_BUFSIZE] = { 0 };
     size_t msg_len = 0;
     char addr_null[16] = { 0 };
     uint16_t vlan_id = 0;
@@ -1053,7 +1050,6 @@ void do_ndisc_update_from_reply_packet(unsigned int ifindex, char *ipv6_addr, ui
     sprintf(mac_str, "%02x:%02x:%02x:%02x:%02x:%02x", mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
 
     /* create Ndisc msg */
-    memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct NDISCMsg);
     ndisc_msg = (struct NDISCMsg *)&buf;
     ndisc_msg->op_type = NEIGH_SYNC_LIF;
