@@ -39,6 +39,8 @@ Write a short (one line) summary that describes the changes in this
 pull request for inclusion in the changelog:
 -->
 
+#### Ensure to add label/tag for the feature raised. example - [PR#2174](https://github.com/sonic-net/sonic-utilities/pull/2174) where, Generic Config and Update feature has been labelled as GCU.
+
 #### Link to config_db schema for YANG module changes
 <!--
 Provide a link to config_db schema for the table for which YANG model
