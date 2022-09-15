@@ -96,6 +96,10 @@ elif [ "$CONFIG_TYPE" == "unified" ]; then
         -y /etc/sonic/constants.yml \
         -t /usr/share/sonic/templates/gen_frr.conf.j2,/etc/frr/frr.conf \
     "
+    MGMT_FRAMEWORK_CONFIG=$(echo $FRR_VARS | jq -r '.frr_mgmt_framework_config')
+    if [ -n "$MGMT_FRAMEWORK_CONFIG" ] && [ "$MGMT_FRAMEWORK_CONFIG" != "false" ]; then
+        CFGGEN_PARAMS="$CFGGEN_PARAMS -T /usr/local/sonic/frrcfgd/"
+    fi
     sonic-cfggen $CFGGEN_PARAMS
     echo "service integrated-vtysh-config" > /etc/frr/vtysh.conf
     rm -f /etc/frr/bgpd.conf /etc/frr/zebra.conf /etc/frr/staticd.conf \
