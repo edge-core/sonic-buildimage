@@ -11,15 +11,15 @@ while(True):
         break
     time.sleep(1)
 
-instlists = swsscommon.SonicDBConfig.getInstanceList()
+instlists = swsssdk.SonicDBConfig.get_instancelist()
 for instname, v in instlists.items():
-    insthost = v.hostname
-    instsocket = v.unixSocketPath
+    insthost = v['hostname']
+    instsocket = v['unix_socket_path']
 
-    dblists = swsscommon.SonicDBConfig.getDbList()
+    dblists = swsssdk.SonicDBConfig.get_dblist()
     for dbname in dblists:
-        dbid = swsscommon.SonicDBConfig.getDbId(dbname)
-        dbinst = swsscommon.SonicDBConfig.getDbInst(dbname)
+        dbid = swsssdk.SonicDBConfig.get_dbid(dbname)
+        dbinst = swsssdk.SonicDBConfig.get_instancename(dbname)
 
         # this DB is on current instance, skip flush
         if dbinst == instname:
