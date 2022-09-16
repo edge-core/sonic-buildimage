@@ -104,10 +104,12 @@ def log_debug(m):
 
 
 def log_error(m):
+    msg = "{}: {}".format(inspect.stack()[1][3], m)
     syslog.syslog(syslog.LOG_ERR, msg)
 
 
 def log_info(m):
+    msg = "{}: {}".format(inspect.stack()[1][3], m)
     syslog.syslog(syslog.LOG_INFO, msg)
 
 
