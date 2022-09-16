@@ -157,9 +157,9 @@ KUBE_DOCKER_PROXY = http://172.16.1.1:3128/
 # These are Used *only* when INCLUDE_KUBERNETES=y
 # NOTE: As a worker node it has to run version compatible to kubernetes master.
 #
-KUBERNETES_VERSION = 1.21.1
+KUBERNETES_VERSION = 1.22.2
 KUBERNETES_CNI_VERSION = 0.8.7
-K8s_GCR_IO_PAUSE_VERSION = 3.4.1
+K8s_GCR_IO_PAUSE_VERSION = 3.5
 
 # SONIC_ENABLE_IMAGE_SIGNATURE - enable image signature
 # To not use the auto-generated self-signed certificate, the required files to sign the image as below:
