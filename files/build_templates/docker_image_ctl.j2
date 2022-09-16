@@ -170,16 +170,26 @@ function postStartAction()
            ip netns exec "$NET_NS" ip addr add 127.0.0.1/16 dev lo
            ip netns exec "$NET_NS" ip addr del 127.0.0.1/8 dev lo
 
+           slot_id=$(python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); print(platform_chassis.get_my_slot())' 2>/dev/null)
+           supervisor_slot_id=$(python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); print(platform_chassis.get_supervisor_slot())' 2>/dev/null)
+
            # Create eth1 in database instance
-           ip link add name ns-eth1"$NET_NS" link eth1-midplane type macvlan mode bridge
+           if [[ "${slot_id}" == "${supervisor_slot_id}" ]]; then
+                   ip link add name ns-eth1"$NET_NS" type veth peer name eth1@"$NET_NS"
+                   ip link set dev eth1@"$NET_NS" master br1
+                   ip link set dev eth1@"$NET_NS" up
+           else
+                   ip link add name ns-eth1"$NET_NS" link eth1-midplane type macvlan mode bridge
+           fi
+
+           # Create eth1 in database instance
            ip link set dev ns-eth1"$NET_NS" netns "$NET_NS"
            ip netns exec "$NET_NS" ip link set ns-eth1"$NET_NS" name eth1
 
            # Configure IP address and enable eth1
-           lc_slot_id=$(python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); print(platform_chassis.get_my_slot())' 2>/dev/null)
-           lc_ip_address=`echo $midplane_subnet | awk -F. '{print $1 "." $2}'`.$lc_slot_id.$(($DEV + 10))
-           lc_subnet_mask=${midplane_subnet#*/}
-           ip netns exec "$NET_NS" ip addr add $lc_ip_address/$lc_subnet_mask dev eth1
+           slot_ip_address=`echo $midplane_subnet | awk -F. '{print $1 "." $2}'`.$slot_id.$(($DEV + 10))
+           slot_subnet_mask=${midplane_subnet#*/}
+           ip netns exec "$NET_NS" ip addr add $slot_ip_address/$slot_subnet_mask dev eth1
            ip netns exec "$NET_NS" ip link set dev eth1 up
 
            # Allow localnet routing on the new interfaces if midplane is using a
