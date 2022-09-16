@@ -13,10 +13,14 @@ import sys
 import syslog
 import tempfile
 import urllib.request
+import base64
 from urllib.parse import urlparse
 
 import yaml
+import requests
 from sonic_py_common import device_info
+from jinja2 import Template
+from swsscommon import swsscommon
 
 KUBE_ADMIN_CONF = "/etc/sonic/kube_admin.conf"
 KUBELET_YAML = "/var/lib/kubelet/config.yaml"
@@ -24,6 +28,9 @@ SERVER_ADMIN_URL = "https://{}/admin.conf"
 LOCK_FILE = "/var/lock/kube_join.lock"
 FLANNEL_CONF_FILE = "/usr/share/sonic/templates/kube_cni.10-flannel.conflist"
 CNI_DIR = "/etc/cni/net.d"
+K8S_CA_URL = "https://{}:{}/api/v1/namespaces/default/configmaps/kube-root-ca.crt"
+AME_CRT = "/etc/sonic/credentials/restapiserver.crt"
+AME_KEY = "/etc/sonic/credentials/restapiserver.key"
 
 def log_debug(m):
     msg = "{}: {}".format(inspect.stack()[1][3], m)
@@ -77,8 +84,7 @@ def _run_command(cmd, timeout=5):
 
 def kube_read_labels():
     """ Read current labels on node and return as dict. """
-    KUBECTL_GET_CMD = "kubectl --kubeconfig {} get nodes --show-labels |\
- grep {} | tr -s ' ' | cut -f6 -d' '"
+    KUBECTL_GET_CMD = "kubectl --kubeconfig {} get nodes {} --show-labels |tr -s ' ' | cut -f6 -d' '"
 
     labels = {}
     ret, out, _ = _run_command(KUBECTL_GET_CMD.format(
@@ -211,6 +217,68 @@ def _download_file(server, port, insecure):
     log_debug("{} downloaded".format(KUBE_ADMIN_CONF))
 
 
+def _gen_cli_kubeconf(server, port, insecure):
+    """generate identity which can help authenticate and 
+       authorization to k8s cluster
+    """
+    client_kubeconfig_template = """
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: {{ k8s_ca }}
+    server: https://{{ vip }}:{{ port }}
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: user
+  name: user@kubernetes
+current-context: user@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: user
+  user:
+    client-certificate-data: {{ ame_crt }}
+    client-key-data: {{ ame_key }}
+    """
+    if insecure:
+        r = requests.get(K8S_CA_URL.format(server, port), cert=(AME_CRT, AME_KEY), verify=False)
+    else:
+        r = requests.get(K8S_CA_URL.format(server, port), cert=(AME_CRT, AME_KEY))
+    if not r.ok:
+        raise requests.RequestException("Something wrong with AME cert or something wrong about sonic role in k8s cluster")
+    k8s_ca = r.json()["data"]["ca.crt"]
+    k8s_ca_b64 = base64.b64encode(k8s_ca.encode("utf-8")).decode("utf-8")
+    ame_crt_raw = open(AME_CRT, "rb")
+    ame_crt_b64 = base64.b64encode(ame_crt_raw.read()).decode("utf-8")
+    ame_key_raw = open(AME_KEY, "rb")
+    ame_key_b64 = base64.b64encode(ame_key_raw.read()).decode("utf-8")
+    client_kubeconfig_template_j2 = Template(client_kubeconfig_template)
+    client_kubeconfig = client_kubeconfig_template_j2.render(
+        k8s_ca=k8s_ca_b64, vip=server, port=port, ame_crt=ame_crt_b64, ame_key=ame_key_b64)
+    (h, fname) = tempfile.mkstemp(suffix="_kube_join")
+    os.write(h, client_kubeconfig.encode("utf-8"))
+    os.close(h)
+    log_debug("Downloaded = {}".format(fname))
+
+    shutil.copyfile(fname, KUBE_ADMIN_CONF)
+
+    log_debug("{} downloaded".format(KUBE_ADMIN_CONF))
+
+
+def _get_local_ipv6():
+    try:
+        config_db = swsscommon.DBConnector("CONFIG_DB", 0)
+        mgmt_ip_data = swsscommon.Table(config_db, 'MGMT_INTERFACE')
+        for key in mgmt_ip_data.getKeys():
+            if key.find(":") >= 0:
+                return key.split("|")[1].split("/")[0]
+        raise IOError("IPV6 not find from MGMT_INTERFACE table")
+    except Exception as e:
+        raise IOError(str(e))
+
+
 def _troubleshoot_tips():
     """ log troubleshoot tips which could be handy,
         when in trouble with join
@@ -264,12 +332,14 @@ def _do_reset(pending_join = False):
 
 
 def _do_join(server, port, insecure):
-    KUBEADM_JOIN_CMD = "kubeadm join --discovery-file {} --node-name {}"
+    KUBEADM_JOIN_CMD = "kubeadm join --discovery-file {} --node-name {} --apiserver-advertise-address {}"
     err = ""
     out = ""
     ret = 0
     try:
-        _download_file(server, port, insecure)
+        local_ipv6 = _get_local_ipv6()
+        #_download_file(server, port, insecure)
+        _gen_cli_kubeconf(server, port, insecure)
         _do_reset(True)
         _run_command("modprobe br_netfilter")
         # Copy flannel.conf
@@ -279,11 +349,11 @@ def _do_join(server, port, insecure):
 
         if ret == 0:
             (ret, out, err) = _run_command(KUBEADM_JOIN_CMD.format(
-                KUBE_ADMIN_CONF, get_device_name()), timeout=60)
+                KUBE_ADMIN_CONF, get_device_name(), local_ipv6), timeout=60)
             log_debug("ret = {}".format(ret))
 
     except IOError as e:
-        err = "Download failed: {}".format(str(e))
+        err = "Join failed: {}".format(str(e))
         ret = -1
         out = ""
 

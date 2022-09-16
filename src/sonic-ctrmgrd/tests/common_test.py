@@ -9,6 +9,7 @@ import time
 CONFIG_DB_NO = 4
 STATE_DB_NO = 6
 FEATURE_TABLE = "FEATURE"
+MGMT_INTERFACE_TABLE = "MGMT_INTERFACE"
 KUBE_LABEL_TABLE = "KUBE_LABELS"
 KUBE_LABEL_SET_KEY = "SET"
 
@@ -41,6 +42,7 @@ KUBE_RETURN = "kube_return"
 IMAGE_TAG = "image_tag"
 FAIL_LOCK = "fail_lock"
 DO_JOIN = "do_join"
+REQ = "req"
 
 # subproc key words
 
@@ -643,8 +645,27 @@ def mock_subproc_side_effect(cmd, shell=False, stdout=None, stderr=None):
     return mock_proc(cmd, index)
 
 
-def set_kube_mock(mock_subproc):
+class mock_reqget:
+    def __init__(self):
+        self.ok = True
+
+    def json(self):
+        return current_test_data.get(REQ, "")
+
+
+def mock_reqget_side_effect(url, cert, verify=True):
+    return mock_reqget()
+
+
+def set_kube_mock(mock_subproc, mock_table=None, mock_conn=None, mock_reqget=None):
     mock_subproc.side_effect = mock_subproc_side_effect
+    if mock_table != None:
+        mock_table.side_effect = table_side_effect
+    if mock_conn != None:
+        mock_conn.side_effect = conn_side_effect
+    if mock_reqget != None:
+        mock_reqget.side_effect = mock_reqget_side_effect
+
 
 def create_remote_ctr_config_json():
     str_conf = '\
