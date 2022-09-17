@@ -136,7 +136,7 @@ RUN rm -rf /debs \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
 
-RUN python3 -m venv env-python3
+RUN python3 -m venv --system-site-packages env-python3
 
 # Activating a virtualenv. The virtualenv automatically works for RUN, ENV and CMD.
 ENV VIRTUAL_ENV=/root/env-python3
@@ -173,7 +173,8 @@ RUN python3 -m pip install setuptools \
     && pip3 install itsdangerous \
     && pip3 install retrying \
     && pip3 install jinja2 \
-    && pip3 install scapy==2.4.5
+    && pip3 install scapy==2.4.5 \
+    && pip3 install thrift
 
 {% if docker_ptf_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
