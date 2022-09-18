@@ -1,11 +1,14 @@
 binutils-arm-linux-gnueabihf==2.31.1-16
+bzip2==1.0.6-9.2~deb10u1
 curl==7.64.0-4+deb10u2
 icu-devtools==63.1-6+deb10u3
 libcryptsetup12==2:2.3.7-1+deb11u1~bpo10+1
 libcurl3-gnutls==7.64.0-4+deb10u2
 libcurl4==7.64.0-4+deb10u2
+libglib2.0-0==2.58.3-2+deb10u3
 libicu-dev==63.1-6+deb10u3
 libicu63==63.1-6+deb10u3
+libsqlite3-0==3.27.2-3+deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u4
 libxml2-dev==2.9.4+dfsg1-7+deb10u4
 libxslt1-dev==1.1.32-2.2~deb10u1

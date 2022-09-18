@@ -22,7 +22,7 @@ libdpkg-perl==1.19.8
 libexpat1-dev==2.2.6-2+deb10u4
 libffi-dev==3.2.1-9
 libgcc-8-dev==8.3.0-6
-libglib2.0-0==2.58.3-2+deb10u3
+libglib2.0-0==2.58.3-2+deb10u4
 libgomp1==8.3.0-6
 libicu63==63.1-6+deb10u3
 libisl19==0.20-2
