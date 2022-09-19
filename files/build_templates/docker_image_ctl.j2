@@ -593,6 +593,17 @@ stop() {
     {%- endif %}
 }
 
+kill() {
+    {%- if docker_container_name == "database" %}
+    docker kill $DOCKERNAME
+    if [ "$DEV" ]; then
+        ip netns delete "$NET_NS"
+    fi
+    {%- else %}
+    /usr/local/bin/container kill $DOCKERNAME
+    {%- endif %}
+}
+
 DOCKERNAME={{docker_container_name}}
 OP=$1
 DEV=$2 # namespace/device number to operate on
@@ -620,7 +631,7 @@ fi
 [ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
 
 case "$1" in
-    start|wait|stop)
+    start|wait|stop|kill)
         $1
         ;;
     *)
