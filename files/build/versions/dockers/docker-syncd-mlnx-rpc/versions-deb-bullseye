@@ -19,7 +19,7 @@ libcc1-0==10.2.1-6
 libctf-nobfd0==2.35.2-2
 libctf0==2.35.2-2
 libdouble-conversion3==3.1.5-6.1
-libdpkg-perl==1.20.11
+libdpkg-perl==1.20.12
 libffi-dev==3.3-6
 libgcc-10-dev==10.2.1-6
 libglib2.0-0==2.66.8-1
@@ -30,7 +30,7 @@ libjsoncpp24==1.9.4-4
 liblsan0==10.2.1-6
 libmpc3==1.2.0-1
 libmpfr6==4.1.0-3
-libpcre2-16-0==10.36-2
+libpcre2-16-0==10.36-2+deb11u1
 libpython2-dev==2.7.18-3
 libpython2-stdlib==2.7.18-3
 libpython2.7==2.7.18-8

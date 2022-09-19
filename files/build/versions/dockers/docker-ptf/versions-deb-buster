@@ -9,7 +9,7 @@ blt==2.5.3+dfsg-4
 bridge-utils==1.6-2
 bsd-mailx==8.1.2-0.20180807cvs-1
 build-essential==12.6
-bzip2==1.0.6-9.2~deb10u1
+bzip2==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 cmake==3.13.4-1
 cmake-data==3.13.4-1
@@ -57,7 +57,7 @@ graphviz==2.40.1-6+deb10u1
 hping3==3.a2.ds2-7
 ipython3==5.8.0-1+deb10u1
 javascript-common==11
-krb5-locales==1.17-3+deb10u3
+krb5-locales==1.17-3+deb10u4
 less==487-0.1+b1
 libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
@@ -78,6 +78,7 @@ libblas3==3.8.0-2
 libboost-atomic1.71.0==1.71.0-6~bpo10+1
 libbrotli1==1.0.7-2+deb10u1
 libbsd0==0.9.1-2+deb10u1
+libbz2-1.0==1.0.6-9.2~deb10u2
 libc-dev-bin==2.28-10+deb10u1
 libc6-dbg==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
@@ -125,8 +126,8 @@ libfile-mimeinfo-perl==0.29-1
 libfont-afm-perl==1.20-2
 libfontconfig1==2.13.1-2
 libfontenc1==1:1.1.3-1+b2
-libfreetype6==2.9.1-3+deb10u2
-libfribidi0==1.0.5-3.1+deb10u1
+libfreetype6==2.9.1-3+deb10u3
+libfribidi0==1.0.5-3.1+deb10u2
 libgcc-8-dev==8.3.0-6
 libgd3==2.2.5-5.2
 libgdbm-compat4==1.18.1-4
@@ -136,8 +137,8 @@ libgirepository-1.0-1==1.58.3-2
 libgl1==1.1.0-1
 libgl1-mesa-dri==18.3.6-2+deb10u1
 libglapi-mesa==18.3.6-2+deb10u1
-libglib2.0-0==2.58.3-2+deb10u3
-libglib2.0-data==2.58.3-2+deb10u3
+libglib2.0-0==2.58.3-2+deb10u4
+libglib2.0-data==2.58.3-2+deb10u4
 libglvnd0==1.1.0-1
 libglx-mesa0==18.3.6-2+deb10u1
 libglx0==1.1.0-1
@@ -147,7 +148,7 @@ libgpm2==1.20.7-5
 libgraphite2-3==1.3.13-7
 libgs9==9.27~dfsg-2+deb10u6
 libgs9-common==9.27~dfsg-2+deb10u6
-libgssapi-krb5-2==1.17-3+deb10u3
+libgssapi-krb5-2==1.17-3+deb10u4
 libgts-0.7-5==0.7.6+darcs121130-4
 libgts-bin==0.7.6+darcs121130-4
 libgvc6==2.40.1-6+deb10u1
@@ -185,12 +186,12 @@ libjs-jquery==3.3.1~dfsg-3+deb10u1
 libjs-jquery-ui==1.12.1+dfsg-5
 libjson-c3==0.12.1+ds-2+deb10u1
 libjsoncpp1==1.7.4-3
-libk5crypto3==1.17-3+deb10u3
+libk5crypto3==1.17-3+deb10u4
 libkeyutils1==1.6-6
 libkmod2==26-1
 libkpathsea6==2018.20181218.49446-1
-libkrb5-3==1.17-3+deb10u3
-libkrb5support0==1.17-3+deb10u3
+libkrb5-3==1.17-3+deb10u4
+libkrb5support0==1.17-3+deb10u4
 libksba8==1.3.5-2
 liblab-gamut1==2.40.1-6+deb10u1
 liblapack3==3.8.0-2
@@ -217,7 +218,7 @@ libncurses6==6.1+20181013-2+deb10u2
 libnet-dbus-perl==1.1.0-5+b1
 libnet-http-perl==6.18-1
 libnet-smtp-ssl-perl==1.04-1
-libnet-ssleay-perl==1.85-2+b1
+libnet-ssleay-perl==1.85-2+deb10u1
 libnet1==1.1.6+dfsg-3.1
 libnghttp2-14==1.36.0-2+deb10u1
 libnl-3-200==3.4.0-1
@@ -264,9 +265,9 @@ libpython3.7==3.7.3-2+deb10u3
 libpython3.7-dev==3.7.3-2+deb10u3
 libpython3.7-minimal==3.7.3-2+deb10u3
 libpython3.7-stdlib==3.7.3-2+deb10u3
-libqt5core5a==5.11.3+dfsg1-1+deb10u4
-libqt5dbus5==5.11.3+dfsg1-1+deb10u4
-libqt5network5==5.11.3+dfsg1-1+deb10u4
+libqt5core5a==5.11.3+dfsg1-1+deb10u5
+libqt5dbus5==5.11.3+dfsg1-1+deb10u5
+libqt5network5==5.11.3+dfsg1-1+deb10u5
 libquadmath0==8.3.0-6
 libreadline7==7.0-5
 librhash0==1.3.8-1
@@ -278,7 +279,7 @@ libsensors-config==1:3.5.0-3
 libsensors5==1:3.5.0-3
 libsigsegv2==2.12-2
 libsm6==2:1.2.3-1
-libsqlite3-0==3.27.2-3+deb10u1
+libsqlite3-0==3.27.2-3+deb10u2
 libssh2-1==1.8.0-2.1
 libssl-dev==1.1.1n-0+deb10u3
 libssl1.1==1.1.1n-0+deb10u3
@@ -387,7 +388,7 @@ pkg-config==0.29-6
 poppler-data==0.4.9-2
 procps==2:3.3.15-2
 psmisc==23.2-1+deb10u1
-publicsuffix==20211109.1735-0+deb10u1
+publicsuffix==20220811.1734-0+deb10u1
 python==2.7.16-1
 python-dev==2.7.16-1
 python-libpcap==0.6.4-1
@@ -490,3 +491,4 @@ xfonts-encodings==1:1.0.4-2
 xfonts-utils==1:7.7+6
 xxd==2:8.1.0875-5+deb10u2
 xz-utils==5.2.4-1+deb10u1
+zlib1g==1:1.2.11.dfsg-1+deb10u2

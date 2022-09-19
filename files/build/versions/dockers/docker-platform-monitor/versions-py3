@@ -4,7 +4,7 @@ grpcio-tools==1.39.0
 importlib-metadata==1.6.0
 jsonschema==2.6.0
 more-itertools==4.2.0
-protobuf==3.20.1
+protobuf==3.20.2
 pyrsistent==0.15.5
 python_sdk_api==4.5.2318
 thrift==0.13.0
