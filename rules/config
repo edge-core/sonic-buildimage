@@ -156,9 +156,9 @@ INCLUDE_P4RT = n
 # ENABLE_AUTO_TECH_SUPPORT - Enable the configuration for event-driven techsupport & coredump mgmt feature
 ENABLE_AUTO_TECH_SUPPORT = y
 
-# TELEMETRY_WRITABLE - Enable write/config operations via the gNMI interface.
+# ENABLE_TRANSLIB_WRITE - Enable translib write/config operations via the gNMI interface.
 # Uncomment to enable:
-# TELEMETRY_WRITABLE = y
+# ENABLE_TRANSLIB_WRITE = y
 
 # INCLUDE_MACSEC - build docker-macsec for macsec support
 INCLUDE_MACSEC = y
