@@ -11,4 +11,4 @@ https://salsa.debian.org/dhcp-team/isc-dhcp.git==18ecb042065e51e088b7470566526cd
 https://salsa.debian.org/kernel-team/ethtool/==fb77fb17864600d7deb46729c28c677c7da367d5
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==ab4bf75bb7d02ffa1f5c407d56980f157ef56fe2
+https://salsa.debian.org/ssh-team/openssh.git==cac473afc339d472f01bd50674ddcf3adb5fc82e
