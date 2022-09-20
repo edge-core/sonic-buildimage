@@ -31,10 +31,9 @@ from config_samples import generate_sample_config, get_available_config
 from functools import partial
 from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role, parse_asic_switch_type
 from portconfig import get_port_config, get_breakout_mode
-from redis_bcc import RedisBytecodeCache
 from sonic_py_common.multi_asic import get_asic_id_from_name, get_asic_device_id, is_multi_asic
 from sonic_py_common import device_info
-from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
+from swsscommon.swsscommon import ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
 
 PY3x = sys.version_info >= (3, 0)
@@ -241,8 +240,7 @@ def _get_jinja2_env(paths):
     Retreive Jinj2 env used to render configuration templates
     """
     loader = jinja2.FileSystemLoader(paths)
-    redis_bcc = RedisBytecodeCache(SonicV2Connector(host='127.0.0.1'))
-    env = jinja2.Environment(loader=loader, trim_blocks=True, bytecode_cache=redis_bcc)
+    env = jinja2.Environment(loader=loader, trim_blocks=True)
     env.filters['sort_by_port_index'] = sort_by_port_index
     env.filters['ipv4'] = is_ipv4
     env.filters['ipv6'] = is_ipv6

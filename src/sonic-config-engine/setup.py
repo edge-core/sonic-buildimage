@@ -43,7 +43,6 @@ py_modules = [
     'minigraph',
     'openconfig_acl',
     'portconfig',
-    'redis_bcc',
 ]
 if sys.version_info.major == 3:
     # Python 3-only modules
