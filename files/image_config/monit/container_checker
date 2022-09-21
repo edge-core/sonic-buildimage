@@ -22,6 +22,9 @@ import sys
 from sonic_py_common import multi_asic, device_info
 from swsscommon import swsscommon
 
+EVENTS_PUBLISHER_SOURCE = "sonic-events-host"
+EVENTS_PUBLISHER_TAG = "event-down-ctr"
+
 def get_expected_running_containers():
     """
     @summary: This function will get the expected running & always-enabled containers by following the rule:
@@ -150,6 +153,17 @@ def get_current_running_containers(always_running_containers):
     return current_running_containers
 
 
+def publish_events(lst):
+    events_handle = swsscommon.events_init_publisher(EVENTS_PUBLISHER_SOURCE)
+    params = swsscommon.FieldValueMap()
+
+    for ctr in lst:
+        params["name"] = ctr;
+        swsscommon.event_publish(events_handle, EVENTS_PUBLISHER_TAG, params)
+
+    swsscommon.events_deinit_publisher(events_handle)
+
+
 def main():
     """
     @summary: This function will compare the difference between the current running containers
@@ -162,6 +176,7 @@ def main():
     expected_running_containers |= always_running_containers
     not_running_containers = expected_running_containers.difference(current_running_containers)
     if not_running_containers:
+        publish_events(not_running_containers)
         print("Expected containers not running: " + ", ".join(not_running_containers))
         sys.exit(3)
 

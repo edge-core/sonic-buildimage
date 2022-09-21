@@ -319,6 +319,16 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noni
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-db-cli_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
+# Install sonic-rsyslog-plugin
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-rsyslog-plugin_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
+# Generate host conf for rsyslog_plugin
+j2 -f json $BUILD_TEMPLATES/rsyslog_plugin.conf.j2 $BUILD_TEMPLATES/events_info.json | sudo tee $FILESYSTEM_ROOT_ETC/rsyslog.d/host_events.conf
+sudo cp $BUILD_TEMPLATES/monit_regex.json $FILESYSTEM_ROOT_ETC/rsyslog.d/
+sudo cp $BUILD_TEMPLATES/sshd_regex.json $FILESYSTEM_ROOT_ETC/rsyslog.d/
+sudo cp $BUILD_TEMPLATES/systemd_regex.json $FILESYSTEM_ROOT_ETC/rsyslog.d/
+
 # Install custom-built monit package and SONiC configuration files
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/monit_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
@@ -798,10 +808,6 @@ sudo bash -c "echo { > $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_name
 {% endif %}
 {% endfor %}
 sudo bash -c "echo } >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
-
-# copy rsyslog plugin binary for use by all dockers that use plugin to publish events.
-# sudo mkdir -p ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}
-# sudo cp ${files_path}/rsyslog_plugin ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}/
 
 {% for script in installer_start_scripts.split(' ') -%}
 if [ -f $TARGET_MACHINE"_{{script}}" ]; then

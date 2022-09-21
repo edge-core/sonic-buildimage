@@ -12,7 +12,7 @@ $ModLoad omprog
 {% for proc in proclist %}
 if re_match($programname, "{{ proc.name }}") then {
     action(type="omprog"
-        binary="/usr/share/sonic/scripts/rsyslog_plugin -r /etc/rsyslog.d/{{ proc.parse_json }} -m {{ yang_module }}"
+        binary="/usr/bin/rsyslog_plugin -r /etc/rsyslog.d/{{ proc.parse_json }} -m {{ yang_module }}"
         output="/var/log/rsyslog_plugin.log"
         template="prog_msg")
 }

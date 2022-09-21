@@ -1,0 +1,7 @@
+[
+    {
+        "tag": "event-stopped-ctr",
+        "regex": "Stopped ([a-zA-Z-_\\s]*) container",
+        "params": [ "ctr-name" ]
+    }
+]

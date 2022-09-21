@@ -5,6 +5,9 @@ EVENTD_TOOL := tools/events_tool
 EVENTD_PUBLISH_TOOL := tools/events_publish_tool.py
 RSYSLOG-PLUGIN_TARGET := rsyslog_plugin/rsyslog_plugin
 RSYSLOG-PLUGIN_TEST := rsyslog_plugin_tests/tests
+EVENTD_MONIT := tools/events_monit_test.py
+EVENTD_MONIT_CONF := tools/monit_events
+
 CP := cp
 MKDIR := mkdir
 CC := g++
@@ -68,15 +71,18 @@ rsyslog-plugin-tests: $(RSYSLOG-PLUGIN-TEST_OBJS)
 	@echo ' '
 
 install:
-	$(MKDIR) -p $(DESTDIR)/usr/sbin
-	$(CP) $(EVENTD_TARGET) $(DESTDIR)/usr/sbin
-	$(CP) $(EVENTD_TOOL) $(DESTDIR)/usr/sbin
-	$(CP) $(EVENTD_PUBLISH_TOOL) $(DESTDIR)/usr/sbin
+	$(MKDIR) -p $(DESTDIR)/usr/bin
+	$(MKDIR) -p $(DESTDIR)/etc/monit/conf.d
+	$(CP) $(EVENTD_TARGET) $(DESTDIR)/usr/bin
+	$(CP) $(EVENTD_TOOL) $(DESTDIR)/usr/bin
+	$(CP) $(EVENTD_PUBLISH_TOOL) $(DESTDIR)/usr/bin
+	$(CP) $(RSYSLOG-PLUGIN_TARGET) $(DESTDIR)/usr/bin
+	$(CP) $(EVENTD_MONIT) $(DESTDIR)/usr/bin
+	$(CP) $(EVENTD_MONIT_CONF) $(DESTDIR)/etc/monit/conf.d
 
 deinstall:
-	$(RM) $(DESTDIR)/usr/sbin/$(EVENTD_TARGET)
-	$(RM) $(DESTDIR)/usr/sbin/$(RSYSLOG-PLUGIN_TARGET)
-	$(RM) -rf $(DESTDIR)/usr/sbin
+	$(RM) -rf $(DESTDIR)/usr
+	$(RM) -rf $(DESTDIR)/etc
 
 clean:
 	-@echo ' '
