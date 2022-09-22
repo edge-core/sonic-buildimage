@@ -127,11 +127,11 @@ class ServiceChecker(HealthChecker):
                         self.bad_containers.add(container)
                         logger.log_error('Invalid syntax in critical_processes file of {}'.format(container))
                     continue
-
-                identifier_key = match.group(2).strip()
-                identifier_value = match.group(3).strip()
-                if identifier_key == "program" and identifier_value:
-                    critical_process_list.append(identifier_value)
+                if match.group(1) is not None:
+                    identifier_key = match.group(2).strip()
+                    identifier_value = match.group(3).strip()
+                    if identifier_key == "program" and identifier_value:
+                        critical_process_list.append(identifier_value)
 
         return critical_process_list
 
