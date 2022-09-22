@@ -11,6 +11,26 @@
 # Short-Description: Setup Haliburton board.
 ### END INIT INFO
 
+setup_swap () {
+    SWAPFILE=/host/myswapfile
+
+    if [ ! -f $SWAPFILE ]; then
+        availspace=`df -h --output=avail /host | sed '1d;s/\s//g;s/[^0-9].*//g'`
+        diff=$(( availspace - 2*$1 ))
+        if [ $diff -gt 0 ]; then
+            fallocate -l ${1}G $SWAPFILE
+            chmod 600 $SWAPFILE
+            echo "swap file created successfully"
+        else
+            echo "not enough disk space to turn on swap."
+            return
+        fi
+    fi
+    mkswap $SWAPFILE
+    swapon $SWAPFILE
+    echo "swap on successfully"
+}
+
 case "$1" in
 start)
         echo -n "Setting up board... "
@@ -73,6 +93,8 @@ start)
         echo 0 > /sys/devices/platform/e1031.smc/SFP/modabs_mask
 
         /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+
+        setup_swap 2
 
         echo "done."
         ;;
