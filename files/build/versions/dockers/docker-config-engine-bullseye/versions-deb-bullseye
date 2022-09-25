@@ -20,7 +20,7 @@ libcrypt-dev==1:4.4.18-4
 libctf-nobfd0==2.35.2-2
 libctf0==2.35.2-2
 libdpkg-perl==1.20.12
-libexpat1-dev==2.2.10-2+deb11u3
+libexpat1-dev==2.2.10-2+deb11u4
 libgcc-10-dev==10.2.1-6
 libgomp1==10.2.1-6
 libhiredis0.14==0.14.0-3~bpo9+1

@@ -1,5 +1,5 @@
 blessed==1.19.1
-certifi==2022.9.14
+certifi==2022.9.24
 charset-normalizer==2.1.1
 click==7.0
 click-log==0.4.0

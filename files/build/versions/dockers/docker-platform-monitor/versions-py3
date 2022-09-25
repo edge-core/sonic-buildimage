@@ -6,6 +6,6 @@ jsonschema==2.6.0
 more-itertools==4.2.0
 protobuf==3.20.2
 pyrsistent==0.15.5
-python_sdk_api==4.5.2318
+python_sdk_api==4.5.2320
 thrift==0.13.0
 zipp==1.0.0

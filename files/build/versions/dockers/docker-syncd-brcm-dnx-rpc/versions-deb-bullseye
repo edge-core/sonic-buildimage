@@ -23,7 +23,7 @@ libctf-nobfd0==2.35.2-2
 libctf0==2.35.2-2
 libdouble-conversion3==3.1.5-6.1
 libdpkg-perl==1.20.12
-libexpat1-dev==2.2.10-2+deb11u3
+libexpat1-dev==2.2.10-2+deb11u4
 libffi-dev==3.3-6
 libgcc-10-dev==10.2.1-6
 libglib2.0-0==2.66.8-1
