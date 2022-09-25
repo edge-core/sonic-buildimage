@@ -5,6 +5,8 @@ icu-devtools==63.1-6+deb10u3
 libcryptsetup12==2:2.3.7-1+deb11u1~bpo10+1
 libcurl3-gnutls==7.64.0-4+deb10u2
 libcurl4==7.64.0-4+deb10u2
+libexpat1==2.2.6-2+deb10u4
+libexpat1-dev==2.2.6-2+deb10u4
 libglib2.0-0==2.58.3-2+deb10u3
 libicu-dev==63.1-6+deb10u3
 libicu63==63.1-6+deb10u3
@@ -16,4 +18,5 @@ libxslt1.1==1.1.32-2.2~deb10u1
 linux-image-4.19.0-12-2-arm64-unsigned==4.19.152-1
 pkg-config==0.29-6
 tsingma-bsp==1.0
+unzip==6.0-23+deb10u2
 zlib1g-dev==1:1.2.11.dfsg-1+deb10u1
