@@ -40,6 +40,7 @@ declare -rA FW_REQUIRED_MAP=( \
 )
 
 IMAGE_UPGRADE="${NO_PARAM}"
+CPLD_UPGRADE="${NO_PARAM}"
 VERBOSE_LEVEL="${VERBOSE_MIN}"
 
 function PrintHelp() {
@@ -48,12 +49,14 @@ function PrintHelp() {
     echo
     echo "OPTIONS:"
     echo "  -u, --upgrade  Upgrade ASIC firmware using next boot image (useful after SONiC-To-SONiC update)"
+    echo "  -c, --cpld     Upgrade CPLD firmware (requires -u|--upgrade)"
     echo "  -v, --verbose  Verbose mode"
     echo "  -h, --help     Print help"
     echo
     echo "Examples:"
     echo "  ./${SCRIPT_NAME} --verbose"
     echo "  ./${SCRIPT_NAME} --upgrade"
+    echo "  ./${SCRIPT_NAME} --upgrade --cpld --verbose"
     echo "  ./${SCRIPT_NAME} --help"
     echo
 }
@@ -63,6 +66,9 @@ function ParseArguments() {
         case "$1" in
             -u|--upgrade)
                 IMAGE_UPGRADE="${YES_PARAM}"
+            ;;
+            -c|--cpld)
+                CPLD_UPGRADE="${YES_PARAM}"
             ;;
             -v|--verbose)
                 VERBOSE_LEVEL="${VERBOSE_MAX}"
@@ -120,16 +126,44 @@ function ExitSuccess() {
     exit "${EXIT_SUCCESS}"
 }
 
+function ParseMachineConf() {
+    ONIE_MACHINE="$(cat /host/machine.conf | grep 'onie_machine=' | cut -f2 -d'=')"
+    ONIE_PLATFORM="$(cat /host/machine.conf | grep 'onie_platform=' | cut -f2 -d'=')"
+}
+
+function ShowProgressBar() {
+    local -rA SPIN=(
+        [0]="-"
+        [1]="\\"
+        [2]="|"
+        [3]="/"
+    )
+
+    if [[ "${VERBOSE_LEVEL}" -lt "${VERBOSE_INFO}" ]]; then
+        sleep 2s
+        return "${EXIT_SUCCESS}"
+    fi
+
+    # Print progress bar: use carriage return to overwrite command line content
+    for i in "${SPIN[@]}"; do
+        echo -ne "\r[${i}] ${1}"
+        sleep 0.5s
+    done
+
+    # Clear command line content + carriage return
+    echo -ne "\033[1K\r"
+}
+
 function WaitForDevice() {
     local -i QUERY_RETRY_COUNT_MAX="10"
     local -i QUERY_RETRY_COUNT="0"
 
-    ${QUERY_CMD} > /dev/null
+    ${QUERY_CMD} &> /dev/null
 
     while [[ ("${QUERY_RETRY_COUNT}" -lt "${QUERY_RETRY_COUNT_MAX}") && ("$?" -ne "${EXIT_SUCCESS}") ]]; do
         sleep 1s
         ((QUERY_RETRY_COUNT++))
-        ${QUERY_CMD} > /dev/null
+        ${QUERY_CMD} &> /dev/null
     done
 }
 
@@ -170,7 +204,7 @@ function RunCmd() {
     fi
 }
 
-function UpgradeFW() {
+function UpgradeASICFW() {
     local -r _FS_MOUNTPOINT="$1"
 
     local -r _ASIC_TYPE="$(GetAsicType)"
@@ -209,30 +243,114 @@ function UpgradeFW() {
     fi
 
     if [[ "${_FW_CURRENT}" == "${_FW_AVAILABLE}" ]]; then
-        ExitSuccess "firmware is up to date"
+        LogInfo "firmware is up to date"
     else
         LogNotice "firmware upgrade is required. Installing compatible version..."
         RunCmd "${BURN_CMD} -i ${_FW_FILE}"
     fi
 }
 
-function UpgradeFWFromImage() {
-    local -r _NEXT_SONIC_IMAGE="$(sonic_installer list | grep "Next: " | cut -f2 -d' ')"
-    local -r _CURRENT_SONIC_IMAGE="$(sonic_installer list | grep "Current: " | cut -f2 -d' ')"
+function UpgradeCPLDFW_Worker() {
+    local -r _CPLD_BURN_FILE="${1}"
+    local -r _CPLD_REFRESH_FILE="${2}"
+    local -r _ASIC_DEV="$(find /dev/mst -iname '*_pciconf0')"
 
-    local -r _FS_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
-    local -r _FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
+    if [[ -f /tmp/cpld_fw_updated ]]; then
+        RunCmd "cpldupdate --dev ${_ASIC_DEV} ${_CPLD_REFRESH_FILE}"
+        return "${EXIT_SUCCESS}"
+    fi
 
-    if [[ "${_CURRENT_SONIC_IMAGE}" == "${_NEXT_SONIC_IMAGE}" ]]; then
-        ExitSuccess "firmware is up to date"
+    RunCmd "cpldupdate --dev ${_ASIC_DEV} ${_CPLD_BURN_FILE}"
+    RunCmd "cpldupdate --dev ${_ASIC_DEV} ${_CPLD_REFRESH_FILE}"
+}
+
+function UpgradeCPLDFW() {
+    local -r _CPLD_ARCHIVE="$1"
+
+    if [[ -f /tmp/cpld_fw_updated ]]; then
+        LogWarning "forced CPLD refresh was requested for ${ONIE_PLATFORM}"
+        CPLD_UPGRADE="${YES_PARAM}"
+    fi
+
+    if [[ "${CPLD_UPGRADE}" != "${YES_PARAM}" ]]; then
+        LogNotice "CPLD upgrade was not requested for ${ONIE_PLATFORM}"
+        return "${EXIT_SUCCESS}"
+    fi
+
+    if [[ ! -f "${_CPLD_ARCHIVE}" ]]; then
+        LogNotice "CPLD update $(basename ${_CPLD_ARCHIVE}) was not provided for ${ONIE_PLATFORM}"
+        return "${EXIT_SUCCESS}"
+    fi
+
+    CPLD_DIR="$(mktemp -d)"
+
+    RunCmd "tar xzf ${_CPLD_ARCHIVE} -C ${CPLD_DIR}"
+
+    local -r _CPLD_BURN_FILE="${CPLD_DIR}/$(cat ${CPLD_DIR}/bundle.txt | grep 'burn=' | cut -f2 -d'=')"
+    local -r _CPLD_REFRESH_FILE="${CPLD_DIR}/$(cat ${CPLD_DIR}/bundle.txt | grep 'refresh=' | cut -f2 -d'=')"
+    local -r _CPLD_VERSION="$(cat ${CPLD_DIR}/bundle.txt | grep 'version=' | cut -f2 -d'=')"
+
+    local _CURRENT_CPLD_VERSION="${_CPLD_VERSION}"
+    local _TARGET_CPLD_VERSION="${_CPLD_VERSION}"
+
+    if [[ -f /bsp/cpld/cpld_mgmt_version ]]; then
+        _CURRENT_CPLD_VERSION="$(cat /bsp/cpld/cpld_mgmt_version)"
+    elif [[ -f /var/run/hw-management/system/cpld1_version ]]; then
+        _CURRENT_CPLD_VERSION="$(cat /var/run/hw-management/system/cpld1_version)"
     else
-        mkdir -p "${_FS_MOUNTPOINT}"
-        mount -t squashfs "${_FS_PATH}" "${_FS_MOUNTPOINT}"
+        ExitFailure "could not retrieve current CPLD firmware version"
+    fi
 
-        UpgradeFW "${_FS_MOUNTPOINT}"
+    if [[ "${_CURRENT_CPLD_VERSION}" = "${_TARGET_CPLD_VERSION}" ]]; then
+        LogInfo "CPLD firmware is up to date"
+        return "${EXIT_SUCCESS}"
+    fi
 
-        umount -rf "${_FS_MOUNTPOINT}"
-        rm -rf "${_FS_MOUNTPOINT}"
+    LogNotice "CPLD firmware upgrade is required. Installing compatible version..."
+
+    LogInfo "current CPLD firmware version: ${_CURRENT_CPLD_VERSION}"
+    LogInfo "target CPLD firmware version: ${_TARGET_CPLD_VERSION}"
+
+    LogInfo "CPLD burn firmware file: ${_CPLD_BURN_FILE}"
+    LogInfo "CPLD refresh firmware file: ${_CPLD_REFRESH_FILE}"
+
+    UpgradeCPLDFW_Worker "${_CPLD_BURN_FILE}" "${_CPLD_REFRESH_FILE}" &
+    local -r _PID="$!"
+
+    while $(ps -e -o pid | grep -E "^[[:blank:]]*${_PID}$" &> /dev/null); do
+        ShowProgressBar "CPLD update..."
+    done
+
+    RunCmd "wait ${_PID}"
+}
+
+function UpgradeFWFromImage() {
+    local -r _NEXT_SONIC_IMAGE="$(sonic_installer list | grep 'Next: ' | cut -f2 -d' ')"
+    local -r _CURRENT_SONIC_IMAGE="$(sonic_installer list | grep 'Current: ' | cut -f2 -d' ')"
+
+    if [[ "${_CURRENT_SONIC_IMAGE}" = "${_NEXT_SONIC_IMAGE}" ]]; then
+        ExitSuccess "firmware is up to date"
+    fi
+
+    FS_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
+    FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
+
+    RunCmd "mkdir -p ${FS_MOUNTPOINT}"
+    RunCmd "mount -t squashfs ${FS_PATH} ${FS_MOUNTPOINT}"
+
+
+    UpgradeASICFW "${FS_MOUNTPOINT}${FW_FILE}"
+    UpgradeCPLDFW "${FS_MOUNTPOINT}/etc/mlnx/cpld/${ONIE_MACHINE#mlnx_}_cpld.tar.gz"
+}
+
+function Cleanup() {
+    if [[ -d "${FS_MOUNTPOINT}" ]]; then
+        umount -rf "${FS_MOUNTPOINT}"
+        rm -rf "${FS_MOUNTPOINT}"
+    fi
+
+    if [[ -d "${CPLD_DIR}" ]]; then
+        rm -rf "${CPLD_DIR}"
     fi
 }
 
@@ -242,16 +360,25 @@ function ExitIfQEMU() {
     fi
 }
 
+trap Cleanup EXIT
+
+ParseMachineConf
 ParseArguments "$@"
 
 ExitIfQEMU
 
 WaitForDevice
 
-if [ "${IMAGE_UPGRADE}" != "${YES_PARAM}" ]; then
-    UpgradeFW
-else
+if [[ "${CPLD_UPGRADE}" = "${YES_PARAM}" ]]; then
+    if [[ "${IMAGE_UPGRADE}" = "${NO_PARAM}" ]]; then
+        ExitFailure "mandatory parameter was not provided: -u|--upgrade"
+    fi
+fi
+
+if [[ "${IMAGE_UPGRADE}" = "${YES_PARAM}" ]]; then
     UpgradeFWFromImage
+else
+    UpgradeASICFW
 fi
 
 ExitSuccess "firmware upgrade is completed"
