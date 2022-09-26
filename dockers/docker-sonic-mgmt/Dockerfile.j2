@@ -114,10 +114,6 @@ RUN apt-get update                  \
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
-# Install Microsoft Azure Kusto Library for Python
-RUN pip install azure-kusto-data==0.0.13 \
-                azure-kusto-ingest==0.0.13
-
 RUN pip install wheel==0.33.6
 
 ## Copy and install sonic-mgmt docker dependencies
