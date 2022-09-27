@@ -9,7 +9,7 @@ binutils-x86-64-linux-gnu==2.31.1-16
 bridge-utils==1.6-2
 bsd-mailx==8.1.2-0.20180807cvs-1
 build-essential==12.6
-bzip2==1.0.6-9.2~deb10u1
+bzip2==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 cmake==3.13.4-1
 cmake-data==3.13.4-1
@@ -46,7 +46,7 @@ gpgsm==2.2.12-1+deb10u2
 gpgv==2.2.12-1+deb10u2
 gzip==1.9-3+deb10u1
 hping3==3.a2.ds2-7
-krb5-locales==1.17-3+deb10u3
+krb5-locales==1.17-3+deb10u4
 less==487-0.1+b1
 libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
@@ -61,6 +61,7 @@ libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libboost-atomic1.71.0==1.71.0-6~bpo10+1
 libbsd0==0.9.1-2+deb10u1
+libbz2-1.0==1.0.6-9.2~deb10u2
 libc-bin==2.28-10+deb10u1
 libc-dev-bin==2.28-10+deb10u1
 libc6==2.28-10+deb10u1
@@ -82,8 +83,8 @@ libestr0==0.1.10-2.1
 libevent-2.1-6==2.1.8-stable-4
 libevent-core-2.1-6==2.1.8-stable-4
 libevent-pthreads-2.1-6==2.1.8-stable-4
-libexpat1==2.2.6-2+deb10u4
-libexpat1-dev==2.2.6-2+deb10u4
+libexpat1==2.2.6-2+deb10u5
+libexpat1-dev==2.2.6-2+deb10u5
 libfakeroot==1.23-1
 libfastjson4==0.99.8-2
 libffi-dev==3.2.1-9
@@ -91,14 +92,14 @@ libfile-fcntllock-perl==0.22-3+b5
 libgcc-8-dev==8.3.0-6
 libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
-libglib2.0-0==2.58.3-2+deb10u3
-libglib2.0-data==2.58.3-2+deb10u3
+libglib2.0-0==2.58.3-2+deb10u4
+libglib2.0-data==2.58.3-2+deb10u4
 libgmp10==2:6.1.2+dfsg-4+deb10u1
 libgnutls-dane0==3.6.7-4+deb10u9
 libgnutls30==3.6.7-4+deb10u9
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
-libgssapi-krb5-2==1.17-3+deb10u3
+libgssapi-krb5-2==1.17-3+deb10u4
 libicu63==63.1-6+deb10u3
 libidn11==1.33-2.2
 libip4tc0==1.8.2-4
@@ -108,11 +109,11 @@ libitm1==8.3.0-6
 libjansson4==2.12-1
 libjson-c3==0.12.1+ds-2+deb10u1
 libjsoncpp1==1.7.4-3
-libk5crypto3==1.17-3+deb10u3
+libk5crypto3==1.17-3+deb10u4
 libkeyutils1==1.6-6
 libkmod2==26-1
-libkrb5-3==1.17-3+deb10u3
-libkrb5support0==1.17-3+deb10u3
+libkrb5-3==1.17-3+deb10u4
+libkrb5support0==1.17-3+deb10u4
 libksba8==1.3.5-2
 libldap-2.4-2==2.4.47+dfsg-3+deb10u7
 libldap-common==2.4.47+dfsg-3+deb10u7
@@ -158,9 +159,9 @@ libpython2.7-stdlib==2.7.16-2+deb10u1
 libpython3.7==3.7.3-2+deb10u3
 libpython3.7-minimal==3.7.3-2+deb10u3
 libpython3.7-stdlib==3.7.3-2+deb10u3
-libqt5core5a==5.11.3+dfsg1-1+deb10u4
-libqt5dbus5==5.11.3+dfsg1-1+deb10u4
-libqt5network5==5.11.3+dfsg1-1+deb10u4
+libqt5core5a==5.11.3+dfsg1-1+deb10u5
+libqt5dbus5==5.11.3+dfsg1-1+deb10u5
+libqt5network5==5.11.3+dfsg1-1+deb10u5
 libquadmath0==8.3.0-6
 libreadline7==7.0-5
 librhash0==1.3.8-1
@@ -169,7 +170,7 @@ libsasl2-2==2.1.27+dfsg-1+deb10u2
 libsasl2-modules==2.1.27+dfsg-1+deb10u2
 libsasl2-modules-db==2.1.27+dfsg-1+deb10u2
 libsigsegv2==2.12-2
-libsqlite3-0==3.27.2-3+deb10u1
+libsqlite3-0==3.27.2-3+deb10u2
 libssh2-1==1.8.0-2.1
 libssl-dev==1.1.1n-0+deb10u3
 libssl1.1==1.1.1n-0+deb10u3
@@ -220,7 +221,7 @@ pinentry-curses==1.1.0-2
 pkg-config==0.29-6
 procps==2:3.3.15-2
 psmisc==23.2-1+deb10u1
-publicsuffix==20211109.1735-0+deb10u1
+publicsuffix==20220811.1734-0+deb10u1
 python==2.7.16-1
 python-dev==2.7.16-1
 python-libpcap==0.6.4-1
@@ -251,7 +252,7 @@ tmux==2.8-3
 traceroute==1:2.1.0-2
 tzdata==2021a-0+deb10u5
 ucf==3.0038+nmu1
-unzip==6.0-23+deb10u2
+unzip==6.0-23+deb10u3
 vim==2:8.1.0875-5+deb10u2
 vim-common==2:8.1.0875-5+deb10u2
 vim-runtime==2:8.1.0875-5+deb10u2
@@ -260,4 +261,4 @@ xauth==1:1.0.10-1
 xdg-user-dirs==0.17-2
 xxd==2:8.1.0875-5+deb10u2
 xz-utils==5.2.4-1+deb10u1
-zlib1g==1:1.2.11.dfsg-1+deb10u1
+zlib1g==1:1.2.11.dfsg-1+deb10u2

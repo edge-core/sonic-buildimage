@@ -1,11 +1,11 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==a089281a82f9481e246dcc1292145d0e8635f51c
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==08bb5c487f80147a236360ea50f4544890530779
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
 https://github.com/CESNET/libyang.git==0c609c35080f523c9696db48976de8257d174102
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/dyninc/OpenBFDD.git==e35f43ad8d2b3f084e96a84c392528a90d05a287
-https://github.com/flashrom/flashrom.git==33af2e695d28a89e0eaf9b058310bc5bf0e6e80f
-https://github.com/FreeRADIUS/freeradius-server.git==63a5736e75c88cb4343108e9ebb7474912d93347
+https://github.com/flashrom/flashrom.git==7ed1337309d3fe74f5af09520970f0f1d417399a
+https://github.com/FreeRADIUS/freeradius-server.git==f0594e19290b7be8a41c3ef4a52b23c18c0db968
 https://github.com/FreeRADIUS/pam_radius.git==272f6420c5c01f9bdb27c98e5edb44de406f4631
 https://github.com/jeroennijhof/pam_tacplus.git==453c7b6fc78eceeaaf39a59b6b87c124628f2fe8
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
@@ -21,4 +21,4 @@ https://salsa.debian.org/dhcp-team/isc-dhcp.git==18ecb042065e51e088b7470566526cd
 https://salsa.debian.org/kernel-team/ethtool/==fb77fb17864600d7deb46729c28c677c7da367d5
 https://salsa.debian.org/kernel-team/initramfs-tools.git==dd16eade69ef76b304a369fac2f6c0de508b855b
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==ab4bf75bb7d02ffa1f5c407d56980f157ef56fe2
+https://salsa.debian.org/ssh-team/openssh.git==cac473afc339d472f01bd50674ddcf3adb5fc82e
