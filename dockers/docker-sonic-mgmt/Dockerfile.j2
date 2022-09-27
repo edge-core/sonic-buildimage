@@ -1,5 +1,5 @@
 {% set prefix = DEFAULT_CONTAINER_REGISTRY %}
-FROM {{ prefix }}ubuntu:18.04
+FROM {{ prefix }}ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install -y build-essential \
                                          psmisc \
                                          python \
                                          python-dev \
-                                         python-scapy \
-                                         python-pip \
                                          python3-pip \
                                          python3-venv \
                                          rsyslog \
@@ -31,10 +29,20 @@ RUN apt-get update && apt-get install -y build-essential \
                                          sudo \
                                          tcpdump \
                                          telnet \
-                                         vim
+                                         vim \
+                                         python-is-python2 \
+                                         software-properties-common
+
+RUN add-apt-repository -y universe
+RUN curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py \
+    && python2 get-pip.py
+
+RUN curl -L http://archive.ubuntu.com/ubuntu/pool/universe/s/scapy/python-scapy_2.3.3-3_all.deb \
+    --output python-scapy_2.3.3-3_all.deb \
+    && dpkg -i python-scapy_2.3.3-3_all.deb
 
 RUN pip install setuptools==44.1.1
-RUN pip install cffi==1.10.0 \
+RUN pip install cffi==1.12.0 \
                 contextlib2==0.6.0.post1 \
                 cryptography==3.3.2 \
                 "future>=0.16.0" \
@@ -96,7 +104,7 @@ RUN pip install cffi==1.10.0 \
     && rm -f 1.0.0.tar.gz  \
     && pip install nnpy    \
     && pip install dpkt    \
-    && pip install scapy==2.4.5 --upgrade
+    && pip install scapy==2.4.5 --upgrade --ignore-installed
 
 # Install docker-ce-cli
 RUN apt-get update                  \
@@ -189,8 +197,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONIOENCODING=UTF-8
 
-RUN python3 -m pip install --upgrade --ignore-installed pip setuptools==58.4.0
-
+RUN python3 -m pip install --upgrade --ignore-installed pip setuptools==58.4.0 wheel==0.33.6
 RUN python3 -m pip install setuptools-rust \
                             aiohttp \
                             defusedxml \
@@ -206,6 +213,7 @@ RUN python3 -m pip install setuptools-rust \
                             ixnetwork-restpy==1.0.64 \
                             ixnetwork-open-traffic-generator==0.0.79 \
                             snappi[ixnetwork,convergence]==0.7.44 \
+                            markupsafe==2.0.1 \
                             jinja2==2.7.2 \
                             jsonpatch \
                             lxml \
@@ -233,7 +241,6 @@ RUN python3 -m pip install setuptools-rust \
                             tabulate \
                             textfsm==1.1.2 \
                             virtualenv \
-                            wheel==0.33.6 \
                             pysubnettree \
                             nnpy \
                             dpkt \
@@ -248,5 +255,5 @@ RUN python3 -m pip install setuptools-rust \
                             celery[redis]==4.4.7 \
                             msrest==0.6.21
 
-# Deactivating a virtualenv.
+# Deactivating a virtualenv
 ENV PATH="$BACKUP_OF_PATH"
