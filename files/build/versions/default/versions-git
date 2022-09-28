@@ -1,10 +1,10 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==08bb5c487f80147a236360ea50f4544890530779
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==fcf9fc4c36d6a3b244fd95fbceaa7b9030e67362
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
 https://github.com/CESNET/libyang.git==0c609c35080f523c9696db48976de8257d174102
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/dyninc/OpenBFDD.git==e35f43ad8d2b3f084e96a84c392528a90d05a287
 https://github.com/jeroennijhof/pam_tacplus.git==453c7b6fc78eceeaaf39a59b6b87c124628f2fe8
-https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
+https://github.com/jpirko/libteam.git==42a235b5e8e4befe5c35ec60bb34ffffbedddbf3
 https://github.com/lguohan/gnxi.git==f2b11e45b16ab13485ae14933f30c18ee6336499
 https://github.com/Marvell-switching/mrvl-prestera.git==21a100e01b2ab00229da35dd178d9b294c66303f
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
