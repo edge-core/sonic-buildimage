@@ -123,7 +123,7 @@ class Chassis(ChassisBase):
 
         if self._sfp_list:
             if self.sfp_module.SFP.shared_sdk_handle:
-                self.sfp_module.deinitialize_sdk_handle(sfp_module.SFP.shared_sdk_handle)
+                self.sfp_module.deinitialize_sdk_handle(self.sfp_module.SFP.shared_sdk_handle)
 
     @property
     def RJ45_port_list(self):
