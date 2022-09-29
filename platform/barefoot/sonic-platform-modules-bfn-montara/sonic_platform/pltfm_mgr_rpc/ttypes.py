@@ -460,6 +460,63 @@ class pltfm_mgr_eeprom_t(object):
         return not (self == other)
 
 
+class pltfm_mgr_tlv_sys_eeprom_t(object):
+    """
+    Attributes:
+     - raw_content_hex
+
+    """
+
+
+    def __init__(self, raw_content_hex=None,):
+        self.raw_content_hex = raw_content_hex
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.raw_content_hex = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('pltfm_mgr_tlv_sys_eeprom_t')
+        if self.raw_content_hex is not None:
+            oprot.writeFieldBegin('raw_content_hex', TType.STRING, 1)
+            oprot.writeString(self.raw_content_hex.encode('utf-8') if sys.version_info[0] == 2 else self.raw_content_hex)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class pltfm_mgr_pwr_supply_info_t(object):
     """
     Attributes:
@@ -1379,6 +1436,11 @@ pltfm_mgr_eeprom_t.thrift_spec = (
     (20, TType.I32, 'ext_mac_addr_size', None, None, ),  # 20
     (21, TType.STRING, 'location', 'UTF8', None, ),  # 21
     (22, TType.I16, 'crc8', None, None, ),  # 22
+)
+all_structs.append(pltfm_mgr_tlv_sys_eeprom_t)
+pltfm_mgr_tlv_sys_eeprom_t.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'raw_content_hex', 'UTF8', None, ),  # 1
 )
 all_structs.append(pltfm_mgr_pwr_supply_info_t)
 pltfm_mgr_pwr_supply_info_t.thrift_spec = (

@@ -33,6 +33,9 @@ class Iface(object):
     def pltfm_mgr_sys_eeprom_get(self):
         pass
 
+    def pltfm_mgr_tlv_eeprom_get(self):
+        pass
+
     def pltfm_mgr_pwr_supply_present_get(self, ps_num):
         """
         Parameters:
@@ -402,6 +405,34 @@ class Client(Iface):
         if result.ouch is not None:
             raise result.ouch
         raise TApplicationException(TApplicationException.MISSING_RESULT, "pltfm_mgr_sys_eeprom_get failed: unknown result")
+
+    def pltfm_mgr_tlv_eeprom_get(self):
+        self.send_pltfm_mgr_tlv_eeprom_get()
+        return self.recv_pltfm_mgr_tlv_eeprom_get()
+
+    def send_pltfm_mgr_tlv_eeprom_get(self):
+        self._oprot.writeMessageBegin('pltfm_mgr_tlv_eeprom_get', TMessageType.CALL, self._seqid)
+        args = pltfm_mgr_tlv_eeprom_get_args()
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_pltfm_mgr_tlv_eeprom_get(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = pltfm_mgr_tlv_eeprom_get_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.ouch is not None:
+            raise result.ouch
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "pltfm_mgr_tlv_eeprom_get failed: unknown result")
 
     def pltfm_mgr_pwr_supply_present_get(self, ps_num):
         """
@@ -1579,6 +1610,7 @@ class Processor(Iface, TProcessor):
         self._processMap["pltfm_mgr_dummy"] = Processor.process_pltfm_mgr_dummy
         self._processMap["pltfm_mgr_sys_tmp_get"] = Processor.process_pltfm_mgr_sys_tmp_get
         self._processMap["pltfm_mgr_sys_eeprom_get"] = Processor.process_pltfm_mgr_sys_eeprom_get
+        self._processMap["pltfm_mgr_tlv_eeprom_get"] = Processor.process_pltfm_mgr_tlv_eeprom_get
         self._processMap["pltfm_mgr_pwr_supply_present_get"] = Processor.process_pltfm_mgr_pwr_supply_present_get
         self._processMap["pltfm_mgr_pwr_supply_info_get"] = Processor.process_pltfm_mgr_pwr_supply_info_get
         self._processMap["pltfm_mgr_pwr_rail_info_get"] = Processor.process_pltfm_mgr_pwr_rail_info_get
@@ -1706,6 +1738,32 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("pltfm_mgr_sys_eeprom_get", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_pltfm_mgr_tlv_eeprom_get(self, seqid, iprot, oprot):
+        args = pltfm_mgr_tlv_eeprom_get_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = pltfm_mgr_tlv_eeprom_get_result()
+        try:
+            result.success = self._handler.pltfm_mgr_tlv_eeprom_get()
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except InvalidPltfmMgrOperation as ouch:
+            msg_type = TMessageType.REPLY
+            result.ouch = ouch
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("pltfm_mgr_tlv_eeprom_get", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -2950,6 +3008,123 @@ class pltfm_mgr_sys_eeprom_get_result(object):
 all_structs.append(pltfm_mgr_sys_eeprom_get_result)
 pltfm_mgr_sys_eeprom_get_result.thrift_spec = (
     (0, TType.STRUCT, 'success', [pltfm_mgr_eeprom_t, None], None, ),  # 0
+    (1, TType.STRUCT, 'ouch', [InvalidPltfmMgrOperation, None], None, ),  # 1
+)
+
+
+class pltfm_mgr_tlv_eeprom_get_args(object):
+
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('pltfm_mgr_tlv_eeprom_get_args')
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(pltfm_mgr_tlv_eeprom_get_args)
+pltfm_mgr_tlv_eeprom_get_args.thrift_spec = (
+)
+
+
+class pltfm_mgr_tlv_eeprom_get_result(object):
+    """
+    Attributes:
+     - success
+     - ouch
+
+    """
+
+
+    def __init__(self, success=None, ouch=None,):
+        self.success = success
+        self.ouch = ouch
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = pltfm_mgr_tlv_sys_eeprom_t()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.ouch = InvalidPltfmMgrOperation.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('pltfm_mgr_tlv_eeprom_get_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.ouch is not None:
+            oprot.writeFieldBegin('ouch', TType.STRUCT, 1)
+            self.ouch.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(pltfm_mgr_tlv_eeprom_get_result)
+pltfm_mgr_tlv_eeprom_get_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [pltfm_mgr_tlv_sys_eeprom_t, None], None, ),  # 0
     (1, TType.STRUCT, 'ouch', [InvalidPltfmMgrOperation, None], None, ),  # 1
 )
 
