@@ -6,6 +6,7 @@ try:
     import json
     from collections import OrderedDict
     from sonic_py_common import device_info
+    from platform_utils import limit_execution_time
 
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -24,6 +25,7 @@ def get_bios_version():
     except subprocess.CalledProcessError as e:
         raise RuntimeError("Failed to get BIOS version")
 
+@limit_execution_time(1)
 def get_bmc_version():
     """
     Retrieves the firmware version of the BMC

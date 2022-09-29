@@ -4,17 +4,25 @@ try:
     import os
     import sys
     import time
+    import signal
+    import syslog
 
     sys.path.append(os.path.dirname(__file__))
 
     from .platform_thrift_client import thrift_try
 
     from sonic_platform_base.psu_base import PsuBase
+    from platform_utils import cancel_on_sigterm
+
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 class Psu(PsuBase):
     """Platform-specific PSU class"""
+
+    sigterm = False
+    sigterm_default_handler = None
+    cls_inited = False
 
     def __init__(self, index):
         PsuBase.__init__(self)
@@ -23,6 +31,21 @@ class Psu(PsuBase):
         self.__ts = 0
         # STUB IMPLEMENTATION
         self.color = ""
+
+        syslog.syslog(syslog.LOG_INFO, "Created PSU #{} instance".format(self.__index))
+        if not Psu.cls_inited:
+            Psu.sigterm_default_handler = signal.getsignal(signal.SIGTERM)
+            signal.signal(signal.SIGTERM, Psu.signal_handler)
+            if Psu.sigterm_default_handler:
+                syslog.syslog(syslog.LOG_INFO, "Default SIGTERM handler overridden!!")
+            Psu.cls_inited = True
+
+    @classmethod
+    def signal_handler(cls, sig, frame):
+        if cls.sigterm_default_handler:
+            cls.sigterm_default_handler(sig, frame)
+        syslog.syslog(syslog.LOG_INFO, "Canceling PSU platform API calls...")
+        cls.sigterm = True
 
     '''
     Units of returned info object values:
@@ -33,19 +56,22 @@ class Psu(PsuBase):
         fspeed - RPM
     '''
     def __info_get(self):
+        @cancel_on_sigterm
         def psu_info_get(client):
             return client.pltfm_mgr.pltfm_mgr_pwr_supply_info_get(self.__index)
 
         # Update cache once per 2 seconds
-        if self.__ts + 2 < time.time():
+        if self.__ts + 2 < time.time() and not Psu.sigterm:
             self.__info = None
             try:
                 self.__info = thrift_try(psu_info_get, attempts=1)
+            except Exception as e:
+                if "Canceling" in str(e):
+                    syslog.syslog(syslog.LOG_INFO, "{}".format(e))
             finally:
                 self.__ts = time.time()
                 return self.__info
         return self.__info
-
 
     @staticmethod
     def get_num_psus():
