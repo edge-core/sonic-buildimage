@@ -27,6 +27,12 @@ setup(
         'pytest',
         'mock==3.0.5' # For python 2. Version >=4.0.0 drops support for py2
     ],
+    entry_points={
+        'console_scripts': [
+            'sonic-db-load = sonic_py_common.sonic_db_dump_load:sonic_db_dump_load',
+            'sonic-db-dump = sonic_py_common.sonic_db_dump_load:sonic_db_dump_load',
+        ],
+    },
     classifiers=[
         'Intended Audience :: Developers',
         'Operating System :: Linux',
