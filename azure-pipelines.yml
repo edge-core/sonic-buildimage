@@ -137,7 +137,7 @@ stages:
     pool: sonictest
     displayName: "kvmtest-t0-part1"
     timeoutInMinutes: 360
-    continueOnError: true
+    continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-template.yml
       parameters:
@@ -151,7 +151,7 @@ stages:
     pool: sonictest
     displayName: "kvmtest-t0-part2"
     timeoutInMinutes: 360
-    continueOnError: true
+    continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-template.yml
       parameters:
