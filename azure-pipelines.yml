@@ -112,6 +112,8 @@ stages:
 
     - script: |
         set -x
+        sudo apt-get update
+        sudo apt-get install libyang0.16 -y
         sudo dpkg -i --force-confask,confnew ../libswsscommon_1.0.0_amd64.deb
         sudo dpkg -i ../python3-swsscommon_1.0.0_amd64.deb
         sudo docker load -i ../target/docker-sonic-vs.gz
