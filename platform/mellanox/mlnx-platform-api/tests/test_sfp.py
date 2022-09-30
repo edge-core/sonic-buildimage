@@ -119,3 +119,17 @@ class TestSfp:
 
         mock_port_status.return_value = (0, False)
         assert not SFP.is_port_admin_status_up(None, None)
+
+    @mock.patch('sonic_platform.sfp.SFP.get_xcvr_api')
+    def test_dummy_apis(self, mock_get_xcvr_api):
+        mock_api = mock.MagicMock()
+        mock_api.NUM_CHANNELS = 4
+        mock_get_xcvr_api.return_value = mock_api
+
+        sfp = SFP(0)
+        assert sfp.get_rx_los() == [False] * 4
+        assert sfp.get_tx_fault() == [False] * 4
+
+        mock_get_xcvr_api.return_value = None
+        assert sfp.get_rx_los() is None
+        assert sfp.get_tx_fault() is None
