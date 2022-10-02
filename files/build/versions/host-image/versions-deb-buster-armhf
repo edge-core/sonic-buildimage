@@ -16,6 +16,7 @@ libxml2-dev==2.9.4+dfsg1-7+deb10u4
 libxslt1-dev==1.1.32-2.2~deb10u1
 libxslt1.1==1.1.32-2.2~deb10u1
 linux-image-4.19.0-12-2-armmp==4.19.152-1
+linux-libc-dev==4.19.249-2
 mrvlprestera==1.0
 pkg-config==0.29-6
 unzip==6.0-23+deb10u2

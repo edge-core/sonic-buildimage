@@ -227,7 +227,7 @@ libyang-cpp==1.0.73
 libzstd1==1.4.4+dfsg-3~bpo10+1
 linux-base==4.6
 linux-image-4.19.0-12-2-amd64-unsigned==4.19.152-1
-linux-libc-dev==4.19.249-2
+linux-libc-dev==4.19.260-1
 locales==2.28-10+deb10u1
 logrotate==3.14.0-4
 lsb-base==10.2019051400
