@@ -161,7 +161,7 @@ libhtml-parser-perl==3.72-3+b3
 libhtml-tagset-perl==3.20-3
 libhtml-tree-perl==5.07-2
 libhttp-cookies-perl==6.04-1
-libhttp-daemon-perl==6.01-3
+libhttp-daemon-perl==6.01-3+deb10u1
 libhttp-date-perl==6.02-1
 libhttp-message-perl==6.18-1
 libhttp-negotiate-perl==6.01-1
@@ -359,7 +359,7 @@ libxxf86dga1==2:1.1.4-1+b3
 libxxf86vm1==1:1.1.4-1+b2
 libxxhash0==0.6.5-2
 libzzip-0-13==0.13.62-3.2+deb10u1
-linux-libc-dev==4.19.249-2
+linux-libc-dev==4.19.260-1
 lmodern==2.004.5-6
 logrotate==3.14.0-4
 lsb-base==10.2019051400
