@@ -195,7 +195,7 @@ libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1+b2
 libxml2==2.9.4+dfsg1-7+deb10u4
 libxmuu1==2:1.1.2-2+b3
-linux-libc-dev==4.19.249-2
+linux-libc-dev==4.19.260-1
 logrotate==3.14.0-4
 lsb-base==10.2019051400
 lsof==4.91+dfsg-1
