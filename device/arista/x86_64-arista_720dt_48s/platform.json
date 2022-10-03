@@ -1,7 +1,14 @@
 {
     "chassis": {
         "name": "CCS-720DT-48S",
-        "components": [],
+        "components": [
+            {
+               "name": "Aboot()"
+            },
+            {
+               "name": "Scd(addr=0000:00:18.7)"
+            }
+        ],
         "fan_drawers": [
             {
                 "name": "fixed1",
