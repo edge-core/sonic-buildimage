@@ -124,7 +124,7 @@ endif
 # Define a do-nothing target for rules/config.user so that when
 # the file is missing, make won't try to rebuld everything.
 rules/config.user:
-	@echo -n ""
+	$(Q)echo -n ""
 
 include rules/config
 -include rules/config.user
@@ -173,21 +173,59 @@ endif
 endif
 
 # Generate the version control build info
-$(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
-    TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-    scripts/generate_buildinfo_config.sh)
+$(shell \
+	SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
+	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
+	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
+	scripts/generate_buildinfo_config.sh)
 
 # Generate the slave Dockerfile, and prepare build info for it
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) CROSS_BUILD_ENVIRON=$(CROSS_BUILD_ENVIRON) ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) CROSS_BUILD_ENVIRON=$(CROSS_BUILD_ENVIRON) j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
-$(shell BUILD_SLAVE=y DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
+$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) \
+	MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
+	CROSS_BUILD_ENVIRON=$(CROSS_BUILD_ENVIRON) \
+	ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
+	DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) \
+	DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
+	j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
+
+$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) \
+	MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
+	CROSS_BUILD_ENVIRON=$(CROSS_BUILD_ENVIRON) \
+	j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
+
+PREPARE_DOCKER=BUILD_SLAVE=y \
+	DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
+	scripts/prepare_docker_buildinfo.sh \
+		$(SLAVE_BASE_IMAGE) \
+		$(SLAVE_DIR)/Dockerfile \
+		$(CONFIGURED_ARCH) \
+		"" \
+		$(BLDENV)
+
+$(shell $(PREPARE_DOCKER) )
 
 # Add the versions in the tag, if the version change, need to rebuild the slave
-SLAVE_BASE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* src/sonic-build-hooks/hooks/* | sha1sum | awk '{print substr($$1,0,11);}')
-# Calculate the slave TAG based on $(USER)/$(PWD)/$(CONFIGURED_PLATFORM) to get unique SHA ID
-SLAVE_TAG = $(shell (cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* .git/HEAD && echo $(USER)/$(PWD)/$(CONFIGURED_PLATFORM)) \
-			| sha1sum | awk '{print substr($$1,0,11);}')
+SLAVE_BASE_TAG = $(shell \
+	cat $(SLAVE_DIR)/Dockerfile \
+		$(SLAVE_DIR)/buildinfo/versions/versions-* \
+		src/sonic-build-hooks/hooks/* 2>/dev/null \
+	| sha1sum \
+	| awk '{print substr($$1,0,11);}')
 
+# Calculate the slave TAG based on $(USER)/$(PWD)/$(CONFIGURED_PLATFORM) to get unique SHA ID
+SLAVE_TAG = $(shell \
+	(cat $(SLAVE_DIR)/Dockerfile.user \
+		 $(SLAVE_DIR)/Dockerfile \
+		 $(SLAVE_DIR)/buildinfo/versions/versions-* \
+		 .git/HEAD \
+	&& echo $(USER)/$(PWD)/$(CONFIGURED_PLATFORM)) \
+	| sha1sum \
+	| awk '{print substr($$1,0,11);}')
+
+COLLECT_DOCKER=DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
+	scripts/collect_docker_version_files.sh \
+	$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
+		target 
 OVERLAY_MODULE_CHECK := \
     lsmod | grep -q "^overlay " &>/dev/null || \
     zgrep -q 'CONFIG_OVERLAY_FS=y' /proc/config.gz &>/dev/null || \
@@ -329,7 +367,7 @@ DOCKER_BASE_LOG = $(SLAVE_DIR)/$(SLAVE_BASE_IMAGE)_$(SLAVE_BASE_TAG).log
 DOCKER_LOG = $(SLAVE_DIR)/$(SLAVE_IMAGE)_$(SLAVE_TAG).log
 
 
-DOCKER_BASE_BUILD = docker build --no-cache \
+DOCKER_SLAVE_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 		    --build-arg http_proxy=$(http_proxy) \
 		    --build-arg https_proxy=$(https_proxy) \
@@ -339,7 +377,7 @@ DOCKER_BASE_BUILD = docker build --no-cache \
 DOCKER_BASE_PULL = docker pull \
 			$(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
 
-DOCKER_BUILD = docker build --no-cache \
+DOCKER_USER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
 	       --build-arg uid=$(shell id -u) \
 	       --build-arg guid=$(shell id -g) \
@@ -349,7 +387,52 @@ DOCKER_BUILD = docker build --no-cache \
 	       -f $(SLAVE_DIR)/Dockerfile.user \
 	       $(SLAVE_DIR) $(SPLIT_LOG) $(DOCKER_LOG)
 
-SONIC_BUILD_INSTRUCTION :=  make \
+
+DOCKER_SLAVE_BASE_INSPECT = \
+	{ \
+		echo Checking sonic-slave-base image: $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG); \
+		docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null; \
+	}
+
+DOCKER_SLAVE_BASE_PULL_REGISTRY = \
+	[ $(ENABLE_DOCKER_BASE_PULL) == y ] && \
+	{ \
+		echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; \
+		$(DOCKER_BASE_PULL); \
+	} && \
+	{ \
+		docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) && \
+		$(COLLECT_DOCKER); \
+	}\
+
+SONIC_SLAVE_BASE_BUILD = \
+	{ \
+		$(DOCKER_SLAVE_BASE_INSPECT); \
+	} || \
+	{ \
+		$(DOCKER_SLAVE_BASE_PULL_REGISTRY); \
+	} || \
+	{ \
+		echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
+		$(PREPARE_DOCKER) ; \
+		$(DOCKER_SLAVE_BASE_BUILD) ; \
+		$(COLLECT_DOCKER) ; \
+	}
+
+DOCKER_SLAVE_USER_INSPECT = \
+	{ \
+		echo Checking sonic-slave-user image: $(SLAVE_IMAGE):$(SLAVE_TAG); \
+		docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null; \
+	}
+
+SONIC_SLAVE_USER_BUILD = \
+	{ $(DOCKER_SLAVE_USER_INSPECT) } || \
+	{ \
+		echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
+		$(DOCKER_USER_BUILD) ; \
+	}
+
+SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
                            -f slave.mk \
                            PLATFORM=$(PLATFORM) \
                            PLATFORM_ARCH=$(PLATFORM_ARCH) \
@@ -415,87 +498,75 @@ SONIC_BUILD_INSTRUCTION :=  make \
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 
+
+ifeq ($(filter clean,$(MAKECMDGOALS)),)
+COLLECT_BUILD_VERSION = { DBGOPT='$(DBGOPT)' scripts/collect_build_version_files.sh $$?; }
+endif
+
+ifdef SOURCE_FOLDER
+	DOCKER_RUN += -v $(SOURCE_FOLDER):/var/$(USER)/src
+endif
+
+ifeq "$(KEEP_SLAVE_ON)" "yes"
+SLAVE_SHELL={ /bin/bash; }
+endif
+
 .DEFAULT_GOAL :=  all
 
-%::
+%:: | sonic-build-hooks
 ifneq ($(filter y, $(MULTIARCH_QEMU_ENVIRON) $(CROSS_BUILD_ENVIRON)),)
-	@$(DOCKER_MULTIARCH_CHECK)
+	$(Q)$(DOCKER_MULTIARCH_CHECK)
 ifneq ($(BLDENV), )
-	@$(DOCKER_SERVICE_MULTIARCH_CHECK)
-	@$(DOCKER_SERVICE_DOCKERFS_CHECK)
+	$(Q)$(DOCKER_SERVICE_MULTIARCH_CHECK)
+	$(Q)$(DOCKER_SERVICE_DOCKERFS_CHECK)
 endif
 endif
-	@$(OVERLAY_MODULE_CHECK)
+	$(Q)$(OVERLAY_MODULE_CHECK)
+	$(Q)$(SONIC_SLAVE_BASE_BUILD)
+	$(Q)$(SONIC_SLAVE_USER_BUILD)
 
-	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
-	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
-	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
-	      $(DOCKER_BASE_PULL) && \
-		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) && \
-	          scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; } } || \
-	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	      $(DOCKER_BASE_BUILD) ; \
-	      scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
-	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
-	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
-	    $(DOCKER_BUILD) ; }
-ifeq "$(KEEP_SLAVE_ON)" "yes"
-    ifdef SOURCE_FOLDER
-		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?; /bin/bash"
-    else
-		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?; /bin/bash"
-    endif
-else
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
-endif
+	$(Q)$(DOCKER_RUN) \
+		$(SLAVE_IMAGE):$(SLAVE_TAG) \
+		bash -c "$(SONIC_BUILD_INSTRUCTION) $@;$(COLLECT_BUILD_VERSION); $(SLAVE_SHELL)"
+	$(Q)$(docker-image-cleanup)
 
 docker-cleanup:
-	$(docker-image-cleanup)
+	$(Q)$(docker-image-cleanup)
 
+.PHONY: sonic-build-hooks
 sonic-build-hooks:
-	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
+	$(Q)pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) $(MAKE) all; popd
+	$(Q)mkdir -p $(SLAVE_DIR)/buildinfo
+	$(Q)cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
 
-sonic-slave-base-build : sonic-build-hooks
+sonic-slave-base-build : | sonic-build-hooks
 ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
-	@$(DOCKER_MULTIARCH_CHECK)
+	$(Q)$(DOCKER_MULTIARCH_CHECK)
 endif
-	@$(OVERLAY_MODULE_CHECK)
-	@echo Checking sonic-slave-base image: $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
-	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
-	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
-	      $(DOCKER_BASE_PULL) && \
-		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) && \
-	          scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; } } || \
-	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	      $(DOCKER_BASE_BUILD) ; \
-	      scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
+	$(Q)$(OVERLAY_MODULE_CHECK)
+	$(Q)$(SONIC_SLAVE_BASE_BUILD)
 
 sonic-slave-build : sonic-slave-base-build
-	@echo Checking sonic-slave image: $(SLAVE_IMAGE):$(SLAVE_TAG)
-	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
-	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
-	    $(DOCKER_BUILD) ; }
+	$(Q)$(SONIC_SLAVE_USER_BUILD)
 
 sonic-slave-bash : sonic-slave-build
-	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
+	$(Q)$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
 
 sonic-slave-run : sonic-slave-build
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_RUN_CMDS)"
+	$(Q)$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_RUN_CMDS)"
 
 showtag:
-	@echo $(SLAVE_IMAGE):$(SLAVE_TAG)
-	@echo $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+	$(Q)echo $(SLAVE_IMAGE):$(SLAVE_TAG)
+	$(Q)echo $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
 
 init :
-	@git submodule update --init --recursive
-	@git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
+	$(Q)git submodule update --init --recursive
+	$(Q)git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
 
 .ONESHELL : reset
 reset :
-	@echo && echo -n "Warning! All local changes will be lost. Proceed? [y/N]: "
-	@read ans && (
+	$(Q)echo && echo -n "Warning! All local changes will be lost. Proceed? [y/N]: "
+	$(Q)read ans && (
 	    if [ $$ans == y ]; then
 	        echo "Resetting local repository. Please wait...";
 	        sudo rm -rf fsroot*;
