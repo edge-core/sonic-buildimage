@@ -1,7 +1,23 @@
 {
     "chassis": {
         "name": "DCS-7050CX3-32S",
-        "components": [],
+        "components": [
+            {
+                "name": "Aboot()"
+            },
+            {
+                "name": "Scd(addr=0000:02:00.0)"
+            },
+            {
+                "name": "Ucd90120A(addr=3-004e)"
+            },
+            {
+                "name": "Ucd90120A(addr=16-004e)"
+            },
+            {
+                "name": "CrowSysCpld(addr=2-0023)"
+            }
+        ],
         "fans": [],
         "fan_drawers": [
             {
@@ -40,11 +56,25 @@
         "psus": [
             {
                 "name": "psu1",
-                "fans": []
+                "fans": [
+                    {
+                        "name": "psu1/1",
+                        "speed": {
+                            "controllable": false
+                        }
+                    }
+                ]
             },
             {
                 "name": "psu2",
-                "fans": []
+                "fans": [
+                    {
+                        "name": "psu2/1",
+                        "speed": {
+                            "controllable": false
+                        }
+                    }
+                ]
             }
         ],
         "thermals": [
@@ -62,24 +92,6 @@
             },
             {
                 "name": "Front-panel temp sensor"
-            },
-            {
-                "name": "Power supply 1 hotspot sensor"
-            },
-            {
-                "name": "Power supply 1 inlet temp sensor"
-            },
-            {
-                "name": "Power supply 1 exhaust temp sensor"
-            },
-            {
-                "name": "Power supply 2 hotspot sensor"
-            },
-            {
-                "name": "Power supply 2 inlet temp sensor"
-            },
-            {
-                "name": "Power supply 2 exhaust temp sensor"
             }
         ],
         "sfps": [
