@@ -61,6 +61,7 @@ def wait_for_container(docker_client, container_name):
 
         # Signal the main thread to exit
         g_thread_exit_event.set()
+        return
 
 
 def main():
