@@ -59,6 +59,18 @@ module sonic-auto_techsupport {
                         description "Max Limit in percentage for the cummulative size of core dumps. No cleanup is performed if the value isn't congiured or is 0.0";
                         type decimal-repr;
                     }
+
+                    leaf available_mem_threshold {
+                        description "Memory threshold; 0 to disable techsupport invocation on memory usage threshold crossing";
+                        type decimal-repr;
+                        default 10.0;
+                    }
+                    
+                    leaf min_available_mem {
+                        description "Minimum Free memory (in MB) that should be available for the techsupport execution to start";
+                        type uint32;
+                        default 200;
+                    }
                     
                     leaf since {
                         /*
@@ -94,6 +106,12 @@ module sonic-auto_techsupport {
                 leaf state {
                     description "Enable auto techsupport invocation on the processes running inside this feature";
                     type stypes:admin_mode;
+                }
+
+                leaf available_mem_threshold {
+                    description "Memory threshold; 0 to disable techsupport invocation on memory usage threshold crossing";
+                    type decimal-repr;
+                    default 10.0;
                 }
 
                 leaf rate_limit_interval {
