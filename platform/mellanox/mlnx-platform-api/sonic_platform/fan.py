@@ -218,8 +218,8 @@ class PsuFan(MlnxFan):
             addr = utils.read_str_from_file(self.psu_i2c_addr_path, raise_exception=True)
             command = utils.read_str_from_file(self.psu_i2c_command_path, raise_exception=True)
             speed = self.PSU_FAN_SPEED[int(speed // 10)]
-            command = "i2cset -f -y {0} {1} {2} {3} wp".format(bus, addr, command, speed)
-            subprocess.check_call(command, shell = True, universal_newlines=True)
+            command = ["i2cset", "-f", "-y", bus, addr, command, speed, "wp"]
+            subprocess.check_call(command, universal_newlines=True)
             return True
         except subprocess.CalledProcessError as ce:
             logger.log_error('Failed to call command {}, return code={}, command output={}'.format(ce.cmd, ce.returncode, ce.output))

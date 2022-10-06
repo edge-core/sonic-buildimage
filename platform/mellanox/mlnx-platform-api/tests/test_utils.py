@@ -118,7 +118,7 @@ class TestUtils:
         assert mock_log.call_count == 1
 
     def test_run_command(self):
-        output = utils.run_command('ls')
+        output = utils.run_command(['ls'])
         assert output
 
     @mock.patch('sonic_py_common.device_info.get_path_to_hwsku_dir', mock.MagicMock(return_value='/tmp'))

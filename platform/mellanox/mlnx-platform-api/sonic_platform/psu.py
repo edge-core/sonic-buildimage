@@ -551,7 +551,7 @@ class InvalidPsuVolWA:
             return threshold_value
 
         # Run a sensors -s command to triger hardware to get the real threashold value
-        utils.run_command('sensors -s')
+        utils.run_command(['sensors', '-s'])
 
         # Wait for the threshold value change
         return cls.wait_set_done(threshold_file)

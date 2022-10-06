@@ -160,4 +160,4 @@ class TestPsu:
         # Normal
         vpd_info[InvalidPsuVolWA.CAPACITY_FIELD] = InvalidPsuVolWA.EXPECT_CAPACITY
         assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == 9999
-        mock_run_command.assert_called_with('sensors -s')
+        mock_run_command.assert_called_with(['sensors', '-s'])
