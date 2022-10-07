@@ -1768,6 +1768,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     if is_storage_device:
         results['DEVICE_METADATA']['localhost']['storage_device'] = "true"
 
+    # remove bgp monitor and slb peers for storage backend
+    if is_storage_device and 'BackEnd' in current_device['type']:
+        results['BGP_MONITORS'] = {}
+        results['BGP_PEER_RANGE'] = {}
+
     results['VLAN'] = vlans
     results['VLAN_MEMBER'] = vlan_members
 
