@@ -25,8 +25,8 @@ http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d
 http://www.mellanox.com/downloads/MFT/mft-4.21.0-100-x86_64-deb.tgz==51efe115cbada1120fefe7e4c6958baf
 https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
-https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.dsc==de6e9967da7c4992ffd1a72b815994f7
-https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.tar.gz==b959c7ac01839e9b96a733d27b19e59e
+https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.dsc==27f74ae171f50bfc1116d3e23dbbab3f
+https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.tar.gz==37b56a6cf74721c6496d05d032cd22af
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117

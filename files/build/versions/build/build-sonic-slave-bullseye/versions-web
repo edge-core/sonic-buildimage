@@ -9,8 +9,8 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg.orig.tar.xz==c1c5
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
-https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.dsc==de6e9967da7c4992ffd1a72b815994f7
-https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.tar.gz==b959c7ac01839e9b96a733d27b19e59e
+https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.dsc==27f74ae171f50bfc1116d3e23dbbab3f
+https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.tar.gz==37b56a6cf74721c6496d05d032cd22af
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://github.com/aristanetworks/sonic-firmware/raw/e89a1696954fd381e1e95edf208cffc97caf15d4/phy/phy-credo_1.0_amd64.deb==fc197598098d030526c08d55cdd3910f
