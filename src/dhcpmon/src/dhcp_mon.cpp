@@ -15,6 +15,7 @@
 
 #include "dhcp_mon.h"
 #include "dhcp_devman.h"
+#include "events.h"
 
 /** DHCP device/interface state */
 typedef struct
@@ -39,6 +40,8 @@ static struct event *ev_sigint;
 static struct event *ev_sigterm;
 /** libevent SIGUSR1 signal event struct */
 static struct event *ev_sigusr1;
+
+event_handle_t g_events_handle;
 
 /** DHCP monitor state data for aggregate device for mgmt device */
 static dhcp_mon_state_t state_data[] = {
@@ -95,7 +98,15 @@ static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
     {
     case DHCP_MON_STATUS_UNHEALTHY:
         if (++state_data->count > dhcp_unhealthy_max_count) {
-            syslog(LOG_ALERT, state_data->msg, state_data->count * window_interval_sec, context->intf);
+            auto duration = state_data->count * window_interval_sec;
+	    std::string vlan(context->intf);
+            syslog(LOG_ALERT, state_data->msg, duration, vlan);
+            if (state_data->check_type == DHCP_MON_CHECK_POSITIVE) {
+                event_params_t params = {
+                    { "vlan", vlan },
+                    { "duration", std::to_string(duration) }};
+                event_publish(g_events_handle, "dhcp-relay-disparity", &params);
+            }
             dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
             dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
         }
@@ -179,6 +190,8 @@ int dhcp_mon_init(int window_sec, int max_count)
             break;
         }
 
+        g_events_handle = events_init_publisher("sonic-events-dhcp-relay");
+
         rv = 0;
     } while (0);
 
@@ -203,6 +216,8 @@ void dhcp_mon_shutdown()
     event_free(ev_sigusr1);
 
     event_base_free(base);
+
+    events_deinit_publisher(g_events_handle);
 }
 
 /**

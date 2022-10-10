@@ -158,7 +158,7 @@ def publish_events(lst):
     params = swsscommon.FieldValueMap()
 
     for ctr in lst:
-        params["name"] = ctr;
+        params["ctr_name"] = ctr;
         swsscommon.event_publish(events_handle, EVENTS_PUBLISHER_TAG, params)
 
     swsscommon.events_deinit_publisher(events_handle)

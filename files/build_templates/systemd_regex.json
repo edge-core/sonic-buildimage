@@ -2,6 +2,11 @@
     {
         "tag": "event-stopped-ctr",
         "regex": "Stopped ([a-zA-Z-_\\s]*) container",
-        "params": [ "ctr-name" ]
+        "params": [ "ctr_name" ]
+    },
+    {
+        "tag": "watchdog-timeout",
+        "regex": "(?:watchdog|Watchdog) timeout .limit.([0-9])min.",
+        "params": [ "limit" ]
     }
 ]
