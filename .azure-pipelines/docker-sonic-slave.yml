@@ -12,26 +12,28 @@ resources:
     endpoint: sonic-net
 
 schedules:
-- cron: "0 8 * * *"
+- cron: "0 0 * * 0"
+  displayName: Weekly build
   branches:
     include:
     - master
-    - 202012
+    - 202???
   always: true
 
-trigger: none
-pr:
+pr: none
+trigger:
+  batch: true
   branches:
     include:
     - master
+    - 202???
   paths:
     include:
-    - sonic-slave-jessie
-    - sonic-slave-stretch
-    - sonic-slave-buster
-    - sonic-slave-bullseye
+    - sonic-slave-*
     - src/sonic-build-hooks
-    - .azure-pipelines
+    - files/build/versions
+    - Makefile
+    - Makefile.work
 
 parameters:
 - name: 'arches'
@@ -60,15 +62,21 @@ stages:
   - ${{ each dist in parameters.dists }}:
     - ${{ if endswith(variables['Build.DefinitionName'], dist) }}:
       - ${{ each arch in parameters.arches }}:
-        - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
-          - template: docker-sonic-slave-template.yml
+        - template: .azure-pipelines/docker-sonic-slave-template.yml@buildimage
+          parameters:
+            pool: sonicbld
+            arch: ${{ arch }}
+            dist: ${{ dist }}
+- stage: Build_march
+  dependsOn: []
+  jobs:
+  - ${{ each dist in parameters.dists }}:
+    - ${{ if endswith(variables['Build.DefinitionName'], dist) }}:
+      - ${{ each arch in parameters.arches }}:
+        - ${{ if ne(arch, 'amd64') }}:
+          - template: .azure-pipelines/docker-sonic-slave-template.yml@buildimage
             parameters:
-              pool: sonicbld
+              pool: sonicbld-${{ arch }}
               arch: ${{ arch }}
               dist: ${{ dist }}
-        - ${{ else }}:
-          - template: '/.azure-pipelines/docker-sonic-slave-template.yml@buildimage'
-            parameters:
-              pool: sonicbld
-              arch: ${{ arch }}
-              dist: ${{ dist }}
+              march: march_
