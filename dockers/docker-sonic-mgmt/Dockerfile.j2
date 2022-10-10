@@ -87,6 +87,7 @@ RUN pip install cffi==1.12.0 \
                 celery[redis]==4.4.7 \
                 msrest==0.6.21 \
                 python-dateutil \
+                azure-storage-blob==12.9.0 \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -255,7 +256,8 @@ RUN python3 -m pip install setuptools-rust \
                             scapy==2.4.5 \
                             celery[redis]==4.4.7 \
                             msrest==0.6.21 \
-                            python-dateutil
+                            python-dateutil \
+                            azure-storage-blob==12.9.0
 
 # Deactivating a virtualenv
 ENV PATH="$BACKUP_OF_PATH"
