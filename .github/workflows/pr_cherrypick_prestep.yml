@@ -5,7 +5,7 @@ on:
     - labeled
     - closed
     branches:
-    - master-test
+    - master
 
 jobs:
   pre_cherry_pick:
