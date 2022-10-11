@@ -33,7 +33,7 @@ jobs:
         pr_url=$(echo $GITHUB_CONTEXT | jq -r ".event.pull_request._links.html.href")
         repository=$(echo $GITHUB_CONTEXT | jq -r ".repository")
         labels=$(echo $GITHUB_CONTEXT | jq -r ".event.pull_request.labels[].name")
-        author=$(echo $GITHUB_CONTEXT | jq -r ".event.pull_request.base.user.login")
+        author=$(echo $GITHUB_CONTEXT | jq -r ".event.pull_request.user.login")
         branches=$(git branch -a --list 'origin/20????' | awk -F/ '{print$3}' | grep -E "202[0-9]{3}")
         if [[ $(echo $GITHUB_CONTEXT | jq -r ".event.action") == "labeled" ]];then
           labels=$(echo $GITHUB_CONTEXT | jq -r ".event.label.name")
