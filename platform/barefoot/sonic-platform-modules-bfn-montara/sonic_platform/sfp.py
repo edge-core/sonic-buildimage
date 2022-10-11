@@ -13,15 +13,6 @@ QSFP_TYPE = "QSFP"
 QSFP_DD_TYPE = "QSFP_DD"
 EEPROM_PAGE_SIZE = 128
 
-try:
-    from thrift.Thrift import TApplicationException
-
-    def cached_num_bytes_get(client):
-        return client.pltfm_mgr.pltfm_mgr_qsfp_cached_num_bytes_get(1, 0, 0, 0)
-    thrift_try(cached_num_bytes_get, 1)
-    EEPROM_CACHED_API_SUPPORT = True
-except TApplicationException as e:
-    EEPROM_CACHED_API_SUPPORT = False
 
 class Sfp(SfpOptoeBase):
     """
@@ -34,15 +25,27 @@ class Sfp(SfpOptoeBase):
         self.port_num = port_num
         self.sfp_type = QSFP_TYPE
         self.SFP_EEPROM_PATH = "/var/run/platform/sfp/"
+        self.eeprom_path = None
+        self.__cached_api_supported = None
 
-        if not EEPROM_CACHED_API_SUPPORT:
-            if not os.path.exists(self.SFP_EEPROM_PATH):
-                try:
-                    os.makedirs(self.SFP_EEPROM_PATH)
-                except OSError as e:
-                    if e.errno != errno.EEXIST:
-                        raise
-            self.eeprom_path = self.SFP_EEPROM_PATH + "sfp{}-eeprom-cache".format(self.index)
+    @property
+    def _cached_api_supported(self):
+        def cached_num_bytes_get(client):
+            return client.pltfm_mgr.pltfm_mgr_qsfp_cached_num_bytes_get(1, 0, 0, 0)
+        if self.__cached_api_supported is None:
+            try:
+                thrift_try(cached_num_bytes_get, 1)
+                self.__cached_api_supported = True
+            except Exception as e:
+                self.__cached_api_supported = False
+                if not os.path.exists(self.SFP_EEPROM_PATH):
+                    try:
+                        os.makedirs(self.SFP_EEPROM_PATH)
+                    except OSError as e:
+                        if e.errno != errno.EEXIST:
+                            raise
+                self.eeprom_path = self.SFP_EEPROM_PATH + "sfp{}-eeprom-cache".format(self.index)
+        return self.__cached_api_supported
 
     def get_presence(self):
         """
@@ -94,7 +97,7 @@ class Sfp(SfpOptoeBase):
         if not self.get_presence():
             return None
 
-        if not EEPROM_CACHED_API_SUPPORT:
+        if not self._cached_api_supported:
             return super().read_eeprom(offset, num_bytes)
 
         def cached_num_bytes_get(page, offset, num_bytes):

@@ -1,5 +1,7 @@
 try:
     import subprocess
+    import time
+    import threading
     from collections import namedtuple
     import json
     from bfn_extensions.platform_sensors import platform_sensors_get
@@ -23,56 +25,12 @@ Core 0:
 '''
 Threshold = namedtuple('Threshold', ['crit', 'max', 'min', 'alarm'])
 
-def _sensors_chip_parsed(data: str):
-    def kv(line):
-        k, v, *_ = [t.strip(': ') for t in line.split(':') if t] + ['']
-        return k, v
-
-    chip, *data = data.strip().split('\n')
-    chip = chip.strip(': ')
-
-    sensors = []
-    for line in data:
-        if not line.startswith(' '):
-            sensor_label = line.strip(': ')
-            sensors.append((sensor_label, {}))
-            continue
-
-        if len(sensors) == 0:
-            raise RuntimeError(f'invalid data to parse: {data}')
-
-        attr, value = kv(line)
-        sensor_label, sensor_data = sensors[-1]
-        sensor_data.update({attr: value})
-
-    return chip, dict(sensors)
-
-'''
-Example of returned dict:
-{
-    'coretemp-isa-0000': {
-        'Core 1': { "temp1_input": 40, ...  },
-        'Core 2': { ... }
-    }
-}
-'''
-def _sensors_get() -> dict:
-    data = platform_sensors_get(['-A', '-u']) or ''
-    data += subprocess.check_output("/usr/bin/sensors -A -u",
-                shell=True, text=True)
-    data = data.split('\n\n')
-    data = [_sensors_chip_parsed(chip_data) for chip_data in data if chip_data]
-    data = dict(data)
-    return data
-
-def _value_get(d: dict, key_prefix, key_suffix=''):
-    for k, v in d.items():
-        if k.startswith(key_prefix) and k.endswith(key_suffix):
-            return v
-    return None
 
 # Thermal -> ThermalBase -> DeviceBase
 class Thermal(ThermalBase):
+    __sensors_info = None
+    __timestamp = 0
+    __lock = threading.Lock()
     _thresholds = dict()
     _max_temperature = 100.0
     _min_temperature = 0.0
@@ -95,6 +53,84 @@ class Thermal(ThermalBase):
 
         if f is not None:
             self.__get_thresholds(f)
+
+    @staticmethod
+    def __sensors_chip_parsed(data: str):
+        def kv(line):
+            k, v, *_ = [t.strip(': ') for t in line.split(':') if t] + ['']
+            return k, v
+
+        chip, *data = data.strip().split('\n')
+        chip = chip.strip(': ')
+
+        sensors = []
+        for line in data:
+            if not line.startswith(' '):
+                sensor_label = line.strip(': ')
+                sensors.append((sensor_label, {}))
+                continue
+
+            if len(sensors) == 0:
+                raise RuntimeError(f'invalid data to parse: {data}')
+
+            attr, value = kv(line)
+            sensor_label, sensor_data = sensors[-1]
+            sensor_data.update({attr: value})
+
+        return chip, dict(sensors)
+
+    @classmethod
+    def __sensors_get(cls, cached=True) -> dict:
+        cls.__lock.acquire()
+        if time.time() > cls.__timestamp + 15:
+            # Update cache once per 15 seconds
+            try:
+                data = platform_sensors_get(['-A', '-u']) or ''
+                data += subprocess.check_output("/usr/bin/sensors -A -u",
+                                                shell=True, text=True)
+                data = data.split('\n\n')
+                data = [cls.__sensors_chip_parsed(chip_data) for chip_data in data if chip_data]
+                cls.__sensors_info = dict(data)
+                cls.__timestamp = time.time()
+            except Exception as e:
+                logging.warning("Failed to update sensors cache: " + str(e))
+        info = cls.__sensors_info
+        cls.__lock.release()
+        return info
+
+    @staticmethod
+    def __sensor_value_get(d: dict, key_prefix, key_suffix=''):
+        for k, v in d.items():
+            if k.startswith(key_prefix) and k.endswith(key_suffix):
+                return v
+        return None
+
+    @staticmethod
+    def __get_platform_json():
+        hwsku_path = device_info.get_path_to_platform_dir()
+        platform_json_path = "/".join([hwsku_path, "platform.json"])
+        f = open(platform_json_path)
+        return json.load(f)
+
+    @staticmethod
+    def get_chassis_thermals():
+        try:
+            platform_json = Thermal.__get_platform_json()
+            return platform_json["chassis"]["thermals"]
+        except Exception as e:
+            logging.exception("Failed to collect chassis thermals: " + str(e))
+        return None
+
+    @staticmethod
+    def get_psu_thermals(psu_name):
+        try:
+            platform_json = Thermal.__get_platform_json()
+            for psu in platform_json["chassis"]["psus"]:
+                if psu["name"] == psu_name:
+                    return psu["thermals"]
+        except Exception as e:
+            logging.exception("Failed to collect chassis thermals: " + str(e))
+        return None
 
     def __get_thresholds(self, f):
         def_threshold_json = json.load(f)
@@ -119,8 +155,18 @@ class Thermal(ThermalBase):
         return check_range
 
     def __get(self, attr_prefix, attr_suffix):
-        sensor_data = _sensors_get().get(self.__chip, {}).get(self.__label, {})
-        value = _value_get(sensor_data, attr_prefix, attr_suffix)
+        chip_data = Thermal.__sensors_get().get(self.__chip, {})
+        sensor_data = {}
+        for sensor, data in chip_data.items():
+            if sensor.lower().replace(' ', '-') == self.__label:
+                sensor_data = data
+                break
+        value = Thermal.__sensor_value_get(sensor_data, attr_prefix, attr_suffix)
+
+        # Can be float value or None
+        if attr_prefix == 'temp' and attr_suffix == 'input':
+            return value
+
         if value is not None and self.check_in_range(value) and self.check_high_threshold(value, attr_suffix):
             return value
         elif self.__name in self._thresholds and attr_prefix == 'temp':
@@ -146,6 +192,8 @@ class Thermal(ThermalBase):
     # ThermalBase interface methods:
     def get_temperature(self) -> float:
         temp = self.__get('temp', 'input')
+        if temp is None:
+            return None
         self.__collect_temp.append(float(temp))
         self.__collect_temp.sort()
         if len(self.__collect_temp) == 3:
@@ -214,13 +262,19 @@ class Thermal(ThermalBase):
             return True
         return False
 
-def thermal_list_get():
-    l = []
-    index = 0
-    for chip, chip_data in _sensors_get().items():
-        for sensor, sensor_data in chip_data.items():
-            # add only temperature sensors
-            if _value_get(sensor_data, "temp") is not None:
-                l.append(Thermal(chip, sensor, index))
-                index += 1
-    return l
+
+def chassis_thermals_list_get():
+    thermal_list = []
+    thermals = Thermal.get_chassis_thermals()
+    for index, thermal in enumerate(thermals):
+        thermal = thermal["name"].split(':')
+        thermal_list.append(Thermal(thermal[0], thermal[1], index))
+    return thermal_list
+
+def psu_thermals_list_get(psu_name):
+    thermal_list = []
+    thermals = Thermal.get_psu_thermals(psu_name)
+    for index, thermal in enumerate(thermals):
+        thermal = thermal["name"].split(':')
+        thermal_list.append(Thermal(thermal[0], thermal[1], index))
+    return thermal_list

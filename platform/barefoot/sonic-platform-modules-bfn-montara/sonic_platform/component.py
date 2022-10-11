@@ -182,12 +182,10 @@ class Components(ComponentBase):
             self.name = self.bpcp.get_components_list()[self.index]            
         except IndexError as e:
             print("Error: No components found in plaform_components.json")
-        
+
         if (self.name == "BMC"):
-            self.version = get_bmc_version()
             self.description = "Chassis BMC"
         elif (self.name == "BIOS"):
-            self.version = get_bios_version()
             self.description = "Chassis BIOS"
 
     def get_name(self):
@@ -214,6 +212,12 @@ class Components(ComponentBase):
         Returns:
             A string containing the firmware version of the component
         """
+        if self.version == "N/A":
+            if (self.name == "BMC"):
+                self.version = get_bmc_version()
+            elif (self.name == "BIOS"):
+                self.version = get_bios_version()
+
         return self.version
 
     def install_firmware(self, image_path):
