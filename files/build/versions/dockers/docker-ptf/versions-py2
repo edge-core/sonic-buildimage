@@ -64,4 +64,4 @@ wcwidth==0.2.5
 werkzeug==1.0.1
 yabgp==0.8.2
 zipp==1.2.0
-zope.interface==5.4.0
+zope.interface==5.5.0
