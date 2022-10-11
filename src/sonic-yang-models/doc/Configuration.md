@@ -46,6 +46,7 @@ Table of Contents
          * [Scheduler](#scheduler)  
          * [Port QoS Map](#port-qos-map)  
          * [Queue](#queue)  
+         * [Restapi](#restapi)  
          * [Tacplus Server](#tacplus-server)    
          * [TC to Priority group map](#tc-to-priority-group-map)  
          * [TC to Queue map](#tc-to-queue-map)    
@@ -1411,6 +1412,18 @@ name as object key and member list as attribute.
 }
 ```
 
+### Restapi
+```
+{
+"RESTAPI": {
+    "certs": {
+        "ca_crt": "/etc/sonic/credentials/ame_root.pem",
+        "server_key": "/etc/sonic/credentials/restapiserver.key",
+        "server_crt": "/etc/sonic/credentials/restapiserver.crt",
+        "client_crt_cname": "client.sonic.net"
+    }
+}
+```
 
 ### Tacplus Server
 

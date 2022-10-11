@@ -1,0 +1,9 @@
+{
+    "RESTAPI_TABLE_WITH_INCORRECT_CERT": {
+        "desc": "RESTAPI TABLE_WITH_INCORRECT_CERT failure.",
+        "eStr": ["server_crt"]
+    },
+    "RESTAPI_TABLE_WITH_VALID_CONFIG": {
+        "desc": "RESTAPI TABLE WITH VALID CONFIG."
+    }
+}
