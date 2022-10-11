@@ -27,6 +27,10 @@
     {
       "key": "enable_firmware_update",
       "intval": 0
+    },
+    {
+      "key": "sonic_log_level",
+      "stringval": "error"
     }
     ]
 }

@@ -1,8 +1,8 @@
 {
     "options": [
     {
-        "key": "sfp_init_tx_en",
-        "stringval": "yes"
+        "key": "module_direct_ipc_ue",
+        "stringval": "no"
     },
     {
         "key": "midplane_subnet",
@@ -39,6 +39,10 @@
     {
       "key": "enable_firmware_update",
       "intval": 0
+    },
+    {
+      "key": "sonic_log_level",
+      "stringval": "error"
     }
     ]
 }
