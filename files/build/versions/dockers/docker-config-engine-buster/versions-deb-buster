@@ -3,7 +3,7 @@ binutils==2.31.1-16
 binutils-common==2.31.1-16
 binutils-x86-64-linux-gnu==2.31.1-16
 build-essential==12.6
-bzip2==1.0.6-9.2~deb10u1
+bzip2==1.0.6-9.2~deb10u2
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 dh-python==3.20190308
@@ -15,11 +15,12 @@ gcc-8==8.3.0-6
 libapt-inst2.0==1.8.2.3
 libasan5==8.3.0-6
 libbinutils==2.31.1-16
+libbz2-1.0==1.0.6-9.2~deb10u2
 libc-dev-bin==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdpkg-perl==1.19.8
-libexpat1-dev==2.2.6-2+deb10u4
+libexpat1-dev==2.2.6-2+deb10u5
 libgcc-8-dev==8.3.0-6
 libgomp1==8.3.0-6
 libhiredis0.14==0.14.0-3~bpo9+1
@@ -44,7 +45,7 @@ libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libyang==1.0.73
 libyang-cpp==1.0.73
-linux-libc-dev==4.19.249-2
+linux-libc-dev==4.19.260-1
 make==4.2.1-1.2
 patch==2.7.6-3+deb10u1
 python3-dev==3.7.3-1
