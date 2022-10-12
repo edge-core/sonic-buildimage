@@ -142,8 +142,9 @@ class TestJ2Files(TestCase):
 
     def test_dhcp_relay(self):
         # Test generation of wait_for_intf.sh
+        dhc_sample_data = os.path.join(self.test_dir, "dhcp-relay-sample.json")
         template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-dhcp-relay', 'wait_for_intf.sh.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
+        argument = '-m ' + self.t0_minigraph + ' -j ' + dhc_sample_data + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(utils.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'wait_for_intf.sh'), self.output_file))
 
