@@ -1118,14 +1118,6 @@
 		"port": "50051"
 	    }
         },
-        "RESTAPI": {
-            "certs": {
-                "ca_crt": "/etc/sonic/credentials/ame_root.pem",
-                "server_key": "/etc/sonic/credentials/restapiserver.key",
-                "server_crt": "/etc/sonic/credentials/restapiserver.crt",
-                "client_crt_cname": "client.sonic.net"
-            }
-         },
         "FLEX_COUNTER_TABLE": {
             "PFCWD": {
                 "FLEX_COUNTER_STATUS": "enable"

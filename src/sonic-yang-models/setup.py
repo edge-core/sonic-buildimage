@@ -148,7 +148,6 @@ setup(
                          './yang-models/sonic-scheduler.yang',
                          './yang-models/sonic-wred-profile.yang',
                          './yang-models/sonic-queue.yang',
-                         './yang-models/sonic-restapi.yang',
                          './yang-models/sonic-dscp-fc-map.yang',
                          './yang-models/sonic-exp-fc-map.yang',
                          './yang-models/sonic-dscp-tc-map.yang',
