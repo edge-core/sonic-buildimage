@@ -9,7 +9,7 @@ conntrack==1:1.4.5-2
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 cron==3.0pl1-134+deb10u1
-dbus==1.12.20-0+deb10u1
+dbus==1.12.24-0+deb10u1
 dh-python==3.20190308
 dirmngr==2.2.12-1+deb10u2
 dmsetup==2:1.02.155-3
@@ -59,7 +59,7 @@ libcairo-script-interpreter2==1.16.0-4+deb10u1
 libcairo2==1.16.0-4+deb10u1
 libcairo2-dev==1.16.0-4+deb10u1
 libcc1-0==8.3.0-6
-libdbus-1-dev==1.12.20-0+deb10u1
+libdbus-1-dev==1.12.24-0+deb10u1
 libdevmapper1.02.1==2:1.02.155-3
 libdouble-conversion1==3.1.0-3
 libdpkg-perl==1.19.8
