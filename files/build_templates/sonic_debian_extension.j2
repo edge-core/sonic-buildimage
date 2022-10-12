@@ -130,13 +130,6 @@ if [[ $CONFIGURED_ARCH == amd64 ]]; then
     sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install "grpcio-tools==1.39.0"
 fi
 
-# Install SwSS SDK Python 3 package
-# Note: the scripts will be overwritten by corresponding Python 2 package
-SWSSSDK_PY3_WHEEL_NAME=$(basename {{swsssdk_py3_wheel_path}})
-sudo cp {{swsssdk_py3_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SWSSSDK_PY3_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
-
 # Install sonic-py-common Python 3 package
 SONIC_PY_COMMON_PY3_WHEEL_NAME=$(basename {{sonic_py_common_py3_wheel_path}})
 sudo cp {{sonic_py_common_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_PY_COMMON_PY3_WHEEL_NAME

@@ -16,10 +16,7 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SONIC_HOST_SERVICES_DATA) \
                               $(IPROUTE2)
 
-# swsssdk is a dependency of sonic-py-common
-# TODO: sonic-py-common should depend on swsscommon instead
-$(DOCKER_SONIC_VS)_PYTHON_WHEELS += $(SWSSSDK_PY3) \
-                                    $(SONIC_PY_COMMON_PY3) \
+$(DOCKER_SONIC_VS)_PYTHON_WHEELS += $(SONIC_PY_COMMON_PY3) \
                                     $(SONIC_PLATFORM_COMMON_PY3) \
                                     $(SONIC_YANG_MODELS_PY3) \
                                     $(SONIC_YANG_MGMT_PY3) \
