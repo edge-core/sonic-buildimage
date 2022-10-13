@@ -104,6 +104,7 @@ setup(
                          './yang-models/sonic-device_metadata.yang',
                          './yang-models/sonic-device_neighbor.yang',
                          './yang-models/sonic-device_neighbor_metadata.yang',
+                         './yang-models/sonic-dhcp-server.yang',
                          './yang-models/sonic-dhcpv6-relay.yang',
                          './yang-models/sonic-extension.yang',
                          './yang-models/sonic-flex_counter.yang',
