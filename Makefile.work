@@ -500,7 +500,7 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
 
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-COLLECT_BUILD_VERSION = { DBGOPT='$(DBGOPT)' scripts/collect_build_version_files.sh $$?; }
+COLLECT_BUILD_VERSION = { DBGOPT='$(DBGOPT)' scripts/collect_build_version_files.sh \$$?; }
 endif
 
 ifdef SOURCE_FOLDER
@@ -508,10 +508,11 @@ ifdef SOURCE_FOLDER
 endif
 
 ifeq "$(KEEP_SLAVE_ON)" "yes"
-SLAVE_SHELL={ /bin/bash; }
+SLAVE_SHELL={ ret=\$$?; /bin/bash; exit \$$ret; }
 endif
 
 .DEFAULT_GOAL :=  all
+.SHELLFLAGS += -e
 
 %:: | sonic-build-hooks
 ifneq ($(filter y, $(MULTIARCH_QEMU_ENVIRON) $(CROSS_BUILD_ENVIRON)),)
@@ -527,7 +528,7 @@ endif
 
 	$(Q)$(DOCKER_RUN) \
 		$(SLAVE_IMAGE):$(SLAVE_TAG) \
-		bash -c "$(SONIC_BUILD_INSTRUCTION) $@;$(COLLECT_BUILD_VERSION); $(SLAVE_SHELL)"
+		bash -c "$(SONIC_BUILD_INSTRUCTION) $@; $(COLLECT_BUILD_VERSION); $(SLAVE_SHELL)" 
 	$(Q)$(docker-image-cleanup)
 
 docker-cleanup:
