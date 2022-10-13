@@ -17,7 +17,8 @@ Type_1_list_maps_model = [
     'PFC_PRIORITY_TO_PRIORITY_GROUP_MAP_LIST',
     'DSCP_TO_FC_MAP_LIST',
     'EXP_TO_FC_MAP_LIST',
-    'CABLE_LENGTH_LIST'
+    'CABLE_LENGTH_LIST',
+    'MPLS_TC_TO_TC_MAP_LIST'
 ]
 
 # Workaround for those fields who is defined as leaf-list in YANG model but have string value in config DB.
@@ -422,7 +423,7 @@ class SonicYangExtMixin:
             vValue = list()
             if isinstance(value, str) and (self.elementPath[0], self.elementPath[-1]) in LEAF_LIST_WITH_STRING_VALUE_DICT:
                 # For field defined as leaf-list but has string value in CONFIG DB, need do special handling here. For exampe:
-                # port.adv_speeds in CONFIG DB has value "100,1000,10000", it shall be transferred to [100,1000,10000] as YANG value here to 
+                # port.adv_speeds in CONFIG DB has value "100,1000,10000", it shall be transferred to [100,1000,10000] as YANG value here to
                 # make it align with its YANG definition.
                 value = (x.strip() for x in value.split(LEAF_LIST_WITH_STRING_VALUE_DICT[(self.elementPath[0], self.elementPath[-1])]))
             for v in value:

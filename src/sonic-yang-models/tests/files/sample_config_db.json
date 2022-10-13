@@ -830,7 +830,7 @@
                 "role": "Int",
                 "speed": "40000",
                 "tpid": "0x8100"
-            } 
+            }
         },
         "ACL_TABLE": {
             "V4-ACL-TABLE": {
@@ -1680,6 +1680,17 @@
             }
         },
 
+        "MPLS_TC_TO_TC_MAP": {
+           "Mpls_tc_to_tc_map1": {
+              "1": "1",
+              "3":  "2"
+            },
+           "Mpls_tc_to_tc_map2": {
+              "2": "3",
+              "4": "4"
+            }
+        },
+
         "DOT1P_TO_TC_MAP": {
            "Dot1p_to_tc_map1": {
               "1": "1",
@@ -1831,7 +1842,7 @@
                 "server_ipv6": "fc02:1000::30/128",
                 "soc_ipv4": "192.168.0.3/32",
                 "state": "auto"
-            }, 
+            },
             "Ethernet0": {
                 "server_ipv4": "192.168.0.2/32",
                 "server_ipv6": "fc02:1000::30/128",
