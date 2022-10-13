@@ -7,6 +7,7 @@ After=updategraph.service
 BindsTo=sonic.target
 After=sonic.target
 Before=ntp-config.service
+After=swss{% if multi_instance == 'true' %}@%i{% endif %}.service
 After=interfaces-config.service
 StartLimitIntervalSec=1200
 StartLimitBurst=3
