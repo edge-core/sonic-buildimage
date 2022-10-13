@@ -52,7 +52,8 @@ Table of Contents
          * [Telemetry](#telemetry)  
          * [Versions](#versions)  
          * [VLAN](#vlan)   
-         * [VLAN_MEMBER](#vlan_member)  
+         * [VLAN_MEMBER](#vlan_member)
+         * [VOQ Inband Interface](#voq-inband-interface) 
          * [VXLAN](#vxlan)   
          * [Virtual router](#virtual-router)  
          * [WRED_PROFILE](#wred_profile)  
@@ -1548,6 +1549,20 @@ channel name as object key, and tagging mode as attributes.
 		"tagging_mode": "tagged"
 	}
   }
+}
+```
+
+### VOQ INBAND INTERFACE
+
+VOQ_INBAND_INTERFACE holds the name of the inband system port dedicated for cpu communication. At this time, only inband_type of "port" is supported
+
+```
+"VOQ_INBAND_INTERFACE": {
+    "Ethernet-IB0": {
+	   "inband_type": "port"
+	},
+	"Ethernet-IB0|3.3.3.1/32": {},
+    "Ethernet-IB0|3333::3:5/128": {}
 }
 ```
 
