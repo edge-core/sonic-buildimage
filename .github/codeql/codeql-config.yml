@@ -1,0 +1,6 @@
+name: "CodeQL config"
+queries:
+  - uses: github/codeql/python/ql/src/codeql-suites/python-code-scanning.qls@main
+  - uses: github/codeql/python/ql/src/codeql-suites/python-lgtm-full.qls@main
+  - uses: security-and-quality
+  - uses: security-extended
