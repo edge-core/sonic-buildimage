@@ -3,11 +3,11 @@ https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564
 https://github.com/jeroennijhof/pam_tacplus.git==453c7b6fc78eceeaaf39a59b6b87c124628f2fe8
 https://github.com/jpirko/libteam.git==c32369829b2b1881e25fab85d74aa0b3ad017dcb
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
-https://github.com/sflow/host-sflow==f1ddde6580ae049e53cb9e25822d4c7d98a672cf
+https://github.com/sflow/host-sflow==7bac3b923581ef9e8def95ed00c9150dfc19e75c
 https://github.com/sflow/sflowtool==5307b19399ffb0a1a873c9d09e78cb5011deaf6f
 https://github.com/thom311/libnl==cbafad9ddf24caef5230fef715d34f0539603be0
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
-https://salsa.debian.org/dhcp-team/isc-dhcp.git==70e30ef107fc3bc5a8c8a7c1a48d596e0669f44a
+https://salsa.debian.org/dhcp-team/isc-dhcp.git==800b6ea0960c9941ec9088979f9f3256d9f49f6d
 https://salsa.debian.org/kernel-team/ethtool/==fb77fb17864600d7deb46729c28c677c7da367d5
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
