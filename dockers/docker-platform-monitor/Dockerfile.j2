@@ -26,7 +26,9 @@ RUN apt-get update &&   \
         psmisc          \
         python3-jsonschema \
         libpci3         \
-        iputils-ping
+        iputils-ping    \
+# smartmontools version should match the installed smartmontools in sonic_debian_extension build template
+        smartmontools=7.2-1
 
 # On Arista devices, the sonic_platform wheel is not installed in the container.
 # Instead, the installation directory is mounted from the host OS. However, this method
