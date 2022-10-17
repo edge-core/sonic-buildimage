@@ -28,6 +28,7 @@ Table of Contents
          * [DSCP_TO_TC_MAP](#dscp_to_tc_map)  
          * [FLEX_COUNTER_TABLE](#flex_counter_table)  
          * [KDUMP](#kdump)  
+         * [Kubernetes Master](#kubernetes-master)  
          * [L2 Neighbors](#l2-neighbors)  
          * [Loopback Interface](#loopback-interface)  
          * [LOSSLESS_TRAFFIC_PATTERN](#LOSSLESS_TRAFFIC_PATTERN)  
@@ -932,6 +933,27 @@ instance is supported in SONiC.
             "memory": "0M-2G:256M,2G-4G:256M,4G-8G:384M,8G-:448M"
          }
      }
+}
+
+```
+
+### Kubernetes Master
+
+Kubernetes Master related configurations are stored in
+**KUBERNETES_MASTER** table. These configurations are used mainly
+for CTRMGR service. CTRMGR service will interactive with
+kubernetes master according to these configurations.
+
+```
+{
+    "KUBERNETES_MASTER": {
+        "SERVER": {
+            "disable": "False",
+            "insecure": "True",
+            "ip": "k8s.apiserver.com",
+            "port": "6443"
+        }
+    }
 }
 
 ```

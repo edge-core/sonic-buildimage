@@ -2062,6 +2062,14 @@
                 "nexthop": "10.184.229.212",
                 "nexthop-vrf": "default"
             }
+        },
+        "KUBERNETES_MASTER": {
+            "SERVER": {
+                "disable": "True",
+                "insecure": "False",
+                "ip": "kubernetes.apiserver.com",
+                "port": "6443"
+            }
         }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
