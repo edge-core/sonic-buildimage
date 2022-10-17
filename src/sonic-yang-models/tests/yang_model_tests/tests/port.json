@@ -13,6 +13,12 @@
         "eStrKey" : "Pattern",
         "eStr": ["rc"]
     },
+    "PORT_VALID_MTU_TEST_1": {
+        "desc": "PORT_VALID_MTU_TEST_1 no failure."
+    },
+    "PORT_VALID_MTU_TEST_2": {
+        "desc": "PORT_VALID_MTU_TEST_2 no failure."
+    },
     "PORT_VALID_AUTONEG_TEST_1": {
         "desc": "PORT_VALID_AUTONEG_TEST_1 no failure."
     },

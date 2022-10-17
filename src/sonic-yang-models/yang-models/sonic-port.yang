@@ -117,7 +117,7 @@ module sonic-port{
 					
 				leaf mtu {
 					type uint16 {
-						range 1..9216;
+						range 68..9216;
 					}
 				}
 
