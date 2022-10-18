@@ -96,7 +96,7 @@ docbook-utils==0.6.14-3.4
 docbook-xml==4.5-9
 docker-ce==5:20.10.7~3-0~debian-bullseye
 docker-ce-cli==5:20.10.7~3-0~debian-bullseye
-docker-ce-rootless-extras==5:20.10.18~3-0~debian-bullseye
+docker-ce-rootless-extras==5:20.10.19~3-0~debian-bullseye
 docker-scan-plugin==0.17.0~debian-bullseye
 docutils-common==0.16+dfsg-4
 dosfstools==4.2-1
