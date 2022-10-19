@@ -36,7 +36,7 @@ jobs:
         displayName: "Set cache options"
       - checkout: self
         submodules: recursive
-        condition: eq(variables.SKIP_CHECKOUT, '') 
+        condition: and(succeeded(), eq(variables.SKIP_CHECKOUT, ''))
         displayName: 'Checkout code'
       - script: |
           BRANCH_NAME=$(Build.SourceBranchName)
