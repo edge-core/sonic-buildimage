@@ -76,6 +76,7 @@ stages:
   dependsOn: BuildVS
   condition: and(succeeded(), and(ne(stageDependencies.BuildVS.outputs['vs.SetVar.SKIP_VSTEST'], 'YES'), in(dependencies.BuildVS.result, 'Succeeded', 'SucceededWithIssues')))
   variables:
+  - group: Testbed-Tools
   - name: inventory
     value: veos_vtb
   - name: testbed_file
@@ -138,7 +139,8 @@ stages:
   - job: t0_part1
     pool: sonictest
     displayName: "kvmtest-t0-part1"
-    timeoutInMinutes: 360
+    timeoutInMinutes: 400
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-template.yml
@@ -147,12 +149,14 @@ stages:
         tbname: vms-kvm-t0
         ptf_name: ptf_vms6-1
         tbtype: t0
+        vmtype: ceos
         section: part-1
 
   - job: t0_part2
     pool: sonictest
     displayName: "kvmtest-t0-part2"
-    timeoutInMinutes: 360
+    timeoutInMinutes: 400
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-template.yml
@@ -161,35 +165,76 @@ stages:
         tbname: vms-kvm-t0
         ptf_name: ptf_vms6-1
         tbtype: t0
+        vmtype: ceos
         section: part-2
 
+  - job: t0_testbedv2
+    pool:
+      vmImage: 'ubuntu-20.04'
+    displayName: "kvmtest-t0 by TestbedV2"
+    timeoutInMinutes: 1080
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
+    continueOnError: false
+    steps:
+    - template: .azure-pipelines/run-test-scheduler-template.yml
+      parameters:
+        TOPOLOGY: t0
+        MIN_WORKER: 2
+        MAX_WORKER: 3
+
+  - job: t0_2vlans_testbedv2
+    pool:
+      vmImage: 'ubuntu-20.04'
+    displayName: "kvmtest-t0-2vlans by TestbedV2"
+    timeoutInMinutes: 1080
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
+    continueOnError: false
+    steps:
+    - template: .azure-pipelines/run-test-scheduler-template.yml
+      parameters:
+        TOPOLOGY: t0
+        TEST_SET: t0-2vlans
+        MAX_WORKER: 1
+        DEPLOY_MG_EXTRA_PARAMS: "-e vlan_config=two_vlan_a"
+
   - job:
-    pool: sonictest
+    pool:
+      vmImage: 'ubuntu-20.04'
     displayName: "kvmtest-t0"
-    timeoutInMinutes: 360
     dependsOn:
     - t0_part1
     - t0_part2
+    - t0_testbedv2
+    - t0_2vlans_testbedv2
     condition: always()
     continueOnError: false
     variables:
       resultOfPart1: $[ dependencies.t0_part1.result ]
       resultOfPart2: $[ dependencies.t0_part2.result ]
+      resultOfT0TestbedV2: $[ dependencies.t0_testbedv2.result ]
+      resultOfT02VlansTestbedV2: $[ dependencies.t0_2vlans_testbedv2.result ]
 
     steps:
     - script: |
-        if [ $(resultOfPart1) == "Succeeded" ] && [ $(resultOfPart2) == "Succeeded" ]; then
-          echo "Both job kvmtest-t0-part1 and kvmtest-t0-part2 are passed."
+        if [ $(resultOfT0TestbedV2) == "Succeeded" ] && [ $(resultOfT02VlansTestbedV2) == "Succeeded" ]; then
+          echo "TestbedV2 t0 passed."
           exit 0
-        else
-          echo "Either job kvmtest-t0-part1 or job kvmtest-t0-part2 failed! Please check the detailed information."
-          exit 1
         fi
 
-  - job:
+        if [ $(resultOfPart1) == "Succeeded" ] && [ $(resultOfPart2) == "Succeeded" ]; then
+          echo "Classic t0 jobs(both part1 and part2) passed."
+          exit 0
+        fi
+
+        echo "Both classic and TestbedV2 t0 jobs failed! Please check the detailed information. (Any of them passed, t0 will be considered as passed)"
+        exit 1
+
+
+  - job: t1_lag_classic
     pool: sonictest-t1-lag
-    displayName: "kvmtest-t1-lag"
-    timeoutInMinutes: 360
+    displayName: "kvmtest-t1-lag classic"
+    timeoutInMinutes: 400
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-template.yml
@@ -198,6 +243,43 @@ stages:
         tbname: vms-kvm-t1-lag
         ptf_name: ptf_vms6-2
         tbtype: t1-lag
+        vmtype: ceos
+
+  - job: t1_lag_testbedv2
+    pool:
+      vmImage: 'ubuntu-20.04'
+    displayName: "kvmtest-t1-lag by TestbedV2"
+    timeoutInMinutes: 600
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
+    continueOnError: false
+    steps:
+    - template: .azure-pipelines/run-test-scheduler-template.yml
+      parameters:
+        TOPOLOGY: t1-lag
+        MIN_WORKER: 2
+        MAX_WORKER: 3
+
+  - job:
+    pool:
+      vmImage: 'ubuntu-20.04'
+    displayName: "kvmtest-t1-lag"
+    dependsOn:
+    - t1_lag_classic
+    - t1_lag_testbedv2
+    condition: always()
+    continueOnError: false
+    variables:
+      resultOfClassic: $[ dependencies.t1_lag_classic.result ]
+      resultOfTestbedV2: $[ dependencies.t1_lag_testbedv2.result ]
+    steps:
+    - script: |
+        if [ $(resultOfClassic) == "Succeeded" ] || [ $(resultOfTestbedV2) == "Succeeded" ]; then
+          echo "One or both of t1_lag_classic and t1_lag_testbedv2 passed."
+          exit 0
+        else
+          echo "Both t1_lag_classic and t1_lag_testbedv2 failed! Please check the detailed information."
+          exit 1
+        fi
 
   - job:
     pool: sonictest-sonic-t0
