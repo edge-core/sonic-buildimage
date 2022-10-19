@@ -27,7 +27,6 @@ command:
     clean       : uninstall drivers and remove related sysfs nodes
 """
 
-import os
 import subprocess
 import sys, getopt
 import logging
@@ -54,7 +53,7 @@ def main():
                                                        'debug',
                                                        'force',
                                                           ])
-    if DEBUG == True:
+    if DEBUG is True:
         print(options)
         print(args)
         print(len(sys.argv))
@@ -84,7 +83,7 @@ def show_help():
     sys.exit(0)
 
 def show_log(txt):
-    if DEBUG == True:
+    if DEBUG is True:
         print("[IX7-BWDE-32X]"+txt)
     return
 
@@ -203,7 +202,9 @@ def system_install():
     #QSFP for 1~32 port
     for port_number in range(1, 33):
         bus_number = port_number + 12
-        os.system("echo %d >/sys/bus/i2c/devices/%d-0050/port_name" % (port_number, bus_number))
+        file = "/sys/bus/i2c/devices/%d-0050/port_name" % bus_number
+        with open(file, 'w') as f:
+            f.write(str(port_number) + '\n')
 
     status, output = exec_cmd("pip3 install  /usr/share/sonic/device/x86_64-quanta_ix7_bwde-r0/sonic_platform-1.0-py3-none-any.whl",1)
     if status:

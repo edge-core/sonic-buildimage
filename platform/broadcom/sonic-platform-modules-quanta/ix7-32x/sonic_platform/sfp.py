@@ -8,17 +8,17 @@
 #
 #############################################################################
 
-import os
 import time
+import subprocess
 from ctypes import create_string_buffer
 
 try:
-     from sonic_platform_base.sfp_base import SfpBase
-     from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
-     from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
-     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
-     from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
-     from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
+    from sonic_platform_base.sfp_base import SfpBase
+    from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
+    from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
+    from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
+    from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
+    from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -163,7 +163,7 @@ class Sfp(SfpBase):
     # Path to QSFP sysfs
     PLATFORM_ROOT_PATH = "/usr/share/sonic/device"
     PMON_HWSKU_PATH = "/usr/share/sonic/hwsku"
-    HOST_CHK_CMD = "docker > /dev/null 2>&1"
+    HOST_CHK_CMD = ["docker"]
 
     PLATFORM = "x86_64-quanta_ix7_rglbmc-r0"
     HWSKU  = "Quanta-IX7-32X"
@@ -259,7 +259,7 @@ class Sfp(SfpBase):
             return 'N/A'
 
     def __is_host(self):
-        return os.system(self.HOST_CHK_CMD) == 0
+        return subprocess.call(self.HOST_CHK_CMD) == 0
 
     def __get_path_to_port_config_file(self):
         platform_path = "/".join([self.PLATFORM_ROOT_PATH, self.PLATFORM])

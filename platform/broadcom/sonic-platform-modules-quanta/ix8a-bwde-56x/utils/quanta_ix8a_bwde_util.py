@@ -27,7 +27,6 @@ command:
     clean       : uninstall drivers and remove related sysfs nodes
 """
 
-import os
 import subprocess
 import sys, getopt
 import logging
@@ -54,7 +53,7 @@ def main():
                                                        'debug',
                                                        'force',
                                                           ])
-    if DEBUG == True:
+    if DEBUG is True:
         print(options)
         print(args)
         print(len(sys.argv))
@@ -84,7 +83,7 @@ def show_help():
     sys.exit(0)
 
 def show_log(txt):
-    if DEBUG == True:
+    if DEBUG is True:
         print("[IX8A-BWDE-56X]" + txt)
     return
 
@@ -301,7 +300,9 @@ def system_install():
     #QSFP for 1~56 port
     for port_number in range(1, 57):
         bus_number = port_number + 12
-        os.system("echo %d >/sys/bus/i2c/devices/%d-0050/port_name" % (port_number, bus_number))
+        file = "/sys/bus/i2c/devices/%d-0050/port_name" % bus_number
+        with open(file, 'w') as f:
+            f.write(str(port_number) + '\n')
 
     #Enable front-ports LED decoding
     exec_cmd('echo 1 > /sys/class/cpld-led/CPLDLED-1/led_decode', 1)

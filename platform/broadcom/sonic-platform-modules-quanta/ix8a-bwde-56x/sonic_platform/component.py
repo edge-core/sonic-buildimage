@@ -14,6 +14,7 @@ try:
     import subprocess
     from sonic_platform_base.component_base import ComponentBase
     from collections import namedtuple
+    from sonic_py_common.general import getstatusoutput_noshell_pipe
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -47,7 +48,7 @@ class Component(ComponentBase):
         try:
             proc = subprocess.Popen(cmdline,
                                     stdout=subprocess.PIPE,
-                                    shell=True, stderr=subprocess.STDOUT,
+                                    stderr=subprocess.STDOUT,
                                     universal_newlines=True)
             stdout = proc.communicate()[0]
             rc = proc.wait()
@@ -60,12 +61,24 @@ class Component(ComponentBase):
 
         return result
 
+    @staticmethod
+    def _get_command_result_pipe(cmd1, cmd2):
+        try:
+            rc, result = getstatusoutput_noshell_pipe(cmd1, cmd2)
+            if rc != [0, 0]:
+                raise RuntimeError("Failed to execute command {} {}, return code {}, {}".format(cmd1, cmd2, rc, result))
+
+        except OSError as e:
+            raise RuntimeError("Failed to execute command {} {} due to {}".format(cmd1, cmd2, repr(e)))
+
+        return result
+
 
 class ComponentBIOS(Component):
     COMPONENT_NAME = 'BIOS'
     COMPONENT_DESCRIPTION = 'BIOS - Basic Input/Output System'
 
-    BIOS_QUERY_VERSION_COMMAND = "dmidecode -s bios-version"
+    BIOS_QUERY_VERSION_COMMAND = ["dmidecode", "-s", "bios-version"]
 
     def __init__(self):
         super(ComponentBIOS, self).__init__()
@@ -90,7 +103,8 @@ class ComponentBIOS(Component):
 class ComponentBMC(Component):
     COMPONENT_NAME = 'BMC'
     COMPONENT_DESCRIPTION = 'BMC - Board Management Controller'
-    BMC_QUERY_VERSION_COMMAND = "ipmitool mc info | grep 'Firmware Revision'"
+    BMC_QUERY_VERSION_COMMAND1 = ["ipmitool", "mc", "info"]
+    BMC_QUERY_VERSION_COMMAND2 = ["grep", 'Firmware Revision']
 
     def __init__(self):
         super(ComponentBMC, self).__init__()
@@ -105,7 +119,7 @@ class ComponentBMC(Component):
         Returns:
             A string containing the firmware version of the component
         """
-        bmc_ver = self._get_command_result(self.BMC_QUERY_VERSION_COMMAND)
+        bmc_ver = self._get_command_result_pipe(self.BMC_QUERY_VERSION_COMMAND1, self.BMC_QUERY_VERSION_COMMAND2)
         if not bmc_ver:
             return 'ERR'
         else:
@@ -159,9 +173,9 @@ class ComponentCPLD(Component):
         Returns:
             A string containing the firmware version of the component
         """
-        self._get_command_result("ipmitool raw 0x30 0xe0 0xd0 0x01 0x01")
-        res = self._get_command_result("ipmitool raw 0x32 0xff 0x02 {}".format(self.cplds[self.index].cmd_index))
-        self._get_command_result("ipmitool raw 0x30 0xe0 0xd0 0x01 0x00")
+        self._get_command_result(["ipmitool", "raw", "0x30", "0xe0", "0xd0", "0x01", "0x01"])
+        res = self._get_command_result(["ipmitool", "raw", "0x32", "0xff", "0x02", str(self.cplds[self.index].cmd_index)])
+        self._get_command_result(["ipmitool", "raw", "0x30", "0xe0", "0xd0", "0x01", "0x00"])
         if not res:
             return 'ERR'
         else:
@@ -181,7 +195,8 @@ class ComponentCPLD(Component):
 class ComponentPCIE(Component):
     COMPONENT_NAME = 'PCIe'
     COMPONENT_DESCRIPTION = 'ASIC PCIe Firmware'
-    PCIE_QUERY_VERSION_COMMAND = "bcmcmd 'pciephy fw version' | grep 'FW version'"
+    PCIE_QUERY_VERSION_COMMAND1 = ["bcmcmd", 'pciephy fw version']
+    PCIE_QUERY_VERSION_COMMAND2 = ["grep", 'FW version']
 
     def __init__(self):
         super(ComponentPCIE, self).__init__()
@@ -196,7 +211,7 @@ class ComponentPCIE(Component):
         Returns:
             A string containing the firmware version of the component
         """
-        version = self._get_command_result(self.PCIE_QUERY_VERSION_COMMAND)
+        version = self._get_command_result_pipe(self.PCIE_QUERY_VERSION_COMMAND1, self.PCIE_QUERY_VERSION_COMMAND2)
         if not version:
             return 'ERR'
         else:

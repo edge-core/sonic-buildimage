@@ -8,21 +8,21 @@
 #
 #############################################################################
 
-import os
 import time
+import subprocess
 from ctypes import create_string_buffer
 
 try:
-     from sonic_platform_base.sfp_base import SfpBase
-     from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
-     from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
-     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
-     from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
-     from sonic_platform_base.sonic_sfp.inf8628 import inf8628InterfaceId
-     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_InterfaceId
-     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_Dom
-     from sonic_py_common.logger import Logger
-     from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
+    from sonic_platform_base.sfp_base import SfpBase
+    from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
+    from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
+    from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
+    from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
+    from sonic_platform_base.sonic_sfp.inf8628 import inf8628InterfaceId
+    from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_InterfaceId
+    from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_Dom
+    from sonic_py_common.logger import Logger
+    from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -354,7 +354,7 @@ class Sfp(SfpBase):
             return 'N/A'
 
     def __is_host(self):
-        return os.system(self.HOST_CHK_CMD) == 0
+        return subprocess.call(self.HOST_CHK_CMD) == 0
 
     def __get_path_to_port_config_file(self):
         platform_path = "/".join([self.PLATFORM_ROOT_PATH, self.PLATFORM])
