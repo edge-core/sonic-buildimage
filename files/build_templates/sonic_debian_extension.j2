@@ -530,7 +530,7 @@ sudo cp $BUILD_TEMPLATES/buffers_config.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMP
 sudo cp $BUILD_TEMPLATES/qos_config.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
 
 # Copy the templates for dynamically buffer calculation
-{% if sonic_asic_platform == "mellanox" or sonic_asic_platform == "vs" %}
+{% if sonic_asic_platform == "mellanox" or sonic_asic_platform == "vs" or sonic_asic_platform == "barefoot" %}
 if [ -f platform/{{ sonic_asic_platform }}/asic_table.j2 ]
 then
     sudo cp platform/{{ sonic_asic_platform }}/asic_table.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/asic_table.j2

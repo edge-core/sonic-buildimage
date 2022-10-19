@@ -33,3 +33,5 @@ endif
 # Runtime dependency on sai is set only for syncd
 #$(SYNCD)_RDEPENDS += $(BFN_SAI) $(WNC_OSW1800_PLATFORM) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
 $(SYNCD)_RDEPENDS += $(BFN_SAI) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
+
+export SONIC_BUFFER_MODEL=dynamic
