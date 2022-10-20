@@ -92,6 +92,7 @@ stages:
     displayName: "vstest"
     timeoutInMinutes: 60
     steps:
+    - template: .azure-pipelines/cleanup.yml
     - checkout: self
       clean: true
       submodules: recursive

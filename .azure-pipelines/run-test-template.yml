@@ -22,6 +22,7 @@ parameters:
   - sonic-6asic-vs.img.gz
 
 steps:
+- template: cleanup.yml
 - checkout: self
   clean: true
   displayName: 'checkout sonic-mgmt repo'
