@@ -16,6 +16,7 @@ from swsscommon.swsscommon import ConfigDBConnector, SonicV2Connector
 from sonic_py_common import logger as log
 
 from pyroute2 import IPRoute
+from pyroute2.netlink.exceptions import NetlinkError
 from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.sendrecv import AsyncSniffer
@@ -115,7 +116,14 @@ class TunnelPacketHandler(object):
         portchannel_intf_names = [name for name, _ in self.portchannel_intfs]
         link_statuses = []
         for intf in portchannel_intf_names:
-            status = self.netlink_api.link("get", ifname=intf)
+            try:
+                status = self.netlink_api.link("get", ifname=intf)
+            except NetlinkError:
+                # Continue if we find a non-existent interface since we don't
+                # need to listen on it while it's down/not created. Once it comes up,
+                # we will get another netlink message which will trigger this check again
+                logger.log_notice("Skipping non-existent interface {}".format(intf))
+                continue
             link_statuses.append(status[0])
         up_portchannels = []
 
