@@ -1,0 +1,108 @@
+module sonic-events-swss {
+    namespace "http://github.com/sonic-net/sonic-events-swss";
+    yang-version 1.1;
+    prefix events-swss;
+
+    import sonic-events-common {
+        prefix evtcmn;
+        revision-date 2022-12-01;
+    }
+
+    import sonic-types {
+        prefix stypes;
+    }
+
+    import sonic-port {
+        prefix port;
+    }
+
+    organization
+        "SONiC";
+
+    contact
+        "SONiC";
+
+    description
+        "SONIC SWSS events";
+
+    revision 2022-12-01 {
+        description "SWSS alert events.";
+    }
+
+    container sonic-events-swss {
+        container if-state {
+            evtcmn:ALARM_SEVERITY_MINOR;
+
+            description "
+                Declares an event for i/f flap. 
+                The name of the flapping i/f and status are the only params.";
+
+            leaf ifname {
+                type leafref {
+                    path "/port:sonic-port/port:PORT/port:PORT_LIST/port:name";
+                }
+                description "Interface name";
+            } 
+
+            leaf status {
+                type stypes:admin_status;
+                description "Provides the status as up (true) or down (false)";
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container pfc-storm {
+            evtcmn:ALARM_SEVERITY_MAJOR;
+
+            description "
+                Declares an event for PFC storm.
+                The name of the i/f facing the storm is the only param.";
+
+            leaf ifname {
+                type leafref {
+                    path "/port:sonic-port/port:PORT/port:PORT_LIST/port:name";
+                }
+                description "Interface name";
+            }
+
+            leaf queue_index {
+                type uint8;
+            }
+
+            leaf queue_id {
+                type uint64;
+            }
+
+            leaf port_id {
+                type uint64;
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container chk_crm_threshold {
+            evtcmn:ALARM_SEVERITY_MAJOR;
+
+            description "
+                Declares an event for CRM threshold.";
+
+            leaf percent {
+                type uint8 {
+                    range 0..100;
+                }
+                description "percentage used";
+            }
+
+            leaf used_cnt {
+                type uint8;
+            }
+
+            leaf free_cnt {
+                type uint64;
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+    }
+}
