@@ -100,7 +100,7 @@ static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
         if (++state_data->count > dhcp_unhealthy_max_count) {
             auto duration = state_data->count * window_interval_sec;
 	    std::string vlan(context->intf);
-            syslog(LOG_ALERT, state_data->msg, duration, vlan);
+            syslog(LOG_ALERT, state_data->msg, duration, context->intf);
             if (state_data->check_type == DHCP_MON_CHECK_POSITIVE) {
                 event_params_t params = {
                     { "vlan", vlan },
