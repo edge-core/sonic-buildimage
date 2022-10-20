@@ -104,8 +104,8 @@ jobs:
             echo 'Add commnet "@${author} PR conflicts with $branch branch"'
           else
             # Create PR to release branch
-            git push mssonicbld HEAD:$branch-${pr_id} -f
-            result=$(gh pr create -R ${repository} -H mssonicbld:$branch-${pr_id} -B $branch -t "[action] [PR:$pr_id] $title" -b '' 2>&1)
+            git push mssonicbld HEAD:cherry/$branch/${pr_id} -f
+            result=$(gh pr create -R ${repository} -H mssonicbld:cherry/$branch/${pr_id} -B $branch -t "[action] [PR:$pr_id] $title" -b '' 2>&1)
             echo $result | grep "already exists" && { echo $result; return 0; }
             echo $result | grep github.com || { echo $result; return 1; }
             new_pr_rul=$(echo $result | grep github.com)
