@@ -14,8 +14,8 @@ libasan5==8.3.0-6
 libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libbsd0==0.9.1-2+deb10u1
-libc-dev-bin==2.28-10+deb10u1
-libc6-dev==2.28-10+deb10u1
+libc-dev-bin==2.28-10+deb10u2
+libc6-dev==2.28-10+deb10u2
 libcc1-0==8.3.0-6
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1

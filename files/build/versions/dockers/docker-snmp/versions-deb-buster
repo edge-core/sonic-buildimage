@@ -14,9 +14,9 @@ libasan5==8.3.0-6
 libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libbsd0==0.9.1-2+deb10u1
-libc-dev-bin==2.28-10+deb10u1
-libc-l10n==2.28-10+deb10u1
-libc6-dev==2.28-10+deb10u1
+libc-dev-bin==2.28-10+deb10u2
+libc-l10n==2.28-10+deb10u2
+libc6-dev==2.28-10+deb10u2
 libcc1-0==8.3.0-6
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
@@ -48,7 +48,7 @@ libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libunwind8==1.2.1-10~deb10u1
 linux-libc-dev==4.19.260-1
-locales==2.28-10+deb10u1
+locales==2.28-10+deb10u2
 make==4.2.1-1.2
 mariadb-common==1:10.3.36-0+deb10u2
 mysql-common==5.8+1.0.5
