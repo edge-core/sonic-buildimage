@@ -12,6 +12,9 @@
 {% set _dummy = relay_for_ipv6.update({'flag': False}) %}
 [program:dhcp6relay]
 command=/usr/sbin/dhcp6relay
+{#- Dual ToR Option #}
+{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %} -d{% endif %}
+
 priority=3
 autostart=false
 autorestart=false
