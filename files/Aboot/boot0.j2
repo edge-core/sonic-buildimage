@@ -401,9 +401,14 @@ extract_image() {
 extract_image_secureboot() {
     info "Extracting necessary swi content"
     # NOTE: boot/ is not used by the boot process but only extracted for kdump
-    unzip -oq "$swipath" 'boot/*' platform/firsttime .imagehash -d "$image_path"
+    unzip -oq "$swipath" 'boot/*' .imagehash -d "$image_path"
 
-    info "Installing image as $installer_image_path"
+    ## Extract platform.tar.gz
+    info "Extracting platform.tar.gz"
+    mkdir -p "$image_path/platform"
+    unzip -oqp "$swipath" "platform.tar.gz" | tar xzf - -C "$image_path/platform" $TAR_EXTRA_OPTION
+
+    info "Installing swi under $installer_image_path"
     mv "$swipath" "$installer_image_path"
     chmod a+r "$installer_image_path"
     swipath="$installer_image_path"
