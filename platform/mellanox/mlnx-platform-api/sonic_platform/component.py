@@ -172,7 +172,7 @@ class ONIEUpdater(object):
         cmd1 = ['fdisk', '-l']
         cmd2 = ['grep', 'ONIE boot']
         cmd3 = ['awk', '{print $1}']
-        fs_path = check_output_pipe(cmd1, cmd2, cmd3)
+        fs_path = check_output_pipe(cmd1, cmd2, cmd3).rstrip('\n')
 
         os.mkdir(fs_mountpoint)
         cmd = ["mount", "-n", "-r", "-t", "ext4", fs_path, fs_mountpoint]
