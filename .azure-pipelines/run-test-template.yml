@@ -27,6 +27,10 @@ steps:
   clean: true
   displayName: 'checkout sonic-mgmt repo'
 
+- script: |
+    sudo rm -rf ../target
+  displayName: "Cleanup"
+
 - task: DownloadPipelineArtifact@2
   inputs:
     artifact: sonic-buildimage.vs

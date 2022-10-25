@@ -98,6 +98,11 @@ stages:
       submodules: recursive
       displayName: 'Checkout code'
 
+    - script: |
+        sudo rm -rf ../target
+        sudo rm -rf ../*.deb
+      displayName: "Cleanup"
+
     - task: DownloadPipelineArtifact@2
       inputs:
         source: specific
