@@ -4,7 +4,7 @@ try:
     import os
     import re
     import logging
-    from subprocess import Popen, PIPE
+    from subprocess import call, Popen, PIPE
     from sonic_platform_base.component_base import ComponentBase
 
 except ImportError as e:
@@ -39,10 +39,10 @@ COMPONENT_DESC_LIST = [
 
 
 FW_INSTALL_CMD_LIST = [
-    "/usr/share/sonic/platform/plugins/cpld -b 1 -s 0x60 {}",
-    "/usr/share/sonic/platform/plugins/Yafuflash -cd {} -img-select 3 -non-interactive",
-    "/usr/share/sonic/platform/plugins/afulnx_64 {} /B /P /N /K",
-    "/usr/share/sonic/platform/plugins/afulnx_64 {} /B /P /N /K",
+    ["/usr/share/sonic/platform/plugins/cpld", "-b", "1", "-s", "0x60", ""],
+    ["/usr/share/sonic/platform/plugins/Yafuflash", "-cd", "", "-img-select", "3", "-non-interactive"],
+    ["/usr/share/sonic/platform/plugins/afulnx_64", "", "/B", "/P", "/N", "/K"],
+    ["/usr/share/sonic/platform/plugins/afulnx_64", "", "/B", "/P", "/N", "/K"],
 ]
 
 BIOS_ID_MAPPING_TABLE = {
@@ -157,11 +157,20 @@ class Component(ComponentBase):
 
         return bios_version
 
+    def __get_cmd(self, image_path):
+        if self.index == 0:
+            FW_INSTALL_CMD_LIST[self.index][5] = image_path
+        elif self.index == 1:
+            FW_INSTALL_CMD_LIST[self.index][2] = image_path
+        elif self.index == 2 or self.index == 3:
+            FW_INSTALL_CMD_LIST[self.index][1] = image_path
+        return FW_INSTALL_CMD_LIST
+
     def __install_cpld_firmware(self, image_path):
         result = False
-        cmd = FW_INSTALL_CMD_LIST[self.index].format(image_path)
+        cmd = self.__get_cmd(image_path)
 
-        ret = os.system(cmd)
+        ret = call(cmd)
         if ret == OS_SYSTEM_SUCCESS:
             result = True
 
@@ -169,9 +178,9 @@ class Component(ComponentBase):
 
     def __install_bmc_firmware(self, image_path):
         result = False
-        cmd = FW_INSTALL_CMD_LIST[self.index].format(image_path)
+        cmd = self.__get_cmd(image_path)
 
-        ret = os.system(cmd)
+        ret = call(cmd)
         if ret == OS_SYSTEM_SUCCESS:
             result = True
         return result
@@ -200,8 +209,8 @@ class Component(ComponentBase):
                 logging.error("Not support BIOS index %d", self.index)
 
             if ret:
-                cmd = FW_INSTALL_CMD_LIST[self.index].format(image_path)
-                ret = os.system(cmd)
+                cmd = self.__get_cmd(image_path)
+                ret = call(cmd)
                 if ret == OS_SYSTEM_SUCCESS:
                     result = True
                 else:
