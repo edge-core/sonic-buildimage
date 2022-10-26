@@ -14,7 +14,7 @@ bzip2==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.6.8-1
+containerd.io==1.6.9-1
 cpio==2.12+dfsg-9
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
