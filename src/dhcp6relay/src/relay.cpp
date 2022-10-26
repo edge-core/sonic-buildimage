@@ -593,6 +593,7 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
 void callback(evutil_socket_t fd, short event, void *arg) {
     struct relay_config *config = (struct relay_config *)(arg);
     static uint8_t message_buffer[4096];
+    std::string counterVlan = counter_table;
     int32_t len = recv(config->filter, message_buffer, 4096, 0);
     if (len <= 0) {
         syslog(LOG_WARNING, "recv: Failed to receive data at filter socket: %s\n", strerror(errno));
