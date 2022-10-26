@@ -51,6 +51,15 @@
             "value": "enable"
         }
     },
+    "DEVICE_METADATA_DEFAULT_YANG_CONFIG_VALIDATION": {
+        "desc": "DEVICE_METADATA DEFAULT VALUE FOR YANG CONFIG VALIDATION.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
+            "key": "sonic-device_metadata:yang_config_validation",
+            "value": "disable"
+        }
+    },
     "DEVICE_METADATA_CORRECT_BUFFER_MODEL_PATTERN": {
         "desc": "DEVICE_METADATA correct value for BUFFER_MODEL field"
     },

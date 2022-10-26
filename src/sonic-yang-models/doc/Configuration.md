@@ -831,7 +831,8 @@ instance is supported in SONiC.
         "deployment_id": "1",
         "type": "ToRRouter",
         "bgp_adv_lo_prefix_as_128" : "true",
-        "buffer_model": "traditional"
+        "buffer_model": "traditional",
+        "yang_config_validation": "disable"
     }
   }
 }
