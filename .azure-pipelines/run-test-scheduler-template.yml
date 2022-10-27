@@ -33,8 +33,9 @@ parameters:
 steps:
   - script: |
       set -ex
+      # always use the test plan script from master branch.
       wget -O ./.azure-pipelines/test_plan.py  https://raw.githubusercontent.com/sonic-net/sonic-mgmt/master/.azure-pipelines/test_plan.py
-      wget -O ./.azure-pipelines/pr_test_scripts.yaml  https://raw.githubusercontent.com/sonic-net/sonic-mgmt/master/.azure-pipelines/pr_test_scripts.yaml
+      wget -O ./.azure-pipelines/pr_test_scripts.yaml  https://raw.githubusercontent.com/sonic-net/sonic-mgmt/${{ parameters.MGMT_BRANCH }}/.azure-pipelines/pr_test_scripts.yaml
     displayName: Download TestbedV2 scripts
 
   - script: |
