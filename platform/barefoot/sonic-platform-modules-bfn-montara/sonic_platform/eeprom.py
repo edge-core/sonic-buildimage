@@ -60,7 +60,7 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
                     try:
                         self._eeprom_bin = bytearray.fromhex(
                             thrift_try(tlv_eeprom_get, 1).raw_content_hex)
-                    except TApplicationException as e:
+                    except thrift.Thrift.TApplicationException as e:
                         raise RuntimeError("api is not supported")
                     except Exception as e:
                         self._eeprom_bin = bytearray.fromhex(
