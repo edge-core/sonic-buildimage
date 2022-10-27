@@ -1805,6 +1805,14 @@
             }
         },
 
+        "VOQ_INBAND_INTERFACE": {
+            "Ethernet-IB0": {
+               "inband_type": "port"
+            },
+            "Ethernet-IB0|3.3.3.1/32": {},
+            "Ethernet-IB0|3333::3:5/128": {}
+        },
+
         "PASSW_HARDENING": {
             "POLICIES": {
                 "state": "enabled",

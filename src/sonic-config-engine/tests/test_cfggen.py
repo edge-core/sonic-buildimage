@@ -913,19 +913,6 @@ class TestCfgGen(TestCase):
             utils.to_dict("{'lanes': '6,7', 'fec': 'rs', 'alias': 'Ethernet1/1', 'index': '1', 'role': 'Ext', 'speed': '100000', 'macsec': 'macsec-profile', 'description': 'Ethernet1/1', 'mtu': '9100', 'tpid': '0x8100', 'pfc_asym': 'off'}")
         )
 
-    def test_minigraph_voq_inband_interface_vlan(self):
-        argument = "-j {} -m {} -p {} --var-json VOQ_INBAND_INTERFACE".format(self.macsec_profile, self.sample_graph_voq, self.voq_port_config)
-        output = self.run_script(argument)
-        output_dict = utils.to_dict(output.strip())
-        self.assertDictEqual(
-            output_dict['Vlan3094'],
-            {'inband_type': 'Vlan'}
-        )
-        self.assertDictEqual(
-            output_dict['Vlan3094|1.1.1.1/24'],
-            {}
-        )
-
     def test_minigraph_voq_inband_interface_port(self):
         argument = "-j {} -m {} -p {} --var-json VOQ_INBAND_INTERFACE".format(self.macsec_profile, self.sample_graph_voq, self.voq_port_config)
         output = self.run_script(argument)
