@@ -5,6 +5,7 @@ deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main 
 deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main contrib non-free
 deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ bullseye-security main contrib non-free
 deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ bullseye-security main contrib non-free
+deb [arch=amd64] http://debian-archive.trafficmanager.net/debian bullseye-updates main contrib non-free
 deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye-backports main contrib non-free
 
 # Debian mirror supports multiple versions for a package
