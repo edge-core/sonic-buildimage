@@ -9,5 +9,8 @@
     },
     "RESTAPI_TABLE_WITH_VALID_CONFIG": {
         "desc": "RESTAPI TABLE WITH VALID CONFIG."
+    },
+    "RESTAPI_TABLE_WITH_MULTIPLE_CERTS": {
+        "desc": "RESTAPI TABLE WITH MULTIPLE CERTS."
     }
 }
