@@ -12,12 +12,12 @@ filelock==3.8.0
 idna==3.4
 jsonpatch==1.32
 jsonpointer==2.3
-lazy-object-proxy==1.7.1
+lazy-object-proxy==1.8.0
 m2crypto==0.38.0
 netifaces==0.10.9
 packaging==21.3
 pexpect==4.8.0
-prefixed==0.3.2
+prefixed==0.4.0
 prettyprinter==0.18.0
 ptyprocess==0.7.0
 pycairo==1.21.0

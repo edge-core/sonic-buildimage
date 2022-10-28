@@ -66,7 +66,7 @@ libdpkg-perl==1.19.8
 libedit2==3.1-20181209-1
 libefiboot1==37-2+deb10u1
 libefivar1==37-2+deb10u1
-libexpat1-dev==2.2.6-2+deb10u5
+libexpat1-dev==2.2.6-2+deb10u6
 libffi-dev==3.2.1-9
 libfontconfig1==2.13.1-2
 libfontconfig1-dev==2.13.1-2
