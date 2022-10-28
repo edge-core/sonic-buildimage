@@ -105,7 +105,7 @@ equivs==2.2.0
 exim4-base==4.92-8+deb10u7
 exim4-config==4.92-8+deb10u7
 exim4-daemon-light==4.92-8+deb10u7
-expat==2.2.6-2+deb10u5
+expat==2.2.6-2+deb10u6
 exuberant-ctags==1:5.9~svn20110310-12
 fakeroot==1.23-1
 file==1:5.35-4+deb10u2
@@ -472,8 +472,8 @@ libevent-dev==2.1.8-stable-4
 libevent-extra-2.1-6==2.1.8-stable-4
 libevent-openssl-2.1-6==2.1.8-stable-4
 libevent-pthreads-2.1-6==2.1.8-stable-4
-libexpat1==2.2.6-2+deb10u5
-libexpat1-dev==2.2.6-2+deb10u5
+libexpat1==2.2.6-2+deb10u6
+libexpat1-dev==2.2.6-2+deb10u6
 libexplain-dev==1.4.D001-8
 libexplain51==1.4.D001-8
 libexporter-tiny-perl==1.002001-1
