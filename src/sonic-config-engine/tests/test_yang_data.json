@@ -161,7 +161,8 @@
                 "hostname": "sonic",
                 "hwsku": "Force10-S6000",
                 "type": "LeafRouter",
-                "platform": "x86_64-kvm_x86_64-r0"
+                "platform": "x86_64-kvm_x86_64-r0",
+                "yang_config_validation": "disable"
             }
         }
     },

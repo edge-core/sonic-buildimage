@@ -81,7 +81,8 @@ class TestCfgGen(object):
             'hostname': 'sonic',
             'hwsku': 'Force10-S6000',
             'platform': 'x86_64-kvm_x86_64-r0',
-            'type': 'LeafRouter'
+            'type': 'LeafRouter',
+            'yang_config_validation': 'disable'
         })
 
 
