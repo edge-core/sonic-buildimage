@@ -23,12 +23,12 @@ Description: bgpmon.py -- populating bgp related information in stateDB.
     is a need to perform update or the peer is stale to be removed from the
     state DB
 """
-import subprocess
 import json
 import os
 import syslog
 from swsscommon import swsscommon
 import time
+from sonic_py_common.general import getstatusoutput_noshell
 
 PIPE_BATCH_MAX_COUNT = 50
 
@@ -72,8 +72,8 @@ class BgpStateGet:
 
     # Get a new snapshot of BGP neighbors and store them in the "new" location
     def get_all_neigh_states(self):
-        cmd = "vtysh -c 'show bgp summary json'"
-        rc, output = subprocess.getstatusoutput(cmd)
+        cmd = ["vtysh", "-c", 'show bgp summary json']
+        rc, output = getstatusoutput_noshell(cmd)
         if rc:
             syslog.syslog(syslog.LOG_ERR, "*ERROR* Failed with rc:{} when execute: {}".format(rc, cmd))
             return
