@@ -32,17 +32,16 @@ def run_test(process, file, count, duplicate):
 
     time.sleep(2) # buffer for events_tool to startup 
     logging.info("Generating logger messages\n")
+    sub_cmd = ["logger", "-p", "local0.notice", "-t", process, "test", "message"]
     for i in range(count):
-        line = ""
-        state = "up"
         if duplicate:
-            line = "{} test message testmessage state up".format(process)
+            command = sub_cmd + ["testmessage", "state", "up"]
         else:
             if i % 2 != 1:
-                state = "down"
-            line = "{} test message testmessage{} state {}".format(process, i, state)
-        command = "logger -p local0.notice -t {}".format(line)
-        subprocess.run(command, shell=True, stdout=subprocess.PIPE)
+                command = sub_cmd + ["testmessage"+str(i), "state", "down"]
+            else:
+                command = sub_cmd + ["testmessage"+str(i), "state", "up"]
+        subprocess.run(command, stdout=subprocess.PIPE)
 
     time.sleep(2) # some buffer for all events to be published to file
     read_events_from_file(file, count)
