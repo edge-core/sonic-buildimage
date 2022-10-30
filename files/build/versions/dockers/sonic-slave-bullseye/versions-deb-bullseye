@@ -279,7 +279,7 @@ libb-hooks-endofscope-perl==0.24-1.1
 libb-hooks-op-check-perl==0.22-1+b3
 libbabeltrace-dev==1.5.8-1+b3
 libbabeltrace1==1.5.8-1+b3
-libbatik-java==1.12-4
+libbatik-java==1.12-4+deb11u1
 libbdplus0==0.1.2-3
 libbind-export-dev==1:9.11.19+dfsg-2.1
 libbinutils==2.35.2-2

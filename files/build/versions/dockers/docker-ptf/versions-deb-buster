@@ -129,7 +129,8 @@ libmpc3==1.1.0-1
 libmpdec2==2.4.2-2
 libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
-libncurses6==6.1+20181013-2+deb10u2
+libncurses6==6.1+20181013-2+deb10u3
+libncursesw6==6.1+20181013-2+deb10u3
 libnet1==1.1.6+dfsg-3.1
 libnghttp2-14==1.36.0-2+deb10u1
 libnl-3-200==3.4.0-1
@@ -181,6 +182,7 @@ libteam-utils==1.28-1
 libteam5==1.28-1
 libteamdctl0==1.28-1
 libthrift-0.11.0==0.11.0-4
+libtinfo6==6.1+20181013-2+deb10u3
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libunbound8==1.9.0-2+deb10u2
@@ -204,7 +206,9 @@ make==4.2.1-1.2
 manpages==4.16-2
 manpages-dev==4.16-2
 mime-support==3.62
-ncurses-term==6.1+20181013-2+deb10u2
+ncurses-base==6.1+20181013-2+deb10u3
+ncurses-bin==6.1+20181013-2+deb10u3
+ncurses-term==6.1+20181013-2+deb10u3
 net-tools==1.60+git20180626.aebd88e-1
 netbase==5.6
 ntp==1:4.2.8p12+dfsg-4
