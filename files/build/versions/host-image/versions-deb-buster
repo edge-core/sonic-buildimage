@@ -163,7 +163,8 @@ libmpc3==1.1.0-1
 libmpdec2==2.4.2-2
 libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
-libncurses6==6.1+20181013-2+deb10u2
+libncurses6==6.1+20181013-2+deb10u3
+libncursesw6==6.1+20181013-2+deb10u3
 libnet1==1.1.6+dfsg-3.1
 libnetfilter-conntrack3==1.0.7-1
 libnfnetlink0==1.0.1-3+b1
@@ -216,6 +217,7 @@ libsysfs2==2.1.0+repack-5
 libsystemd0==247.3-6~bpo10+1
 libtac2==1.4.1-1
 libtcl8.6==8.6.9+dfsg-2
+libtinfo6==6.1+20181013-2+deb10u3
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libudev1==247.3-6~bpo10+1
@@ -243,6 +245,8 @@ mime-support==3.62
 monit==1:5.20.0-6
 mtd-utils==1:2.0.1-1
 mtr-tiny==0.92-2
+ncurses-base==6.1+20181013-2+deb10u3
+ncurses-bin==6.1+20181013-2+deb10u3
 ndisc6==1.0.4-1
 nephos-modules==1.0.1
 net-tools==1.60+git20180626.aebd88e-1
