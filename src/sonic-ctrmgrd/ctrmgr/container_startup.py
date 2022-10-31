@@ -4,11 +4,11 @@ import argparse
 import datetime
 import inspect
 import json
-import subprocess
 import syslog
 import time
 
 from swsscommon import swsscommon
+from sonic_py_common.general import getstatusoutput_noshell_pipe
 
 # DB field names
 SET_OWNER = "set_owner"
@@ -114,9 +114,12 @@ def get_docker_id():
     # Read the container-id
     # Note: This script runs inside the context of container
     #
-    cmd = 'cat /proc/self/cgroup | grep -e ":memory:" | rev | cut -f1 -d\'/\' | rev'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    output = proc.communicate()[0].decode("utf-8")
+    cmd0 = ['cat', '/proc/self/cgroup']
+    cmd1 = ['grep', '-e', ":memory:"]
+    cmd2 = ['rev']
+    cmd3 = ['cut', '-f1', '-d', '/']
+    cmd4 = ['rev']
+    _, output = getstatusoutput_noshell_pipe(cmd0, cmd1, cmd2, cmd3, cmd4)
     return output.strip()[:12]
 
 

@@ -6,7 +6,7 @@ import json
 import os
 import sys
 import syslog
-
+import subprocess
 from collections import defaultdict
 from ctrmgr.ctrmgr_iptables import iptable_proxy_rule_upd
 
@@ -119,7 +119,7 @@ def ts_now():
 
 def is_systemd_active(feat):
     if not UNIT_TESTING:
-        status = os.system('systemctl is-active --quiet {}'.format(feat))
+        status = subprocess.call(['systemctl', 'is-active', '--quiet', str(feat)])
     else:
         status = UNIT_TESTING_ACTIVE
     log_debug("system status for {}: {}".format(feat, str(status)))
@@ -129,7 +129,7 @@ def is_systemd_active(feat):
 def restart_systemd_service(server, feat, owner):
     log_debug("Restart service {} to owner:{}".format(feat, owner))
     if not UNIT_TESTING:
-        status = os.system("systemctl restart {}".format(feat))
+        status = subprocess.call(["systemctl", "restart", str(feat)])
     else:
         server.mod_db_entry(STATE_DB_NAME,
                 FEATURE_TABLE, feat, {"restart": "true"})

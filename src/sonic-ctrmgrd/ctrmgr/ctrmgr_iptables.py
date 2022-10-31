@@ -105,8 +105,8 @@ def iptable_proxy_rule_upd(ip_str, port = SQUID_PORT):
     while True:
         num += 1
 
-        cmd = "sudo iptables -t nat -n -L OUTPUT {}".format(num)
-        proc = subprocess.run(cmd, shell=True, capture_output=True)
+        cmd = ["sudo", "iptables", "-t", "nat", "-n", "-L", "OUTPUT", str(num)]
+        proc = subprocess.run(cmd, shell=False, capture_output=True)
         check_proc(proc)
 
         if not proc.stdout:
@@ -119,16 +119,15 @@ def iptable_proxy_rule_upd(ip_str, port = SQUID_PORT):
                 found = True
             else:
                 # Duplicate or different IP - delete it
-                cmd = "sudo iptables -t nat -D OUTPUT {}".format(num)
-                proc = subprocess.run(cmd, shell=True, capture_output=True)
+                cmd = ["sudo", "iptables", "-t", "nat", "-D", "OUTPUT", str(num)]
+                proc = subprocess.run(cmd, shell=False, capture_output=True)
                 check_proc(proc)
                 # Decrement number to accommodate deleted rule
                 num -= 1
 
     if destination and not found:
-        cmd = "sudo iptables -t nat -A OUTPUT -p tcp -d {} --dport {} -j DNAT --to-destination {}".format(
-                DST_IP, DST_PORT, destination)
-        proc = subprocess.run(cmd, shell=True, capture_output=True)
+        cmd = ["sudo", "iptables", "-t", "nat", "-A", "OUTPUT", "-p", "tcp", "-d", DST_IP, "--dport", DST_PORT, "-j", "DNAT", "--to-destination", destination]
+        proc = subprocess.run(cmd, shell=False, capture_output=True)
 
         check_proc(proc)
 
