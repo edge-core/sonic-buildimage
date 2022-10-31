@@ -5,7 +5,6 @@ import re
 import sys
 import subprocess
 import argparse
-import shlex
 
 PY3x = sys.version_info >= (3, 0)
 PYvX_DIR = "py3" if PY3x else "py2"
@@ -47,7 +46,7 @@ class YangWrapper(object):
             self.yang_parser = sonic_yang.SonicYang(path)
             self.yang_parser.loadYangModel()
             self.test_dir = os.path.dirname(os.path.realpath(__file__))
-            self.script_file = PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
+            self.script_file = [PYTHON_INTERPRETTER, os.path.join(self.test_dir, '..', 'sonic-cfggen')]
 
     def validate(self, argument):
         """
@@ -62,22 +61,22 @@ class YangWrapper(object):
             parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
             parser.add_argument("-S", "--hwsku-config", help="hwsku config file, used with -p and -m or -k", nargs='?', const=None)
             parser.add_argument("-j", "--json", help="additional json file input, used with -p, -S and -m or -k", nargs='?', const=None)
-            args, unknown = parser.parse_known_args(shlex.split(argument))
+            args, unknown = parser.parse_known_args(argument)
 
             print('\n    Validating yang schema')
-            cmd = self.script_file + ' -m ' + args.minigraph
+            cmd = self.script_file + ['-m', args.minigraph]
             if args.hwsku is not None:
-                cmd += ' -k ' + args.hwsku
+                cmd += ['-k', args.hwsku]
             if args.hwsku_config is not None:
-                cmd += ' -S ' + args.hwsku_config
+                cmd += ['-S', args.hwsku_config]
             if args.port_config is not None:
-                cmd += ' -p ' + args.port_config
+                cmd += ['-p', args.port_config]
             if args.namespace is not None:
-                cmd += ' -n ' + args.namespace
+                cmd += ['-n', args.namespace]
             if args.json is not None:
-                cmd += ' -j ' + args.json
-            cmd += ' --print-data'
-            output = subprocess.check_output(cmd, shell=True).decode()
+                cmd += ['-j', args.json]
+            cmd += ['--print-data']
+            output = subprocess.check_output(cmd).decode()
             try:
                 self.yang_parser.loadData(configdbJson=json.loads(output))
                 self.yang_parser.validate_data_tree()

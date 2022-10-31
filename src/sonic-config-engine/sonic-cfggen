@@ -351,7 +351,7 @@ def main():
             if yaml.__version__ >= "5.1":
                 additional_data = yaml.full_load(stream)
             else:
-                additional_data = yaml.load(stream)
+                additional_data = yaml.safe_load(stream)
             deep_update(data, FormatConverter.to_deserialized(additional_data))
 
     if args.additional_data is not None:
