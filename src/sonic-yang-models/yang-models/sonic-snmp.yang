@@ -1,5 +1,5 @@
 module sonic-snmp {
-  namespace "http://github.com/Azure/sonic-snmp";
+  namespace "http://github.com/sonic-net/sonic-snmp";
   prefix ssnmp;
   yang-version 1.1;
 

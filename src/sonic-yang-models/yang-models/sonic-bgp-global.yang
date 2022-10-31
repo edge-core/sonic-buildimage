@@ -1,5 +1,5 @@
 module sonic-bgp-global {
-    namespace "http://github.com/Azure/sonic-bgp-global";
+    namespace "http://github.com/sonic-net/sonic-bgp-global";
     prefix bgpg;
     yang-version 1.1;
 

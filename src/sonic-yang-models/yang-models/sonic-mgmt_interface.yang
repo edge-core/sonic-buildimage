@@ -2,7 +2,7 @@ module sonic-mgmt_interface {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-mgmt_interface";
+    namespace "http://github.com/sonic-net/sonic-mgmt_interface";
     prefix mgmtintf;
 
     import sonic-mgmt_port {

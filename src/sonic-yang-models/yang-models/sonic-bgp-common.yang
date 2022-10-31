@@ -1,5 +1,5 @@
 module sonic-bgp-common {
-    namespace "http://github.com/Azure/sonic-bgp-common";
+    namespace "http://github.com/sonic-net/sonic-bgp-common";
     prefix bgpcmn;
     yang-version 1.1;
 

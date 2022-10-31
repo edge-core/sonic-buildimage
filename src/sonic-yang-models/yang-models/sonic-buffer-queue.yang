@@ -1,5 +1,5 @@
 module sonic-buffer-queue {
-    namespace "http://github.com/Azure/sonic-buffer-queue";
+    namespace "http://github.com/sonic-net/sonic-buffer-queue";
     prefix bqueue;
 
     import sonic-extension {

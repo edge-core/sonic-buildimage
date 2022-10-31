@@ -1,5 +1,5 @@
 module sonic-bgp-neighbor {
-    namespace "http://github.com/Azure/sonic-bgp-neighbor";
+    namespace "http://github.com/sonic-net/sonic-bgp-neighbor";
     prefix bgpnbr;
     yang-version 1.1;
 

@@ -2,7 +2,7 @@ module sonic-ntp {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-system-ntp";
+    namespace "http://github.com/sonic-net/sonic-system-ntp";
     prefix ntp;
 
     import ietf-inet-types {

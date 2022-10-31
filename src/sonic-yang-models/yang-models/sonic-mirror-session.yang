@@ -2,7 +2,7 @@ module sonic-mirror-session {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-mirror-session";
+    namespace "http://github.com/sonic-net/sonic-mirror-session";
     prefix sms;
 
     import ietf-inet-types {

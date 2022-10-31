@@ -1,5 +1,5 @@
 module sonic-nat {
-    namespace "http://github.com/Azure/sonic-nat";
+    namespace "http://github.com/sonic-net/sonic-nat";
     prefix snat;
     yang-version 1.1;
 

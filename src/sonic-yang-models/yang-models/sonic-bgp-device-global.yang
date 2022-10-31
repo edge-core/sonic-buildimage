@@ -1,5 +1,5 @@
 module sonic-bgp-device-global {
-    namespace "http://github.com/Azure/sonic-bgp-device-global";
+    namespace "http://github.com/sonic-net/sonic-bgp-device-global";
     prefix bgp_device_global;
     yang-version 1.1;
 

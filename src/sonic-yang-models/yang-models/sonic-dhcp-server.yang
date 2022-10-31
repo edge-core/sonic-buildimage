@@ -2,7 +2,7 @@ module sonic-dhcp-server {
 
     yang-version 1.1;
 
-    namespace  "http://github.com/Azure/sonic-dhcp-server";
+    namespace  "http://github.com/sonic-net/sonic-dhcp-server";
 
     prefix dhcp-server;
 

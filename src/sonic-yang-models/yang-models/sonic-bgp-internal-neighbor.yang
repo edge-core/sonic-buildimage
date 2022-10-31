@@ -1,5 +1,5 @@
 module sonic-bgp-internal-neighbor {
-    namespace "http://github.com/Azure/sonic-bgp-internal-neighbor";
+    namespace "http://github.com/sonic-net/sonic-bgp-internal-neighbor";
     prefix bgpintnbr;
     yang-version 1.1;
 

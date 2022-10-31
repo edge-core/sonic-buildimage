@@ -1,6 +1,6 @@
 module sonic-console {
     yang-version 1.1;
-    namespace "http://github.com/Azure/sonic-console";
+    namespace "http://github.com/sonic-net/sonic-console";
     prefix console;
 
     import sonic-types {

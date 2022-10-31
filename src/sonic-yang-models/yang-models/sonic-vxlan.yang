@@ -1,6 +1,6 @@
 module sonic-vxlan {
     yang-version 1.1;
-    namespace "http://github.com/Azure/sonic-vxlan";
+    namespace "http://github.com/sonic-net/sonic-vxlan";
     prefix svxlan;
 
     import ietf-yang-types {

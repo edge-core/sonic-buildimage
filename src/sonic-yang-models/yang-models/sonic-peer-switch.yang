@@ -1,6 +1,6 @@
 module sonic-peer-switch {
     yang-version 1.1;
-    namespace "http://github.com/Azure/sonic-peer-switch";
+    namespace "http://github.com/sonic-net/sonic-peer-switch";
     prefix peer_switch;
 
     import ietf-inet-types {

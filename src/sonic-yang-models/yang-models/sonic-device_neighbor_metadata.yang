@@ -2,7 +2,7 @@ module sonic-device_neighbor_metadata {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-device_neighbor_metadata";
+    namespace "http://github.com/sonic-net/sonic-device_neighbor_metadata";
     prefix device_neighbor_metadata;
 
     import ietf-yang-types {

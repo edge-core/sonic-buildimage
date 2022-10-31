@@ -2,7 +2,7 @@ module sonic-restapi {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-restapi";
+    namespace "http://github.com/sonic-net/sonic-restapi";
     prefix restapi;
 
     import ietf-inet-types {

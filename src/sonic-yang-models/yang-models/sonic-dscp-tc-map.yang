@@ -2,7 +2,7 @@ module sonic-dscp-tc-map {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-dscp-tc-map";
+    namespace "http://github.com/sonic-net/sonic-dscp-tc-map";
 
     prefix dtm;
 

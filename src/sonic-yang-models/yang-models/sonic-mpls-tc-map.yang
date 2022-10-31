@@ -2,7 +2,7 @@ module sonic-mpls-tc-map {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-mpls-tc-map";
+    namespace "http://github.com/sonic-net/sonic-mpls-tc-map";
 
     prefix mpls_tc_map;
 

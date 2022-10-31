@@ -2,7 +2,7 @@ module sonic-portchannel {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-portchannel";
+    namespace "http://github.com/sonic-net/sonic-portchannel";
     prefix lag;
 
     import sonic-types {

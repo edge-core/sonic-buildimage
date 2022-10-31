@@ -1,5 +1,5 @@
 module sonic-buffer-pool {
-    namespace "http://github.com/Azure/sonic-buffer-pool";
+    namespace "http://github.com/sonic-net/sonic-buffer-pool";
     prefix bpl;
 
     organization

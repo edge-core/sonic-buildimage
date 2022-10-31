@@ -2,7 +2,7 @@ module sonic-mgmt_port {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-mgmt_port";
+    namespace "http://github.com/sonic-net/sonic-mgmt_port";
     prefix mgmtprt;
 
     import sonic-types {

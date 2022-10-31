@@ -2,7 +2,7 @@ module sonic-vlan-sub-interface {
 
     yang-version 1.1;
 
-    namespace  "http://github.com/Azure/sonic-vlan-sub-interface";
+    namespace  "http://github.com/sonic-net/sonic-vlan-sub-interface";
 
     prefix vlan-sub-interface;
 

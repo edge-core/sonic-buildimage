@@ -2,7 +2,7 @@ module sonic-interface {
 
 	yang-version 1.1;
 
-	namespace "http://github.com/Azure/sonic-interface";
+	namespace "http://github.com/sonic-net/sonic-interface";
 	prefix intf;
 
 	import sonic-types {

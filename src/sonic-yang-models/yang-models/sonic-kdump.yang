@@ -1,5 +1,5 @@
 module sonic-kdump {
-    namespace "http://github.com/Azure/sonic-kdump";
+    namespace "http://github.com/sonic-net/sonic-kdump";
     prefix kdump;
     yang-version 1.1;
 

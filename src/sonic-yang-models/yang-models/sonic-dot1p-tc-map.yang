@@ -2,7 +2,7 @@ module sonic-dot1p-tc-map {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-dot1p-tc-map";
+    namespace "http://github.com/sonic-net/sonic-dot1p-tc-map";
 
     prefix dot1ptm;
 

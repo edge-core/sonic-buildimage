@@ -2,7 +2,7 @@ module sonic-lossless-traffic-pattern {
 
     yang-version 1.1;
 
-    namespace  "http://github.com/Azure/sonic-lossless-traffic-pattern";
+    namespace  "http://github.com/sonic-net/sonic-lossless-traffic-pattern";
 
     prefix lossless-traffic-pattern;
 

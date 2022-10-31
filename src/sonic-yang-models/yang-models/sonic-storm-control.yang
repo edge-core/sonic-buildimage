@@ -1,5 +1,5 @@
 module sonic-storm-control {
-    namespace "http://github.com/Azure/sonic-storm-control";
+    namespace "http://github.com/sonic-net/sonic-storm-control";
     yang-version "1";
 
     prefix ssc;

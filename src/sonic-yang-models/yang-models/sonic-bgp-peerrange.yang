@@ -1,5 +1,5 @@
 module sonic-bgp-peerrange {
-    namespace "http://github.com/Azure/sonic-bgp-peerrange";
+    namespace "http://github.com/sonic-net/sonic-bgp-peerrange";
     prefix pr;
     yang-version 1.1;
 

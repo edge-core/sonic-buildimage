@@ -1,6 +1,6 @@
 module sonic-sflow{
 
-    namespace "http://github.com/Azure/sonic-sflow";
+    namespace "http://github.com/sonic-net/sonic-sflow";
     prefix sflow;
     yang-version 1.1;
 

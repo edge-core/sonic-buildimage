@@ -2,7 +2,7 @@ module sonic-queue {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-queue";
+    namespace "http://github.com/sonic-net/sonic-queue";
 
     prefix squeue;
 

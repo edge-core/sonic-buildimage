@@ -1,5 +1,5 @@
 module sonic-buffer-pg {
-    namespace "http://github.com/Azure/sonic-buffer-pg";
+    namespace "http://github.com/sonic-net/sonic-buffer-pg";
     prefix bpg;
 
     yang-version 1.1;

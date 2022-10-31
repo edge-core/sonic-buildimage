@@ -1,6 +1,6 @@
 module sonic-dhcpv6-relay {
 
-	namespace "http://github.com/Azure/sonic-dhcpv6-relay";
+	namespace "http://github.com/sonic-net/sonic-dhcpv6-relay";
 
 	prefix sdhcpv6relay;
 

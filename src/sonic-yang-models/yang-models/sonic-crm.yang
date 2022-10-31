@@ -2,7 +2,7 @@ module sonic-crm {
 
     yang-version 1.1;
 
-    namespace "http://github.com/Azure/sonic-crm";
+    namespace "http://github.com/sonic-net/sonic-crm";
     prefix crm;
 
     import sonic-types {
