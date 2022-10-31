@@ -1,7 +1,6 @@
 import json
 import subprocess
 import os
-
 from unittest import TestCase
 
 output1="""\
@@ -126,8 +125,8 @@ class TestCfgHelp(TestCase):
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfg-help')
 
     def run_script(self, argument):
-        print('\n    Running sonic-cfg-help ' + argument)
-        output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+        print('\n    Running sonic-cfg-help ' + ' '.join(argument))
+        output = subprocess.check_output([self.script_file] + argument)
 
         output = output.decode()
 
@@ -139,32 +138,32 @@ class TestCfgHelp(TestCase):
         return output
 
     def test_dummy_run(self):
-        argument = ''
+        argument = []
         output = self.run_script(argument)
         self.assertEqual(output, output1)
 
     def test_single_table(self):
-        argument = '-t AUTO_TECHSUPPORT'
+        argument = ['-t', 'AUTO_TECHSUPPORT']
         output = self.run_script(argument)
         self.assertEqual(output, techsupport_table_output)
 
     def test_single_field(self):
-        argument = '-t AUTO_TECHSUPPORT -f state'
+        argument = ['-t', 'AUTO_TECHSUPPORT', '-f', 'state']
         output = self.run_script(argument)
         self.assertEqual(output, techsupport_table_field_output)
 
     def test_leaf_list(self):
-        argument = '-t PORTCHANNEL -f members'
+        argument = ['-t', 'PORTCHANNEL', '-f', 'members']
         output = self.run_script(argument)
         self.assertEqual(output, portchannel_table_field_output)
 
     def test_leaf_list_map(self):
-        argument = '-t DSCP_TO_TC_MAP'
+        argument = ['-t', 'DSCP_TO_TC_MAP']
         output = self.run_script(argument)
         self.maxDiff = None
         self.assertEqual(output, dscp_to_tc_table_field_output)
 
     def test_when_condition(self):
-        argument = '-t ACL_RULE -f ICMP_TYPE'
+        argument = ['-t', 'ACL_RULE', '-f', 'ICMP_TYPE']
         output = self.run_script(argument)
         self.assertEqual(output, acl_rule_table_field_output)
