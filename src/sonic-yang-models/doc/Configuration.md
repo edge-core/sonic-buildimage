@@ -58,6 +58,7 @@ Table of Contents
          * [VOQ Inband Interface](#voq-inband-interface) 
          * [VXLAN](#vxlan)   
          * [Virtual router](#virtual-router)  
+         * [LOGGER](#logger)           
          * [WRED_PROFILE](#wred_profile)  
          * [PASSWORD_HARDENING](#password_hardening)  
          * [SYSTEM_DEFAULTS table](#systemdefaults-table)
@@ -1705,6 +1706,34 @@ The packet action could be:
   }
 }
 ```
+
+### Logger
+
+In this table, the loglevel and logoutput of the components are defined. Each component
+will have the component name as its key; and LOGLEVEL and LOGOUTPUT as attributes.
+The LOGLEVEL attribute will define the verbosity of the component.
+The LOGOUTPUT attribute will define the file of printing the logs.
+
+```
+{
+    "LOGGER": {
+        "orchagent": {
+                "LOGLEVEL": "NOTICE",
+                "LOGOUTPUT": "SYSLOG"
+            },
+            "syncd": {
+                "LOGLEVEL": "DEBUG",
+                "LOGOUTPUT": "STDOUT"
+            },
+            "SAI_API_LAG": {
+                "LOGLEVEL": "ERROR",
+                "LOGOUTPUT": "STDERR"
+            }
+    }
+}
+
+```
+
 ### PASSWORD_HARDENING
 
 Password Hardening, a user password is the key credential used in order to verify the user accessing the switch and acts as the first line of defense in regards to securing the switch. PASSWORD_HARDENING - support the enforce strong policies.

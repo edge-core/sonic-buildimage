@@ -837,6 +837,20 @@
                 "tpid": "0x8100"
             }
         },
+        "LOGGER": {
+            "orchagent": {
+                "LOGLEVEL": "NOTICE",
+                "LOGOUTPUT": "SYSLOG"
+            },
+            "syncd": {
+                "LOGLEVEL": "NOTICE",
+                "LOGOUTPUT": "SYSLOG"
+            },
+            "SAI_API_LAG": {
+                "LOGLEVEL": "SAI_LOG_LEVEL_NOTICE",
+                "LOGOUTPUT": "SYSLOG"
+            }
+        },
         "ACL_TABLE": {
             "V4-ACL-TABLE": {
                 "type": "L3",
