@@ -415,6 +415,26 @@ class SFP(SfpBase):
             # in this case we treat it as the default type according to the SKU
             self.sfp_type = sfp_type
 
+    def _is_qsfp_copper(self):
+        # This function read the specification compliance byte and
+        # ext specification compliance byte to judge whether the cable is copper or not.
+        # It is only designed for SFF 8636 cables, SFF 8472 and CMIS cables don't apply.
+
+        # copper cables defined in SFF8024 "Extended Specification Compliance Codes"
+        copper_ext_specification_list = ['08', '0b', '0c', '0d', '19', '30', '32', '40']
+
+        offset = PAGE00_HIGH_MEMORY_OFFSET
+        qsfp_specification_raw = self._read_eeprom_specific_bytes(offset + XCVR_COMPLIANCE_CODE_OFFSET, 1)
+        qsfp_specification = int(qsfp_specification_raw[0], 16)
+        # The 4th bit of the specification complaince byte(131) indicate a 40GBASE-CR4 copper cable
+        if qsfp_specification & 0x8:
+            return True
+
+        qsfp_ext_specification_raw = self._read_eeprom_specific_bytes(offset + XCVR_EXT_SPECIFICATION_COMPLIANCE_OFFSET, XCVR_EXT_SPECIFICATION_COMPLIANCE_WIDTH)
+        if qsfp_ext_specification_raw[0] in copper_ext_specification_list:
+            return True
+
+        return False
 
     def _dom_capability_detect(self):
         if not self.get_presence():
@@ -428,6 +448,16 @@ class SFP(SfpBase):
             return
 
         if self.sfp_type == QSFP_TYPE:
+            if self._is_qsfp_copper():
+                self.dom_supported = False
+                self.dom_temp_supported = False
+                self.dom_volt_supported = False
+                self.dom_rx_power_supported = False
+                self.dom_tx_power_supported = False
+                self.calibration = 0
+                self.qsfp_page3_available = False
+                return
+
             self.calibration = 1
             sfpi_obj = sff8436InterfaceId()
             if sfpi_obj is None:
@@ -482,11 +512,11 @@ class SFP(SfpBase):
             # two types of QSFP-DD cable types supported: Copper and Optical.
             qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET_QSFP_DD), XCVR_DOM_CAPABILITY_WIDTH_QSFP_DD)
             if qsfp_dom_capability_raw is not None:
-                self.dom_temp_supported = True
-                self.dom_volt_supported = True
                 dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
                 if dom_capability['data']['Flat_MEM']['value'] == 'Off':
                     self.dom_supported = True
+                    self.dom_temp_supported = True
+                    self.dom_volt_supported = True
                     self.second_application_list = True
                     self.dom_rx_power_supported = True
                     self.dom_tx_power_supported = True
@@ -495,6 +525,8 @@ class SFP(SfpBase):
                     self.dom_rx_tx_power_bias_supported = True
                 else:
                     self.dom_supported = False
+                    self.dom_temp_supported = False
+                    self.dom_volt_supported = False
                     self.second_application_list = False
                     self.dom_rx_power_supported = False
                     self.dom_tx_power_supported = False
