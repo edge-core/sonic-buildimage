@@ -63,7 +63,7 @@ pytz==2019.1
 pyxdg==0.25
 pyyaml==5.4.1
 redis==4.3.4
-regex==2022.9.13
+regex==2022.10.31
 requests==2.21.0
 roman==2.0.0
 secretstorage==2.3.1
@@ -75,4 +75,4 @@ unattended-upgrades==0.1
 unidiff==0.5.4
 urllib3==1.24.1
 wrapt==1.14.1
-zipp==3.9.0
+zipp==3.10.0

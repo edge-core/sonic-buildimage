@@ -9,7 +9,7 @@ charset-normalizer==2.1.1
 click==7.0
 click-log==0.4.0
 colorful==0.5.4
-cryptography==38.0.2
+cryptography==38.0.1
 dbus-python==1.3.2
 docker==5.0.3
 docker-image-py==0.1.12
@@ -32,9 +32,9 @@ netaddr==0.8.0
 netifaces==0.11.0
 pathtools==0.1.2
 pexpect==4.8.0
-prefixed==0.3.2
+prefixed==0.4.0
 prettyprinter==0.18.0
-psutil==5.9.2
+psutil==5.9.3
 ptyprocess==0.7.0
 pyang==2.5.3
 pyangbind==0.8.1
@@ -46,7 +46,7 @@ pyroute2==0.5.19
 python-dateutil==2.8.2
 pyyaml==5.4.1
 redis==3.5.3
-regex==2022.9.13
+regex==2022.10.31
 requests==2.28.1
 scapy==2.4.4
 semantic-version==2.10.0
