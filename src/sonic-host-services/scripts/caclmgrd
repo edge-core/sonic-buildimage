@@ -157,22 +157,26 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
             self.config_db_map[front_asic_namespace] = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=front_asic_namespace)
             self.config_db_map[front_asic_namespace].connect()
-            self.iptables_cmd_ns_prefix[front_asic_namespace] = "ip netns exec " + front_asic_namespace + " "
-            self.namespace_docker_mgmt_ip[front_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[front_asic_namespace],
-                                                                                              front_asic_namespace)
-            self.namespace_docker_mgmt_ipv6[front_asic_namespace] = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[front_asic_namespace],
-                                                                                              front_asic_namespace)
+            self.update_docker_mgmt_ip_acl(front_asic_namespace)
 
         for back_asic_namespace in namespaces['back_ns']:
             self.update_thread[back_asic_namespace] = None
             self.lock[back_asic_namespace] = threading.Lock()
             self.num_changes[back_asic_namespace] = 0
+            self.update_docker_mgmt_ip_acl(back_asic_namespace)
+       
+        for fabric_asic_namespace in namespaces['fabric_ns']:
+            self.update_thread[fabric_asic_namespace] = None
+            self.lock[fabric_asic_namespace] = threading.Lock()
+            self.num_changes[fabric_asic_namespace] = 0
+            self.update_docker_mgmt_ip_acl(fabric_asic_namespace)
 
-            self.iptables_cmd_ns_prefix[back_asic_namespace] = "ip netns exec " + back_asic_namespace + " "
-            self.namespace_docker_mgmt_ip[back_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[back_asic_namespace],
-                                                                                             back_asic_namespace)
-            self.namespace_docker_mgmt_ipv6[back_asic_namespace] = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[back_asic_namespace],
-                                                                                             back_asic_namespace)
+    def update_docker_mgmt_ip_acl(self, namespace):
+            self.iptables_cmd_ns_prefix[namespace] = "ip netns exec " + namespace + " "
+            self.namespace_docker_mgmt_ip[namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[namespace],
+                                                                                             namespace)
+            self.namespace_docker_mgmt_ipv6[namespace] = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[namespace],
+                                                                                             namespace)
 
     def get_namespace_mgmt_ip(self, iptable_ns_cmd_prefix, namespace):
         ip_address_get_command = iptable_ns_cmd_prefix + "ip -4 -o addr show " + ("eth0" if namespace else "docker0") +\
