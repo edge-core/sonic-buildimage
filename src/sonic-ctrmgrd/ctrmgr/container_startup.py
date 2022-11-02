@@ -229,14 +229,14 @@ def container_up(feature, owner, version):
             do_freeze(feature, "This version is marked disabled. Exiting ...")
             return
 
-        if not instance_higher(feature, state_data[VERSION], version):
-            # TODO: May Remove label <feature_name>_<version>_enabled
-            # Else kubelet will continue to re-deploy every 5 mins, until
-            # master removes the lable to un-deploy.
-            #
-            do_freeze(feature, "bail out as current deploy version {} is not higher".
-                    format(version))
-            return
+        # if not instance_higher(feature, state_data[VERSION], version):
+        #     # TODO: May Remove label <feature_name>_<version>_enabled
+        #     # Else kubelet will continue to re-deploy every 5 mins, until
+        #     # master removes the lable to un-deploy.
+        #     #
+        #     do_freeze(feature, "bail out as current deploy version {} is not higher".
+        #             format(version))
+        #     return
 
         update_data(state_db, feature, { VERSION: version })
 

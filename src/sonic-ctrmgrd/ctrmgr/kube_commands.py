@@ -84,7 +84,7 @@ def _run_command(cmd, timeout=5):
 
 def kube_read_labels():
     """ Read current labels on node and return as dict. """
-    KUBECTL_GET_CMD = "kubectl --kubeconfig {} get nodes {} --show-labels |tr -s ' ' | cut -f6 -d' '"
+    KUBECTL_GET_CMD = "kubectl --kubeconfig {} get nodes {} --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '"
 
     labels = {}
     ret, out, _ = _run_command(KUBECTL_GET_CMD.format(
@@ -332,12 +332,12 @@ def _do_reset(pending_join = False):
 
 
 def _do_join(server, port, insecure):
-    KUBEADM_JOIN_CMD = "kubeadm join --discovery-file {} --node-name {} --apiserver-advertise-address {}"
+    KUBEADM_JOIN_CMD = "kubeadm join --discovery-file {} --node-name {}"
     err = ""
     out = ""
     ret = 0
     try:
-        local_ipv6 = _get_local_ipv6()
+        #local_ipv6 = _get_local_ipv6()
         #_download_file(server, port, insecure)
         _gen_cli_kubeconf(server, port, insecure)
         _do_reset(True)
@@ -349,7 +349,7 @@ def _do_join(server, port, insecure):
 
         if ret == 0:
             (ret, out, err) = _run_command(KUBEADM_JOIN_CMD.format(
-                KUBE_ADMIN_CONF, get_device_name(), local_ipv6), timeout=60)
+                KUBE_ADMIN_CONF, get_device_name()), timeout=60)
             log_debug("ret = {}".format(ret))
 
     except IOError as e:

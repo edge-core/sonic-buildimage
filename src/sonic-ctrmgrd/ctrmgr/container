@@ -30,6 +30,10 @@ STATE = "state"
 
 KUBE_LABEL_TABLE = "KUBE_LABELS"
 KUBE_LABEL_SET_KEY = "SET"
+SERVER_TABLE = "KUBERNETES_MASTER"
+SERVER_KEY = "SERVER"
+ST_SER_CONNECTED = "connected"
+ST_SER_UPDATE_TS = "update_time"
 
 # Get seconds to wait for remote docker to start.
 # If not, revert to local
@@ -75,8 +79,10 @@ def read_data(is_config, feature, fields):
     ret = []
 
     db = cfg_db if is_config else state_db
-
-    tbl = swsscommon.Table(db, FEATURE_TABLE)
+    if feature == SERVER_KEY:
+        tbl = swsscommon.Table(db, SERVER_TABLE)
+    else:
+        tbl = swsscommon.Table(db, FEATURE_TABLE)
 
     data = dict(tbl.get(feature)[1])
     for (field, default) in fields:
@@ -102,6 +108,13 @@ def read_state(feature):
 
     return read_data(False, feature,
             [(CURRENT_OWNER, "none"), (REMOTE_STATE, "none"), (CONTAINER_ID, "")])
+
+
+def read_server_state():
+    """ Read requried feature state """
+
+    return read_data(False, SERVER_KEY,
+            [(ST_SER_CONNECTED, "false"), (ST_SER_UPDATE_TS, "")])
 
 
 def docker_action(action, feature, **kwargs):
@@ -192,9 +205,10 @@ def container_start(feature, **kwargs):
 
     set_owner, fallback, _ = read_config(feature)
     _, remote_state, _ = read_state(feature)
+    server_connected, _ = read_server_state()
 
-    debug_msg("{}: set_owner:{} fallback:{} remote_state:{}".format(
-        feature, set_owner, fallback, remote_state))
+    debug_msg("{}: set_owner:{} fallback:{} remote_state:{} server_connected:{}".format(
+        feature, set_owner, fallback, remote_state, server_connected))
 
     data = {
             SYSTEM_STATE: "up",
@@ -207,8 +221,9 @@ def container_start(feature, **kwargs):
         start_val = START_LOCAL
     else:
         start_val = START_KUBE
-        if fallback and (remote_state == "none"):
+        if fallback and (remote_state == "none" or server_connected == "false"):
             start_val |= START_LOCAL
+            data[REMOTE_STATE] = "none"
 
     if start_val == START_LOCAL:
         # Implies *only* local.

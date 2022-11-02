@@ -106,7 +106,7 @@ server_test_data = {
             common_test.KUBE_JOIN: {
                 "ip": "10.10.10.10",
                 "port": "6443",
-                "insecure": "false"
+                "insecure": "true"
             }
         }
     },
@@ -151,7 +151,7 @@ server_test_data = {
             common_test.KUBE_JOIN: {
                 "ip": "10.10.10.10",
                 "port": "6443",
-                "insecure": "false"
+                "insecure": "true"
             },
             common_test.KUBE_RESET: {
                 "flag": "true"
@@ -272,6 +272,51 @@ feature_test_data = {
                 common_test.FEATURE_TABLE: {
                     "snmp": {
                         "current_owner": "any"
+                    }
+                }
+            }
+        }
+    },
+    3: {
+        common_test.DESCR: "Tag image latest when remote_state changes to running",
+        common_test.ARGS: "ctrmgrd",
+        common_test.PRE: {
+            common_test.CONFIG_DB_NO: {
+                common_test.FEATURE_TABLE: {
+                    "snmp": {
+                        "set_owner": "kube"
+                    }
+                }
+            },
+            common_test.STATE_DB_NO: {
+                common_test.FEATURE_TABLE: {
+                    "snmp": {
+                        "remote_state": "pending"
+                    }
+                }
+            }
+        },
+        common_test.UPD: {
+            common_test.CONFIG_DB_NO: {
+                common_test.FEATURE_TABLE: {
+                    "snmp": {
+                        "set_owner": "kube"
+                    }
+                }
+            },
+            common_test.STATE_DB_NO: {
+                common_test.FEATURE_TABLE: {
+                    "snmp": {
+                        "remote_state": "running"
+                    }
+                }
+            }
+        },
+        common_test.POST: {
+            common_test.STATE_DB_NO: {
+                common_test.FEATURE_TABLE: {
+                    "snmp": {
+                        "tag_latest": "true"
                     }
                 }
             }
