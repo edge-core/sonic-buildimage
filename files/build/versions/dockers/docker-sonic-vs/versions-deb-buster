@@ -87,7 +87,7 @@ libpython2.7-dev==2.7.16-2+deb10u1
 libpython2.7-minimal==2.7.16-2+deb10u1
 libpython2.7-stdlib==2.7.16-2+deb10u1
 libpython3-dev==3.7.3-1
-libpython3.7-dev==3.7.3-2+deb10u3
+libpython3.7-dev==3.7.3-2+deb10u4
 libqt5core5a==5.11.3+dfsg1-1+deb10u5
 libqt5dbus5==5.11.3+dfsg1-1+deb10u5
 libqt5network5==5.11.3+dfsg1-1+deb10u5
@@ -133,7 +133,7 @@ python2.7-dev==2.7.16-2+deb10u1
 python2.7-minimal==2.7.16-2+deb10u1
 python3-dev==3.7.3-1
 python3-yang==1.0.73
-python3.7-dev==3.7.3-2+deb10u3
+python3.7-dev==3.7.3-2+deb10u4
 redis-server==5:6.0.6-1~bpo10+1
 sensible-utils==0.0.12
 sonic-device-data==1.0-1
