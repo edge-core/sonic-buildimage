@@ -134,8 +134,8 @@ libefiboot1==37-6
 libefivar1==37-6
 libelf1==0.183-1
 libestr0==0.1.10-2.1+b1
-libexpat1==2.2.10-2+deb11u4
-libexpat1-dev==2.2.10-2+deb11u4
+libexpat1==2.2.10-2+deb11u5
+libexpat1-dev==2.2.10-2+deb11u5
 libfastjson4==0.99.9-1
 libfdisk1==2.36.1-8+deb11u1
 libfdt1==1.6.0-1
