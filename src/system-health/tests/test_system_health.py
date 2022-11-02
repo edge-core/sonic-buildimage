@@ -504,10 +504,10 @@ def test_manager(mock_hw_info, mock_service_info, mock_udc_info):
     manager._set_system_led(chassis, manager.config, 'normal')
 
 def test_utils():
-    output = utils.run_command('some invalid command')
+    output = utils.run_command(['some', 'invalid', 'command'])
     assert not output
 
-    output = utils.run_command('ls')
+    output = utils.run_command(['ls'])
     assert output
 
 
