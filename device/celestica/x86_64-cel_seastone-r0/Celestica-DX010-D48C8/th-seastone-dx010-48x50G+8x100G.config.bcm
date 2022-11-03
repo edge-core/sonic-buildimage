@@ -6,6 +6,9 @@ phy_ext_rom_boot=0
 fpem_mem_entries=32768 
 l2xmsg_mode=1 
 oversubscribe_mode=1 
+l3_alpm_enable=2
+lpm_scaling_enable=0
+ipv6_lpm_128b_enable=1
 pbmp_xport_xe=0xcccc44cc33113333044cccccc66666622
 
 
