@@ -13,11 +13,13 @@ class DeviceGlobalCfgMgr(Manager):
         :param db: name of the db
         :param table: name of the table in the db
         """
+        self.switch_type = ""
         self.directory = common_objs['directory']
         self.cfg_mgr = common_objs['cfg_mgr']
         self.constants = common_objs['constants']
         self.tsa_template = common_objs['tf'].from_file("bgpd/tsa/bgpd.tsa.isolate.conf.j2")
         self.tsb_template = common_objs['tf'].from_file("bgpd/tsa/bgpd.tsa.unisolate.conf.j2")
+        self.directory.subscribe([("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost/switch_type"),], self.on_switch_type_change)
         super(DeviceGlobalCfgMgr, self).__init__(
             common_objs,
             [],
@@ -25,8 +27,16 @@ class DeviceGlobalCfgMgr(Manager):
             table,
         )
 
+    def on_switch_type_change(self):
+        log_debug("DeviceGlobalCfgMgr:: Switch type update handler")
+        if self.directory.path_exist("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost/switch_type"):
+            self.switch_type = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)["localhost"]["switch_type"]
+        log_debug("DeviceGlobalCfgMgr:: Switch type: %s" % self.switch_type)
+
     def set_handler(self, key, data):
         log_debug("DeviceGlobalCfgMgr:: set handler")
+        if self.switch_type:
+            log_debug("DeviceGlobalCfgMgr:: Switch type: %s" % self.switch_type)
         """ Handle device tsa_enabled state change """
         if not data:
             log_err("DeviceGlobalCfgMgr:: data is None")
@@ -78,7 +88,9 @@ class DeviceGlobalCfgMgr(Manager):
     def __generate_routemaps_from_template(self, route_map_names, template):
         cmd = "\n"
         for rm in sorted(route_map_names):
-            if "_INTERNAL_" in rm:
+            # For packet-based chassis, the bgp session between the linecards are also considered internal sessions 
+            # While isolating a single linecard, these sessions should not be skipped
+            if "_INTERNAL_" in rm and self.switch_type != "chassis-packet":
                 continue            
             if "V4" in rm:
                 ipv="V4" ; ipp="ip"
