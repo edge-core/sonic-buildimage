@@ -86,6 +86,7 @@ struct cpld_wdt_private {
 	struct platform_device *pdev;
         struct watchdog_device wddev;
 	struct cdev cdev;
+		struct miscdevice mdev;
         bool suspended;
 	struct wdt_data wdat;	
 };
@@ -100,7 +101,7 @@ MODULE_PARM_DESC(timeout, "Start watchdog timer on module load with"
 	" Zero (default) disables this feature.");
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
-module_param(nowayout, bool, 0444);
+module_param(nowayout, bool, 0644);
 MODULE_PARM_DESC(nowayout, "Disable watchdog shutdown on close");
 
 static unsigned int watchdog_get_timeleft(struct cpld_wdt_private *wdt)
@@ -114,7 +115,7 @@ static unsigned int watchdog_get_timeleft(struct cpld_wdt_private *wdt)
 	time = time << 8 | inb(WDT_TIMER_L_BIT_REG);
 	time = time/1000;
 	mutex_unlock(&wdt->wdat.lock);
-	//pr_crit("Watchdog Get Timeleft:%u\n", time);
+
 	return time;
 }
 static int watchdog_get_timeout(struct cpld_wdt_private *wdt)
@@ -175,7 +176,7 @@ static int watchdog_ping(struct cpld_wdt_private *wdt)
 	outb(WDT_START_FEED, WDT_FEED_REG);
 	/* stop feed watchdog */
 	outb(WDT_STOP_FEED, WDT_FEED_REG);
-	//pr_crit("Watchdog Ping\n");	
+		
 	mutex_unlock(&wdt->wdat.lock);
 
 	return 0;
@@ -198,7 +199,7 @@ static void watchdog_keepalive(struct cpld_wdt_private *wdt)
         val &= 0x1;
         /* start feed watchdog */
         outb(val, WDT_FEED_REG);
-        //pr_crit("Watchdog Keepalive\n");	
+        	
 	mutex_unlock(&wdt->wdat.lock);
 	return;
 }
@@ -214,7 +215,7 @@ static int watchdog_start(struct cpld_wdt_private *wdt)
 	outb(WDT_ENABLE, WDT_ENABLE_REG);
 	outb(WDT_RESTART, WDT_PUNCH_REG);
 	mutex_unlock(&wdt->wdat.lock);
-        //pr_crit("Watchdog Start:Enable and PUNCH\n");
+       
 	return 0;
 }
 
@@ -226,7 +227,7 @@ static int watchdog_stop(struct cpld_wdt_private *wdt)
 	mutex_lock(&wdt->wdat.lock);
 	outb(WDT_DISABLE, WDT_ENABLE_REG);
 	mutex_unlock(&wdt->wdat.lock);
-        //pr_crit("Watchdog Stop\n");
+        
 	return 0;
 }
 
@@ -370,7 +371,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
 {
 	struct cpld_wdt_private *wdt;
 
-	wdt = container_of(inode->i_cdev, struct cpld_wdt_private, cdev);	
+		wdt = container_of(file->private_data, struct cpld_wdt_private, mdev);
 
 	/* If the watchdog is alive we don't need to start it again */
 
@@ -384,14 +385,14 @@ static int watchdog_open(struct inode *inode, struct file *file)
 
 	wdt->wdat.expect_close = 0;
 
-	file->private_data = wdt;
+	
 	return nonseekable_open(inode, file);
 }
 
 static int watchdog_release(struct inode *inode, struct file *file)
 {
 	struct cpld_wdt_private *p;
-	p = (struct cpld_wdt_private *)file->private_data; 
+		p = container_of(file->private_data, struct cpld_wdt_private, mdev);
 
 	if(!p)
 	    return -EINVAL;
@@ -423,7 +424,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *buf,
 			    size_t count, loff_t *ppos)
 {
 	struct cpld_wdt_private *p;
-        p = (struct cpld_wdt_private *)file->private_data;
+		p = container_of(file->private_data, struct cpld_wdt_private, mdev);
 
         if(!p)
             return -EINVAL;
@@ -480,7 +481,7 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
 	uarg.i = (int __user *)arg;
 
 	struct cpld_wdt_private *p;
-        p = (struct cpld_wdt_private *)file->private_data;
+		p = container_of(file->private_data, struct cpld_wdt_private, mdev);
         if(!p)
             return -EINVAL;
 
@@ -627,8 +628,8 @@ static int cpld_wdt_probe(struct platform_device *pdev)
         err = register_reboot_notifier(&watchdog_notifier);
 	if (err)
 		return err;
-
-	err = misc_register(&watchdog_miscdev);
+		p->mdev = watchdog_miscdev;
+        err = misc_register(&p->mdev);
 	if (err) {
 		pr_err("cannot register miscdev on minor=%d\n",
 		       watchdog_miscdev.minor);
@@ -672,7 +673,7 @@ static int cpld_wdt_remove(struct platform_device *pdev)
     
     	sysfs_remove_group(&pdev->dev.kobj, &wdt_group);
 
-	misc_deregister(&watchdog_miscdev);
+        misc_deregister(&p->mdev);
 
 	unregister_reboot_notifier(&watchdog_notifier);
 
