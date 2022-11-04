@@ -53,7 +53,7 @@ steps:
               **/*.raw\n
               **/*.img.gz\n
               **/*-rpc.gz\n
-              **/python-saithrift*.deb"},
+              **/*.deb"},
       publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
         "dockerImagePatterns":"target/*-rpc.gz",
