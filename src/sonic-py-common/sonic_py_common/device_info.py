@@ -6,7 +6,7 @@ import subprocess
 
 import yaml
 from natsort import natsorted
-
+from sonic_py_common.general import getstatusoutput_noshell_pipe
 from swsscommon.swsscommon import ConfigDBConnector, SonicV2Connector
 
 USR_SHARE_SONIC_PATH = "/usr/share/sonic"
@@ -531,7 +531,27 @@ def _valid_mac_address(mac):
     return bool(re.match("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", mac))
 
 
+def run_command(cmd):
+    proc = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    return (out, err)
+
+
+def run_command_pipe(cmd0, cmd1, cmd2):
+    exitcodes, out = getstatusoutput_noshell_pipe(cmd0, cmd1, cmd2)
+    if exitcodes == [0, 0, 0]:
+        err = None
+    else:
+        err = out
+    return (out, err)
+
+
 def get_system_mac(namespace=None):
+    hw_mac_entry_outputs = []
+    syseeprom_cmd = ["sudo", "decode-syseeprom", "-m"]
+    iplink_cmd0 = ["ip", 'link', 'show', 'eth0']
+    iplink_cmd1 = ['grep', 'ether']
+    iplink_cmd2 = ['awk', '{print $2}']
     version_info = get_sonic_version_info()
 
     if (version_info['asic_type'] == 'mellanox'):
@@ -548,36 +568,51 @@ def get_system_mac(namespace=None):
             if _valid_mac_address(mac):
                 return mac
 
-        hw_mac_entry_cmds = [ "sudo decode-syseeprom -m" ]
+        (mac, err) = run_command(syseeprom_cmd)
+        hw_mac_entry_outputs.append((mac, err))
     elif (version_info['asic_type'] == 'marvell'):
         # Try valid mac in eeprom, else fetch it from eth0
         platform = get_platform()
         machine_key = "onie_machine"
         machine_vars = get_machine_info()
+        (mac, err) = run_command(syseeprom_cmd)
+        hw_mac_entry_outputs.append((mac, err))
         if machine_vars is not None and machine_key in machine_vars:
             hwsku = machine_vars[machine_key]
-            profile_cmd = 'cat ' + HOST_DEVICE_PATH + '/' + platform + '/' + hwsku + '/profile.ini | grep switchMacAddress | cut -f2 -d='
+            profile_cmd0 = ['cat', HOST_DEVICE_PATH + '/' + platform + '/' + hwsku + '/profile.ini']
+            profile_cmd1 = ['grep', 'switchMacAddress']
+            profile_cmd2 = ['cut', '-f2', '-d', '=']
+            (mac, err) = run_command_pipe(profile_cmd0, profile_cmd1, profile_cmd2)
         else:
-            profile_cmd = "false"
-        hw_mac_entry_cmds = ["sudo decode-syseeprom -m", profile_cmd, "ip link show eth0 | grep ether | awk '{print $2}'"]
+            profile_cmd = ["false"]
+            (mac, err) = run_command(profile_cmd)
+        hw_mac_entry_outputs.append((mac, err))
+        (mac, err) = run_command_pipe(iplink_cmd0, iplink_cmd1, iplink_cmd2)
+        hw_mac_entry_outputs.append((mac, err))
     elif (version_info['asic_type'] == 'cisco-8000'):
         # Try to get valid MAC from profile.ini first, else fetch it from syseeprom or eth0
         platform = get_platform()
         if namespace is not None:
-            profile_cmd = 'cat ' + HOST_DEVICE_PATH + '/' + platform + '/profile.ini | grep ' + namespace + 'switchMacAddress | cut -f2 -d='
+            profile_cmd0 = ['cat', HOST_DEVICE_PATH + '/' + platform + '/profile.ini']
+            profile_cmd1 = ['grep', str(namespace)+'switchMacAddress']
+            profile_cmd2 = ['cut', '-f2', '-d', '=']
+            (mac, err) = run_command_pipe(profile_cmd0, profile_cmd1, profile_cmd2)
         else:
-            profile_cmd = "false"
-        hw_mac_entry_cmds = [profile_cmd, "sudo decode-syseeprom -m", "ip link show eth0 | grep ether | awk '{print $2}'"]
+            profile_cmd = ["false"]
+            (mac, err) = run_command(profile_cmd)
+        hw_mac_entry_outputs.append((mac, err))
+        (mac, err) = run_command(syseeprom_cmd)
+        hw_mac_entry_outputs.append((mac, err))
+        (mac, err) = run_command_pipe(iplink_cmd0, iplink_cmd1, iplink_cmd2)
+        hw_mac_entry_outputs.append((mac, err))
     else:
-        mac_address_cmd = "cat /sys/class/net/eth0/address"
+        mac_address_cmd = ["cat", "/sys/class/net/eth0/address"]
         if namespace is not None:
-            mac_address_cmd = "sudo ip netns exec {} {}".format(namespace, mac_address_cmd)
+            mac_address_cmd = ['sudo', 'ip', 'netns', 'exec', str(namespace)] + mac_address_cmd
+        (mac, err) = run_command(mac_address_cmd)
+        hw_mac_entry_outputs.append((mac, err))
 
-        hw_mac_entry_cmds = [mac_address_cmd]
-
-    for get_mac_cmd in hw_mac_entry_cmds:
-        proc = subprocess.Popen(get_mac_cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (mac, err) = proc.communicate()
+    for (mac, err) in hw_mac_entry_outputs:
         if err:
             continue
         mac = mac.strip()
@@ -602,17 +637,14 @@ def get_system_routing_stack():
     Returns:
         A string containing the name of the routing stack in use on the device
     """
-    command = "sudo docker ps | grep bgp | awk '{print$2}' | cut -d'-' -f3 | cut -d':' -f1"
+    cmd0 = ['sudo', 'docker', 'ps']
+    cmd1 = ['grep', 'bgp']
+    cmd2 = ['awk', '{print$2}']
+    cmd3 = ['cut', '-d', '-', '-f3']
+    cmd4 = ['cut', '-d', ':', '-f1']
 
     try:
-        proc = subprocess.Popen(command,
-                                stdout=subprocess.PIPE,
-                                shell=True,
-                                universal_newlines=True,
-                                stderr=subprocess.STDOUT)
-        stdout = proc.communicate()[0]
-        proc.wait()
-        result = stdout.rstrip('\n')
+        _, result = getstatusoutput_noshell_pipe(cmd0, cmd1, cmd2, cmd3, cmd4)
     except OSError as e:
         raise OSError("Cannot detect routing stack")
 
@@ -644,8 +676,8 @@ def is_warm_restart_enabled(container_name):
 # Check if System fast reboot is enabled.
 def is_fast_reboot_enabled():
     fb_system_state = 0
-    cmd = 'sonic-db-cli STATE_DB get "FAST_REBOOT|system"'
-    proc = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
+    cmd = ['sonic-db-cli', 'STATE_DB', 'get', "FAST_REBOOT|system"]
+    proc = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
     (stdout, stderr) = proc.communicate()
 
     if proc.returncode != 0:
