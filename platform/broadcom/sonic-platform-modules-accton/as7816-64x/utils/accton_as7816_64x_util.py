@@ -32,7 +32,7 @@ import logging
 import re
 import time
 import os
-
+from sonic_py_common.general import getstatusoutput_noshell
 
 
 PROJECT_NAME = 'as7816_64x'
@@ -99,18 +99,17 @@ def show_help():
     print( __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]})
     sys.exit(0)
 
-   
 def dis_i2c_ir3570a(addr):
-    cmd = "i2cset -y 0 0x%x 0xE5 0x01" % addr
-    status, output = subprocess.getstatusoutput(cmd)
-    cmd = "i2cset -y 0 0x%x 0x12 0x02" % addr
-    status, output = subprocess.getstatusoutput(cmd)
+    cmd = ["i2cset", "-y", "0", "0x"+"%x"%addr, "0xE5", "0x01"]
+    status, output = getstatusoutput_noshell(cmd)
+    cmd = ["i2cset", "-y", "0", "0x"+"%x"%addr, "0x12", "0x02"]
+    status, output = getstatusoutput_noshell(cmd)
     return status
 
 def ir3570_check():
-    cmd = "i2cdump -y 0 0x42 s 0x9a"
+    cmd = ["i2cdump", "-y", "0", "0x42", "s", "0x9a"]
     try:
-        status, output = subprocess.getstatusoutput(cmd)
+        status, output = getstatusoutput_noshell(cmd)
         lines = output.split('\n')
         hn = re.findall(r'\w+', lines[-1])
         version = int(hn[1], 16)

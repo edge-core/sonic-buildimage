@@ -28,6 +28,7 @@ try:
     import logging.handlers
     import time
     from sonic_platform import platform
+    from sonic_py_common.general import getstatusoutput_noshell
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
@@ -209,10 +210,12 @@ class device_monitor(object):
             # Critical: Either all the fans are faulty or they are removed, shutdown the system
             logging.critical('Alarm for all fan faulty/absent is detected')
             logging.critical("Alarm for all fan faulty/absent is detected, reset DUT")
-            cmd_str = "i2cset -y -f 3 0x60 0x4 0xE4"
+            cmd_str = ["i2cset", "-y", "-f", "3", "0x60", "0x4", "0xE4"]
             time.sleep(2)
-            subprocess.getstatusoutput('sync; sync; sync')
-            subprocess.getstatusoutput(cmd_str)
+            getstatusoutput_noshell('sync')
+            getstatusoutput_noshell('sync')
+            getstatusoutput_noshell('sync')
+            getstatusoutput_noshell(cmd_str)
         elif sum(fan_fail_list) != 0:
             # Set the 100% speed only for first fan failure detection
             logging.warning('Fan_{} failed, set remaining fan speed to 100%'.format(
@@ -235,7 +238,7 @@ class device_monitor(object):
             as4630_54pe_set_fan_speed(new_duty_cycle)
             if test_temp == 1:
                 time.sleep(3)
-                status, output = subprocess.getstatusoutput('pddf_fanutil getspeed')
+                status, output = getstatusoutput_noshell(['pddf_fanutil', 'getspeed'])
                 logging.debug('\n%s\n', output)
 
         if temp[0] >= 70000:  # LM77-48
@@ -252,10 +255,12 @@ class device_monitor(object):
             if status:
                 logging.warning('Reboot cause file not updated. {}'.format(output))
 
-            cmd_str = "i2cset -y -f 3 0x60 0x4 0xE4"
-            subprocess.getstatusoutput('sync; sync; sync')
+            cmd_str = ["i2cset", "-y", "-f", "3", "0x60", "0x4", "0xE4"]
+            getstatusoutput_noshell('sync')
+            getstatusoutput_noshell('sync')
+            getstatusoutput_noshell('sync')
             time.sleep(3)
-            subprocess.getstatusoutput(cmd_str)
+            getstatusoutput_noshell(cmd_str)
 
         logging.debug('ori_state=%d, current_state=%d, temp_val=%d\n\n', ori_state, fan_policy_state, temp_val)
 

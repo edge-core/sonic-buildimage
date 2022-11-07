@@ -8,8 +8,8 @@
 #############################################################################
 
 try:
-    import subprocess
     from sonic_platform_base.component_base import ComponentBase
+    from sonic_py_common.general import getstatusoutput_noshell
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -67,8 +67,8 @@ class Component(ComponentBase):
         if self.name == "BIOS":
             fw_version = self.__get_bios_version()
         elif "CPLD" in self.name:
-            cmd = "i2cget -f -y {0} {1} 0x1".format(self.cpld_mapping[self.index][0], self.cpld_mapping[self.index][1])
-            status, value = subprocess.getstatusoutput(cmd)
+            cmd = ["i2cget", "-f", "-y", self.cpld_mapping[self.index][0], self.cpld_mapping[self.index][1], "0x1"]
+            status, value = getstatusoutput_noshell(cmd)
             if not status:
                 fw_version = value.rstrip()
 

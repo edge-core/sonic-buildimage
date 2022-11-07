@@ -6,8 +6,8 @@
 #
 #############################################################################
 
-import os
 import sys
+import subprocess
 
 try:
     from sonic_platform_base.chassis_base import ChassisBase
@@ -27,7 +27,7 @@ HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
 PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
 REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
-HOST_CHK_CMD = "which systemctl > /dev/null 2>&1"
+HOST_CHK_CMD = ["which", "systemctl"]
 SYSLED_FNODE= "/sys/class/leds/accton_as7326_56x_led::diag/brightness"
 SYSLED_MODES = {
     "0" : "STATUS_LED_COLOR_OFF",
@@ -93,7 +93,7 @@ class Chassis(ChassisBase):
         self._watchdog = Watchdog()
 
     def __is_host(self):
-        return os.system(HOST_CHK_CMD) == 0
+        return subprocess.call(HOST_CHK_CMD) == 0
 
     def __read_txt_file(self, file_path):
         try:
