@@ -31,6 +31,8 @@ SELECT_TIMEOUT_SECS = 1.0
 # Alerting message will be written into syslog in the following interval
 ALERTING_INTERVAL_SECS = 60
 
+EVENTS_PUBLISHER_SOURCE = "sonic-events-host"
+EVENTS_PUBLISHER_TAG = "process-exited-unexpectedly"
 
 def get_critical_group_and_process_list():
     """
@@ -106,6 +108,11 @@ def get_autorestart_state(container_name):
 
     return is_auto_restart
 
+def publish_events(events_handle, process_name, container_name):
+    params = swsscommon.FieldValueMap()
+    params["process_name"] = process_name
+    params["ctr_name"] = container_name
+    swsscommon.event_publish(events_handle, EVENTS_PUBLISHER_TAG, params)
 
 def main(argv):
     container_name = None
@@ -123,7 +130,7 @@ def main(argv):
     process_under_alerting = defaultdict(dict)
     # Transition from ACKNOWLEDGED to READY
     childutils.listener.ready()
-
+    events_handle = swsscommon.events_init_publisher(EVENTS_PUBLISHER_SOURCE)
     while True:
         file_descriptor_list = select.select([sys.stdin], [], [], SELECT_TIMEOUT_SECS)[0]
         if len(file_descriptor_list) > 0:
@@ -145,6 +152,8 @@ def main(argv):
                         MSG_FORMAT_STR = "Process '{}' exited unexpectedly. Terminating supervisor '{}'"
                         msg = MSG_FORMAT_STR.format(payload_headers['processname'], container_name)
                         syslog.syslog(syslog.LOG_INFO, msg)
+                        publish_events(events_handle, payload_headers['processname'], container_name)
+                        swsscommon.events_deinit_publisher(events_handle)
                         os.kill(os.getppid(), signal.SIGTERM)
                     else:
                         process_under_alerting[process_name]["last_alerted"] = time.time()
@@ -173,7 +182,6 @@ def main(argv):
                 process_under_alerting[process_name]["last_alerted"] = epoch_time
                 process_under_alerting[process_name]["dead_minutes"] += elapsed_mins
                 generate_alerting_message(process_name, process_under_alerting[process_name]["dead_minutes"])
-
 
 if __name__ == "__main__":
     main(sys.argv[1:])
