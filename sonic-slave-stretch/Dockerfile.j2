@@ -301,7 +301,14 @@ RUN apt-get update && apt-get install -y \
         xxd \
 # For DHCP Monitor tool
         libexplain-dev \
-        libevent-dev
+        libevent-dev \
+# For dhcp6relay
+        libboost-dev \
+        libboost-system-dev \
+        libboost-thread-dev \
+        libboost-atomic-dev \
+        libboost-chrono-dev \
+        libboost-date-time-dev
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing

@@ -83,3 +83,7 @@
 [submodule "src/sonic-ztp"]
 	path = src/sonic-ztp
 	url = https://github.com/sonic-net/sonic-ztp
+[submodule "src/dhcprelay"]
+	path = src/dhcprelay
+	url = https://github.com/sonic-net/sonic-dhcp-relay.git
+	branch = 201911

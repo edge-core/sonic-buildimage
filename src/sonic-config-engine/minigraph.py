@@ -355,6 +355,7 @@ def parse_dpg(dpg, hname):
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
         vlans = {}
         vlan_members = {}
+        dhcp_relay_table = {}
         intf_vlan_mbr = defaultdict(list)
         for vintf in vlanintfs.findall(str(QName(ns, "VlanInterface"))):
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
@@ -376,6 +377,7 @@ def parse_dpg(dpg, hname):
                     vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'untagged'}
 
             vlan_attributes = {'vlanid': vlanid, 'members': vmbr_list }
+            dhcp_attributes = {}
 
             # If this VLAN requires a DHCP relay agent, it will contain a <DhcpRelays> element
             # containing a list of DHCP server IPs
@@ -385,10 +387,18 @@ def parse_dpg(dpg, hname):
                 vdhcpserver_list = vintfdhcpservers.split(';')
                 vlan_attributes['dhcp_servers'] = vdhcpserver_list
 
+            vintf_node = vintf.find(str(QName(ns, "Dhcpv6Relays")))
+            if vintf_node is not None and vintf_node.text is not None:
+                vintfdhcpservers = vintf_node.text
+                vdhcpserver_list = vintfdhcpservers.split(';')
+                vlan_attributes['dhcpv6_servers'] = vdhcpserver_list
+                dhcp_attributes['dhcpv6_servers'] = vdhcpserver_list
+
             sonic_vlan_name = "Vlan%s" % vlanid
             if sonic_vlan_name != vintfname:
                 vlan_attributes['alias'] = vintfname
             vlans[sonic_vlan_name] = vlan_attributes
+            dhcp_relay_table[sonic_vlan_name] = dhcp_attributes
 
         acls = {}
         for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
@@ -490,7 +500,7 @@ def parse_dpg(dpg, hname):
                 except:
                     print >> sys.stderr, "Warning: Ignoring Control Plane ACL %s without type" % aclname
 
-        return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni
+        return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni
     return None, None, None, None, None, None, None, None, None, None
 
 def parse_host_loopback(dpg, hname):
@@ -606,6 +616,7 @@ def parse_cpg(cpg, hname, local_devices=[]):
 def parse_meta(meta, hname):
     syslog_servers = []
     dhcp_servers = []
+    dhcpv6_servers = []
     ntp_servers = []
     tacacs_servers = []
     mgmt_routes = []
@@ -648,7 +659,7 @@ def parse_meta(meta, hname):
                     qos_profile = value
                 elif name == "ResourceType":
                     resource_type = value
-    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type
+    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type
 
 
 def parse_linkmeta(meta, hname):
@@ -935,6 +946,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     console_ports = {}
     syslog_servers = []
     dhcp_servers = []
+    dhcpv6_servers = []
     ntp_servers = []
     tacacs_servers = []
     mgmt_routes = []
@@ -977,7 +989,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     for child in root:
         if asic_name is None:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
+                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
             elif child.tag == str(QName(ns, "PngDec")):
@@ -985,14 +997,14 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type) = parse_meta(child, hostname)
+                (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, downstream_subrole, qos_profile, resource_type) = parse_meta(child, hostname)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
                 (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
         else:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, asic_name)
+                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni) = parse_dpg(child, asic_name)
                 host_lo_intfs = parse_host_loopback(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name, local_devices)
@@ -1245,6 +1257,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
         results['DEVICE_NEIGHBOR_METADATA'] = { key:devices[key] for key in devices if key in {device['name'] for device in neighbors.values()} }
     results['SYSLOG_SERVER'] = dict((item, {}) for item in syslog_servers)
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
+    results['DHCPv6_SERVER'] = dict((item, {}) for item in dhcpv6_servers)
+    results['DHCP_RELAY'] = dhcp_relay_table
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
     results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
     results['ACL_TABLE'] = filter_acl_table_bindings(acls, neighbors, pcs, sub_role)

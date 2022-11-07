@@ -82,15 +82,49 @@ class TestCfgGenCaseInsensitive(TestCase):
     def test_minigraph_vlans(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
+        expected = {
+            'Vlan1000': {
+                'alias': 'ab1',
+                'dhcp_servers': [
+                    '192.0.0.1',
+                    '192.0.0.2'
+                    ],
+                'dhcpv6_servers': [
+                    'fc02:2000::1',
+                    'fc02:2000::2'
+                    ],
+                'vlanid': '1000',
+                'members': ['Ethernet8']
+                },
+            'Vlan2000': {
+                'alias': 'ab2',
+                'dhcp_servers': [
+                    '192.0.0.3',
+                    '192.0.0.4'],
+                'members': ['Ethernet4'],
+                'dhcpv6_servers': [
+                    'fc02:2000::3',
+                    'fc02:2000::4'],
+                'vlanid': '2000'
+                }
+            }
+
         self.assertEqual(
             utils.to_dict(output.strip()),
-            utils.to_dict("{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000', 'members': ['Ethernet8'] }}")
+            expected
         )
 
     def test_minigraph_vlan_members(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v VLAN_MEMBER'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{('Vlan1000', 'Ethernet8'): {'tagging_mode': 'untagged'}}")
+        expected = {
+                       'Vlan1000|Ethernet8': {'tagging_mode': 'untagged'},
+                       'Vlan2000|Ethernet4': {'tagging_mode': 'untagged'}
+                   }
+        self.assertEqual(
+                utils.to_dict(output.strip()),
+                expected
+        )
 
     def test_minigraph_vlan_interfaces(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()"'
@@ -190,3 +224,25 @@ class TestCfgGenCaseInsensitive(TestCase):
         self.assertEqual(len(mgmt_intf.keys()), 1)
         self.assertTrue(('eth0', 'FC00:1::32/64') in mgmt_intf.keys())
         self.assertTrue(ipaddress.IPAddress('fc00:1::1') == mgmt_intf[('eth0', 'FC00:1::32/64')]['gwaddr'])
+
+    def test_dhcp_table(self):
+            argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DHCP_RELAY"'
+            expected = {
+                'Vlan1000': {
+                    'dhcpv6_servers': [
+                        "fc02:2000::1",
+                        "fc02:2000::2"
+                    ]
+                },
+                'Vlan2000': {
+                    'dhcpv6_servers': [
+                        "fc02:2000::3",
+                        "fc02:2000::4"
+                    ]
+                }
+            }
+            output = self.run_script(argument)
+            self.assertEqual(
+                utils.to_dict(output.strip()),
+                expected
+            )
