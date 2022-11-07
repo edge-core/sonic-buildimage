@@ -1,0 +1,171 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          setup-board
+# Required-Start:    $portmap
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup SilverStone-x board.
+### END INIT INFO
+HAVE_BMC=0
+if [[ -e "/dev/ipmi0" || -e "/dev/ipmi/0" || -e "/dev/ipmidev/0" ]]; then
+    # if BMC exists, fan control strategy is owned by BMC and no need to implement here.
+    HAVE_BMC=1
+fi
+
+case "$1" in
+start)
+        echo -n "Setting up board... "
+
+        modprobe i2c-dev
+        modprobe i2c-i801
+        modprobe ipmi_devintf
+        modprobe fpga_device
+        modprobe fpga_system
+        modprobe i2c_switchcpld
+        modprobe fpga_i2c_ocores
+        modprobe fpga_xcvr
+        modprobe lpc_basecpld
+        modprobe mc24lc64t
+        modprobe optoe
+        if [ $HAVE_BMC -eq 0 ]; then
+            modprobe pmbus
+            modprobe pmbus_core
+            modprobe industrialio
+            modprobe lm75
+            modprobe platform_fan
+            modprobe platform_psu
+            modprobe ucd90120
+            modprobe ucd90160
+            modprobe mp2975
+            modprobe mcp3425_smbus
+            modprobe tps536c7
+
+            echo 24lc64t 0x50 > /sys/bus/i2c/devices/i2c-6/new_device
+            echo 24lc64t 0x50 > /sys/bus/i2c/devices/i2c-3/new_device
+            echo 24lc64t 0x57 > /sys/bus/i2c/devices/i2c-3/new_device
+            echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-7/new_device
+            echo 24c02 0x51 > /sys/bus/i2c/devices/i2c-7/new_device
+            
+            devname=`cat /sys/bus/i2c/devices/i2c-9/name`
+            if [[ $devname == 'fpga-xiic-i2c' ]]; then
+                echo platform_fan 0x0d > /sys/bus/i2c/devices/i2c-9/new_device
+                echo pca9548 0x77 > /sys/bus/i2c/devices/i2c-9/new_device
+            fi
+            devname=`cat /sys/bus/i2c/devices/i2c-7/name`
+            if [[ $devname == 'fpga-xiic-i2c' ]]; then
+                echo platform_psu 0x59 > /sys/bus/i2c/devices/i2c-7/new_device
+                echo platform_psu 0x58 > /sys/bus/i2c/devices/i2c-7/new_device
+            fi
+
+            devname=`cat /sys/bus/i2c/devices/i2c-4/name`
+            if [[ $devname == 'fpga-xiic-i2c' ]]; then
+                echo ucd90160 0x34 > /sys/bus/i2c/devices/i2c-4/new_device
+                echo ucd90120 0x35 > /sys/bus/i2c/devices/i2c-4/new_device
+                echo tps536c7 0x6c > /sys/bus/i2c/devices/i2c-4/new_device
+            fi
+
+            devname=`cat /sys/bus/i2c/devices/i2c-5/name`
+            if [[ $devname == 'fpga-xiic-i2c' ]]; then
+                echo mp2975 0x70 > /sys/bus/i2c/devices/i2c-5/new_device
+                echo mp2975 0x76 > /sys/bus/i2c/devices/i2c-5/new_device
+                echo mp2975 0x7b > /sys/bus/i2c/devices/i2c-5/new_device
+            fi
+
+            devname=`cat /sys/bus/i2c/devices/i2c-8/name`
+            if [[ $devname == 'fpga-xiic-i2c' ]]; then
+                echo mcp3425_smbus 0x68 > /sys/bus/i2c/devices/i2c-8/new_device
+                echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-8/new_device
+                echo lm75b 0x49 > /sys/bus/i2c/devices/i2c-8/new_device
+                echo lm75b 0x4a > /sys/bus/i2c/devices/i2c-8/new_device
+            fi
+
+            i=58
+            devname=`cat /sys/bus/i2c/devices/i2c-"$i"/name`
+            if [[ $devname == *'mux'* ]]; then
+                echo 24lc64t 0x50 > /sys/bus/i2c/devices/i2c-"$i"/new_device
+                echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-"$i"/new_device
+                echo lm75b 0x49 > /sys/bus/i2c/devices/i2c-"$i"/new_device
+            fi
+        fi
+
+        # Instantiate TLV EEPROM device on I801/ISMT bus
+        devname=`cat /sys/bus/i2c/devices/i2c-0/name`
+        if [[ $devname == 'SMBus'* ]]; then
+                echo 24lc64t 0x56 > /sys/bus/i2c/devices/i2c-0/new_device
+        fi
+        devname=`cat /sys/bus/i2c/devices/i2c-10/name`
+        if [[ $devname == 'fpga-xiic-i2c' ]]; then
+            echo switchboard 0x30 > /sys/bus/i2c/devices/i2c-10/new_device
+            echo switchboard 0x31 > /sys/bus/i2c/devices/i2c-10/new_device
+
+        fi
+
+        # bus 12~43 for 32 qsfp ports and 44 for sfp1 45 for sfp2
+        for i in {12..43}; do
+        devname=`cat /sys/bus/i2c/devices/i2c-"$i"/name`
+        if [[ $devname == *'mux'* ]]; then
+            echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"$i"/new_device
+            port=`expr $i - 11`
+            echo qsfp$port  > /sys/bus/i2c/devices/i2c-"$i"/"$i"-0050/port_name
+        fi
+        done
+        for i in {44..45}; do
+        devname=`cat /sys/bus/i2c/devices/i2c-"$i"/name`
+        if [[ $devname == *'mux'* ]]; then
+            echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-"$i"/new_device
+                port=`expr $i - 43`
+            echo sfp$port  > /sys/bus/i2c/devices/i2c-"$i"/"$i"-0050/port_name
+        fi
+        done
+
+        decode-syseeprom --init 2> /dev/null &
+
+        /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+
+        echo "done."
+        ;;
+
+stop)
+        rmmod optoe
+        rmmod mc24lc64t
+        rmmod lpc_basecpld
+        rmmod fpga_xcvr
+        rmmod i2c_switchcpld
+        rmmod fpga_system
+        rmmod fpga_i2c_ocores
+        rmmod fpga_device
+        rmmod ipmi_devintf
+        rmmod i2c-dev
+        if [ $HAVE_BMC -eq 0 ]; then
+            rmmod platform_fan
+            rmmod platform_psu
+            rmmod ucd90120
+            rmmod ucd90160
+            rmmod mp2975
+            rmmod mcp3425_smbus
+            rmmod tps536c7
+            rmmod lm75
+            rmmod pmbus
+            rmmod pmbus_core
+            rmmod industrialio
+        fi
+        rmmod i2c_mux_pca954x
+        rmmod i2c-i801
+        echo "done."
+        ;;
+
+force-reload|restart)
+        echo "Not supported"
+        ;;
+
+*)
+        echo "Usage: /etc/init.d/platform-modules-silverstone-x.init {start|stop}"
+        exit 1
+        ;;
+esac
+
+exit 0

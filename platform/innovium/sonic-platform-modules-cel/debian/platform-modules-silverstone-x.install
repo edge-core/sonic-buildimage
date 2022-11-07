@@ -1,0 +1,12 @@
+silverstone-x/scripts/sensors usr/bin
+silverstone-x/scripts/platform_sensors.py usr/local/bin
+silverstone-x/cfg/silverstone-x-modules.conf etc/modules-load.d
+silverstone-x/systemd/platform-modules-silverstone-x.service lib/systemd/system
+silverstone-x/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-cel_silverstone-x-r0
+silverstone-x/systemd/fancontrol/fancontrol-B2F                     usr/share/sonic/device/x86_64-cel_silverstone-x-r0
+silverstone-x/systemd/fancontrol/fancontrol-F2B                     usr/share/sonic/device/x86_64-cel_silverstone-x-r0 
+silverstone-x/systemd/fancontrol/fancontrol.sh          etc/init.d
+silverstone-x/systemd/fancontrol/fancontrol.service     lib/systemd/system
+silverstone-x/systemd/fancontrol/fancontrol  usr/local/bin
+services/platform_api/platform_api_mgnt.sh   usr/local/bin
+

@@ -36,7 +36,7 @@ THERMAL_INFO = [
     {'name': 'PSU2_Temp3', 'temp': 'na'},  # 12
     {'name': 'TEMP_SW_U52', 'temp': 'na'},  # 13
     {'name': 'TEMP_SW_U16', 'temp': 'na'},  # 14
-    {'name': 'I89_CORE_Temp', 'temp': 'na'},  # 15
+    {'name': 'I91_CORE_Temp', 'temp': 'na'},  # 15
     {'name': 'I89_AVDD_Temp', 'temp': 'na'},  # 16
     {'name': 'QSFP_DD_Temp1', 'temp': 'na'},  # 17
     {'name': 'QSFP_DD_Temp2', 'temp': 'na'},  # 18
@@ -72,7 +72,7 @@ thermal_temp_dict = {
                     "max": {"B2F": NULL_VAL, "F2B": 58}, "high_critical_threshold": {"B2F": NULL_VAL, "F2B": 62}},
     "TEMP_SW_U16": {"low_critical_threshold": NULL_VAL, "min": NULL_VAL,
                     "max": NULL_VAL, "high_critical_threshold": NULL_VAL},
-    "I89_CORE_Temp": {"low_critical_threshold": NULL_VAL, "min": NULL_VAL,
+    "I91_CORE_Temp": {"low_critical_threshold": NULL_VAL, "min": NULL_VAL,
                      "max": NULL_VAL, "high_critical_threshold": 125},
     "I89_AVDD_Temp": {"low_critical_threshold": NULL_VAL, "min": NULL_VAL,
                      "max": NULL_VAL, "high_critical_threshold": 125},
