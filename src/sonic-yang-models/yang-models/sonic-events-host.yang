@@ -8,6 +8,10 @@ module sonic-events-host {
         revision-date 2022-12-01;
     }
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     organization
         "SONiC";
 
@@ -176,6 +180,68 @@ module sonic-events-host {
 
             description "
                 Declares an event for invalid freelist failure.";
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container mem-threshold-exceeded {
+            evtcmn:EVENT_SEVERITY_2;
+
+            description "
+                Declares an event for memory exceeding threshold failure.";
+
+            leaf ctr_name {
+                type stypes:ctr_name;
+                description "Container name of mem-threshold-exceeded event";
+            }
+
+            leaf mem_usage {
+                type uint64;
+                description "Memory usage of process";
+            }
+
+            leaf threshold {
+                type uint64;
+                description "Threshold value of process";
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container process-exited-unexpectedly {
+            evtcmn:EVENT_SEVERITY_2;
+
+            description "
+                Declares an event in which a critical process exits unexpectedly.";
+
+            leaf process_name {
+                type stypes:process_name;
+                description "Name of process that is exiting unexpectedly";
+            }
+
+            leaf ctr_name {
+                type stypes:ctr_name;
+                description "Container name of process that is exiting unexpectedly";
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container process-not-running {
+            evtcmn:EVENT_SEVERITY_2;
+
+            description "
+                Declares an event in which a critical process exits unexpectedly.";
+
+            leaf process_name {
+                type stypes:process_name; 
+                description "Name of process that is not running";
+            }
+
+            leaf ctr_name {
+                type stypes:ctr_name;
+                description "Container name";
+            }
 
             uses evtcmn:sonic-events-cmn;
         }

@@ -300,5 +300,59 @@
                 "timestamp": "1985-04-12T23:20:50.52Z"
             }
         }
+    },
+    "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_INCORRECT_OPERATION_RESULT": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "Invalid$",
+                "command": "command",
+                "timestamp": "1985-04-12T23:20:50.52Z"
+            }
+        }
+    },
+    "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_INCORRECT_OPERATION_RESULT_LENGTH": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "invalid-length-for-operation-result-too-long",
+                "command": "command",
+                "timestamp": "1985-04-12T23:20:50.52Z"
+            }
+        }
+    },
+    "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_INCORRECT_COMMAND": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "operation_result",
+                "command": "Invalid$",
+                "timestamp": "1985-04-12T23:20:50.52Z"
+            }
+        }
+    },
+    "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_INCORRECT_COMMAND_LENGTH": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "operation_result",
+                "command": "invalid-length-for-command-too-long",
+                "timestamp": "1985-04-12T23:20:50.52Z"
+            }
+        }
+    },
+    "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_INCORRECT_TIMESTAMP": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "operation_result",
+                "command": "command",
+                "timestamp": "INCORRECT_TIMESTAMP"
+            }
+        }
+    },
+   "SONIC_EVENTS_SWSS_SELECT_OPERATION_FAILURE_VALID": {
+        "sonic-events-swss:sonic-events-swss": {
+            "sonic-events-swss:select-operation-failure": {
+                "operation_result": "operation_result",
+                "command": "command",
+                "timestamp": "1985-04-12T23:20:50.52Z"
+            }
+        }
     }
 }

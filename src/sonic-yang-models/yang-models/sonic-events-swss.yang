@@ -104,5 +104,42 @@ module sonic-events-swss {
 
             uses evtcmn:sonic-events-cmn;
         }
+
+        container select-operation-failure {
+            evtcmn:ALARM_SEVERITY_MAJOR;
+
+            description "
+                Describes select operation fails due to timeout or other reason.";
+
+            leaf operation_result {
+                type string {
+                    pattern '[a-zA-Z0-9]{1}([-a-zA-Z0-9_]{0,31})' {
+                        error-message "Invalid select operation failure operation_result.";
+                        error-app-tag select-operation-failure-invalid-operation-result;
+                    }
+                    length 1..32 {
+                        error-message "Invalid length for select operation failure operation_result.";
+                        error-app-tag select-operation-failure-invalid-operation-result-length;
+                    }
+                }
+                description "Select operation result";
+            }
+
+            leaf command {
+                type string {
+                    pattern '[a-zA-Z0-9]{1}([-a-zA-Z0-9_]{0,31})' {
+                        error-message "Invalid select operation failure command.";
+                        error-app-tag select-operation-failure-invalid-command;
+                    }
+                    length 1..32 {
+                        error-message "Invalid length for select operation failure command.";
+                        error-app-tag select-operation-failure-invalid-command-length;
+                    }
+                }
+                description "Operation command.";
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
     }
 }
