@@ -101,7 +101,6 @@ remote_ctr_config = {
 
 def log_debug(m):
     msg = "{}: {}".format(inspect.stack()[1][3], m)
-    #print(msg)
     syslog.syslog(syslog.LOG_DEBUG, msg)
 
 
@@ -176,7 +175,7 @@ class MainServer:
             self.db_connectors[db_name] = swsscommon.DBConnector(db_name, 0)
 
 
-    def register_timer(self, ts, handler, args=()):
+    def register_timer(self, ts, handler, args=None):
         """ Register timer based handler. 
             The handler will be called on/after give timestamp, ts
         """
@@ -239,7 +238,10 @@ class MainServer:
                     lst = self.timer_handlers[k]
                     del self.timer_handlers[k]
                     for fn in lst:
-                        fn[0](*fn[1])
+                        if fn[1] is None:
+                            fn[0]()
+                        else:
+                            fn[0](*fn[1])
                 else:
                     timeout = (k - ct_ts).seconds
                     break

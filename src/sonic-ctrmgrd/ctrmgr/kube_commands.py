@@ -337,8 +337,6 @@ def _do_join(server, port, insecure):
     out = ""
     ret = 0
     try:
-        #local_ipv6 = _get_local_ipv6()
-        #_download_file(server, port, insecure)
         _gen_cli_kubeconf(server, port, insecure)
         _do_reset(True)
         _run_command("modprobe br_netfilter")
