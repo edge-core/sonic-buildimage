@@ -395,8 +395,10 @@ define docker-image-save
     docker tag $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) $(1):latest $(LOG)
     @echo "Saving docker image $(1):latest" $(LOG)
         docker save $(1):latest | gzip -c > $(2)
-    @echo "Removing docker image $(1):latest" $(LOG)
-    docker rmi -f $(1):latest $(LOG)
+    if [ x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) == x"y" ]; then
+        @echo "Removing docker image $(1):latest" $(LOG)
+        docker rmi -f $(1):latest $(LOG)
+    fi
     $(call MOD_UNLOCK,$(1))
     @echo "Released docker image lock for $(1) save" $(LOG)
     @echo "Removing docker image $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG)" $(LOG)
@@ -418,8 +420,10 @@ define docker-image-load
     docker load -i $(TARGET_PATH)/$(1).gz $(LOG)
     @echo "Tagging docker image $(1):latest as $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG)" $(LOG)
     docker tag $(1):latest $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) $(LOG)
-    @echo "Removing docker image $(1):latest" $(LOG)
-    docker rmi -f $(1):latest $(LOG)
+    if [ x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) == x"y" ]; then
+        @echo "Removing docker image $(1):latest" $(LOG)
+        docker rmi -f $(1):latest $(LOG)
+    fi
     $(call MOD_UNLOCK,$(1))
     @echo "Released docker image lock for $(1) load" $(LOG)
 endef
