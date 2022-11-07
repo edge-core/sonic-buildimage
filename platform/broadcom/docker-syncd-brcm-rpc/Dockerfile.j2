@@ -25,6 +25,7 @@ RUN apt-get update \
     cmake               \
     libqt5core5a        \
     libqt5network5      \
+    gdb                 \
     libboost-atomic1.74.0
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \

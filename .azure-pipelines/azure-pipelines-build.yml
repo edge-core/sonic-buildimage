@@ -121,6 +121,7 @@ jobs:
               mv target/docker-sonic-vs.gz target/docker-sonic-vs-asan.gz
             fi
             make $BUILD_OPTIONS target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
+            make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y SAITHRIFT_V2=y target/docker-ptf-sai.gz
             if [ $(Build.Reason) != 'PullRequest' ];then
               gzip -kd target/sonic-vs.img.gz
               SONIC_RUN_CMDS="qemu-img convert target/sonic-vs.img -O vhdx -o subformat=dynamic target/sonic-vs.vhdx" make sonic-slave-run
@@ -138,9 +139,25 @@ jobs:
               make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).raw
             fi
             if [ $(docker_syncd_rpc_image) == yes ]; then
+              # workaround for issue in rules/sairedis.dep,  git ls-files will list un-exist files for cache
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-rpc.gz
+              pushd ./src/sonic-sairedis/SAI
+              git stash
+              popd  
               if [ $(GROUP_NAME) == broadcom ]; then
                 make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-dnx-rpc.gz
+                pushd ./src/sonic-sairedis/SAI
+                git stash
+                popd 
+                make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y SAITHRIFT_V2=y target/docker-saiserverv2-brcm.gz
+                pushd ./src/sonic-sairedis/SAI
+                git stash
+                popd 
+                echo BUILD_OPTIONS $BUILD_OPTIONS
+                make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y SAITHRIFT_V2=y target/docker-syncd-brcm-rpcv2.gz
+                pushd ./src/sonic-sairedis/SAI
+                git stash
+                popd 
               fi
             fi
             if [ $(syncd_rpc_image) == yes ]; then
