@@ -50,7 +50,11 @@
         NUM_LOGS_TO_ROTATE=8
 
         # Adjust LOG_FILE_ROTATE_SIZE_KB to reflect the "size" parameter specified above, in kB
+{% if var_log_kb <= 204800 %}
         LOG_FILE_ROTATE_SIZE_KB=1024
+{% else %}
+        LOG_FILE_ROTATE_SIZE_KB=16384
+{% endif %}
 
         # Reserve space for btmp, wtmp, dpkg.log, monit.log, etc., as well as logs that
         # should be disabled, just in case they get created and rotated
