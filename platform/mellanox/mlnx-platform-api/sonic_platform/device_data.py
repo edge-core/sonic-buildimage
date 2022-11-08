@@ -156,6 +156,10 @@ DEVICE_DATA = {
     },
     'x86_64-nvidia_sn2201-r0': {
         'thermal': {
+            'minimum_table': {
+                "unk_trust": {"-127:30": 13, "31:35": 14, "36:40": 15, "41:120": 16},
+                "unk_untrust": {"-127:15": 13, "16:20": 14, "21:25": 15, "26:30": 16, "31:35": 17, "36:40": 18, "41:120": 19},
+            },
             "capability": {
                 "comex_amb": False,
                 "cpu_amb": True
