@@ -469,6 +469,27 @@ def is_supervisor():
                     return True
         return False
 
+# Check if this platform has macsec capability.
+def is_macsec_supported():
+    supported = 0
+    platform_env_conf_file_path = get_platform_env_conf_file_path()
+
+    # platform_env.conf file not present for platform
+    if platform_env_conf_file_path is None:
+        return supported
+
+    # Else open the file check for keyword - macsec_enabled -
+    with open(platform_env_conf_file_path) as platform_env_conf_file:
+        for line in platform_env_conf_file:
+            tokens = line.split('=')
+            if len(tokens) < 2:
+               continue
+            if tokens[0].lower() == 'macsec_enabled':
+                supported = tokens[1].strip()
+                break
+    return int(supported)
+
+
 def get_device_runtime_metadata():
     chassis_metadata = {}
     if is_chassis():
@@ -476,9 +497,11 @@ def get_device_runtime_metadata():
                                                 'chassis_type': 'voq' if is_voq_chassis() else 'packet'}}
 
     port_metadata = {'ETHERNET_PORTS_PRESENT': True if get_path_to_port_config_file(hwsku=None, asic="0" if is_multi_npu() else None) else False}
+    macsec_support_metadata = {'MACSEC_SUPPORTED': True if is_macsec_supported() else False}
     runtime_metadata = {}
     runtime_metadata.update(chassis_metadata)
     runtime_metadata.update(port_metadata)
+    runtime_metadata.update(macsec_support_metadata)
     return {'DEVICE_RUNTIME_METADATA': runtime_metadata }
 
 def get_npu_id_from_name(npu_name):
