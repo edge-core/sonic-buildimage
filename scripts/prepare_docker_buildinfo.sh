@@ -22,6 +22,10 @@ if [ -z "$DISTRO" ]; then
     [ -z "$DISTRO" ] && DISTRO=jessie
 fi
 
+if [[ "$IMAGENAME" == docker-base-* ]]; then
+    scripts/build_mirror_config.sh ${DOCKERFILE_PATH} $ARCH $DISTRO
+fi
+
 # add script for reproducible build. using sha256 instead of tag for docker base image.
 scripts/docker_version_control.sh $@
 

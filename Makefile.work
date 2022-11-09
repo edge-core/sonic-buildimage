@@ -494,6 +494,8 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
                            ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
                            ENABLE_FIPS=$(ENABLE_FIPS) \
                            SONIC_SLAVE_DOCKER_DRIVER=$(SONIC_SLAVE_DOCKER_DRIVER) \
+                           MIRROR_URLS=$(MIRROR_URLS) \
+                           MIRROR_SECURITY_URLS=$(MIRROR_SECURITY_URLS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
@@ -513,6 +515,9 @@ endif
 
 .DEFAULT_GOAL :=  all
 .SHELLFLAGS += -e
+
+export MIRROR_URLS
+export MIRROR_SECURITY_URLS
 
 %:: | sonic-build-hooks
 ifneq ($(filter y, $(MULTIARCH_QEMU_ENVIRON) $(CROSS_BUILD_ENVIRON)),)
@@ -539,6 +544,8 @@ sonic-build-hooks:
 	$(Q)pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) $(MAKE) all; popd
 	$(Q)mkdir -p $(SLAVE_DIR)/buildinfo
 	$(Q)cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
+	$(Q)[ "$(MULTIARCH_QEMU_ENVIRON)" == y ] && scripts/build_mirror_config.sh $(SLAVE_DIR) amd64 $(BLDENV)
+	$(Q)scripts/build_mirror_config.sh $(SLAVE_DIR) $(CONFIGURED_ARCH) $(BLDENV)
 
 sonic-slave-base-build : | sonic-build-hooks
 ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
