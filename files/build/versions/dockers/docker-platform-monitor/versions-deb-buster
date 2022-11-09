@@ -60,7 +60,7 @@ libpango-1.0-0==1.42.4-8~deb10u1
 libpangocairo-1.0-0==1.42.4-8~deb10u1
 libpangoft2-1.0-0==1.42.4-8~deb10u1
 libpci3==1:3.5.2-1
-libpixman-1-0==0.36.0-1
+libpixman-1-0==0.36.0-1+deb10u1
 libpng16-16==1.6.36-6
 libpopt0==1.16-12
 libpython-dev==2.7.16-1
@@ -137,5 +137,5 @@ sxd-libs==1.mlnx.4.5.3186
 sxd-libs-dev==1.mlnx.4.5.3186
 ucf==3.0038+nmu1
 udev==241-7~deb10u8
-vim==2:8.1.0875-5+deb10u2
-vim-runtime==2:8.1.0875-5+deb10u2
+vim==2:8.1.0875-5+deb10u3
+vim-runtime==2:8.1.0875-5+deb10u3

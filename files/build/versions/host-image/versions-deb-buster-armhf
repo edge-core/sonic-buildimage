@@ -38,5 +38,10 @@ pkg-config==0.29-6
 python3.7==3.7.3-2+deb10u3
 python3.7-dev==3.7.3-2+deb10u3
 python3.7-minimal==3.7.3-2+deb10u3
+sudo==1.8.27-1+deb10u3
 unzip==6.0-23+deb10u2
+vim==2:8.1.0875-5+deb10u2
+vim-common==2:8.1.0875-5+deb10u2
+vim-runtime==2:8.1.0875-5+deb10u2
+xxd==2:8.1.0875-5+deb10u2
 zlib1g-dev==1:1.2.11.dfsg-1+deb10u1

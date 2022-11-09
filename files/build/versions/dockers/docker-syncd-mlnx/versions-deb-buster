@@ -65,7 +65,7 @@ sxd-libs==1.mlnx.4.5.3186
 sxd-libs-dev==1.mlnx.4.5.3186
 syncd==1.0.0
 syncd-dbg==1.0.0
-vim==2:8.1.0875-5+deb10u2
-vim-runtime==2:8.1.0875-5+deb10u2
+vim==2:8.1.0875-5+deb10u3
+vim-runtime==2:8.1.0875-5+deb10u3
 wjh-libs==1.mlnx.4.5.3186
 wjh-libs-dev==1.mlnx.4.5.3186
