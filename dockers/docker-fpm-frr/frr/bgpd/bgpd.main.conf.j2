@@ -61,6 +61,7 @@ route-map HIDE_INTERNAL permit 20
 !
 {% endif %}
 !
+{% if (DEVICE_METADATA is defined) and ('localhost' in DEVICE_METADATA) and ('bgp_asn' in DEVICE_METADATA['localhost']) and (DEVICE_METADATA['localhost']['bgp_asn'].lower() != 'none') and (DEVICE_METADATA['localhost']['bgp_asn'].lower() != 'null') %}
 router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 !
 {% block bgp_init %}
@@ -142,6 +143,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
     maximum-paths {{ constants.bgp.maximum_paths.ipv6 | default(64) }}
   exit-address-family
 {% endblock maximum_paths %}
+{% endif %}
 {% endif %}
 !
 ! end of template: bgpd/bgpd.main.conf.j2
