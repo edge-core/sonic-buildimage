@@ -4,6 +4,7 @@ try:
     import datetime
     import logging
     import logging.config
+    import thrift
 
     sys.path.append(os.path.dirname(__file__))
 
