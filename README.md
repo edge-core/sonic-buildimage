@@ -133,6 +133,7 @@ To build SONiC installer image and docker images, run the following commands:
 
  The supported ASIC vendors are:
 
+- PLATFORM=barefoot
 - PLATFORM=broadcom
 - PLATFORM=marvell
 - PLATFORM=mellanox
