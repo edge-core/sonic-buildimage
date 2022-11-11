@@ -247,7 +247,7 @@ libpciaccess0==0.14-1
 libpcre2-16-0==10.32-5
 libpcre2-8-0==10.32-5
 libperl5.28==5.28.1-6+deb10u1
-libpixman-1-0==0.36.0-1
+libpixman-1-0==0.36.0-1+deb10u1
 libpng16-16==1.6.36-6
 libpopt0==1.16-12
 libpotrace0==1.15-1
@@ -483,9 +483,9 @@ ttf-bitstream-vera==1.10-8
 tzdata==2021a-0+deb10u8
 ucf==3.0038+nmu1
 unzip==6.0-23+deb10u3
-vim==2:8.1.0875-5+deb10u2
-vim-common==2:8.1.0875-5+deb10u2
-vim-runtime==2:8.1.0875-5+deb10u2
+vim==2:8.1.0875-5+deb10u3
+vim-common==2:8.1.0875-5+deb10u3
+vim-runtime==2:8.1.0875-5+deb10u3
 wget==1.20.1-1.1
 x11-common==1:7.7+19
 x11-utils==7.7+4
@@ -495,6 +495,6 @@ xdg-user-dirs==0.17-2
 xdg-utils==1.1.3-1+deb10u1
 xfonts-encodings==1:1.0.4-2
 xfonts-utils==1:7.7+6
-xxd==2:8.1.0875-5+deb10u2
+xxd==2:8.1.0875-5+deb10u3
 xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u2
