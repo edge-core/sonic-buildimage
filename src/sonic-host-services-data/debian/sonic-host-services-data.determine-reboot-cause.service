@@ -4,7 +4,7 @@ Requires=rc-local.service database.service
 After=rc-local.service database.service
 
 [Service]
-Type=simple
+Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/local/bin/determine-reboot-cause
 
