@@ -71,7 +71,7 @@ libpango-1.0-0==1.46.2-3
 libpangocairo-1.0-0==1.46.2-3
 libpangoft2-1.0-0==1.46.2-3
 libpci3==1:3.7.0-5
-libpixman-1-0==0.40.0-1
+libpixman-1-0==0.40.0-1.1~deb11u1
 libpng16-16==1.6.37-3
 libpython3-dev==3.9.2-3
 libpython3.9-dev==3.9.2-1

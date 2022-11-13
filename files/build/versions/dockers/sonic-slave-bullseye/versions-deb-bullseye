@@ -946,8 +946,8 @@ libpfm4==4.11.1+git32-gd0b85fb-1
 libpgm-5.3-0==5.3.128~dfsg-2
 libpgm-dev==5.3.128~dfsg-2
 libpipeline1==1.5.3-1
-libpixman-1-0==0.40.0-1
-libpixman-1-dev==0.40.0-1
+libpixman-1-0==0.40.0-1.1~deb11u1
+libpixman-1-dev==0.40.0-1.1~deb11u1
 libplexus-ant-factory-java==1.0~alpha2.1-4
 libplexus-archiver-java==3.6.0-2
 libplexus-bsh-factory-java==1.0~alpha7-4.1
