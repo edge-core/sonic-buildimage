@@ -22,10 +22,10 @@ while /bin/true; do
       fi
       for nexthop in $STATIC_ROUTE_NEXTHOPS; do
           if [[ $nexthop == *"."* ]]; then
-              neigh_state=( $(ip -4 neigh show | grep $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
+              neigh_state=( $(ip -4 neigh show | grep -w $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
               ping_prefix=ping
           elif [[ $nexthop == *":"* ]] ; then
-              neigh_state=( $(ip -6 neigh show | grep $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
+              neigh_state=( $(ip -6 neigh show | grep -w $nexthop | tr -s ' ' | cut -d ' ' -f 3,4) )
               ping_prefix=ping6
           fi
        
