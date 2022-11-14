@@ -113,7 +113,7 @@ def sonic_db_dump_load():
         parser.add_option('-A', '--use-expireat', help='use EXPIREAT rather than TTL/EXPIRE', action='store_true')
     else:
         parser.add_option('-l', '--load', help='load data into redis (default is to dump data from redis)', action='store_true')
-        parser.add_option('-n', '--dbname', help='dump DATABASE (APPL_DB/ASIC_DB/COUNTERS_DB/LOGLEVEL_DB/CONFIG_DB...)')
+        parser.add_option('-n', '--dbname', help='dump DATABASE (APPL_DB/ASIC_DB/COUNTERS_DB/CONFIG_DB...)')
         parser.add_option('-t', '--conntype', help='indicate redis connection type (tcp[default] or unix_socket)', default='tcp')
         parser.add_option('-k', '--keys', help='dump only keys matching specified glob-style pattern')
         parser.add_option('-o', '--output', help='write to OUTPUT instead of stdout (dump mode only)')
