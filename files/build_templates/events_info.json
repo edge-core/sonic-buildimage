@@ -14,10 +14,6 @@
             "parse_json": "systemd_regex.json"
         },
         {
-            "name": "dhcp_relay",
-            "parse_json": "dhcp_relay_regex.json"
-        },
-        {
             "name": "syncd",
             "parse_json": "syncd_regex.json"
         },
