@@ -49,8 +49,13 @@ module sonic-device_metadata {
                 }
 
                 leaf docker_routing_config_mode {
+                    description "This leaf allows different configuration modes for FRR:
+                                - separated: FRR config generated from ConfigDB, each FRR daemon has its own config file
+                                - unified: FRR config generated from ConfigDB, single FRR config file
+                                - split: FRR config not generated from ConfigDB, each FRR daemon has its own config file
+                                - split-unified: FRR config not generated from ConfigDB, single FRR config file";
                     type string {
-                        pattern "unified|split|separated";
+                        pattern "separated|unified|split|split-unified";
                     }
                     default "unified";
                 }

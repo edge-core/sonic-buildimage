@@ -152,7 +152,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=bgpd:running
 
-{% if DEVICE_METADATA.localhost.docker_routing_config_mode is defined and DEVICE_METADATA.localhost.docker_routing_config_mode == "unified" %}
+{% if DEVICE_METADATA.localhost.docker_routing_config_mode is defined and (DEVICE_METADATA.localhost.docker_routing_config_mode == "unified" or DEVICE_METADATA.localhost.docker_routing_config_mode == "split-unified") %}
 [program:vtysh_b]
 command=/usr/bin/vtysh -b
 priority=6
