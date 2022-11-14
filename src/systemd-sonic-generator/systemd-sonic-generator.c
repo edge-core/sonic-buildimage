@@ -516,7 +516,7 @@ int get_num_of_asic() {
     FILE *fp;
     char *line = NULL;
     char* token;
-    char* platform;
+    char* platform = NULL;
     char* saveptr;
     size_t len = 0;
     ssize_t nread;
