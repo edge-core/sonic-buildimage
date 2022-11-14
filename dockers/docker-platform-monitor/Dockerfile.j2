@@ -27,6 +27,7 @@ RUN apt-get update &&   \
         python3-jsonschema \
         libpci3         \
         iputils-ping    \
+        pciutils        \
 # smartmontools version should match the installed smartmontools in sonic_debian_extension build template
         smartmontools=7.2-1
 
@@ -40,6 +41,9 @@ RUN pip3 install grpcio==1.39.0 \
 
 # Barefoot platform vendors' sonic_platform packages import the Python 'thrift' library
 RUN pip3 install thrift==0.13.0
+
+# We install the libpci module in order to be able to do PCI transactions
+RUN pip3 install libpci
 
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
