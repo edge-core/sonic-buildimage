@@ -8,6 +8,10 @@ module sonic-events-syncd {
         revision-date 2022-12-01;
     }
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     organization
         "SONiC";
 
@@ -39,6 +43,29 @@ module sonic-events-syncd {
                     enum "mmu_err";
                     enum "parity_check";
                 }
+            }
+
+            uses evtcmn:sonic-events-cmn;
+        }
+
+        container alpm-parity-error {
+            evtcmn:ALARM_SEVERITY_MAJOR;
+
+            description "
+                Declares an event for a parity error in ALPM
+                insert or delete for ipv4 or ipv6";
+
+            leaf operation {
+                type enumeration {
+                    enum "insert";
+                    enum "delete";
+                }
+                description "Operation for alpm parity error";
+            }
+
+            leaf ip_family {
+                type stypes:ip-family;
+                description "IP family for alpm parity error";
             }
 
             uses evtcmn:sonic-events-cmn;
