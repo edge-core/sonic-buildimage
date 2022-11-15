@@ -70,6 +70,7 @@ SONIC_COMMON_FILES_LIST :=  $(if $(wildcard cache.skip.common),, .platform slave
 SONIC_COMMON_FLAGS_LIST :=  $(CONFIGURED_PLATFORM) \
                             $(CONFIGURED_ARCH) \
                             $(BLDENV) \
+                            $(MIRROR_URLS) $(MIRROR_SECURITY_URLS) \
                             $(SONIC_DEBUGGING_ON) \
                             $(SONIC_PROFILING_ON) $(SONIC_ENABLE_SYNCD_RPC)
 SONIC_COMMON_DPKG_LIST  :=  debian/control debian/changelog debian/rules \

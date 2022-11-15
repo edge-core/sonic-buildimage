@@ -207,6 +207,7 @@ $(shell $(PREPARE_DOCKER) )
 # Add the versions in the tag, if the version change, need to rebuild the slave
 SLAVE_BASE_TAG = $(shell \
 	cat $(SLAVE_DIR)/Dockerfile \
+		$(SLAVE_DIR)/sources.list.* \
 		$(SLAVE_DIR)/buildinfo/versions/versions-* \
 		src/sonic-build-hooks/hooks/* 2>/dev/null \
 	| sha1sum \
