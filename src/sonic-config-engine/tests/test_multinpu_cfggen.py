@@ -159,16 +159,16 @@ class TestMultiNpuCfgGen(TestCase):
         argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL\"".format(self.sample_graph, self.port_config[0])
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
-            {'PortChannel0002': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet0', 'Ethernet4'], 'mtu': '9100', 'tpid': '0x8100'},
-             'PortChannel4001': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP0', 'Ethernet-BP4'], 'mtu': '9100', 'tpid': '0x8100'},
-             'PortChannel4002': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP8', 'Ethernet-BP12'], 'mtu': '9100', 'tpid': '0x8100'}})
+                {'PortChannel0002': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet0', 'Ethernet4'], 'mtu': '9100', 'tpid': '0x8100', 'lacp_key': 'auto'},
+                 'PortChannel4001': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP0', 'Ethernet-BP4'], 'mtu': '9100', 'tpid': '0x8100', 'lacp_key': 'auto'},
+                 'PortChannel4002': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP8', 'Ethernet-BP12'], 'mtu': '9100', 'tpid': '0x8100', 'lacp_key': 'auto'}})
 
     def test_backend_asic_portchannels(self):
         argument = "-m {} -p {} -n asic3 --var-json \"PORTCHANNEL\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
-            {'PortChannel4013': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP384', 'Ethernet-BP388'], 'mtu': '9100', 'tpid': '0x8100'},
-             'PortChannel4014': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP392', 'Ethernet-BP396'], 'mtu': '9100', 'tpid': '0x8100'}})
+                {'PortChannel4013': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP384', 'Ethernet-BP388'], 'mtu': '9100', 'tpid': '0x8100', 'lacp_key': 'auto'},
+                 'PortChannel4014': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP392', 'Ethernet-BP396'], 'mtu': '9100', 'tpid': '0x8100', 'lacp_key': 'auto'}})
 
     def test_frontend_asic_portchannel_mem(self):
         argument = "-m {} -p {} -n asic0 -v \"PORTCHANNEL_MEMBER.keys()|list\"".format(self.sample_graph, self.port_config[0])
