@@ -25,7 +25,6 @@ liblognorm5==2.0.5-1
 liblua5.1-0==5.1.5-8.1+b2
 libmpdec2==2.4.2-2
 libncurses6==6.1+20181013-2+deb10u3
-libncursesw6==6.1+20181013-2+deb10u3
 libnghttp2-14==1.36.0-2+deb10u1
 libnorm1==1.5.8+dfsg2-1
 libonig5==6.9.1-1
@@ -44,7 +43,6 @@ libsodium23==1.0.17-1
 libsqlite3-0==3.27.2-3+deb10u2
 libssh2-1==1.8.0-2.1
 libssl1.1==1.1.1n-0+deb10u3
-libtinfo6==6.1+20181013-2+deb10u3
 libwrap0==7.6.q-28
 libzmq5==4.3.1-4+deb10u2
 lsb-base==10.2019051400
