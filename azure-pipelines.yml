@@ -280,3 +280,19 @@ stages:
 
         echo "Both classic and TestbedV2 t1-lag jobs failed! Please check the detailed information. (Any of them passed, t1-lag will be considered as passed)"
         exit 1
+
+  - job: dualtor_testbedv2
+    pool:
+      vmImage: 'ubuntu-20.04'
+    displayName: "kvmtest-dualtor-t0 by TestbedV2"
+    timeoutInMinutes: 1080
+    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
+    continueOnError: false
+    steps:
+      - template: .azure-pipelines/run-test-scheduler-template.yml
+        parameters:
+          TOPOLOGY: dualtor
+          MIN_WORKER: 1
+          MAX_WORKER: 1
+          COMMON_EXTRA_PARAMS: "--disable_loganalyzer "
+          MGMT_BRANCH: 202012
