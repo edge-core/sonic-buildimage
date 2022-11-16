@@ -24,6 +24,11 @@ module sonic-feature{
         }
     }
 
+    typedef feature-scope-status {
+        description "configuration to set the feature has asic scope as true/false";
+        type string;
+    }
+
     container sonic-feature {
 
         container FEATURE {
@@ -69,7 +74,7 @@ module sonic-feature{
                 leaf has_per_asic_scope {
                     description "This configuration identicates there will only one service
                                 spawned per asic";
-                    type stypes:boolean_type;
+                    type feature-scope-status;
                     default "false";
                 }
 
