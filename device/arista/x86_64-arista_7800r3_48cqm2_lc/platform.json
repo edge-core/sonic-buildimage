@@ -20,6 +20,9 @@
             },
             {
                 "name": "PCIE"
+            },
+            {
+                "name": "Cpu SBTSI"   
             }
         ],
         "sfps": [
