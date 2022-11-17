@@ -16,7 +16,6 @@ RUN pip3 install crc16          \
         getmac                  \
         packet_helper           \
         psutil                  \
-        scapy==2.4.4            \
         scapy_helper            \
         pysubnettree            \
         xmlrunner
@@ -39,3 +38,8 @@ RUN dpkg -r python-ptf
 RUN git clone https://github.com/p4lang/ptf.git \
         && cd ptf                               \
         && python3.7 setup.py install --single-version-externally-managed --record /tmp/ptf_install.txt
+
+run echo "declare -x LANG=\"C.UTF-8\"" >> /root/.bashrc
+run echo "declare -x LC_ALL=\"C.UTF-8\"" >> /root/.bashrc
+run echo "declare -x PYTHONIOENCODING=\"UTF-8\"" >> /root/.bashrc
+run echo "declare -x VIRTUAL_ENV=\"/root/env-python3\"" >> /root/.bashrc
