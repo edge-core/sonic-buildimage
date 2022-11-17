@@ -16,7 +16,6 @@ RUN pip3 install crc16          \
         getmac                  \
         packet_helper           \
         psutil                  \
-        scapy==2.4.4            \
         scapy_helper            \
         pysubnettree            \
         xmlrunner
@@ -24,7 +23,7 @@ RUN pip3 install crc16          \
 COPY \
 {% for deb in docker_ptf_sai_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
-{%- endfor -%} 
+{%- endfor -%}
 debs/
 
 RUN dpkg -i \
