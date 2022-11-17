@@ -597,12 +597,19 @@ sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/common
 sudo cp {{ deb }} $FILESYSTEM_ROOT/$PLATFORM_DIR/common/
 sudo ln -sf "../common/{{ debfilename }}" "$FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/{{ debfilename }}"
 for f in $(find $FILESYSTEM_ROOT/var/cache/apt/archives -name "*.deb"); do
-    sudo mv $f $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
+    sudo mv $f $FILESYSTEM_ROOT/$PLATFORM_DIR/common/
+    sudo ln -sf "../common/$(basename $f)" "$FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/$(basename $f)"
 done
 
 sudo dpkg --root=$FILESYSTEM_ROOT -P {{ debname }}
 
 {% endfor %}
+# create a trivial apt repo if any of the debs have dependencies, including between lazy debs
+if [ $(for f in $FILESYSTEM_ROOT/$PLATFORM_DIR/common/*.deb; do \
+           sudo dpkg -I $f | grep "Depends:\|Pre-Depends:"; done | wc -l) -gt 0 ]; then
+    (cd $FILESYSTEM_ROOT/$PLATFORM_DIR/common && sudo dpkg-scanpackages . | \
+         sudo gzip | sudo tee Packages.gz > /dev/null)
+fi
 {% endif %}
 
 # Remove sshd host keys, and will regenerate on first sshd start. This needs to be
