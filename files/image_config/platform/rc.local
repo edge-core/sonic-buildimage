@@ -284,7 +284,20 @@ if [ -f $FIRST_BOOT_FILE ]; then
     fi
 
     if [ -d /host/image-$SONIC_VERSION/platform/$platform ]; then
-        dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
+        if [ -f /host/image-$SONIC_VERSION/platform/common/Packages.gz ]; then
+            # Use only the trivial repo and apt to support lazy package dependencies
+            mv /etc/apt/sources.list /etc/apt/sources.list.rc-local
+            echo "deb [trusted=yes] file:///host/image-$SONIC_VERSION/platform/common /" > /etc/apt/sources.list.d/sonic_debian_extension.list
+            LANG=C DEBIAN_FRONTEND=noninteractive apt-get update
+            LANG=C DEBIAN_FRONTEND=noninteractive apt-get -y install /host/image-$SONIC_VERSION/platform/$platform/*.deb
+            # Cleanup
+            rm -f /etc/apt/sources.list.d/sonic_debian_extension.list
+            rm -f /var/lib/apt/lists/_host_image-${SONIC_VERSION}_platform_common_Packages.lz4
+            # This is first boot so there should be no package lists or indices to restore, just the sources
+            mv /etc/apt/sources.list.rc-local /etc/apt/sources.list
+        else
+            dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
+        fi
     fi
 
     sync
