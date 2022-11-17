@@ -4,6 +4,7 @@ import subprocess
 import os
 
 import tests.common_utils as utils
+from sonic_py_common.general import getstatusoutput_noshell
 
 
 #TODO: Remove this fixuture once SONiC moves to python3.x
@@ -21,20 +22,18 @@ class TestCfgGen(object):
     @pytest.fixture(autouse=True)
     def setup_teardown(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(
-            self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = [utils.PYTHON_INTERPRETTER, os.path.join(
+            self.test_dir, '..', 'sonic-cfggen')]
         self.sample_yang_file = os.path.join(self.test_dir,
                                              'test_yang_data.json')
 
     def run_script(self, arg, check_stderr=False):
-        print('\n    Running sonic-cfggen ' + arg)
+        print('\n    Running sonic-cfggen ', arg)
         if check_stderr:
-            output = subprocess.check_output(self.script_file + ' ' + arg,
-                                             stderr=subprocess.STDOUT,
-                                             shell=True)
+            output = subprocess.check_output(self.script_file + arg,
+                                             stderr=subprocess.STDOUT)
         else:
-            output = subprocess.check_output(self.script_file + ' ' + arg,
-                                             shell=True)
+            output = subprocess.check_output(self.script_file + arg)
 
         if utils.PY3x:
             output = output.decode()
@@ -48,32 +47,31 @@ class TestCfgGen(object):
         return output
 
     def run_diff(self, file1, file2):
-        return subprocess.check_output('diff -u {} {} || true'.format(
-            file1, file2),
-                                       shell=True)
+        _, output = getstatusoutput_noshell(['diff', '-u', file1, file2])
+        return output
 
     def run_script_with_yang_arg(self, arg, check_stderr=False):
-        args = "-Y {} {}".format(self.sample_yang_file, arg)
+        args = ["-Y", self.sample_yang_file] + arg
         return self.run_script(arg=args, check_stderr=check_stderr)
 
     def test_print_data(self):
-        arg = "--print-data"
+        arg = ["--print-data"]
         output = self.run_script_with_yang_arg(arg)
         assert len(output.strip()) > 0
 
 
     def test_jinja_expression(self, expected_router_type='LeafRouter'):
-        arg = " -v \"DEVICE_METADATA[\'localhost\'][\'type\']\" "
+        arg = ["-v", "DEVICE_METADATA[\'localhost\'][\'type\']"]
         output = self.run_script_with_yang_arg(arg)
         assert output.strip() == expected_router_type
 
     def test_hwsku(self):
-        arg = "-v \"DEVICE_METADATA[\'localhost\'][\'hwsku\']\" "
+        arg = ["-v", "DEVICE_METADATA[\'localhost\'][\'hwsku\']"]
         output = self.run_script_with_yang_arg(arg)
         assert output.strip() == "Force10-S6000"
 
     def test_device_metadata(self):
-        arg = "--var-json \"DEVICE_METADATA\" "
+        arg = ["--var-json", "DEVICE_METADATA"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert (output['localhost'] ==  {\
             'bgp_asn': '65100',
@@ -87,7 +85,7 @@ class TestCfgGen(object):
 
 
     def test_port_table(self):
-        arg = "--var-json \"PORT\""
+        arg = ["--var-json", "PORT"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == \
             {'Ethernet0': {'admin_status': 'up', 'alias': 'eth0', 'description': 'Ethernet0', 'fec': 'rs', 'lanes': '65, 66', 'mtu': '9100', 'pfc_asym': 'on', 'speed': '40000'},
@@ -101,7 +99,7 @@ class TestCfgGen(object):
             })
 
     def test_portchannel_table(self):
-        arg = "--var-json \"PORTCHANNEL\""
+        arg = ["--var-json", "PORTCHANNEL"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == \
             {'PortChannel1001': {'admin_status': 'up',
@@ -116,7 +114,7 @@ class TestCfgGen(object):
                       'mtu': '9100'}})
 
     def test_portchannel_member_table(self):
-        arg = "--var-json \"PORTCHANNEL_MEMBER\""
+        arg = ["--var-json", "PORTCHANNEL_MEMBER"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output ==\
             {   "PortChannel1001|Ethernet0": {},
@@ -126,7 +124,7 @@ class TestCfgGen(object):
             })
 
     def test_interface_table(self):
-        arg = "--var-json \"INTERFACE\""
+        arg = ["--var-json", "INTERFACE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output =={\
             "Ethernet8": {},
@@ -150,7 +148,7 @@ class TestCfgGen(object):
         })
 
     def test_portchannel_interface_table(self):
-        arg = "--var-json \"PORTCHANNEL_INTERFACE\""
+        arg = ["--var-json", "PORTCHANNEL_INTERFACE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output =={\
             "PortChannel1001|10.0.0.1/31": {},
@@ -158,7 +156,7 @@ class TestCfgGen(object):
             })
 
     def test_loopback_table(self):
-        arg = "--var-json \"LOOPBACK_INTERFACE\""
+        arg = ["--var-json", "LOOPBACK_INTERFACE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "Loopback0": {},
@@ -173,7 +171,7 @@ class TestCfgGen(object):
         })
 
     def test_acl_table(self):
-        arg = "--var-json \"ACL_TABLE\""
+        arg = ["--var-json", "ACL_TABLE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             'DATAACL':   {'policy_desc': 'DATAACL',    'ports': ['PortChannel1001','PortChannel1002'], 'stage': 'ingress', 'type': 'L3'},
@@ -183,7 +181,7 @@ class TestCfgGen(object):
             'SSH_ONLY':  {'policy_desc': 'SSH_ONLY',    'services': ['SSH'],         'stage': 'ingress', 'type': 'CTRLPLANE'}})
 
     def test_acl_rule(self):
-        arg = "--var-json \"ACL_RULE\""
+        arg = ["--var-json", "ACL_RULE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "DATAACL|Rule1": {
@@ -201,7 +199,7 @@ class TestCfgGen(object):
         })
 
     def test_vlan_table(self):
-        arg = "--var-json \"VLAN\""
+        arg = ["--var-json", "VLAN"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "Vlan100": {
@@ -218,7 +216,7 @@ class TestCfgGen(object):
         })
 
     def test_vlan_interface(self):
-        arg = "--var-json \"VLAN_INTERFACE\""
+        arg = ["--var-json", "VLAN_INTERFACE"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "Vlan100": {},
@@ -233,7 +231,7 @@ class TestCfgGen(object):
         })
 
     def test_vlan_member(self):
-        arg = "--var-json \"VLAN_MEMBER\""
+        arg = ["--var-json", "VLAN_MEMBER"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "Vlan100|Ethernet24": {
@@ -245,7 +243,7 @@ class TestCfgGen(object):
         })
 
     def test_vlan_crm(self):
-        arg = "--var-json \"CRM\""
+        arg = ["--var-json", "CRM"]
         output = json.loads(self.run_script_with_yang_arg(arg))
         assert(output == {\
             "Config": {
