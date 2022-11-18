@@ -102,10 +102,11 @@ sudo pip3 install j2cli
     * Add current user to the docker group: `sudo gpasswd -a ${USER} docker`
     * Log out and log back in so that your group membership is re-evaluated
 
-## Clone or fetch the code repository with all git submodules
-To clone the code repository recursively, assuming git version 1.9 or newer:
+## Clone the repository with all the git submodules
 
-    git clone https://github.com/sonic-net/sonic-buildimage.git
+To clone the code repository recursively:
+
+    git clone --recurse-submodules https://github.com/sonic-net/sonic-buildimage.git
 
 ## Usage
 
