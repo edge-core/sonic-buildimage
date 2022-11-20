@@ -19,7 +19,7 @@ netaddr==0.8.0
 netifaces==0.11.0
 prefixed==0.4.2
 prettyprinter==0.18.0
-pycairo==1.21.0
+pycairo==1.22.0
 pyroute2==0.5.19
 semantic-version==2.10.0
 systemd-python==234

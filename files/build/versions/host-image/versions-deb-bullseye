@@ -169,6 +169,7 @@ libgomp1==10.2.1-6
 libgpm2==1.20.7-8
 libgrpc++1==1.30.2-3
 libgrpc10==1.30.2-3
+libgssapi-krb5-2==1.18.3-6+deb11u3
 libhavege2==1.9.14-1
 libhiredis0.14==0.14.0-3~bpo9+1
 libi2c0==4.2-1+b1
@@ -186,8 +187,11 @@ libjs-jquery==3.5.1+dfsg+~3.5.5-7
 libjs-sphinxdoc==3.4.3-2
 libjs-underscore==1.9.1~dfsg-3
 libjson-c5==0.15-2
+libk5crypto3==1.18.3-6+deb11u3
 libklibc==2.0.8-6.1
 libkmod2==28-1
+libkrb5-3==1.18.3-6+deb11u3
+libkrb5support0==1.18.3-6+deb11u3
 libksba8==1.5.0-3+deb11u1
 libldap-2.4-2==2.4.57+dfsg-3+deb11u1
 liblognorm5==2.0.5-1.1
