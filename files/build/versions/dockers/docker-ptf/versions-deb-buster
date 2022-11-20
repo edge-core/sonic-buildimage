@@ -257,12 +257,12 @@ traceroute==1:2.1.0-2
 tzdata==2021a-0+deb10u8
 ucf==3.0038+nmu1
 unzip==6.0-23+deb10u3
-vim==2:8.1.0875-5+deb10u2
-vim-common==2:8.1.0875-5+deb10u2
-vim-runtime==2:8.1.0875-5+deb10u2
+vim==2:8.1.0875-5+deb10u3
+vim-common==2:8.1.0875-5+deb10u3
+vim-runtime==2:8.1.0875-5+deb10u3
 wget==1.20.1-1.1
 xauth==1:1.0.10-1
 xdg-user-dirs==0.17-2
-xxd==2:8.1.0875-5+deb10u2
+xxd==2:8.1.0875-5+deb10u3
 xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u2

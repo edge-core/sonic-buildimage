@@ -18,7 +18,7 @@ bzip2==1.0.8-4
 ca-certificates==20210119
 cgroup-tools==0.41-11
 conntrack==1:1.4.6-2
-containerd.io==1.6.9-1
+containerd.io==1.6.10-1
 cpio==2.13+dfsg-4
 cpp==4:10.2.1-1
 cpp-10==10.2.1-6
@@ -64,8 +64,8 @@ gpg-wks-client==2.2.27-2+deb11u2
 gpg-wks-server==2.2.27-2+deb11u2
 gpgconf==2.2.27-2+deb11u2
 gpgsm==2.2.27-2+deb11u2
-grub-common==2.06-3~deb11u1
-grub2-common==2.06-3~deb11u1
+grub-common==2.06-3~deb11u4
+grub2-common==2.06-3~deb11u4
 haveged==1.9.14-1
 hdparm==9.60+ds-1
 hping3==3.a2.ds2-10
@@ -166,6 +166,7 @@ libgrpc++1==1.30.2-3
 libgrpc-dev==1.30.2-3
 libgrpc-java==1.26.0+ds-1
 libgrpc10==1.30.2-3
+libgssapi-krb5-2==1.18.3-6+deb11u3
 libhavege2==1.9.14-1
 libhiredis0.14==0.14.0-3~bpo9+1
 libi2c0==4.2-1+b1
@@ -183,8 +184,11 @@ libjs-jquery==3.5.1+dfsg+~3.5.5-7
 libjs-sphinxdoc==3.4.3-2
 libjs-underscore==1.9.1~dfsg-3
 libjson-c5==0.15-2
+libk5crypto3==1.18.3-6+deb11u3
 libklibc==2.0.8-6.1
 libkmod2==28-1
+libkrb5-3==1.18.3-6+deb11u3
+libkrb5support0==1.18.3-6+deb11u3
 libksba8==1.5.0-3+deb11u1
 libldap-2.4-2==2.4.57+dfsg-3+deb11u1
 liblognorm5==2.0.5-1.1
@@ -231,8 +235,8 @@ libpcre3-dev==2:8.39-13
 libpcre32-3==2:8.39-13
 libpcrecpp0v5==2:8.39-13
 libperl5.32==5.32.1-4+deb11u2
-libpixman-1-0==0.40.0-1
-libpixman-1-dev==0.40.0-1
+libpixman-1-0==0.40.0-1.1~deb11u1
+libpixman-1-dev==0.40.0-1.1~deb11u1
 libpng-dev==1.6.37-3
 libpng16-16==1.6.37-3
 libpopt0==1.18-2
