@@ -28,8 +28,8 @@ gpg-wks-client==2.2.12-1+deb10u2
 gpg-wks-server==2.2.12-1+deb10u2
 gpgconf==2.2.12-1+deb10u2
 gpgsm==2.2.12-1+deb10u2
-grub-common==2.06-3~deb10u1
-grub2-common==2.06-3~deb10u1
+grub-common==2.06-3~deb10u2
+grub2-common==2.06-3~deb10u2
 ifupdown==0.8.35
 iptables==1.8.2-4
 libasan5==8.3.0-6
