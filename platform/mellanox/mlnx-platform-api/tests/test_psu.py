@@ -161,3 +161,58 @@ class TestPsu:
         vpd_info[InvalidPsuVolWA.CAPACITY_FIELD] = InvalidPsuVolWA.EXPECT_CAPACITY
         assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == 9999
         mock_run_command.assert_called_with(['sensors', '-s'])
+
+    @mock.patch('os.path.exists', mock.MagicMock(return_value=True))
+    @mock.patch('sonic_platform.utils.read_int_from_file')
+    def test_psu_power_threshold(self, mock_read_int_from_file):
+        Psu.all_psus_support_power_threshold = True
+        psu = Psu(0)
+        common_info = {
+            psu.psu_oper_status: 1,
+            psu.psu_power_max_capacity: 100000000,
+            psu.AMBIENT_TEMP_CRITICAL_THRESHOLD: 65000,
+            psu.AMBIENT_TEMP_WARNING_THRESHOLD: 55000,
+            psu.PSU_POWER_SLOPE: 2000
+            }
+        normal_data = {
+            psu.PORT_AMBIENT_TEMP: 55000,
+            psu.FAN_AMBIENT_TEMP: 50000,
+            'warning_threshold': 100.0,
+            'critical_threshold': 100.0
+            }
+        warning_data = {
+            psu.PORT_AMBIENT_TEMP: 65000,
+            psu.FAN_AMBIENT_TEMP: 60000,
+            'warning_threshold': 90.0,
+            'critical_threshold': 100.0
+            }
+        critical_data = {
+            psu.PORT_AMBIENT_TEMP: 70000,
+            psu.FAN_AMBIENT_TEMP: 75000,
+            'warning_threshold': 70.0,
+            'critical_threshold': 90.0
+            }
+        test_data = {}
+        def mock_side_effect(value):
+            if value in common_info:
+                return common_info[value]
+            else:
+                return test_data[value]
+
+        mock_read_int_from_file.side_effect = mock_side_effect
+        test_data = normal_data
+        assert psu.get_psu_power_warning_suppress_threshold() == normal_data['warning_threshold']
+        assert psu.get_psu_power_critical_threshold() == normal_data['critical_threshold']
+
+        test_data = warning_data
+        assert psu.get_psu_power_warning_suppress_threshold() == warning_data['warning_threshold']
+        assert psu.get_psu_power_critical_threshold() == warning_data['critical_threshold']
+
+        test_data = critical_data
+        assert psu.get_psu_power_warning_suppress_threshold() == critical_data['warning_threshold']
+        assert psu.get_psu_power_critical_threshold() == critical_data['critical_threshold']
+
+    def test_psu_not_support_power_threshold(self):
+        psu = Psu(0)
+        assert psu.get_psu_power_warning_suppress_threshold() is None
+        assert psu.get_psu_power_critical_threshold() is None
