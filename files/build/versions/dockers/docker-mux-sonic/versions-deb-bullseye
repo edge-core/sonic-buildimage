@@ -1,0 +1,7 @@
+libboost-filesystem1.74.0==1.74.0-9
+libboost-log1.74.0==1.74.0-9
+libboost-program-options1.74.0==1.74.0-9
+libboost-regex1.74.0==1.74.0-9
+libboost-thread1.74.0==1.74.0-9
+libicu67==67.1-7
+sonic-linkmgrd==1.0.0-1

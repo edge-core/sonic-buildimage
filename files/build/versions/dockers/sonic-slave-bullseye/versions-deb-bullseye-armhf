@@ -1,0 +1,10 @@
+binutils-arm-linux-gnueabihf==2.35.2-2
+dctrl-tools==2.24-3
+dvipng==1.15-1.1
+golang-1.15-go==1.15.15-1~deb11u4
+golang-1.15-src==1.15.15-1~deb11u4
+libxslt1-dev==1.1.34-4+deb11u1
+linux-compiler-gcc-10-arm==5.10.149-2
+linux-headers-5.10.0-19-armmp==5.10.149-2
+linux-headers-armmp==5.10.149-2
+nodejs==14.21.1-deb-1nodesource1
