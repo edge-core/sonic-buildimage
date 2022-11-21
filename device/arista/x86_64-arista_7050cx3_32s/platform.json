@@ -79,19 +79,24 @@
         ],
         "thermals": [
             {
-                "name": "Cpu temp sensor"
+                "name": "Cpu temp sensor",
+                "controllable": false
             },
             {
-                "name": "Cpu board temp sensor"
+                "name": "Cpu board temp sensor",
+                "controllable": false
             },
             {
-                "name": "Back-panel temp sensor"
+                "name": "Back-panel temp sensor",
+                "controllable": false
             },
             {
-                "name": "Board temp sensor"
+                "name": "Board temp sensor",
+                "controllable": false
             },
             {
-                "name": "Front-panel temp sensor"
+                "name": "Front-panel temp sensor",
+                "controllable": false
             }
         ],
         "sfps": [
