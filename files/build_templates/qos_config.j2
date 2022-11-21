@@ -240,13 +240,25 @@
 {% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types and 'storage_device' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['storage_device'] == 'true' %}
             "dot1p_to_tc_map" : "AZURE",
 {% else %}
-{% if different_dscp_to_tc_map and port not in port_names_list_extra_queues and tunnel_qos_remap_enable %}
+{# Apply separated DSCP_TO_TC_MAP to uplink ports on ToR and Leaf #}
+{% if different_dscp_to_tc_map and tunnel_qos_remap_enable %}
+{% if ('type' in DEVICE_METADATA['localhost']) and (DEVICE_METADATA['localhost']['type'] == 'LeafRouter') and (port not in port_names_list_extra_queues) %}
+            "dscp_to_tc_map"  : "AZURE_UPLINK",
+{% elif ('subtype' in DEVICE_METADATA['localhost']) and (DEVICE_METADATA['localhost']['subtype'] == 'DualToR') and (port in port_names_list_extra_queues) %}
             "dscp_to_tc_map"  : "AZURE_UPLINK",
 {% else %}
             "dscp_to_tc_map"  : "AZURE",
 {% endif %}
+{% else %}
+            "dscp_to_tc_map"  : "AZURE",
 {% endif %}
+{% endif %}
+{# Apply separated TC_TO_QUEUE_MAP to uplink ports on ToR #}
+{% if different_tc_to_queue_map and tunnel_qos_remap_enable and port in port_names_list_extra_queues %}
+            "tc_to_queue_map" : "AZURE_UPLINK",
+{% else %}
             "tc_to_queue_map" : "AZURE",
+{% endif %}
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
 {% if asic_type in pfc_to_pg_map_supported_asics %}
