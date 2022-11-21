@@ -362,6 +362,30 @@ def test_hardware_checker():
             'voltage': '10',
             'voltage_min_threshold': '12',
             'voltage_max_threshold': '15',
+        },
+        'PSU_INFO|PSU 6': {
+            'presence': 'True',
+            'status': 'True',
+            'temp': '55',
+            'temp_threshold': '100',
+            'voltage': '12',
+            'voltage_min_threshold': '12',
+            'voltage_max_threshold': '15',
+            'power_overload': 'True',
+            'power': '101.0',
+            'power_critical_threshold': '100.0',
+            'power_warning_suppress_threshold': '90.0'
+        },
+        'PSU_INFO|PSU 7': {
+            'presence': 'True',
+            'status': 'True',
+            'temp': '55',
+            'temp_threshold': '100',
+            'voltage': '12',
+            'voltage_min_threshold': '12',
+            'voltage_max_threshold': '15',
+            'power_overload': 'True',
+            'power': '101.0'
         }
     })
 
@@ -399,6 +423,14 @@ def test_hardware_checker():
 
     assert 'PSU 5' in checker._info
     assert checker._info['PSU 5'][HealthChecker.INFO_FIELD_OBJECT_STATUS] == HealthChecker.STATUS_NOT_OK
+
+    assert 'PSU 6' in checker._info
+    assert checker._info['PSU 6'][HealthChecker.INFO_FIELD_OBJECT_MSG] == 'power of PSU 6 (101.0w) exceeds threshold (100.0w)'
+    assert checker._info['PSU 6'][HealthChecker.INFO_FIELD_OBJECT_STATUS] == HealthChecker.STATUS_NOT_OK
+
+    assert 'PSU 7' in checker._info
+    assert checker._info['PSU 7'][HealthChecker.INFO_FIELD_OBJECT_STATUS] == HealthChecker.STATUS_NOT_OK
+    assert checker._info['PSU 7'][HealthChecker.INFO_FIELD_OBJECT_MSG] == 'power of PSU 7 exceeds threshold but power or power_critical_threshold is invalid'
 
 
 def test_config():

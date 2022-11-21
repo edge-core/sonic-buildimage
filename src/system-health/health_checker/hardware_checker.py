@@ -239,6 +239,18 @@ class HardwareChecker(HealthChecker):
                                                                                                                voltage_min_th,
                                                                                                                voltage_max_th))
                         continue
+
+            if not self._ignore_check(config.ignore_devices, 'psu', name, 'power_threshold'):
+                power_overload = data_dict.get('power_overload', None)
+                if power_overload == 'True':
+                    try:
+                        power = data_dict['power']
+                        power_critical_threshold = data_dict['power_critical_threshold']
+                        self.set_object_not_ok('PSU', name, 'power of {} ({}w) exceeds threshold ({}w)'.format(name, power, power_critical_threshold))
+                    except KeyError:
+                        self.set_object_not_ok('PSU', name, 'power of {} exceeds threshold but power or power_critical_threshold is invalid'.format(name))
+                    continue
+
             self.set_object_ok('PSU', name)
 
     def reset(self):
