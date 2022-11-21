@@ -17,7 +17,13 @@ $(SYNCD_RPC)_RDEPENDS += $(LIBSAIREDIS) $(LIBSAIMETADATA)
 $(eval $(call add_derived_package,$(SYNCD),$(SYNCD_RPC)))
 
 # Inject libthrift build dependency for RPC build
-$(SYNCD)_DEPENDS += $(LIBSWSSCOMMON_DEV) $(LIBTHRIFT_DEV)
+# Support two different versions of thrift
+ifeq ($(SAITHRIFT_V2),y)
+$(SYNCD)_DEPENDS += $(LIBTHRIFT_0_14_1_DEV)
+else
+$(SYNCD)_DEPENDS += $(LIBTHRIFT_DEV)
+endif
+$(SYNCD)_DEPENDS += $(LIBSWSSCOMMON_DEV)
 $(SYNCD)_DPKG_TARGET = binary-syncd-rpc
 endif
 
