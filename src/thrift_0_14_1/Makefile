@@ -7,6 +7,7 @@ THRIFT_VERSION = 0.14.1
 MAIN_TARGET = libthrift0_$(THRIFT_VERSION)_$(CONFIGURED_ARCH).deb
 DERIVED_TARGETS = libthrift-dev_$(THRIFT_VERSION)_$(CONFIGURED_ARCH).deb \
 		  python3-thrift_$(THRIFT_VERSION)_$(CONFIGURED_ARCH).deb \
+		  python-thrift_$(THRIFT_VERSION)_$(CONFIGURED_ARCH).deb \
 		  thrift-compiler_$(THRIFT_VERSION)_$(CONFIGURED_ARCH).deb
 
 THRIFT_LINK_PRE = https://archive.apache.org/dist/thrift
