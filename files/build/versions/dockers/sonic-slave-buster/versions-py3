@@ -10,7 +10,6 @@ chardet==3.0.4
 cov-core==1.15.0
 coverage==4.5.2
 cryptography==2.6.1
-deprecated==1.2.13
 devscripts==2.19.5+deb10u1
 distro-info==0.21
 docutils==0.14
@@ -64,7 +63,7 @@ python-magic==0.4.16
 pytz==2019.1
 pyxdg==0.25
 pyyaml==5.4.1
-redis==4.3.4
+redis==4.3.5
 regex==2022.10.31
 requests==2.21.0
 roman==2.0.0
@@ -76,5 +75,4 @@ typing_extensions==4.4.0
 unattended-upgrades==0.1
 unidiff==0.5.4
 urllib3==1.24.1
-wrapt==1.14.1
 zipp==3.10.0

@@ -16,7 +16,7 @@ natsort==6.2.1
 netaddr==0.8.0
 netifaces==0.11.0
 pddf-platform==1.0
-prefixed==0.4.2
+prefixed==0.5.0
 prettyprinter==0.18.0
 psutil==5.9.4
 pycairo==1.22.0
