@@ -1,4 +1,5 @@
 {% if ('type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] == 'LeafRouter') %}
+{% set different_dscp_to_tc_map = true %}
 {%- macro generate_dscp_to_tc_map() %}
     "DSCP_TO_TC_MAP": {
         "AZURE": {
@@ -150,6 +151,8 @@
     },
 {%- endmacro %}
 {% elif ('subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR') %}
+{% set different_dscp_to_tc_map = true %}
+{% set different_tc_to_queue_map = true %}
 {%- macro generate_dscp_to_tc_map() %}
     "DSCP_TO_TC_MAP": {
         "AZURE": {
