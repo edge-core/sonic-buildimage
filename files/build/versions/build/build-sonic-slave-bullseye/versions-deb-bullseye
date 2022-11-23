@@ -29,7 +29,7 @@ libteam-utils==1.30-1
 libteam5==1.30-1
 libteamdctl0==1.30-1
 libthrift-0.11.0==0.11.0-4
-libthrift-dev==0.11.0-4
+libthrift-dev==0.14.1
 libthrift0==0.14.1
 libyang==1.0.73
 libyang-cpp==1.0.73
@@ -67,7 +67,7 @@ sxd-libs==1.mlnx.4.5.3186
 sxd-libs-dev==1.mlnx.4.5.3186
 syncd==1.0.0
 syncd-vs==1.0.0
-thrift-compiler==0.11.0-4
+thrift-compiler==0.14.1
 wjh-libs==1.mlnx.4.5.3186
 wjh-libs-dev==1.mlnx.4.5.3186
 wpasupplicant==2:2.9.0-14

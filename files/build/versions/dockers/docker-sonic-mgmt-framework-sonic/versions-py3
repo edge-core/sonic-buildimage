@@ -12,7 +12,7 @@ importlib-metadata==5.0.0
 importlib-resources==5.10.0
 inflection==0.5.1
 itsdangerous==2.1.2
-jsonschema==4.17.0
+jsonschema==4.17.1
 jsonschema-spec==0.1.2
 lazy-object-proxy==1.8.0
 openapi-schema-validator==0.3.4

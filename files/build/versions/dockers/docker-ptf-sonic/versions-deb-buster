@@ -62,7 +62,7 @@ libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
 libalgorithm-merge-perl==0.08-3
 libapparmor1==2.13.2-10
-libarchive13==3.3.3-4+deb10u1
+libarchive13==3.3.3-4+deb10u2
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libassuan0==2.5.2-1
