@@ -15,17 +15,15 @@ class StaticRouteTimer(object):
     MAX_TIMER     = 1800
 
     def set_timer(self):
-        """ Check for custom route expiry time in STATIC_ROUTE:EXPIRY_TIME """
-        keys = self.db.keys(self.db.APPL_DB, "STATIC_ROUTE_EXPIRY_TIME")
-        if len(keys) == 0:
-            return
+        """ Check for custom route expiry time in STATIC_ROUTE_EXPIRY_TIME """
         timer = self.db.get(self.db.APPL_DB, "STATIC_ROUTE_EXPIRY_TIME", "time")
         if timer is not None:
-            timer = int(timer)     
-            if timer > 0 and timer <= self.MAX_TIMER:
-                self.timer = timer
-                return
-            log_err("Custom static route expiry time of {}s is invalid!".format(timer))
+            if timer.isdigit():
+                timer = int(timer)
+                if timer > 0 and timer <= self.MAX_TIMER:
+                    self.timer = timer
+                    return
+                log_err("Custom static route expiry time of {}s is invalid!".format(timer))
         return
 
     def alarm(self):
