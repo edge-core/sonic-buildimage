@@ -69,5 +69,5 @@ strace==4.26-0.2
 swss==1.0.0
 swss-dbg==1.0.0
 tcpdump==4.9.3-1~deb10u2
-vim==2:8.1.0875-5+deb10u3
-vim-runtime==2:8.1.0875-5+deb10u3
+vim==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4

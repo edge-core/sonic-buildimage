@@ -52,7 +52,7 @@ libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
 libalgorithm-merge-perl==0.08-3
 libapparmor1==2.13.2-10
-libarchive13==3.3.3-4+deb10u1
+libarchive13==3.3.3-4+deb10u2
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libassuan0==2.5.2-1
@@ -257,12 +257,12 @@ traceroute==1:2.1.0-2
 tzdata==2021a-0+deb10u8
 ucf==3.0038+nmu1
 unzip==6.0-23+deb10u3
-vim==2:8.1.0875-5+deb10u3
-vim-common==2:8.1.0875-5+deb10u3
-vim-runtime==2:8.1.0875-5+deb10u3
+vim==2:8.1.0875-5+deb10u4
+vim-common==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4
 wget==1.20.1-1.1
 xauth==1:1.0.10-1
 xdg-user-dirs==0.17-2
-xxd==2:8.1.0875-5+deb10u3
+xxd==2:8.1.0875-5+deb10u4
 xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u2

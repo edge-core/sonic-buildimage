@@ -16,7 +16,7 @@ m2crypto==0.38.0
 netifaces==0.10.9
 packaging==21.3
 pexpect==4.8.0
-prefixed==0.4.2
+prefixed==0.5.0
 prettyprinter==0.18.0
 ptyprocess==0.7.0
 pycairo==1.22.0
@@ -29,7 +29,7 @@ scapy==2.4.4
 semantic-version==2.10.0
 tabulate==0.8.2
 toposort==1.6
-urllib3==1.26.12
+urllib3==1.26.13
 wcwidth==0.2.5
 websocket-client==1.4.2
 www-authenticate==0.9.2
