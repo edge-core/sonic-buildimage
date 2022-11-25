@@ -31,7 +31,7 @@ semantic-version==2.10.0
 systemd-python==234
 tabulate==0.8.2
 toposort==1.6
-urllib3==1.26.12
+urllib3==1.26.13
 wcwidth==0.2.5
 websocket-client==1.4.2
 www-authenticate==0.9.2
