@@ -330,9 +330,9 @@ udev==247.3-6~bpo10+1
 unzip==6.0-23+deb10u3
 usb.ids==2019.07.27-0+deb10u1
 usbutils==1:010-3
-vim==2:8.1.0875-5+deb10u3
-vim-common==2:8.1.0875-5+deb10u3
-vim-runtime==2:8.1.0875-5+deb10u3
-xxd==2:8.1.0875-5+deb10u3
+vim==2:8.1.0875-5+deb10u4
+vim-common==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4
+xxd==2:8.1.0875-5+deb10u4
 xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u2

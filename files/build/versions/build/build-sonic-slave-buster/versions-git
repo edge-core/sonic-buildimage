@@ -1,7 +1,7 @@
 https://github.com/CESNET/libyang.git==f95b730cc8d8903c68f1b463a0b4d2856ad4943f
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/jeroennijhof/pam_tacplus.git==4f91b0de2be88d02984bef8fb0f64c213c650ed9
-https://github.com/jpirko/libteam.git==c32369829b2b1881e25fab85d74aa0b3ad017dcb
+https://github.com/jpirko/libteam.git==5147be02262dbd18cb7283ff660a8169eaa88b8a
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/sflow/host-sflow==458295bcd2c598e5a121e8094eecbce56da126e4
 https://github.com/sflow/sflowtool==bbb242e00caa94a23b26e3f93a5cae03ac6b13cb

@@ -70,5 +70,5 @@ sonic-mgmt-framework==1.0-01
 sonic-mgmt-framework-dbg==1.0-01
 sshpass==1.06-1
 strace==4.26-0.2
-vim==2:8.1.0875-5+deb10u3
-vim-runtime==2:8.1.0875-5+deb10u3
+vim==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4
