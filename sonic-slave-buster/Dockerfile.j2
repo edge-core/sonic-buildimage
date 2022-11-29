@@ -354,6 +354,9 @@ RUN apt-get update && apt-get install -y \
         libsystemd-dev \
         pkg-config
 
+# Upgrade cmake to support dbus-python build in armhf
+RUN apt-get install -t buster-backports -y cmake
+
 RUN apt-get -y build-dep openssh
 
 # Build fix for ARMHF buster libsairedis
