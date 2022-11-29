@@ -17,6 +17,10 @@ module sonic-syslog {
         prefix vrf;
     }
 
+    import sonic-feature {
+        prefix feature;
+    }
+
     description "Syslog YANG Module for SONiC OS: remote syslog logging";
 
     revision 2022-04-18 {
@@ -28,6 +32,20 @@ module sonic-syslog {
         type enumeration {
             enum default;
             enum mgmt;
+        }
+    }
+
+    typedef syslog-rate-limit-interval {
+        description "Message rate limit interval in second";
+        type uint32 {
+            range 0..2147483647;
+        }
+    }
+
+    typedef syslog-rate-limit-burst {
+        description "Message rate limit burst in message count";
+        type uint32 {
+            range 0..2147483647;
         }
     }
 
@@ -74,6 +92,50 @@ module sonic-syslog {
             /* end of list SYSLOG_SERVER_LIST */
         }
         /* end of container SYSLOG_SERVER */
+
+        container SYSLOG_CONFIG {
+
+            description "SYSLOG_CONFIG part of config_db.json";
+
+            container GLOBAL {
+                leaf rate_limit_interval {
+                    type syslog-rate-limit-interval;
+                }
+
+                leaf rate_limit_burst {
+                    type syslog-rate-limit-burst;
+                }
+            }
+            /* end of list SYSLOG_CONFIG_LIST */
+        }
+        /* end of container SYSLOG_CONFIG */
+
+        container SYSLOG_CONFIG_FEATURE {
+
+            description "SYSLOG_CONFIG_FEATURE part of config_db.json";
+
+            list SYSLOG_CONFIG_FEATURE_LIST {
+
+                key "service";
+
+                leaf service {
+                    description "Service name";
+                    type leafref {
+                        path "/feature:sonic-feature/feature:FEATURE/feature:FEATURE_LIST/feature:name";
+                    }
+                }
+
+                leaf rate_limit_interval {
+                    type syslog-rate-limit-interval;
+                }
+
+                leaf rate_limit_burst {
+                    type syslog-rate-limit-burst;
+                }
+            }
+            /* end of list SYSLOG_CONFIG_FEATURE_LIST */
+        }
+        /* end of container SYSLOG_CONFIG_FEATURE */
     }
     /* end of container sonic-syslog */
 }

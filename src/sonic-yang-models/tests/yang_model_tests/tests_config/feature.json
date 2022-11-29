@@ -11,7 +11,8 @@
                         "has_global_scope": "True",
                         "has_per_asic_scope": "True",
                         "set_owner": "local",
-                        "check_up_status": "False"
+                        "check_up_status": "False",
+                        "support_syslog_rate_limit": "true"
                     },
                     {
                         "name": "swss",
@@ -21,7 +22,8 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
                         "set_owner": "local",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     },
                     {
                         "name": "syncd",
@@ -31,7 +33,8 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
                         "set_owner": "local",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     },
                     {
                         "name": "snmp",
@@ -41,7 +44,8 @@
                         "has_global_scope": "true",
                         "has_per_asic_scope": "false",
                         "set_owner": "kube",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     },
                     {
                         "name": "lldp",
@@ -51,7 +55,8 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
                         "set_owner": "kube",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     },
                     {
                         "name": "dhcp_relay",
@@ -61,7 +66,8 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
                         "set_owner": "kube",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     }
                 ]
             }
@@ -79,7 +85,8 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
                         "set_owner": "invalid",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
                     }
                 ]
             }
@@ -96,7 +103,9 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
-                        "check_up_status": "false"
+                        "check_up_status": "false",
+                        "support_syslog_rate_limit": "true"
+
                     }
                 ]
             }
@@ -113,7 +122,8 @@
                         "has_timer": "FALSE",
                         "has_global_scope": "TRUE",
                         "has_per_asic_scope": "TRUE",
-                        "check_up_status": "FALSE"
+                        "check_up_status": "FALSE",
+                        "support_syslog_rate_limit": "TRUE"
                     }
                 ]
             }
