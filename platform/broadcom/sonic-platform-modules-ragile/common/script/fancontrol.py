@@ -5,6 +5,7 @@ import os
 import time
 import traceback
 import glob
+import subprocess
 from rgutil.logutil import Logger
 from ragileutil import wait_docker
 
@@ -196,7 +197,7 @@ class FanControl(object):
                     loc = item_slot.get("loc")
                     offset = item_slot.get("offset")
                     ind, val = rgi2cget(bus, loc, offset)
-                    if ind == True:
+                    if ind is True:
                         retval = val
                     else:
                         totalerr -= 1
@@ -259,7 +260,7 @@ class FanControl(object):
                     loc = item_psu.get("loc")
                     offset = item_psu.get("offset")
                     ind, val = rgi2cget(bus, loc, offset)
-                    if ind == True:
+                    if ind is True:
                         retval = val
                     else:
                         totalerr -= 1
@@ -321,7 +322,7 @@ class FanControl(object):
                 presentaddr = presentstatus.get("offset")
                 presentbit = presentstatus.get("bit")
                 ind, val = rgi2cget(presentbus, presentloc, presentaddr)
-                if ind == True:
+                if ind is True:
                     val_t = (int(val, 16) & (1 << presentbit)) >> presentbit
                     logger.debug(
                         DEBUG_COMMON,
@@ -343,7 +344,7 @@ class FanControl(object):
                     statusaddr = motor.get("offset", None)
                     statusbit = motor.get("bit", None)
                     ind, val = rgi2cget(statusbus, statusloc, statusaddr)
-                    if ind == True:
+                    if ind is True:
                         val_t = (int(val, 16) & (1 << statusbit)) >> statusbit
                         logger.debug(
                             DEBUG_COMMON,
@@ -446,7 +447,7 @@ class FanControl(object):
         try:
             cur_fan_status = []
             ret = self.checkfan(cur_fan_status)
-            if ret == True:
+            if ret is True:
                 self.set_fan_attr(cur_fan_status)
                 self.fan_present_num(cur_fan_status)
                 logger.debug(DEBUG_COMMON, "%%policy:get_fan_status success")
@@ -469,7 +470,7 @@ class FanControl(object):
         try:
             curPsuStatus = []
             ret = self.checkpsu(curPsuStatus)
-            if ret == True:
+            if ret is True:
                 self.normal_psu_num(curPsuStatus)
                 logger.debug(DEBUG_COMMON, "%%policy:get_psu_status success")
                 return 0
@@ -499,7 +500,7 @@ class FanControl(object):
         try:
             monitortemp = []
             ret = self.gettemp(monitortemp)
-            if ret == True:
+            if ret is True:
                 self.get_monitor_temp(monitortemp)
                 logger.debug(DEBUG_COMMON, "%%policy:get_temp_status success")
                 return 0
@@ -511,9 +512,9 @@ class FanControl(object):
 
     def get_mac_status_bcmcmd(self):
         try:
-            if wait_docker(timeout=0) == True:
+            if wait_docker(timeout=0) is True:
                 sta, ret = get_mac_temp()
-                if sta == True:
+                if sta is True:
                     self._mac_aver = float(ret.get("average", self._mac_aver))
                     self._mac_max = float(ret.get("maximum", self._mac_max))
                     logger.debug(
@@ -532,7 +533,7 @@ class FanControl(object):
     def get_mac_status_sysfs(self, conf):
         try:
             sta, ret = get_mac_temp_sysfs(conf)
-            if sta == True:
+            if sta is True:
                 self._mac_aver = float(ret) / 1000
                 self._mac_max = float(ret) / 1000
                 logger.debug(
@@ -578,7 +579,7 @@ class FanControl(object):
         try:
             curSlotStatus = []
             ret = self.checkslot(curSlotStatus)
-            if ret == True:
+            if ret is True:
                 self.set_slot_attr(curSlotStatus)
                 logger.debug(DEBUG_COMMON, "%%policy:get_slot_status success")
         except AttributeError as e:
@@ -631,8 +632,8 @@ class FanControl(object):
         self.check_crit()
         if (
             self.critnum == 0
-            and self.check_warn() == False
-            and self.detect_fan_status() == True
+            and self.check_warn() is False
+            and self.detect_fan_status() is True
         ):
             self.fanctrol()
             self.check_dev_err()
@@ -768,13 +769,13 @@ class FanControl(object):
             fanstatus = self.check_fan_status()
             psustatus = self.check_psu_status()
             if (
-                self.check_temp_crit() == True
+                self.check_temp_crit() is True
                 or fanstatus == "red"
                 or psustatus == "red"
             ):
                 status = "red"
             elif (
-                self.check_temp_warn() == True
+                self.check_temp_warn() is True
                 or fanstatus == "yellow"
                 or psustatus == "yellow"
             ):
@@ -864,7 +865,7 @@ class FanControl(object):
         else:
             mask = item.get("mask", 0xFF)
             ind, val = rgi2cget(item["bus"], item["devno"], item["addr"])
-            if ind == True:
+            if ind is True:
                 setval = (int(val, 16) & ~mask) | item.get(color)
                 rgi2cset(item["bus"], item["devno"], item["addr"], setval)
             else:
@@ -884,12 +885,12 @@ class FanControl(object):
 
     def check_warn(self):
         try:
-            if self.check_temp_warn() == True:
+            if self.check_temp_warn() is True:
                 logger.debug(DEBUG_FANCONTROL, "anti-shake start")
                 time.sleep(MONITOR_CONST.SHAKE_TIME)
                 logger.debug(DEBUG_FANCONTROL, "anti-shake end")
                 self.board_moni_msg()  # re-read
-                if self.check_temp_warn() == True:
+                if self.check_temp_warn() is True:
                     logger.warn("%%DEV_MONITOR-TEMP:The temperature of device is over warning value.")
                     self.set_fan_max_speed()  # fan full speed
                     return True
@@ -900,19 +901,19 @@ class FanControl(object):
 
     def check_crit(self):
         try:
-            if self.check_temp_crit() == True:
+            if self.check_temp_crit() is True:
                 logger.debug(DEBUG_FANCONTROL, "anti-shake start")
                 time.sleep(MONITOR_CONST.SHAKE_TIME)
                 logger.debug(DEBUG_FANCONTROL, "anti-shake end")
                 self.board_moni_msg()  # re-read
-                if self.check_temp_crit() == True:
+                if self.check_temp_crit() is True:
                     logger.crit(
                         "%%DEV_MONITOR-TEMP:The temperature of device is over critical value.",
                     )
                     self.set_fan_max_speed()  # fan full speed
                     self.critnum += 1  # anti-shake
                     if self.critnum >= MONITOR_CONST.CRITICAL_NUM:
-                        os.system("reboot")
+                        subprocess.call(["reboot"])
                     logger.debug(DEBUG_FANCONTROL, "crit times:%d" % self.critnum)
                 else:
                     self.critnum = 0
@@ -929,7 +930,7 @@ def callback():
 
 def do_fan_ctrl(fanctrl):
     ret = fanctrl.board_moni_msg()
-    if ret == True:
+    if ret is True:
         logger.debug(DEBUG_FANCONTROL, "%%policy:start_fan_ctrl")
         fanctrl.start_fan_ctrl()
     else:

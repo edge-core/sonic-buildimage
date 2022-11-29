@@ -9,11 +9,6 @@
 # Copyright:   (c) rd 2018
 # -------------------------------------------------------------------------
 import sys
-
-if sys.version_info >= (3, 0):
-    import subprocess as commands
-else:
-    import commands
 import os
 import re
 import syslog
@@ -49,6 +44,7 @@ from ragileconfig import (
 
 try:
     from eepromutil.fru import ipmifru
+    from sonic_py_common.general import getstatusoutput_noshell, getstatusoutput_noshell_pipe
 
 except Exception or SystemExit:
     pass
@@ -344,21 +340,21 @@ class SETMACException(Exception):
 
 
 def checkinput(b):
-    if b.isdigit() == False:
+    if b.isdigit() is False:
         raise Exception("Ivalid Number")
     if int(b) > 0xFF or int(b) < 0:
         raise Exception("Out of area")
 
 
 def checkinputproduct(b):
-    if b.isalnum() == False:
+    if b.isalnum() is False:
         raise Exception("Invalid string")
 
 
 def getInputSetmac(val):
     bia = val.boardInfoArea
     pia = val.productInfoArea
-    if bia != None:
+    if bia is not None:
         a = raw_input("[Board Card]Product Serial Number:")
         if len(a) != 13:
             raise Exception("Invalid Serial Number length")
@@ -368,7 +364,7 @@ def getInputSetmac(val):
         checkinput(b)
         b = "%0x" % int(b)
         bia.boardextra1 = b.upper()
-    if pia != None:
+    if pia is not None:
         a = raw_input("[Product Area]Product Serial Number:")
         if len(a) != 13:
             raise Exception("Invalid Serial Number")
@@ -633,7 +629,7 @@ class AVSUTIL:
         macavs = 0
         name = MAC_DEFAULT_PARAM["sdkreg"]
         ret, status = getSdkReg(name)
-        if ret == False:
+        if ret is False:
             return False
         status = strtoint(status)
         # shift operation
@@ -711,8 +707,8 @@ class BMC:
 
 def getSdkReg(reg):
     try:
-        cmd = "bcmcmd -t 1 'getr %s ' < /dev/null" % reg
-        ret, result = os_system(cmd)
+        cmd = ["bcmcmd", "-t", "1", 'getr '+str(reg)]
+        ret, result = getstatusoutput_noshell(cmd)
         result_t = result.strip().replace("\r", "").replace("\n", "")
         if ret != 0 or "Error:" in result_t:
             return False, result
@@ -807,8 +803,8 @@ def get_mac_temp():
     result = {}
     # wait_docker()
     # exec twice, get the second result
-    os_system('bcmcmd -t 1 "show temp" < /dev/null')
-    ret, log = os_system('bcmcmd -t 1 "show temp" < /dev/null')
+    getstatusoutput_noshell(["bcmcmd", "-t", "1", "show temp"])
+    ret, log = getstatusoutput_noshell(["bcmcmd", "-t", "1", "show temp"])
     if ret:
         return False, result
     else:
@@ -875,21 +871,21 @@ def restartDockerService(force=False):
         "teamd",
         "pmon",
     ]
-    ret, status = os_system("docker ps")
+    ret, status = getstatusoutput_noshell(["docker", "ps"])
     if ret == 0:
         for tmpname in container_name:
             if tmpname not in status:
                 if force == True:
-                    os_system("docker restart %s" % tmpname)
+                    getstatusoutput_noshell(["docker", "restart", tmpname])
                 else:
-                    os_system("systemctl restart %s" % tmpname)
+                    getstatusoutput_noshell(["systemctl", "restart", tmpname])
 
 
 def wait_dhcp(timeout):
     time_cnt = 0
     while True:
         try:
-            ret, status = os_system("systemctl status dhcp_relay.service")
+            ret, status = getstatusoutput_noshell(["systemctl", "status", "dhcp_relay.service"])
             if (ret == 0 and "running" in status) or "SUCCESS" in status:
                 break
             else:
@@ -1028,10 +1024,12 @@ def isValidMac(mac):
 
 def util_setmac(eth, mac):
     rulefile = "/etc/udev/rules.d/70-persistent-net.rules"
-    if isValidMac(mac) == False:
+    if isValidMac(mac) is False:
         return False, "MAC invaild"
-    cmd = "ethtool -e %s | grep 0x0010 | awk '{print \"0x\"$13$12$15$14}'" % eth
-    ret, log = os_system(cmd)
+    cmd1 = ["ethtool", "-e", eth]
+    cmd2 = ["grep", "0x0010"]
+    cmd3 = ["awk", '{print \"0x\"$13$12$15$14}']
+    ret, log = getstatusoutput_noshell_pipe(cmd1, cmd2, cmd3)
     log_debug(log)
     magic = ""
     if ret == 0 and len(log):
@@ -1039,22 +1037,22 @@ def util_setmac(eth, mac):
     macs = mac.upper().split(":")
 
     # chage ETH0 to value after setmac
-    ifconfigcmd = "ifconfig eth0 hw ether %s" % mac
+    ifconfigcmd = ["ifconfig", "eth0", "hw", "ether", mac]
     log_debug(ifconfigcmd)
-    ret, status = os_system(ifconfigcmd)
+    ret, status = getstatusoutput_noshell(ifconfigcmd)
     if ret:
         raise SETMACException("software set  Internet card MAC error")
     index = 0
     for item in macs:
-        cmd = "ethtool -E %s magic %s offset %d value 0x%s" % (eth, magic, index, item)
+        cmd = ["ethtool", "-E", eth, "magic", magic, "offset", str(offset), "value", "0x"+str(item)]
         log_debug(cmd)
         index += 1
-        ret, log = os_system(cmd)
+        ret, log = getstatusoutput_noshell(cmd)
         if ret != 0:
             raise SETMACException("set hardware Internet card MAC error")
     # get value after setting
-    cmd_t = "ethtool -e eth0 offset 0 length 6"
-    ret, log = os_system(cmd_t)
+    cmd_t = ["ethtool", "-e", "eth0", "offset", "0", "length", "6"]
+    ret, log = getstatusoutput_noshell(cmd_t)
     m = re.split(":", log)[-1].strip().upper()
     mac_result = m.upper().split(" ")
 
@@ -1143,7 +1141,7 @@ def changeTypeValue(_value, type1, tips, example):
                 release_mac += name[i * 2 : i * 2 + 2]
             else:
                 release_mac += ":" + name[i * 2 : i * 2 + 2]
-        if isValidMac(release_mac) == True:
+        if isValidMac(release_mac) is True:
             _value[type1] = release_mac
         else:
             raise SETMACException("MAC address invaild, check please")
@@ -1158,7 +1156,7 @@ def changeTypeValue(_value, type1, tips, example):
         else:
             raise SETMACException("Version is not number, check please")
     elif type1 == TLV_CODE_SERIAL_NUMBER:
-        if name.isalnum() == False:
+        if name.isalnum() is False:
             raise SETMACException("Serial Number invaild string, check please")
         elif len(name) != 13:
             raise SETMACException("Serial Number length incorrect, check please")
@@ -1185,11 +1183,11 @@ def generate_ext(cardid):
 
 
 def rgi2cget(bus, devno, address):
-    command_line = "i2cget -f -y %d 0x%02x 0x%02x " % (bus, devno, address)
+    command_line = ["i2cget", "-f", "-y", str(bus), "0x%02x"%devno, "0x%02x"%address]
     retrytime = 6
     ret_t = ""
     for i in range(retrytime):
-        ret, ret_t = os_system(command_line)
+        ret, ret_t = getstatusoutput_noshell(command_line)
         if ret == 0:
             return True, ret_t
         time.sleep(0.1)
@@ -1197,11 +1195,11 @@ def rgi2cget(bus, devno, address):
 
 
 def rgi2cset(bus, devno, address, byte):
-    command_line = "i2cset -f -y %d 0x%02x 0x%02x 0x%02x" % (bus, devno, address, byte)
+    command_line = ["i2cset", "-f", "-y", str(bus), "0x%02x"%devno, "0x%02x"%address, "0x%02x"%byte]
     retrytime = 6
     ret_t = ""
     for i in range(retrytime):
-        ret, ret_t = os_system(command_line)
+        ret, ret_t = getstatusoutput_noshell(command_line)
         if ret == 0:
             return True, ret_t
     return False, ret_t
@@ -1252,30 +1250,30 @@ def rgpciwr(pcibus, slot, fn, bar, offset, data):
 
 
 def rgsysset(location, value):
-    command_line = "echo 0x%02x > %s" % (value, location)
     retrytime = 6
-    ret_t = ""
     for i in range(retrytime):
-        ret, ret_t = os_system(command_line)
-        if ret == 0:
-            return True, ret_t
-    return False, ret_t
+        try:
+            with open(location, 'w') as f:
+                f.write('0x%02x\n' % value)
+        except (IOError, FileNotFoundError) as e:
+            return False, str(e)
+    return True, ''
 
 
 def rgi2cget_word(bus, devno, address):
-    command_line = "i2cget -f -y %d 0x%02x 0x%02x w" % (bus, devno, address)
+    command_line = ["i2cget", "-f", "-y", str(bus), "0x%02x"%devno, "0x%02x"%address, 'w']
     retrytime = 3
     ret_t = ""
     for i in range(retrytime):
-        ret, ret_t = os_system(command_line)
+        ret, ret_t = getstatusoutput_noshell(command_line)
         if ret == 0:
             return True, ret_t
     return False, ret_t
 
 
 def rgi2cset_word(bus, devno, address, byte):
-    command_line = "i2cset -f -y %d 0x%02x 0x%02x 0x%x w" % (bus, devno, address, byte)
-    os_system(command_line)
+    command_line = ["i2cset", "-f", "-y", str(bus), "0x%02x"%devno, "0x%02x"%address, "0x%02x"%byte, 'w']
+    getstatusoutput_noshell(command_line)
 
 
 def fan_setmac():
@@ -1395,7 +1393,7 @@ def fac_fans_setmac_tlv(ret):
         while True:
             print("Please input[%s]:" % "Serial Number")
             fan_sn = raw_input()
-            if checkfansninput(fan_sn, fansntemp) == False:
+            if checkfansninput(fan_sn, fansntemp) is False:
                 continue
             fansntemp.append(fan_sn)
             fan_sn = fan_sn + chr(0x00)
@@ -1404,7 +1402,7 @@ def fac_fans_setmac_tlv(ret):
         while True:
             print("Please input[%s]:" % "hardware version")
             hwinfo = raw_input()
-            if checkfanhwinput(hwinfo) == False:
+            if checkfanhwinput(hwinfo) is False:
                 continue
             fan_hwinfo = hwinfo + chr(0x00)
             fane2.typehwinfo = fan_hwinfo + chr(0x00)
@@ -1416,7 +1414,7 @@ def fac_fans_setmac_tlv(ret):
     print("\n*******************************\n")
 
     util_show_fanse2(fans)
-    if getInputCheck("check input correctly or not（Yes/No):") == True:
+    if getInputCheck("check input correctly or not（Yes/No):") is True:
         for fan in fans:
             log_debug("ouput fan")
             fac_fan_setmac(fan)
@@ -1512,14 +1510,15 @@ def writeToEEprom(rst_arr):
     elif dealtype == "io":
         io_wr(E2_PROTECT["io_addr"], E2_PROTECT["close"])
     # deal last drivers
-    os.system("rmmod at24 ")
-    os.system("modprobe at24 ")
-    os.system("rm -f /var/cache/sonic/decode-syseeprom/syseeprom_cache")
+    subprocess.call(["rmmod", "at24"])
+    subprocess.call(["modprobe", "at24"])
+    subprocess.call(["rm", "-f", "/var/cache/sonic/decode-syseeprom/syseeprom_cache"])
 
 
 def get_local_eth0_mac():
-    cmd = "ifconfig eth0 |grep HWaddr"
-    print(os_system(cmd))
+    cmd1 = ["ifconfig", "eth0"]
+    cmd2 = ["grep", "HWaddr"]
+    print(getstatusoutput_noshell_pipe(cmd1, cmd2))
 
 
 def getonieversion():
@@ -1581,13 +1580,13 @@ def fac_board_setmac():
         )  # add setmac time
         rst, ret = generate_value(_value)
         if (
-            util_setmac("eth0", _value[TLV_CODE_MAC_BASE]) == True
+            util_setmac("eth0", _value[TLV_CODE_MAC_BASE]) is True
         ):  #  set  Internet cardIP
             writeToEEprom(rst)  # write to e2
             # set BMC MAC
             if "bmcsetmac" in FACTESTMODULE and FACTESTMODULE["bmcsetmac"] == 1:
                 bmcmac = createbmcMac(_value[TLV_CODE_MAC_BASE])
-                if ipmi_set_mac(bmcmac) == True:
+                if ipmi_set_mac(bmcmac) is True:
                     print("BMC  MAC[%s]" % bmcmac)
                 else:
                     print("SET BMC MAC FAILED")
@@ -1605,12 +1604,12 @@ def fac_board_setmac():
 
 def ipmi_set_mac(mac):
     macs = mac.split(":")
-    cmdinit = "ipmitool raw 0x0c 0x01 0x01 0xc2 0x00"
-    cmdset = "ipmitool raw 0x0c 0x01 0x01 0x05"
+    cmdinit = ["ipmitool", "raw", "0x0c", "0x01", "0x01", "0xc2", "0x00"]
+    cmdset =  ["ipmitool", "raw", "0x0c", "0x01", "0x01", "0x05"]
     for ind in range(len(macs)):
-        cmdset += " 0x%02x" % int(macs[ind], 16)
-    os_system(cmdinit)
-    ret, status = os_system(cmdset)
+        cmdset.append("0x%02x" % int(macs[ind], 16))
+    getstatusoutput_noshell(cmdinit)
+    ret, status = getstatusoutput_noshell(cmdset)
     if ret:
         RJPRINTERR("\n\n%s\n\n" % status)
         return False
@@ -1637,8 +1636,8 @@ def bmc_setmac():
             release_mac += name[i * 2 : i * 2 + 2]
         else:
             release_mac += ":" + name[i * 2 : i * 2 + 2]
-    if isValidMac(release_mac) == True:
-        if ipmi_set_mac(release_mac) == True:
+    if isValidMac(release_mac) is True:
+        if ipmi_set_mac(release_mac) is True:
             return True
     else:
         RJPRINTERR("\nMAC address invaild, try again\n")
@@ -1650,11 +1649,11 @@ def closeProtocol():
     log_info("disable LLDP")
     sys.stdout.write(".")
     sys.stdout.flush()
-    os_system("systemctl stop lldp.service")
+    getstatusoutput_noshell(["systemctl", "stop", "lldp.service"])
     log_info("disable lldp service")
     sys.stdout.write(".")
     sys.stdout.flush()
-    os_system("systemctl stop bgp.service")
+    getstatusoutput_noshell(["systemctl", "stop", "bgp.service"])
     log_info("disable bgp service")
     sys.stdout.write(".")
     sys.stdout.flush()
@@ -1678,8 +1677,8 @@ def checkSdkMem():
     with open(file_name, "w") as f:
         f.write(file_data)
     print("change SDK memory to 256, reboot required")
-    os_system("sync")
-    os_system("reboot")
+    getstatusoutput_noshell(["sync"])
+    getstatusoutput_noshell(["reboot"])
 
 
 ##########################################################################
@@ -1868,26 +1867,21 @@ def getCardId():
     return None
 
 
-# ====================================
-# execute shell command
-# ====================================
-def os_system(cmd):
-    status, output = commands.getstatusoutput(cmd)
-    return status, output
-
-
 ###########################################
 # get memory slot and number via DMI command
 ###########################################
 def getsysmeminfo():
-    ret, log = os_system("which dmidecode ")
+    ret, log = getstatusoutput_noshell(["which", "dmidecode"])
     if ret != 0 or len(log) <= 0:
         error = "cmd find dmidecode"
         return False, error
-    cmd = log + '|grep -P -A5 "Memory\s+Device"|grep Size|grep -v Range'
+    cmd1 = [log]
+    cmd2 = ['grep', '-P', '-A5', "Memory\s+Device"]
+    cmd3 = ['grep', 'Size']
+    cmd4 = ['grep', '-v', 'Range']
     # get total number first
     result = []
-    ret1, log1 = os_system(cmd)
+    ret1, log1 = getstatusoutput_noshell_pipe(cmd1, cmd2, cmd3, cmd4)
     if ret1 == 0 and len(log1):
         log1 = log1.lstrip()
         arr = log1.split("\n")
@@ -1908,13 +1902,16 @@ def getsysmeminfo():
 # return various arrays
 ###########################################
 def getsysmeminfo_detail():
-    ret, log = os_system("which dmidecode ")
+    ret, log = getstatusoutput_noshell(["which", "dmidecode"])
     if ret != 0 or len(log) <= 0:
         error = "cmd find dmidecode"
         return False, error
-    cmd = log + ' -t 17 | grep  -A21 "Memory Device"'  # 17
+    cmd1 = [log]
+    cmd2 = ['-t', '17']
+    cmd3 = ['grep', '-A21', "Memory Device"]  # 17
+    cmd = ' '.join(cmd1) + ' '.join(cmd2) + ' '.join(cmd3)
     # get total number
-    ret1, log1 = os_system(cmd)
+    ret1, log1 = getstatusoutput_noshell_pipe(cmd1, cmd2, cmd3)
     if ret1 != 0 or len(log1) <= 0:
         return False, "command execution error[%s]" % cmd
     result_t = log1.split("--")
@@ -1935,13 +1932,13 @@ def getsysmeminfo_detail():
 # get BIOS info via DMI command
 ###########################################
 def getDmiSysByType(type_t):
-    ret, log = os_system("which dmidecode ")
+    ret, log = getstatusoutput_noshell(["which", "dmidecode"])
     if ret != 0 or len(log) <= 0:
         error = "cmd find dmidecode"
         return False, error
-    cmd = log + " -t %s" % type_t
+    cmd = [log] + ["-t", type_t]
     # get total number
-    ret1, log1 = os_system(cmd)
+    ret1, log1 = getstatusoutput_noshell(cmd)
     if ret1 != 0 or len(log1) <= 0:
         return False, "command execution error[%s]" % cmd
     its = log1.replace("\t", "").strip().split("\n")
@@ -2000,11 +1997,11 @@ def getUsbLocation():
 # judge USB file
 def getusbinfo():
     ret, path = getUsbLocation()
-    if ret == False:
+    if ret is False:
         return False, "not usb exists"
     str = os.path.join(path, "size")
     ret, value = getfilevalue(str)
-    if ret == True:
+    if ret is True:
         return (
             True,
             {
@@ -2017,9 +2014,10 @@ def getusbinfo():
 
 
 def get_cpu_info():
-    cmd = "cat /proc/cpuinfo |grep processor -A18"  # 17
-
-    ret, log1 = os_system(cmd)
+    cmd1 = ["cat", "/proc/cpuinfo"]
+    cmd2 = ["grep", "processor", "-A18"]  # 17
+    cmd = ' '.join(cmd1) + ' '.join(cmd2)
+    ret, log1 = getstatusoutput_noshell_pipe(cmd1, cmd2)
     if ret != 0 or len(log1) <= 0:
         return False, "command execution error[%s]" % cmd
     result_t = log1.split("--")

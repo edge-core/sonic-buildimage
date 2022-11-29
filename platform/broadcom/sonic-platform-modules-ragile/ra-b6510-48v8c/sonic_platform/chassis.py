@@ -6,9 +6,9 @@
 
 try:
     import time
-    import subprocess
     from sonic_platform_pddf_base.pddf_chassis import PddfChassis
     from rgutil.logutil import Logger
+    from sonic_py_common.general import getstatusoutput_noshell
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -30,14 +30,14 @@ class Chassis(PddfChassis):
     def __init__(self, pddf_data=None, pddf_plugin_data=None):
         PddfChassis.__init__(self, pddf_data, pddf_plugin_data)
 
-        self.enable_read = "i2cset -f -y 2 0x35 0x2a 0x01"
-        self.disable_read = "i2cset -f -y 2 0x35 0x2a 0x00"
-        self.enable_write = "i2cset -f -y 2 0x35 0x2b 0x00"
-        self.disable_write = "i2cset -f -y 2 0x35 0x2b 0x01"
-        self.enable_erase = "i2cset -f -y 2 0x35 0x2c 0x01"
-        self.disable_erase = "i2cset -f -y 2 0x35 0x2c 0x00"
-        self.read_value = "i2cget -f -y 2 0x35 0x25"
-        self.write_value = "i2cset -f -y 2 0x35 0x21 0x0a"
+        self.enable_read = ["i2cset", "-f", "-y", "2", "0x35", "0x2a", "0x01"]
+        self.disable_read = ["i2cset", "-f", "-y", "2", "0x35", "0x2a", "0x00"]
+        self.enable_write = ["i2cset", "-f", "-y", "2", "0x35", "0x2b", "0x00"]
+        self.disable_write = ["i2cset", "-f", "-y", "2", "0x35", "0x2b", "0x01"]
+        self.enable_erase = ["i2cset", "-f", "-y", "2", "0x35", "0x2c", "0x01"]
+        self.disable_erase = ["i2cset", "-f", "-y", "2", "0x35", "0x2c", "0x00"]
+        self.read_value = ["i2cget", "-f", "-y", "2", "0x35", "0x25"]
+        self.write_value = ["i2cset", "-f", "-y", "2", "0x35", "0x21", "0x0a"]
 
     def get_reboot_cause(self):
         """
@@ -52,25 +52,25 @@ class Chassis(PddfChassis):
         try:
             is_power_loss = False
             # enable read
-            subprocess.getstatusoutput(self.disable_write)
-            subprocess.getstatusoutput(self.enable_read)
-            ret, log = subprocess.getstatusoutput(self.read_value)
+            getstatusoutput_noshell(self.disable_write)
+            getstatusoutput_noshell(self.enable_read)
+            ret, log = getstatusoutput_noshell(self.read_value)
             if ret == 0 and "0x0a" in log:
                 is_power_loss = True
 
             # erase i2c and e2
-            subprocess.getstatusoutput(self.enable_erase)
+            getstatusoutput_noshell(self.enable_erase)
             time.sleep(1)
-            subprocess.getstatusoutput(self.disable_erase)
+            getstatusoutput_noshell(self.disable_erase)
             # clear data
-            subprocess.getstatusoutput(self.enable_write)
-            subprocess.getstatusoutput(self.disable_read)
-            subprocess.getstatusoutput(self.disable_write)
-            subprocess.getstatusoutput(self.enable_read)
+            getstatusoutput_noshell(self.enable_write)
+            getstatusoutput_noshell(self.disable_read)
+            getstatusoutput_noshell(self.disable_write)
+            getstatusoutput_noshell(self.enable_read)
             # enable write and set data
-            subprocess.getstatusoutput(self.enable_write)
-            subprocess.getstatusoutput(self.disable_read)
-            subprocess.getstatusoutput(self.write_value)
+            getstatusoutput_noshell(self.enable_write)
+            getstatusoutput_noshell(self.disable_read)
+            getstatusoutput_noshell(self.write_value)
             if is_power_loss:
                 return(self.REBOOT_CAUSE_POWER_LOSS, None)
         except Exception as e:
