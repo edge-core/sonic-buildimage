@@ -10,6 +10,7 @@ dma_desc_timeout_usec.0=15000000
 fpem_mem_entries.0=0
 higig2_hdr_mode.0=1
 ifp_inports_support_enable.0=1
+ipv6_lpm_128b_enable.0=1
 l2xmsg_mode.0=1
 l2_mem_entries.0=65536
 l3_mem_entries.0=32768
