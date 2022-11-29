@@ -160,6 +160,10 @@ ENABLE_AUTO_TECH_SUPPORT = y
 # Uncomment to enable:
 # ENABLE_TRANSLIB_WRITE = y
 
+# ENABLE_NATIVE_WRITE - Enable native write/config operations via the gNMI interface.
+# Uncomment to enable:
+# ENABLE_NATIVE_WRITE = y
+
 # INCLUDE_MACSEC - build docker-macsec for macsec support
 INCLUDE_MACSEC = y
 
