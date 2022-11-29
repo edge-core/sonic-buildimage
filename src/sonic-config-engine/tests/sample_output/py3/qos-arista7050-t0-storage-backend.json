@@ -65,7 +65,7 @@
             "wred_yellow_enable"     : "true",
             "wred_red_enable"        : "true",
             "ecn"                    : "ecn_all",
-            "green_max_threshold"    : "2097152",
+            "green_max_threshold"    : "12000144",
             "green_min_threshold"    : "1048576",
             "yellow_max_threshold"   : "2097152",
             "yellow_min_threshold"   : "1048576",

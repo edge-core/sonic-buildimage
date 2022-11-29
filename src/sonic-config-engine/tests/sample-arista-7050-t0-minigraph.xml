@@ -924,6 +924,11 @@
             <a:Reference i:nil="true"/>
             <a:Value>10.0.0.16</a:Value>
           </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>ResourceType</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>Storage</a:Value>
+          </a:DeviceProperty>
         </a:Properties>
       </a:DeviceMetadata>
     </Devices>
