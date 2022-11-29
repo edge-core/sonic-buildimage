@@ -36,5 +36,31 @@
     "SYSLOG_SERVER_INVALID_IPV6_ADDR_TEST": {
         "desc": "Load syslog server table with invalid ipv6 address as syslog server.",
         "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_CONFIG_VALID": {
+        "desc": "Configure SYSLOG_CONFIG."
+    },
+    "SYSLOG_CONFIG_INVALID_INTERVAL": {
+        "desc": "Configure invalid rate limit interval in SYSLOG_CONFIG.",
+        "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_CONFIG_INVALID_BURST": {
+        "desc": "Configure invalid rate limit burst in SYSLOG_CONFIG.",
+        "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_CONFIG_FEATURE_VALID": {
+        "desc": "Configure SYSLOG_CONFIG_FEATURE."
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_SERVICE_NAME": {
+        "desc": "Configure invalid service in SYSLOG_CONFIG_FEATURE.",
+        "eStrKey": "LeafRef"
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_INTERVAL": {
+        "desc": "Configure invalid rate_limit_interval in SYSLOG_CONFIG_FEATURE.",
+        "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_BURST": {
+        "desc": "Configure invalid rate_limit_burst in SYSLOG_CONFIG_FEATURE.",
+        "eStrKey": "InvalidValue"
     }
 }

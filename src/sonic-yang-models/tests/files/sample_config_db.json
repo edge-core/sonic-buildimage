@@ -473,6 +473,22 @@
                 "vrf": "Vrf_blue"
             }
         },
+        "SYSLOG_CONFIG" : {
+            "GLOBAL": {
+                "rate_limit_interval": "5",
+                "rate_limit_burst": "100"
+            }
+        },
+        "SYSLOG_CONFIG_FEATURE" : {
+            "swss": {
+                "rate_limit_interval": "5",
+                "rate_limit_burst": "100"
+            },
+            "bgp": {
+                "rate_limit_interval": "10",
+                "rate_limit_burst": "200"
+            }
+        },
         "CABLE_LENGTH": {
             "AZURE": {
                 "Ethernet0": "5m",
@@ -1529,7 +1545,8 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "local",
-                "check_up_status": "False"
+                "check_up_status": "False",
+                "support_syslog_rate_limit": "True"
             },
             "database": {
                 "auto_restart": "always_enabled",
@@ -1539,7 +1556,8 @@
                 "high_mem_alert": "disabled",
                 "state": "always_enabled",
                 "set_owner": "local",
-                "check_up_status": "false"
+                "check_up_status": "false",
+                "support_syslog_rate_limit": "True"
             },
             "snmp": {
                 "auto_restart": "enabled",
@@ -1549,7 +1567,8 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "kube",
-                "check_up_status": "true"
+                "check_up_status": "true",
+                "support_syslog_rate_limit": "True"
             },
             "swss": {
                 "auto_restart": "enabled",
@@ -1559,7 +1578,8 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "local",
-                "check_up_status": "false"
+                "check_up_status": "false",
+                "support_syslog_rate_limit": "True"
             },
             "syncd": {
                 "auto_restart": "enabled",
@@ -1569,7 +1589,8 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "local",
-                "check_up_status": "false"
+                "check_up_status": "false",
+                "support_syslog_rate_limit": "True"
             },
             "lldp": {
                 "auto_restart": "enabled",
@@ -1579,7 +1600,8 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "kube",
-                "check_up_status": "false"
+                "check_up_status": "false",
+                "support_syslog_rate_limit": "True"
             },
             "dhcp_relay": {
                 "auto_restart": "enabled",
@@ -1589,7 +1611,8 @@
                 "high_mem_alert": "disabled",
                 "state": "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] != 'ToRRouter') %}enabled{% else %}disabled{% endif %}",
                 "set_owner": "kube",
-                "check_up_status": "true"
+                "check_up_status": "true",
+                "support_syslog_rate_limit": "True"
             }
         },
         "DHCP_RELAY": {

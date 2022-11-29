@@ -157,5 +157,113 @@
                 ]
             }
         }
+    },
+    "SYSLOG_CONFIG_VALID": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG": {
+                "sonic-syslog:GLOBAL": {
+                    "rate_limit_interval": "200",
+                    "rate_limit_burst": "40000"
+                }
+            }
+        }
+    },
+    "SYSLOG_CONFIG_INVALID_INTERVAL": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG": {
+                "sonic-syslog:GLOBAL": {
+                    "rate_limit_interval": "-1"
+                }
+            }
+        }
+    },
+    "SYSLOG_CONFIG_INVALID_BURST": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG": {
+                "sonic-syslog:GLOBAL": {
+                    "rate_limit_burst": "-1"
+                }
+            }
+        }
+    },
+    "SYSLOG_CONFIG_FEATURE_VALID": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG_FEATURE": {
+                "SYSLOG_CONFIG_FEATURE_LIST": [
+                    {
+                        "service": "bgp",
+                        "rate_limit_interval": "200",
+                        "rate_limit_burst": "40000"
+                    }
+                ]
+            }
+        },
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "bgp",
+                        "support_syslog_rate_limit": "true"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_SERVICE_NAME": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG_FEATURE": {
+                "SYSLOG_CONFIG_FEATURE_LIST": [
+                    {
+                        "service": "invalid",
+                        "rate_limit_interval": "100",
+                        "rate_limit_burst": "20000"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_INTERVAL": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG_FEATURE": {
+                "SYSLOG_CONFIG_FEATURE_LIST": [
+                    {
+                        "service": "bgp",
+                        "rate_limit_interval": "-1"
+                    }
+                ]
+            }
+        },
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "bgp",
+                        "support_syslog_rate_limit": "true"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_CONFIG_FEATURE_INVALID_BURST": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_CONFIG_FEATURE": {
+                "SYSLOG_CONFIG_FEATURE_LIST": [
+                    {
+                        "service": "bgp",
+                        "rate_limit_burst": "-1"
+                    }
+                ]
+            }
+        },
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "bgp",
+                        "support_syslog_rate_limit": "true"
+                    }
+                ]
+            }
+        }
     }
 }
