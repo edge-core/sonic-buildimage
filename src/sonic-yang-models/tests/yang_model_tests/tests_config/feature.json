@@ -45,7 +45,7 @@
                         "auto_restart": "disabled",
                         "has_timer": "false",
                         "has_global_scope": "false",
-                        "has_per_asic_scope": "true",
+                        "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
                         "set_owner": "kube"
                     },
                     {
@@ -71,7 +71,7 @@
                         "auto_restart": "disabled",
                         "has_timer": "false",
                         "has_global_scope": "false",
-                        "has_per_asic_scope": "true",
+                        "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
                         "set_owner": "invalid"
                     }
                 ]
@@ -88,7 +88,7 @@
                         "auto_restart": "disabled",
                         "has_timer": "false",
                         "has_global_scope": "false",
-                        "has_per_asic_scope": "true"
+                        "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}"
                     }
                 ]
             }
