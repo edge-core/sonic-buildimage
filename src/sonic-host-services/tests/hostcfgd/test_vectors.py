@@ -1030,6 +1030,141 @@ HOSTCFGD_TEST_VECTOR = [
             },
         },
     ],
+    [
+        "Chassis_LineCard_VOQ_multinpu",
+        {
+            "num_npu": 2,
+            "device_runtime_metadata": {
+                "DEVICE_RUNTIME_METADATA": {
+                    "CHASSIS_METADATA": {
+                        "module_type": "linecard",
+                        "chassis_type": "voq"
+                        },
+                    "ETHERNET_PORTS_PRESENT":True,
+                    "MACSEC_SUPPORTED":True
+                    }
+                },
+            "config_db": {
+                "DEVICE_METADATA": {
+                    "localhost": {
+                        "type": "SpineRouter",
+                    }
+                },
+                "KDUMP": {
+                    "config": {
+                        "enabled": "false",
+                        "num_dumps": "3",
+                        "memory": "0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M"
+                    }
+                },
+                "FEATURE": {
+                    "bgp": {
+                        "state": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}disabled{% else %}enabled{% endif %}",
+                        "has_timer": "False",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "auto_restart": "enabled",
+                        "high_mem_alert": "disabled"
+                    },
+                    "teamd": {
+                        "state": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] %}disabled{% else %}enabled{% endif %}",
+                        "has_timer": "False",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "auto_restart": "enabled",
+                        "high_mem_alert": "disabled"
+                    },
+                    "lldp": {
+                        "state": "enabled",
+                        "has_timer": "False",
+                        "has_global_scope": "True",
+                        "has_per_asic_scope": "{% if not DEVICE_RUNTIME_METADATA['ETHERNET_PORTS_PRESENT'] or ('CHASSIS_METADATA' in DEVICE_RUNTIME_METADATA and DEVICE_RUNTIME_METADATA['CHASSIS_METADATA']['module_type'] in ['supervisor']) %}False{% else %}True{% endif %}",
+                        "auto_restart": "enabled",
+                        "high_mem_alert": "disabled"
+                    },
+                    "macsec": {
+                        "state": "{% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] == 'SpineRouter' and DEVICE_RUNTIME_METADATA['MACSEC_SUPPORTED'] %}enabled{% else %}disabled{% endif %}",
+                        "has_timer": "False",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "auto_restart": "enabled",
+                        "high_mem_alert": "disabled"
+                    }
+                },
+            },
+            "expected_config_db": {
+                "FEATURE": {
+                    "bgp": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "state": "enabled"
+                    },
+                    "teamd": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "state": "enabled"
+                    },
+                    "lldp": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "True",
+                        "has_per_asic_scope": "True",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "state": "enabled"
+                    },
+                    "macsec": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "False",
+                        "has_per_asic_scope": "True",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "state": "enabled"
+                    }
+                },
+            },
+            "enable_feature_subprocess_calls": [
+                call('sudo systemctl unmask bgp@0.service', shell=True),
+                call('sudo systemctl enable bgp@0.service', shell=True),
+                call('sudo systemctl start bgp@0.service', shell=True),
+                call('sudo systemctl unmask bgp@1.service', shell=True),
+                call('sudo systemctl enable bgp@1.service', shell=True),
+                call('sudo systemctl start bgp@1.service', shell=True),
+                call('sudo systemctl unmask teamd@0.service', shell=True),
+                call('sudo systemctl enable teamd@0.service', shell=True),
+                call('sudo systemctl start teamd@0.service', shell=True),
+                call('sudo systemctl unmask teamd@1.service', shell=True),
+                call('sudo systemctl enable teamd@1.service', shell=True),
+                call('sudo systemctl start teamd@1.service', shell=True),
+                call('sudo systemctl unmask lldp.service', shell=True),
+                call('sudo systemctl enable lldp.service', shell=True),
+                call('sudo systemctl start lldp.service', shell=True),
+                call('sudo systemctl unmask lldp@0.service', shell=True),
+                call('sudo systemctl enable lldp@0.service', shell=True),
+                call('sudo systemctl start lldp@0.service', shell=True),
+                call('sudo systemctl unmask lldp@1.service', shell=True),
+                call('sudo systemctl enable lldp@1.service', shell=True),
+                call('sudo systemctl start lldp@1.service', shell=True),
+                call('sudo systemctl unmask macsec@0.service', shell=True),
+                call('sudo systemctl enable macsec@0.service', shell=True),
+                call('sudo systemctl start macsec@0.service', shell=True),
+                call('sudo systemctl unmask macsec@1.service', shell=True),
+                call('sudo systemctl enable macsec@1.service', shell=True),
+                call('sudo systemctl start macsec@1.service', shell=True)
+            ],
+            "daemon_reload_subprocess_call": [
+                call("sudo systemctl daemon-reload", shell=True),
+            ],
+            "popen_attributes": {
+                'communicate.return_value': ('output', 'error')
+            },
+        },
+    ]
  
 ]
 

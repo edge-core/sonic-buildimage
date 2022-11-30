@@ -27,7 +27,6 @@ hostcfgd.ConfigDBConnector = MockConfigDb
 hostcfgd.DBConnector = MockDBConnector
 hostcfgd.Table = mock.Mock()
 
-
 class TestFeatureHandler(TestCase):
     """Test methods of `FeatureHandler` class. 
     """
@@ -126,39 +125,46 @@ class TestFeatureHandler(TestCase):
             with mock.patch("sonic_py_common.device_info.get_device_runtime_metadata", return_value=config_data['device_runtime_metadata']):
                 with mock.patch("sonic_py_common.device_info.is_multi_npu", return_value=True if 'num_npu' in config_data else False):
                     with mock.patch("sonic_py_common.device_info.get_num_npus", return_value=config_data['num_npu'] if 'num_npu' in config_data else 1):
-                        popen_mock = mock.Mock()
-                        attrs = config_data['popen_attributes']
-                        popen_mock.configure_mock(**attrs)
-                        mocked_subprocess.Popen.return_value = popen_mock
+                        with mock.patch("sonic_py_common.device_info.get_namespaces", return_value=["asic{}".format(a) for a in  range(config_data['num_npu'])] if 'num_npu' in config_data else []):
+                            popen_mock = mock.Mock()
+                            attrs = config_data['popen_attributes']
+                            popen_mock.configure_mock(**attrs)
+                            mocked_subprocess.Popen.return_value = popen_mock
 
-                        device_config = {}
-                        device_config['DEVICE_METADATA'] = MockConfigDb.CONFIG_DB['DEVICE_METADATA']
-                        device_config.update(config_data['device_runtime_metadata'])
+                            device_config = {}
+                            device_config['DEVICE_METADATA'] = MockConfigDb.CONFIG_DB['DEVICE_METADATA']
+                            device_config.update(config_data['device_runtime_metadata'])
 
-                        feature_handler = hostcfgd.FeatureHandler(MockConfigDb(), feature_state_table_mock, device_config)
+                            feature_handler = hostcfgd.FeatureHandler(MockConfigDb(), feature_state_table_mock, device_config)
+                            feature_table = MockConfigDb.CONFIG_DB['FEATURE']
+                            feature_handler.sync_state_field(feature_table)
 
-                        feature_table = MockConfigDb.CONFIG_DB['FEATURE']
-                        feature_handler.sync_state_field(feature_table)
+                            feature_systemd_name_map = {}
+                            for feature_name in feature_table.keys():
+                                feature = hostcfgd.Feature(feature_name, feature_table[feature_name], device_config)
+                                feature_names, _ = feature_handler.get_multiasic_feature_instances(feature)
+                                feature_systemd_name_map[feature_name] = feature_names
 
-                        feature_systemd_name_map = {}
-                        for feature_name in feature_table.keys():
-                            feature = hostcfgd.Feature(feature_name, feature_table[feature_name], device_config)
-                            feature_names, _ = feature_handler.get_multiasic_feature_instances(feature)
-                            feature_systemd_name_map[feature_name] = feature_names
+                            is_any_difference = self.checks_config_table(MockConfigDb.get_config_db()['FEATURE'],
+                                                                         config_data['expected_config_db']['FEATURE'])
+                            assert is_any_difference, "'FEATURE' table in 'CONFIG_DB' is modified unexpectedly!"
 
-                        is_any_difference = self.checks_config_table(MockConfigDb.get_config_db()['FEATURE'],
-                                                                     config_data['expected_config_db']['FEATURE'])
-                        assert is_any_difference, "'FEATURE' table in 'CONFIG_DB' is modified unexpectedly!"
+                            if 'num_npu' in config_data:
+                                for ns in range(config_data['num_npu']):
+                                    namespace = "asic{}".format(ns)
+                                    is_any_difference = self.checks_config_table(feature_handler.ns_cfg_db[namespace].get_config_db()['FEATURE'],
+                                                                                 config_data['expected_config_db']['FEATURE'])
+                                    assert is_any_difference, "'FEATURE' table in 'CONFIG_DB' in namespace {} is modified unexpectedly!".format(namespace)
 
-                        feature_table_state_db_calls = self.get_state_db_set_calls(feature_table)
+                            feature_table_state_db_calls = self.get_state_db_set_calls(feature_table)
 
-                        self.checks_systemd_config_file(config_data['config_db']['FEATURE'], feature_systemd_name_map)
-                        mocked_subprocess.check_call.assert_has_calls(config_data['enable_feature_subprocess_calls'],
-                                                                      any_order=True)
-                        mocked_subprocess.check_call.assert_has_calls(config_data['daemon_reload_subprocess_call'],
-                                                                      any_order=True)
-                        feature_state_table_mock.set.assert_has_calls(feature_table_state_db_calls)
-                        self.checks_systemd_config_file(config_data['config_db']['FEATURE'], feature_systemd_name_map)
+                            self.checks_systemd_config_file(config_data['config_db']['FEATURE'], feature_systemd_name_map)
+                            mocked_subprocess.check_call.assert_has_calls(config_data['enable_feature_subprocess_calls'],
+                                                                          any_order=True)
+                            mocked_subprocess.check_call.assert_has_calls(config_data['daemon_reload_subprocess_call'],
+                                                                          any_order=True)
+                            feature_state_table_mock.set.assert_has_calls(feature_table_state_db_calls)
+                            self.checks_systemd_config_file(config_data['config_db']['FEATURE'], feature_systemd_name_map)
 
     @parameterized.expand(HOSTCFGD_TEST_VECTOR)
     @patchfs

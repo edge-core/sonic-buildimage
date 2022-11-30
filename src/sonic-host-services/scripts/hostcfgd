@@ -11,7 +11,7 @@ import signal
 import re
 import jinja2
 from sonic_py_common import device_info
-from swsscommon.swsscommon import ConfigDBConnector, DBConnector, Table
+from swsscommon.swsscommon import ConfigDBConnector, DBConnector, Table, SonicDBConfig
 
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
@@ -199,6 +199,21 @@ class FeatureHandler(object):
         self._cached_config = {}
         self.is_multi_npu = device_info.is_multi_npu()
         self._device_running_config = device_info.get_device_runtime_metadata()
+        self.ns_cfg_db = {}
+        self.ns_feature_state_tbl = {}
+
+        # Initlaize Global config that loads all database*.json
+        if self.is_multi_npu:
+            SonicDBConfig.initializeGlobalConfig()
+            namespaces = device_info.get_namespaces()
+            for ns in namespaces:
+                #Connect to ConfigDB in each namespace
+                self.ns_cfg_db[ns] = ConfigDBConnector(namespace=ns)
+                self.ns_cfg_db[ns].connect(wait_for_init=True, retry_on=True)
+
+                #Connect to stateDB in each namespace
+                db_conn = DBConnector(STATE_DB, 0, False, ns);
+                self.ns_feature_state_tbl[ns] = Table(db_conn, 'FEATURE')
 
     def handler(self, feature_name, op, feature_cfg):
         if not feature_cfg:
@@ -246,7 +261,6 @@ class FeatureHandler(object):
             device_config = {}
             device_config.update(self._device_config)
             device_config.update(self._device_running_config)
-
             feature = Feature(feature_name, feature_table[feature_name], device_config)
 
             self._cached_config.setdefault(feature_name, feature)
@@ -333,6 +347,10 @@ class FeatureHandler(object):
                         self.set_feature_state(feature, self.FEATURE_STATE_FAILED)
                         return
         self._config_db.mod_entry('FEATURE', feature_config.name, {'has_per_asic_scope': str(feature_config.has_per_asic_scope)})
+
+        # sync has_per_asic_scope to CONFIG_DB in namespaces in multi-asic platform
+        for ns, db in self.ns_cfg_db.items():
+            db.mod_entry('FEATURE', feature_config.name, {'has_per_asic_scope': str(feature_config.has_per_asic_scope)})
     
     def update_systemd_config(self, feature_config):
         """Updates `Restart=` field in feature's systemd configuration file
@@ -459,9 +477,16 @@ class FeatureHandler(object):
     def resync_feature_state(self, feature):
         self._config_db.mod_entry('FEATURE', feature.name, {'state': feature.state})
 
+        # resync the feature state to CONFIG_DB in namespaces in multi-asic platform
+        for ns, db in self.ns_cfg_db.items():
+            db.mod_entry('FEATURE', feature.name, {'state': feature.state})
+
     def set_feature_state(self, feature, state):
         self._feature_state_table.set(feature.name, [('state', state)])
 
+        # Update the feature state to STATE_DB in namespaces in multi-asic platform
+        for ns, tbl in self.ns_feature_state_tbl.items():
+            tbl.set(feature.name, [('state', state)])
 
 class Iptables(object):
     def __init__(self):

@@ -57,5 +57,5 @@ class MockConfigDb(object):
 
 
 class MockDBConnector():
-    def __init__(self, db, val):
+    def __init__(self, db, val, tcpFlag=False, name=None):
         pass
