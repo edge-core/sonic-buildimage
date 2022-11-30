@@ -2,6 +2,7 @@ import os
 import signal
 import sys
 import syslog
+import threading
 import traceback
 
 from swsscommon import swsscommon
@@ -17,6 +18,7 @@ from .managers_db import BGPDataBaseMgr
 from .managers_intf import InterfaceMgr
 from .managers_setsrc import ZebraSetSrc
 from .managers_static_rt import StaticRouteMgr
+from .static_rt_timer import StaticRouteTimer
 from .managers_rm import RouteMapMgr
 from .runner import Runner, signal_handler
 from .template import TemplateFabric
@@ -27,6 +29,9 @@ from .vars import g_debug
 
 def do_work():
     """ Main function """
+    st_rt_timer = StaticRouteTimer()
+    thr = threading.Thread(target = st_rt_timer.run)
+    thr.start()
     frr = FRR(["bgpd", "zebra", "staticd"])
     frr.wait_for_daemons(seconds=20)
     #
@@ -59,6 +64,7 @@ def do_work():
         BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR"),
         # Static Route Managers
         StaticRouteMgr(common_objs, "CONFIG_DB", "STATIC_ROUTE"),
+        StaticRouteMgr(common_objs, "APPL_DB", "STATIC_ROUTE"),
         # Route Advertisement Managers
         AdvertiseRouteMgr(common_objs, "STATE_DB", swsscommon.STATE_ADVERTISE_NETWORK_TABLE_NAME),
         RouteMapMgr(common_objs, "APPL_DB", swsscommon.APP_BGP_PROFILE_TABLE_NAME),
@@ -67,6 +73,7 @@ def do_work():
     for mgr in managers:
         runner.add_manager(mgr)
     runner.run()
+    thr.join()
 
 
 def main():
