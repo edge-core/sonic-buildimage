@@ -173,8 +173,8 @@ stages:
     - template: .azure-pipelines/run-test-scheduler-template.yml
       parameters:
         TOPOLOGY: t0
-        MIN_WORKER: 2
-        MAX_WORKER: 3
+        MIN_WORKER: $(T0_INSTANCE_NUM)
+        MAX_WORKER: $(T0_INSTANCE_NUM)
         MGMT_BRANCH: 202012
 
   - job: t0_2vlans_testbedv2
@@ -189,7 +189,8 @@ stages:
       parameters:
         TOPOLOGY: t0
         TEST_SET: t0-2vlans
-        MAX_WORKER: 1
+        MIN_WORKER: $(T0_2VLANS_INSTANCE_NUM)
+        MAX_WORKER: $(T0_2VLANS_INSTANCE_NUM)
         DEPLOY_MG_EXTRA_PARAMS: "-e vlan_config=two_vlan_a"
         MGMT_BRANCH: 202012
 
@@ -250,8 +251,8 @@ stages:
     - template: .azure-pipelines/run-test-scheduler-template.yml
       parameters:
         TOPOLOGY: t1-lag
-        MIN_WORKER: 2
-        MAX_WORKER: 3
+        MIN_WORKER: $(T1_LAG_INSTANCE_NUM)
+        MAX_WORKER: $(T1_LAG_INSTANCE_NUM)
         MGMT_BRANCH: 202012
 
   - job:
@@ -292,7 +293,7 @@ stages:
       - template: .azure-pipelines/run-test-scheduler-template.yml
         parameters:
           TOPOLOGY: dualtor
-          MIN_WORKER: 1
-          MAX_WORKER: 1
+          MIN_WORKER: $(T0_DUALTOR_INSTANCE_NUM)
+          MAX_WORKER: $(T0_DUALTOR_INSTANCE_NUM)
           COMMON_EXTRA_PARAMS: "--disable_loganalyzer "
           MGMT_BRANCH: 202012
