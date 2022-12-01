@@ -56,7 +56,7 @@ SONIC_VERISON_YML = """\
 ---
 build_version: 'test_branch.1-a8fbac59d'
 debian_version: '11.4'
-kernel_version: '5.10.0-12-2-amd64'
+kernel_version: '5.10.0-18-2-amd64'
 asic_type: mellanox
 asic_subtype: 'mellanox'
 commit_id: 'a8fbac59d'
@@ -68,7 +68,7 @@ sonic_utilities: 1.2"""
 SONIC_VERISON_YML_RESULT = {
     'build_version': 'test_branch.1-a8fbac59d', 
     'debian_version': '11.4', 
-    'kernel_version': '5.10.0-12-2-amd64', 
+    'kernel_version': '5.10.0-18-2-amd64', 
     'asic_type': 'mellanox', 
     'asic_subtype': 'mellanox', 
     'commit_id': 'a8fbac59d', 
