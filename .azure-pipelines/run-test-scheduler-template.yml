@@ -11,12 +11,12 @@ parameters:
   default: 36000
 
 - name: MIN_WORKER
-  type: number
+  type: string
   default: 1
 
 - name: MAX_WORKER
-  type: number
-  default: 2
+  type: string
+  default: 1
 
 - name: TEST_SET
   type: string
