@@ -125,6 +125,11 @@ start_test_data = {
                         "current_owner": "none",
                         "container_id": ""
                     }
+                },
+                common_test.SERVER_TABLE: {
+                    "SERVER": {
+                        "connected": "true"
+                    }
                 }
             }
         },

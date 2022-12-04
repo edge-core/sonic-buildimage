@@ -27,7 +27,7 @@ read_labels_test_data = {
         common_test.DESCR: "read labels",
         common_test.RETVAL: 0,
         common_test.PROC_CMD: ["\
-kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.PROC_OUT: ["foo=bar,hello=world"],
         common_test.POST: {
             "foo": "bar",
@@ -40,7 +40,7 @@ kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '"
         common_test.TRIGGER_THROW: True,
         common_test.RETVAL: -1,
         common_test.PROC_CMD: ["\
-kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.POST: {
         },
         common_test.PROC_KILLED: 1
@@ -49,7 +49,7 @@ kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '"
         common_test.DESCR: "read labels fail",
         common_test.RETVAL: -1,
         common_test.PROC_CMD: ["\
-kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.PROC_OUT: [""],
         common_test.PROC_ERR: ["command failed"],
         common_test.POST: {
@@ -64,7 +64,7 @@ write_labels_test_data = {
         common_test.RETVAL: 0,
         common_test.ARGS: { "foo": "bar", "hello": "World!", "test": "ok" },
         common_test.PROC_CMD: [
-"kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF),
+"kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF),
 "kubectl --kubeconfig {} label --overwrite nodes none hello-".format(
     KUBE_ADMIN_CONF),
 "kubectl --kubeconfig {} label --overwrite nodes none hello=World! test=ok".format(
@@ -77,7 +77,7 @@ write_labels_test_data = {
         common_test.RETVAL: 0,
         common_test.ARGS: { "foo": "bar", "hello": "world" },
         common_test.PROC_CMD: [
-"kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
+"kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
  ],
         common_test.PROC_OUT: ["foo=bar,hello=world"]
     },
@@ -87,7 +87,7 @@ write_labels_test_data = {
         common_test.ARGS: { "any": "thing" },
         common_test.RETVAL: -1,
         common_test.PROC_CMD: [
-"kubectl --kubeconfig {} get nodes none --show-labels |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
+"kubectl --kubeconfig {} get nodes none --show-labels --no-headers |tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
 ],
         common_test.PROC_ERR: ["read failed"]
     }
@@ -110,19 +110,10 @@ none".format(KUBE_ADMIN_CONF),
             "mkdir -p {}".format(CNI_DIR),
             "cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR),
             "systemctl start kubelet",
-            "kubeadm join --discovery-file {} --node-name none --apiserver-advertise-address FC00:2::32".format(
+            "kubeadm join --discovery-file {} --node-name none".format(
                 KUBE_ADMIN_CONF)
         ],
         common_test.PROC_RUN: [True, True],
-        common_test.PRE: {
-            common_test.CONFIG_DB_NO: {
-                common_test.MGMT_INTERFACE_TABLE: {
-                    "eth0|FC00:2::32/64": {
-                        "gwaddr": "fc00:2::1"
-                    }
-                }
-            }
-        },
         common_test.REQ: {
             "data": {"ca.crt": "test"}
         }
@@ -143,19 +134,10 @@ none".format(KUBE_ADMIN_CONF),
             "mkdir -p {}".format(CNI_DIR),
             "cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR),
             "systemctl start kubelet",
-            "kubeadm join --discovery-file {} --node-name none --apiserver-advertise-address FC00:2::32".format(
+            "kubeadm join --discovery-file {} --node-name none".format(
                 KUBE_ADMIN_CONF)
         ],
         common_test.PROC_RUN: [True, True],
-        common_test.PRE: {
-            common_test.CONFIG_DB_NO: {
-                common_test.MGMT_INTERFACE_TABLE: {
-                    "eth0|FC00:2::32/64": {
-                        "gwaddr": "fc00:2::1"
-                    }
-                }
-            }
-        },
         common_test.REQ: {
             "data": {"ca.crt": "test"}
         }
