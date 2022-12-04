@@ -8,6 +8,9 @@ http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1-1.debia
 http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1.orig.tar.gz==16c0ae9902ae57be4a603a6ab1e86c53
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg-4.debian.tar.xz==bec40e0bda23a893e76843579c68d901
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==71044a49f4ab09c9bc10ed9862d22939
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0-6.debian.tar.xz==4c0d6cab366b4fdb0372299ecc8a219a
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0-6.dsc==278cfe25d286d1840ee366b557ed6ab0
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0.orig.tar.gz==38a27d391a2b03214b444cb13d5664f1
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
