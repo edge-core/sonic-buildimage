@@ -187,6 +187,15 @@ endif
 override INCLUDE_P4RT = n
 endif
 
+# Pre-built Bazel is not available for arm64, so exclude P4RT
+# TODO(PINS): Remove when Bazel binaries are available for arm64
+ifeq ($(CONFIGURED_ARCH),arm64)
+ifeq ($(INCLUDE_P4RT),y)
+$(Q)echo "Disabling P4RT due to incompatible CPU architecture: $(CONFIGURED_ARCH)"
+endif
+override INCLUDE_P4RT = n
+endif
+
 ifeq ($(SONIC_INCLUDE_MACSEC),y)
 INCLUDE_MACSEC = y
 endif
