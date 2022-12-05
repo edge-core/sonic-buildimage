@@ -8,12 +8,12 @@ cffi==1.15.1
 charset-normalizer==2.1.1
 click==7.0
 click-log==0.4.0
-colorful==0.5.4
-cryptography==38.0.3
+colorful==0.5.5
+cryptography==38.0.4
 docker==5.0.3
 docker-image-py==0.1.12
 enlighten==1.11.1
-filelock==3.8.0
+filelock==3.8.1
 grpcio==1.39.0
 grpcio-tools==1.39.0
 idna==3.4
@@ -42,7 +42,7 @@ psutil==5.9.4
 ptyprocess==0.7.0
 pyang==2.5.3
 pyangbind==0.8.1
-pycairo==1.22.0
+pycairo==1.23.0
 pycparser==2.21
 pygments==2.13.0
 pygobject==3.42.2
