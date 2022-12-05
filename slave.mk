@@ -379,6 +379,15 @@ export vs_build_prepare_mem=$(VS_PREPARE_MEM)
 ##
 ##     docker-swss:latest <=SAVE/LOAD=> docker-swss-<user>:<tag>
 
+# $(call docker-get-tag,tag)
+# Get the docker tag. For packages it is an image version, for other dockers it stays latest.
+#
+# $(1) => Docker name
+
+define docker-get-tag
+$(shell [ ! -z $(filter $(1).gz,$(SONIC_PACKAGES_LOCAL)) ] && echo $(SONIC_IMAGE_VERSION) || echo latest)
+endef
+
 # $(call docker-image-save,from,to)
 # Sonic docker images are always created with username as extension. During the save operation, 
 # it removes the username extension from docker image and saved them as compressed tar file for SONiC image generation.
@@ -391,13 +400,13 @@ define docker-image-save
     @echo "Attempting docker image lock for $(1) save" $(LOG)
     $(call MOD_LOCK,$(1),$(DOCKER_LOCKDIR),$(DOCKER_LOCKFILE_SUFFIX),$(DOCKER_LOCKFILE_TIMEOUT))
     @echo "Obtained docker image lock for $(1) save" $(LOG)
-    @echo "Tagging docker image $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) as $(1):latest" $(LOG)
-    docker tag $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) $(1):latest $(LOG)
-    @echo "Saving docker image $(1):latest" $(LOG)
-        docker save $(1):latest | gzip -c > $(2)
+    @echo "Tagging docker image $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) as $(1):$(call docker-get-tag,$(1))" $(LOG)
+    docker tag $(1)-$(DOCKER_USERNAME):$(DOCKER_USERTAG) $(1):$(call docker-get-tag,$(1)) $(LOG)
+    @echo "Saving docker image $(1):$(call docker-get-tag,$(1))" $(LOG)
+        docker save $(1):$(call docker-get-tag,$(1)) | gzip -c > $(2)
     if [ x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) == x"y" ]; then
-        @echo "Removing docker image $(1):latest" $(LOG)
-        docker rmi -f $(1):latest $(LOG)
+        @echo "Removing docker image $(1):$(call docker-get-tag,$(1))" $(LOG)
+        docker rmi -f $(1):$(call docker-get-tag,$(1)) $(LOG)
     fi
     $(call MOD_UNLOCK,$(1))
     @echo "Released docker image lock for $(1) save" $(LOG)
@@ -944,6 +953,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 			-t $(DOCKER_IMAGE_REF) $($*.gz_PATH) $(LOG)
 		if [ x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) == x"y" ]; then docker tag $(DOCKER_IMAGE_REF) $*; fi
 		scripts/collect_docker_version_files.sh $(DOCKER_IMAGE_REF) $(TARGET_PATH)
+		if [ ! -z $(filter $*.gz,$(SONIC_PACKAGES_LOCAL)) ]; then docker tag $(DOCKER_IMAGE_REF) $*:$(SONIC_IMAGE_VERSION); fi
 		$(call docker-image-save,$*,$@)
 		# Clean up
 		if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
@@ -997,6 +1007,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 			-t $(DOCKER_DBG_IMAGE_REF) $($*.gz_PATH) $(LOG)
 		if [ x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) == x"y" ]; then docker tag $(DOCKER_IMAGE_REF) $*; fi
 		scripts/collect_docker_version_files.sh $(DOCKER_DBG_IMAGE_REF) $(TARGET_PATH)
+		if [ ! -z $(filter $*.gz,$(SONIC_PACKAGES_LOCAL)) ]; then docker tag $(DOCKER_IMAGE_REF) $*:$(SONIC_IMAGE_VERSION); fi
 		$(call docker-image-save,$*-$(DBG_IMAGE_MARK),$@)
 		# Clean up
 		docker rmi -f $(DOCKER_IMAGE_REF) &> /dev/null || true
