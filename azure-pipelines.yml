@@ -166,7 +166,7 @@ stages:
     pool:
       vmImage: 'ubuntu-20.04'
     displayName: "kvmtest-t0 by TestbedV2"
-    timeoutInMinutes: 1080
+    timeoutInMinutes: 240
     condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
@@ -181,7 +181,7 @@ stages:
     pool:
       vmImage: 'ubuntu-20.04'
     displayName: "kvmtest-t0-2vlans by TestbedV2"
-    timeoutInMinutes: 1080
+    timeoutInMinutes: 240
     condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
@@ -244,7 +244,7 @@ stages:
     pool:
       vmImage: 'ubuntu-20.04'
     displayName: "kvmtest-t1-lag by TestbedV2"
-    timeoutInMinutes: 600
+    timeoutInMinutes: 240
     condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
@@ -286,7 +286,7 @@ stages:
     pool:
       vmImage: 'ubuntu-20.04'
     displayName: "kvmtest-dualtor-t0 by TestbedV2"
-    timeoutInMinutes: 1080
+    timeoutInMinutes: 240
     condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
