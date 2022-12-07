@@ -528,7 +528,7 @@ libgeronimo-interceptor-3.0-spec-java==1.0.1-4
 libgetopt-long-descriptive-perl==0.103-2
 libgfortran-8-dev==8.3.0-6
 libgfortran5==8.3.0-6
-libgif7==5.1.4-3
+libgif7==5.1.4-3+deb10u1
 libgirepository-1.0-1==1.58.3-2
 libgit-wrapper-perl==0.048-1
 libgitlab-api-v4-perl==0.16-1
