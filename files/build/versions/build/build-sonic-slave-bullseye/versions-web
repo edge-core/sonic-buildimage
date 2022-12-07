@@ -9,6 +9,7 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg.orig.tar.xz==c1c5
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
+https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.dsc==27f74ae171f50bfc1116d3e23dbbab3f
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.tar.gz==37b56a6cf74721c6496d05d032cd22af
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
@@ -59,6 +60,6 @@ https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python3.9_3.9.2-1+fips_amd64.deb==30be224443931a2a3428aa270b87384a
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/symcrypt-openssl_0.4_amd64.deb==333246e63a3c5008d970d0e409d491d2
 https://sonicstorage.blob.core.windows.net/public/sai/bcmpai/REL_3.8/3.8/libsaibroncos_3.8_amd64.deb==f7c3f0ed8c97c2572e3c2e59faaae4a8
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.21.4/libsaibcm-dev_7.1.21.4_amd64.deb==cec1c2c8e0b7bcaad09186fed7acaf2a
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.21.4/libsaibcm_7.1.21.4_amd64.deb==f0cc86b513779bab4f09707e71642bd8
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.21.4/libsaibcm_dnx_7.1.21.4_amd64.deb==5bb6d07ecc3a34f5cad96dbcc88c5098
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_SAI_1.11/7.1.111.1/libsaibcm-dev_7.1.111.1_amd64.deb==894abd7658c3832962db4eaea1a40fd1
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_SAI_1.11/7.1.111.1/libsaibcm_7.1.111.1_amd64.deb==23d3292d27e1c39cee89575f2a91e18c
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_SAI_1.11/7.1.111.1/libsaibcm_dnx_7.1.111.1_amd64.deb==458f404279c3f30ec71de6bad7373323

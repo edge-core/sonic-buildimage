@@ -1,11 +1,11 @@
 https://github.com/CESNET/libyang.git==f95b730cc8d8903c68f1b463a0b4d2856ad4943f
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
-https://github.com/flashrom/flashrom.git==a2e5a7d75bab2d38ea295071300fba4cad8afc50
-https://github.com/FreeRADIUS/freeradius-server.git==c9c4c1cdfe47d2a2ac2ff82fe197b612b5ffad75
+https://github.com/flashrom/flashrom.git==153359935aa52c30f3f9829e740522ce7184469f
+https://github.com/FreeRADIUS/freeradius-server.git==c5648e2e30e35c312d87315e224a98ee28b86f2d
 https://github.com/FreeRADIUS/pam_radius.git==bcafcf535c763ee193ce7803a56cddb929db04cb
 https://github.com/jeroennijhof/pam_tacplus.git==4f91b0de2be88d02984bef8fb0f64c213c650ed9
-https://github.com/jpirko/libteam.git==c32369829b2b1881e25fab85d74aa0b3ad017dcb
+https://github.com/jpirko/libteam.git==4a43cd854b4b6bbc1ff3dbe99df74eae1efe2b34
 https://github.com/thom311/libnl==cbafad9ddf24caef5230fef715d34f0539603be0
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/kernel-team/ethtool/==fb0c7e285eae27b7c1a2f16a4f1b224bf815aa70

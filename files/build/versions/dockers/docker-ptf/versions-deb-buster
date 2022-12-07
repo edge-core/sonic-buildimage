@@ -56,7 +56,7 @@ graphviz==2.40.1-6+deb10u1
 hping3==3.a2.ds2-7
 ipython3==5.8.0-1+deb10u1
 javascript-common==11
-krb5-locales==1.17-3+deb10u4
+krb5-locales==1.17-3+deb10u5
 less==487-0.1+b1
 libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
@@ -146,7 +146,7 @@ libgpm2==1.20.7-5
 libgraphite2-3==1.3.13-7
 libgs9==9.27~dfsg-2+deb10u6
 libgs9-common==9.27~dfsg-2+deb10u6
-libgssapi-krb5-2==1.17-3+deb10u4
+libgssapi-krb5-2==1.17-3+deb10u5
 libgts-0.7-5==0.7.6+darcs121130-4
 libgts-bin==0.7.6+darcs121130-4
 libgvc6==2.40.1-6+deb10u1
@@ -181,15 +181,15 @@ libjbig0==2.1-3.1+b2
 libjbig2dec0==0.16-1+deb10u1
 libjpeg62-turbo==1:1.5.2-2+deb10u1
 libjs-jquery==3.3.1~dfsg-3+deb10u1
-libjs-jquery-ui==1.12.1+dfsg-5
+libjs-jquery-ui==1.12.1+dfsg-5+deb10u1
 libjson-c3==0.12.1+ds-2+deb10u1
 libjsoncpp1==1.7.4-3
-libk5crypto3==1.17-3+deb10u4
+libk5crypto3==1.17-3+deb10u5
 libkeyutils1==1.6-6
 libkmod2==26-1
 libkpathsea6==2018.20181218.49446-1
-libkrb5-3==1.17-3+deb10u4
-libkrb5support0==1.17-3+deb10u4
+libkrb5-3==1.17-3+deb10u5
+libkrb5support0==1.17-3+deb10u5
 libksba8==1.3.5-2+deb10u1
 liblab-gamut1==2.40.1-6+deb10u1
 liblapack3==3.8.0-2
@@ -474,9 +474,9 @@ traceroute==1:2.1.0-2
 ttf-bitstream-vera==1.10-8
 ucf==3.0038+nmu1
 unzip==6.0-23+deb10u3
-vim==2:8.1.0875-5+deb10u3
-vim-common==2:8.1.0875-5+deb10u3
-vim-runtime==2:8.1.0875-5+deb10u3
+vim==2:8.1.0875-5+deb10u4
+vim-common==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4
 wget==1.20.1-1.1
 x11-common==1:7.7+19
 x11-utils==7.7+4
@@ -486,5 +486,5 @@ xdg-user-dirs==0.17-2
 xdg-utils==1.1.3-1+deb10u1
 xfonts-encodings==1:1.0.4-2
 xfonts-utils==1:7.7+6
-xxd==2:8.1.0875-5+deb10u3
+xxd==2:8.1.0875-5+deb10u4
 xz-utils==5.2.4-1+deb10u1

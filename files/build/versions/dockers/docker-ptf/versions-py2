@@ -45,7 +45,7 @@ pyrasite==2.0
 pyro4==4.82
 pysubnettree==0.26
 pyyaml==5.4.1
-retrying==1.3.3
+retrying==1.3.4
 rpyc==4.1.5
 saithrift==0.9
 scandir==1.10.0

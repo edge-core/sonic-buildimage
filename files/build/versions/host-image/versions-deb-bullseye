@@ -396,7 +396,7 @@ squashfs-tools==1:4.4-2+deb11u2
 sudo==1.9.5p2-3
 swig==4.0.2-1
 swig4.0==4.0.2-1
-sx-kernel==1.mlnx.4.5.3186
+sx-kernel==1.mlnx.4.5.4026
 symcrypt-openssl==0.1
 sysfsutils==2.1.0+repack-7
 systemd==247.3-7+deb11u1

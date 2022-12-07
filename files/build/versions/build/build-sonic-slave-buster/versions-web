@@ -14,5 +14,5 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1-3.debian.tar.xz?sv=2020-04-08&st=2021-12-14T08%3A00%3A00Z&se=2030-12-14T18%3A18%3A00Z&sr=b&sp=r&sig=C8aYSvaQgMJ58Z13kFY0Wr0J0QF6i7WCeET9%2BpF%2BAxc%3D==e8d1e99b4b9e93f5dde860f6d55f42e3
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1-3.dsc?sv=2020-04-08&st=2021-12-14T00%3A00%3A00Z&se=2050-12-15T00%3A00%3A00Z&sr=b&sp=r&sig=fIy6dVz3s59K0TiMkTlwSWN8lCzRl3i76ruAtROhfWA%3D==df3ed0dd965589fd09bf6a2920bc273e
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1.orig.tar.gz?sv=2020-04-08&st=2021-12-14T00%3A00%3A00Z&se=2050-12-15T00%3A00%3A00Z&sr=b&sp=r&sig=gpihyZv%2Fr0bVrCUKCKwpS4bIoqiPpdd%2BgCfuUGNHOUc%3D==780d14908dc1a6aa2790de376ab56b7a
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.21.4/libsaibcm-dev_7.1.21.4_amd64.deb==cec1c2c8e0b7bcaad09186fed7acaf2a
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.21.4/libsaibcm_7.1.21.4_amd64.deb==f0cc86b513779bab4f09707e71642bd8
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_SAI_1.11/7.1.111.1/libsaibcm-dev_7.1.111.1_amd64.deb==894abd7658c3832962db4eaea1a40fd1
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_SAI_1.11/7.1.111.1/libsaibcm_7.1.111.1_amd64.deb==23d3292d27e1c39cee89575f2a91e18c
