@@ -2,7 +2,8 @@
     "DEVICE_METADATA": {
         "localhost": {
             "bgp_asn": "55555",
-            "sub_role": "FrontEnd"
+            "sub_role": "FrontEnd",
+            "type": "ToRRouter"
         }
     },
     "LOOPBACK_INTERFACE": {
