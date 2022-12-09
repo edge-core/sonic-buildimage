@@ -249,22 +249,53 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSIO
 # pip version of 'PyGObject' will be installed during installation of 'sonic-host-services'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2 python3-gi
 
-if [ "$INCLUDE_KUBERNETES" == "y" ]
-then
-    ## Install Kubernetes
-    echo '[INFO] Install kubernetes'
+install_kubernetes () {
+    local ver="$1"
     sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -fsSL \
         https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
         sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
     ## Check out the sources list update matches current Debian version
     sudo cp files/image_config/kubernetes/kubernetes.list $FILESYSTEM_ROOT/etc/apt/sources.list.d/
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
-    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubernetes-cni=${KUBERNETES_CNI_VERSION}-00
-    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubelet=${KUBERNETES_VERSION}-00
-    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubectl=${KUBERNETES_VERSION}-00
-    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubeadm=${KUBERNETES_VERSION}-00
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubelet=${ver}
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubectl=${ver}
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubeadm=${ver}
+}
+
+if [ "$INCLUDE_KUBERNETES" == "y" ]
+then
+    ## Install Kubernetes
+    echo '[INFO] Install kubernetes'
+    install_kubernetes ${KUBERNETES_VERSION}
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubernetes-cni=${KUBERNETES_CNI_VERSION}
 else
     echo '[INFO] Skipping Install kubernetes'
+fi
+
+if [ "$INCLUDE_KUBERNETES_MASTER" == "y" ]
+then
+    ## Install Kubernetes master
+    echo '[INFO] Install kubernetes master'
+    install_kubernetes ${MASTER_KUBERNETES_VERSION}
+    
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -fsSL \
+        https://packages.microsoft.com/keys/microsoft.asc | \
+        sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -fsSL \
+        https://packages.microsoft.com/keys/msopentech.asc | \
+        sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azurecore-debian $IMAGE_DISTRO main" | \
+        sudo tee $FILESYSTEM_ROOT/etc/apt/sources.list.d/azure.list
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install hyperv-daemons gnupg xmlstarlet
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install metricsext2
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove gnupg
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/cri-dockerd.deb -fsSL \
+        https://github.com/Mirantis/cri-dockerd/releases/download/v${MASTER_CRI_DOCKERD}/cri-dockerd_${MASTER_CRI_DOCKERD}.3-0.debian-${IMAGE_DISTRO}_amd64.deb
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install -f /tmp/cri-dockerd.deb 
+    sudo LANG=C chroot $FILESYSTEM_ROOT rm -f /tmp/cri-dockerd.deb
+else
+    echo '[INFO] Skipping Install kubernetes master'
 fi
 
 ## Add docker config drop-in to specify dockerd command line

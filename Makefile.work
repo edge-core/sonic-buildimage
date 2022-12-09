@@ -10,6 +10,7 @@
 #  * ENABLE_ZTP: Enables zero touch provisioning.
 #  * SHUTDOWN_BGP_ON_START: Sets admin-down state for all bgp peerings after restart.
 #  * INCLUDE_KUBERNETES: Allows including Kubernetes
+#  * INCLUDE_KUBERNETES_MASTER: Allows including Kubernetes master
 #  * INCLUDE_MUX: Include MUX feature/services for TOR switch.
 #  * ENABLE_PFCWD_ON_START: Enable PFC Watchdog (PFCWD) on server-facing ports
 #  * by default for TOR switch.
@@ -345,6 +346,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            KUBERNETES_VERSION=$(KUBERNETES_VERSION) \
                            KUBERNETES_CNI_VERSION=$(KUBERNETES_CNI_VERSION) \
                            K8s_GCR_IO_PAUSE_VERSION=$(K8s_GCR_IO_PAUSE_VERSION) \
+                           INCLUDE_KUBERNETES_MASTER=$(INCLUDE_KUBERNETES_MASTER) \
                            SONIC_ENABLE_PFCWD_ON_START=$(ENABLE_PFCWD_ON_START) \
                            SONIC_ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            SONIC_INSTALL_DEBUG_TOOLS=$(INSTALL_DEBUG_TOOLS) \

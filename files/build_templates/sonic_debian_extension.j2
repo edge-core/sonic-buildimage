@@ -729,6 +729,27 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIV
 echo "docker images pull complete"
 {% endif %}
 
+{% if include_kubernetes_master == "y" %}
+# Pull in kubernetes master docker images
+echo "pulling kubernetes master images ..."
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/pause:${MASTER_PAUSE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/kube-apiserver:${MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/kube-controller-manager:${MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/kube-scheduler:${MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/kube-proxy:${MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/coredns/coredns:${MASTER_COREDNS_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/etcd:${MASTER_ETCD_VERSION}
+echo "kubernetes master docker images pull complete"
+# Install python package for mdm service usage
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install psutil
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install statsd
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable mdm.service
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable kubelet.service
+# Add kubernetes master entrance
+sudo cp files/image_config/kubernetes/kubernetes_master_entrance.sh $FILESYSTEM_ROOT/usr/sbin/
+sudo sed -i '/^exit 0/i\bash /usr/sbin/kubernetes_master_entrance.sh' $FILESYSTEM_ROOT/etc/rc.local
+{% endif %}
+
 {% macro get_install_options(set_owner, enabled) -%}
 {% set args = ["-y", "-v", "DEBUG"] -%}
 {% if set_owner -%}

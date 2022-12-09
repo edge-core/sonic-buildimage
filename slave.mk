@@ -333,6 +333,7 @@ $(info "INCLUDE_NAT"                     : "$(INCLUDE_NAT)")
 $(info "INCLUDE_DHCP_RELAY"              : "$(INCLUDE_DHCP_RELAY)")
 $(info "INCLUDE_P4RT"                    : "$(INCLUDE_P4RT)")
 $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
+$(info "INCLUDE_KUBERNETES_MASTER"       : "$(INCLUDE_KUBERNETES_MASTER)")
 $(info "INCLUDE_MACSEC"                  : "$(INCLUDE_MACSEC)")
 $(info "INCLUDE_MUX"                     : "$(INCLUDE_MUX)")
 $(info "ENABLE_FIPS_FEATURE"             : "$(ENABLE_FIPS_FEATURE)")
@@ -1129,6 +1130,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
 	export default_buffer_model="$(SONIC_BUFFER_MODEL)"
 	export include_kubernetes="$(INCLUDE_KUBERNETES)"
+	export include_kubernetes_master="$(INCLUDE_KUBERNETES_MASTER)"
 	export kube_docker_proxy="$(KUBE_DOCKER_PROXY)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
 	export installer_debs="$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$($*_INSTALLS) $(FIPS_BASEIMAGE_INSTALLERS))"
@@ -1297,6 +1299,12 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		SIGNING_CERT="$(SIGNING_CERT)" \
 		PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
 		MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
+		MASTER_KUBERNETES_VERSION=$(MASTER_KUBERNETES_VERSION) \
+		MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION=$(MASTER_KUBERNETES_CONTAINER_IMAGE_VERSION) \
+		MASTER_PAUSE_VERSION=$(MASTER_PAUSE_VERSION) \
+		MASTER_COREDNS_VERSION=$(MASTER_COREDNS_VERSION) \
+		MASTER_ETCD_VERSION=$(MASTER_ETCD_VERSION) \
+		MASTER_CRI_DOCKERD=$(MASTER_CRI_DOCKERD) \
 			./build_debian.sh $(LOG)
 
 		USERNAME="$(USERNAME)" \
