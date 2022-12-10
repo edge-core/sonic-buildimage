@@ -14,7 +14,7 @@ bzip2==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.6.11-1
+containerd.io==1.6.12-1
 cpio==2.12+dfsg-9
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
@@ -56,8 +56,8 @@ gpg-wks-client==2.2.12-1+deb10u2
 gpg-wks-server==2.2.12-1+deb10u2
 gpgconf==2.2.12-1+deb10u2
 gpgsm==2.2.12-1+deb10u2
-grub-common==2.06-3~deb10u2
-grub2-common==2.06-3~deb10u2
+grub-common==2.06-3~deb10u3
+grub2-common==2.06-3~deb10u3
 haveged==1.9.1-7
 hdparm==9.58+ds-1
 hping3==3.a2.ds2-7
@@ -314,7 +314,7 @@ squashfs-tools==1:4.3-12+deb10u2
 sudo==1.8.27-1+deb10u4
 swig==3.0.12-2
 swig3.0==3.0.12-2
-sx-kernel==1.mlnx.4.5.3186
+sx-kernel==1.mlnx.4.5.3196
 sysfsutils==2.1.0+repack-5
 systemd==247.3-6~bpo10+1
 systemd-sonic-generator==1.0.0
