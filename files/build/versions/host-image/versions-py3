@@ -3,7 +3,7 @@ azure-nspkg==3.0.2
 azure-storage==0.36.0
 bitarray==1.5.3
 blessed==1.19.1
-certifi==2022.9.24
+certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.1.1
 click==7.0
