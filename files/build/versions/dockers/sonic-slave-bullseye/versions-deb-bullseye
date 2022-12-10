@@ -618,7 +618,6 @@ libgs9==9.53.3~dfsg-7+deb11u2
 libgs9-common==9.53.3~dfsg-7+deb11u2
 libgsasl7==1.10.0-4+deb11u1
 libgsm1==1.0.18-2
-libgssapi-krb5-2==1.18.3-6+deb11u3
 libgssrpc4==1.18.3-6+deb11u3
 libgstreamer-plugins-base1.0-0==1.18.4-2
 libgstreamer1.0-0==1.18.4-2.1
@@ -738,15 +737,12 @@ libjudy-dev==1.0.5-5+b2
 libjudydebian1==1.0.5-5+b2
 libjxr-tools==1.1-6+b1
 libjxr0==1.1-6+b1
-libk5crypto3==1.18.3-6+deb11u3
 libkadm5clnt-mit12==1.18.3-6+deb11u3
 libkadm5srv-mit12==1.18.3-6+deb11u3
 libkdb5-10==1.18.3-6+deb11u3
 libkmod2==28-1
 libkpathsea6==2020.20200327.54578-7
-libkrb5-3==1.18.3-6+deb11u3
 libkrb5-dev==1.18.3-6+deb11u3
-libkrb5support0==1.18.3-6+deb11u3
 libksba8==1.5.0-3+deb11u1
 liblab-gamut1==2.42.2-5
 liblapack3==3.9.0-3

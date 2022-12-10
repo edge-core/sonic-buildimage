@@ -17,7 +17,7 @@ libicu67==67.1-7
 libipt2==2.0.3-1
 libkmod2==28-1
 libmpfr6==4.1.0-3
-libsaibcm==7.1.24.4
+libsaibcm==7.1.25.4
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
 libsairedis==1.0.0

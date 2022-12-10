@@ -30,10 +30,8 @@ https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
-https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==535ee79372649a44e963a1bd4db9ac5b
 https://deb.nodesource.com/node_14.x/dists/buster/Release==d701f2bf6451c4b10cf3670af05ab217
-https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
 https://deb.nodesource.com/setup_14.x==8b4c0534353a1bf3154e84f6b1654460
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
@@ -52,9 +50,9 @@ https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1.orig.tar.xz==6ddb13b6111f601db08fc7c72afa0263
 https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py==628956b660575965429cec84b1778816
 https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.5/swagger-codegen-cli-2.4.5.jar==219f1453ff22482d9e080effbfa7fa81
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103-1.debian.tar.xz==1d191449cd0468cc525d9ee9ff786027
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103-1.dsc==0217f16a0e3874a072418b419d39ebd9
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103.orig.tar.xz==f27bcdb9bf9435fc4a4dde9876c38cd1
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.debian.tar.xz==9813a002af43da3a5be05f3d31e85328
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.dsc==84ab224b073f97978802d9f998248fcc
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140.orig.tar.xz==925a4af3dffcc9e2838d223e413d6ebb
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.debian.tar.xz==0a529cf8d1717b5c3dbe0c61b3512aa1
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.dsc==b88b922d96688c948e90987fcaa3a2de
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4.orig.tar.gz==33e8d58623f99184e4e709cbbfe45db3
@@ -67,10 +65,6 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.debian.tar.xz==a3e626b1ed5adc26430e1727d81641df
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg-4+deb11u1.dsc==a36ed553b5034b7400d9e9a8d529b27e
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.9+dfsg.orig.tar.xz==6c2d346ce3320e8999500497e9bacc99
-https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
-https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
-https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_arm64.deb?st=2020-03-27T02%3A28%3A38Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=rrHMkLi29aI8yH6s52ILCY8VcEbNFrzYT2DmC5RwOgs%3D==9bcc989e6ed168717f67c07e79177d4a
-https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_armhf.deb?st=2020-03-27T02%3A29%3A41Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=sWt7kxrFumn020d2GeutGJ716cuQsFwmAmgU%2BJ0kqnk%3D==b5625da7ac620a2ae869653b9e5318ed
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1-3.debian.tar.xz?sv=2020-04-08&st=2021-12-14T08%3A00%3A00Z&se=2030-12-14T18%3A18%3A00Z&sr=b&sp=r&sig=C8aYSvaQgMJ58Z13kFY0Wr0J0QF6i7WCeET9%2BpF%2BAxc%3D==e8d1e99b4b9e93f5dde860f6d55f42e3
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1-3.dsc?sv=2020-04-08&st=2021-12-14T00%3A00%3A00Z&se=2050-12-15T00%3A00%3A00Z&sr=b&sp=r&sig=fIy6dVz3s59K0TiMkTlwSWN8lCzRl3i76ruAtROhfWA%3D==df3ed0dd965589fd09bf6a2920bc273e
 https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1.orig.tar.gz?sv=2020-04-08&st=2021-12-14T00%3A00%3A00Z&se=2050-12-15T00%3A00%3A00Z&sr=b&sp=r&sig=gpihyZv%2Fr0bVrCUKCKwpS4bIoqiPpdd%2BgCfuUGNHOUc%3D==780d14908dc1a6aa2790de376ab56b7a

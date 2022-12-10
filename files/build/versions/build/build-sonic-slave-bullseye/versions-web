@@ -9,6 +9,7 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg.orig.tar.xz==c1c5
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
+https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.dsc==27f74ae171f50bfc1116d3e23dbbab3f
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.tar.gz==37b56a6cf74721c6496d05d032cd22af
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
@@ -18,9 +19,9 @@ https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.debian.tar.xz==9d0cbd5f463f461c840c95f62a64d61b
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.dsc==be44c5a9fc12fb567a486f54b842dd9e
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1.orig.tar.xz==6ddb13b6111f601db08fc7c72afa0263
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103-1.debian.tar.xz==1d191449cd0468cc525d9ee9ff786027
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103-1.dsc==0217f16a0e3874a072418b419d39ebd9
-https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.103.orig.tar.xz==f27bcdb9bf9435fc4a4dde9876c38cd1
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.debian.tar.xz==9813a002af43da3a5be05f3d31e85328
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.dsc==84ab224b073f97978802d9f998248fcc
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140.orig.tar.xz==925a4af3dffcc9e2838d223e413d6ebb
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.debian.tar.xz==0a529cf8d1717b5c3dbe0c61b3512aa1
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.dsc==b88b922d96688c948e90987fcaa3a2de
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4.orig.tar.gz==33e8d58623f99184e4e709cbbfe45db3
@@ -59,6 +60,6 @@ https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python3.9_3.9.2-1+fips_amd64.deb==30be224443931a2a3428aa270b87384a
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/symcrypt-openssl_0.4_amd64.deb==333246e63a3c5008d970d0e409d491d2
 https://sonicstorage.blob.core.windows.net/public/sai/bcmpai/REL_3.8/3.8/libsaibroncos_3.8_amd64.deb==f7c3f0ed8c97c2572e3c2e59faaae4a8
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.24.4/libsaibcm-dev_7.1.24.4_amd64.deb==5b18129a22acbb58d1b12ad55320dd62
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.24.4/libsaibcm_7.1.24.4_amd64.deb==06692ae051b964c2bd14a930ccbac8ed
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.24.4/libsaibcm_dnx_7.1.24.4_amd64.deb==0c33cc0e5d13c4f020952206027dc3fb
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm-dev_7.1.25.4_amd64.deb==4630d63aa48d4da19b6a4a2668b7907b
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm_7.1.25.4_amd64.deb==cd9bfdc07a92f9bfa71fc8fedd986b2f
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm_dnx_7.1.25.4_amd64.deb==001aef017d175901a419d3f8a3c8c939
