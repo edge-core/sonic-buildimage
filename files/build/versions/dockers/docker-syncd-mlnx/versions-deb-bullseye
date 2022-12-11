@@ -59,6 +59,7 @@ sx-examples==1.mlnx.4.5.4026
 sx-examples-dev==1.mlnx.4.5.4026
 sx-gen-utils==1.mlnx.4.5.4026
 sx-gen-utils-dev==1.mlnx.4.5.4026
+sx-hash-calc==1.mlnx.4.5.4026
 sx-scew==1.mlnx.4.5.4026
 sx-scew-dev==1.mlnx.4.5.4026
 sxd-libs==1.mlnx.4.5.4026

@@ -14,7 +14,7 @@ https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123+deb11u1.tar.gz==37b56a6cf74721c6496d05d032cd22af
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
-https://github.com/aristanetworks/sonic-firmware/raw/e89a1696954fd381e1e95edf208cffc97caf15d4/phy/phy-credo_1.0_amd64.deb==fc197598098d030526c08d55cdd3910f
+https://github.com/aristanetworks/sonic-firmware/raw/446f30ccd8626f904d89d5798da7294948e090a6/phy/phy-credo_1.0_amd64.deb==6c3d6c32477615cbe049b9161ce15bd5
 https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58fbc11625336846cea7420
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.debian.tar.xz==9d0cbd5f463f461c840c95f62a64d61b
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.dsc==be44c5a9fc12fb567a486f54b842dd9e
