@@ -51,7 +51,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.10-1
+containerd.io==1.6.12-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -549,7 +549,7 @@ libgeronimo-interceptor-3.0-spec-java==1.0.1-4
 libgetopt-long-descriptive-perl==0.103-2
 libgfortran-8-dev==8.3.0-6
 libgfortran5==8.3.0-6
-libgif7==5.1.4-3
+libgif7==5.1.4-3+deb10u1
 libgirepository-1.0-1==1.58.3-2
 libgirepository1.0-dev==1.58.3-2
 libgit-wrapper-perl==0.048-1
@@ -1173,7 +1173,7 @@ libvdpau-va-gl1==0.4.2-1+b1
 libvdpau1==1.1.1-10
 libvelocity-tools-java==2.0-7
 libvidstab1.1==1.1.0-2
-libvirglrenderer0==0.7.0-2
+libvirglrenderer0==0.7.0-2+deb10u1
 libvirt-clients==5.0.0-4+deb10u1
 libvirt0==5.0.0-4+deb10u1
 libvisual-0.4-0==0.4.0-15
