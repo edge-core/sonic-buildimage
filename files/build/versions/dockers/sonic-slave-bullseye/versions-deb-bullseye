@@ -883,7 +883,7 @@ libomp5-11==1:11.0.1-2
 libonig5==6.9.6-1.1
 libopencsd-dev==0.14.4-1
 libopencsd0==0.14.4-1
-libopenexr25==2.5.4-2
+libopenexr25==2.5.4-2+deb11u1
 libopengl-dev==1.3.2-1
 libopengl0==1.3.2-1
 libopenjp2-7==2.4.0-3
