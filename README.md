@@ -86,6 +86,7 @@ Any server can be a build image server as long as it has:
   * 300G of free disk space
   * KVM Virtualization Support.
 > Note: If you are in a VM, make sure you have support for nested virtualization.
+>       Some cases (e.g. building OVS image) also requires extra configuration options to expose the full KVM interface to the VM (e.g. [the KVM paravirtualization support on VirtualBox](https://www.virtualbox.org/manual/ch10.html#gimproviders)).
 
 A good choice of OS for building SONiC is currently Ubuntu 20.04.
 
@@ -95,12 +96,16 @@ A good choice of OS for building SONiC is currently Ubuntu 20.04.
 
 ```
 sudo apt install -y python3-pip
-sudo pip3 install j2cli
+pip3 install --user j2cli
 ```
 
  * Install [Docker](https://docs.docker.com/engine/install/) and configure your system to allow running the 'docker' command without 'sudo':
     * Add current user to the docker group: `sudo gpasswd -a ${USER} docker`
     * Log out and log back in so that your group membership is re-evaluated
+
+> Note: If a previous installation of Docker using snap was present on the system, remove it and also remove docker from snap before reinstallating docker.
+  This will avoid [known bugs that falsely report read-only filesystems issues](https://stackoverflow.com/questions/52526219/docker-mkdir-read-only-file-system)
+  during the build process.
 
 ## Clone the repository with all the git submodules
 
@@ -129,7 +134,7 @@ To build SONiC installer image and docker images, run the following commands:
 
     # Build SONiC image with 4 jobs in parallel.
     # Note: You can set this higher, but 4 is a good number for most cases
-    # and is well-tested.
+    #       and is well-tested.
     make SONIC_BUILD_JOBS=4 all
 
  The supported ASIC vendors are:
