@@ -40,6 +40,7 @@ class PddfSfp(SfpOptoeBase):
             print("Invalid port index %d" % index)
             return
 
+	# 1-based port index
         self.port_index = index+1
         self.device = 'PORT{}'.format(self.port_index)
         self.sfp_type = self.pddf_obj.get_device_type(self.device)
@@ -347,6 +348,23 @@ class PddfSfp(SfpOptoeBase):
                         self.set_power_override(True, False)
 
         return status
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.port_index
+
+    def is_replaceable(self):
+        """
+        Indicate whether the SFP is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True
 
     def dump_sysfs(self):
         return self.pddf_obj.cli_dump_dsysfs('xcvr')
