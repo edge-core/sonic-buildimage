@@ -60,6 +60,6 @@ https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python3.9_3.9.2-1+fips_amd64.deb==30be224443931a2a3428aa270b87384a
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/symcrypt-openssl_0.4_amd64.deb==333246e63a3c5008d970d0e409d491d2
 https://sonicstorage.blob.core.windows.net/public/sai/bcmpai/REL_3.8/3.8/libsaibroncos_3.8_amd64.deb==f7c3f0ed8c97c2572e3c2e59faaae4a8
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm-dev_7.1.25.4_amd64.deb==4630d63aa48d4da19b6a4a2668b7907b
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm_7.1.25.4_amd64.deb==cd9bfdc07a92f9bfa71fc8fedd986b2f
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.25.4/libsaibcm_dnx_7.1.25.4_amd64.deb==001aef017d175901a419d3f8a3c8c939
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm-dev_7.1.28.4_amd64.deb==1109a8de6e77b62645c75fa6edc88ed7
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm_7.1.28.4_amd64.deb==18c9d8ff9cc7a39b05de9bacb441725b
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm_dnx_7.1.28.4_amd64.deb==6f4bdcee68ebce7c1b662b798274cc64

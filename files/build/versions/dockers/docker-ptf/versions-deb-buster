@@ -41,8 +41,8 @@ gcc==4:8.3.0-1
 gcc-8==8.3.0-6
 gdb==8.2.1-2+b3
 gir1.2-glib-2.0==1.58.3-2
-git==1:2.20.1-2+deb10u4
-git-man==1:2.20.1-2+deb10u4
+git==1:2.20.1-2+deb10u6
+git-man==1:2.20.1-2+deb10u6
 gnupg==2.2.12-1+deb10u2
 gnupg-l10n==2.2.12-1+deb10u2
 gnupg-utils==2.2.12-1+deb10u2
