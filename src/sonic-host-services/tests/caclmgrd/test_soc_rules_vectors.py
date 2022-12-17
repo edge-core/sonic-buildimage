@@ -21,6 +21,11 @@ CACLMGRD_SOC_TEST_VECTOR = [
                         "soc_ipv4": "192.168.1.0/32",
                     }
                 },
+                "VLAN_INTERFACE": {
+                    "Vlan1000|10.10.2.2/23": {
+                        "NULL": "NULL",
+                    }
+                },
                 "LOOPBACK_INTERFACE": {
                     "Loopback3|10.10.10.10/32": {
                         "NULL": "NULL",
@@ -30,7 +35,7 @@ CACLMGRD_SOC_TEST_VECTOR = [
                 },
             },
             "expected_subprocess_calls": [
-                call("iptables -t nat -A POSTROUTING --destination 192.168.1.0/32 -j SNAT --to-source 10.10.10.10",shell=True, universal_newlines=True, stdout=-1)
+                call("iptables -t nat -A POSTROUTING --destination 192.168.1.0/32 --source 10.10.10.10 -j SNAT --to-source 10.10.10.10",shell=True, universal_newlines=True, stdout=-1)
             ],
             "popen_attributes": {
                 'communicate.return_value': ('output', 'error'),

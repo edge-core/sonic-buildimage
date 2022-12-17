@@ -4,6 +4,7 @@ import swsscommon
 
 from parameterized import parameterized
 from sonic_py_common.general import load_module_from_source
+from ipaddress import IPv4Address
 from unittest import TestCase, mock
 from pyfakefs.fake_filesystem_unittest import patchfs
 
@@ -49,3 +50,11 @@ class TestCaclmgrdSoc(TestCase):
             caclmgrd_daemon.update_control_plane_nat_acls('', {})
             mocked_subprocess.Popen.assert_has_calls(test_data["expected_subprocess_calls"], any_order=True)
 
+    def test_get_ip_from_interface_table(self):
+        if not os.path.exists(DBCONFIG_PATH):
+            fs.create_file(DBCONFIG_PATH) # fake database_config.json
+
+        table = {("Vlan1000","10.10.10.1/32"): "val"}
+        ip_addr = self.caclmgrd.get_ip_from_interface_table(table, "Vlan")
+
+        assert (ip_addr == IPv4Address('10.10.10.1'))
