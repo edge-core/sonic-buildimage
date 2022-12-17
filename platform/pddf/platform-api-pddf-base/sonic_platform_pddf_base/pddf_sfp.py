@@ -205,7 +205,9 @@ class PddfSfp(SfpOptoeBase):
                     lpmode = super().get_lpmode()
                 elif xcvr_id == 0x11 or xcvr_id == 0x0d or xcvr_id == 0x0c:
                     # QSFP28, QSFP+, QSFP
-                    power_set = self.get_power_set()
+                    # get_power_set() is not defined in the optoe_base class
+                    api = self.get_xcvr_api()
+                    power_set = api.get_power_set()
                     power_override = self.get_power_override()
                     # By default the lpmode pin is pulled high as mentioned in the sff community
                     return power_set if power_override else True
@@ -343,9 +345,9 @@ class PddfSfp(SfpOptoeBase):
                 elif xcvr_id == 0x11 or xcvr_id == 0x0d or xcvr_id == 0x0c:
                     # QSFP28, QSFP+, QSFP
                     if lpmode is True:
-                        self.set_power_override(True, True)
+                        status = self.set_power_override(True, True)
                     else:
-                        self.set_power_override(True, False)
+                        status = self.set_power_override(True, False)
 
         return status
 
