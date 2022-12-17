@@ -539,9 +539,7 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 
 
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
 COLLECT_BUILD_VERSION = { scripts/collect_build_version_files.sh \$$?; }
-endif
 
 ifdef SOURCE_FOLDER
 	DOCKER_RUN += -v $(SOURCE_FOLDER):/var/$(USER)/src
