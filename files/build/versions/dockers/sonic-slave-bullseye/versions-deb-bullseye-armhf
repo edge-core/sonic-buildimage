@@ -1,3 +1,4 @@
+base-files==11.1+deb11u6
 binutils-arm-linux-gnueabihf==2.35.2-2
 bubblewrap==0.4.1-3
 dctrl-tools==2.24-3
@@ -28,14 +29,15 @@ libposix-strptime-perl==0.13-1+b7
 libsass1==3.6.4+20201122-1
 libsombok3==2.4.0-2+b1
 libspecio-perl==0.47-1
+libtasn1-6==4.16.0-2+deb11u1
 libunicode-linebreak-perl==0.0.20190101-1+b2
 libxapian-dev==1.4.18-3
 libxslt1-dev==1.1.34-4+deb11u1
 libxstring-perl==0.005-1+b1
 libyaml-tiny-perl==1.73-1
-linux-compiler-gcc-10-arm==5.10.149-2
-linux-headers-5.10.0-19-armmp==5.10.149-2
-linux-headers-armmp==5.10.149-2
+linux-compiler-gcc-10-arm==5.10.158-2
+linux-headers-5.10.0-20-armmp==5.10.158-2
+linux-headers-armmp==5.10.158-2
 mat2==0.12.1-2+deb11u1
 nodejs==14.21.1-deb-1nodesource1
 ps2eps==1.68+binaryfree-3
