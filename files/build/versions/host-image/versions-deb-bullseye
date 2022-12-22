@@ -188,7 +188,7 @@ libjs-underscore==1.9.1~dfsg-3
 libjson-c5==0.15-2
 libklibc==2.0.8-6.1
 libkmod2==28-1
-libksba8==1.5.0-3+deb11u1
+libksba8==1.5.0-3+deb11u2
 libldap-2.4-2==2.4.57+dfsg-3+deb11u1
 liblognorm5==2.0.5-1.1
 liblsan0==10.2.1-6
