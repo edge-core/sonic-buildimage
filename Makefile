@@ -15,16 +15,17 @@ PLATFORM_PATH := platform/$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))
 PLATFORM_CHECKOUT := platform/checkout
 PLATFORM_CHECKOUT_FILE := $(PLATFORM_CHECKOUT)/$(PLATFORM).ini
 PLATFORM_CHECKOUT_CMD := $(shell if [ -f $(PLATFORM_CHECKOUT_FILE) ]; then PLATFORM_PATH=$(PLATFORM_PATH) j2 $(PLATFORM_CHECKOUT)/template.j2 $(PLATFORM_CHECKOUT_FILE); fi)
+MAKE_WITH_RETRY := ./scripts/run_with_retry $(MAKE)
 
 %::
 	@echo "+++ --- Making $@ --- +++"
 ifeq ($(NOJESSIE), 0)
-	EXTRA_DOCKER_TARGETS=$(notdir $@) make -f Makefile.work jessie
+	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) -f Makefile.work jessie
 endif
 ifeq ($(NOSTRETCH), 0)
-	EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=stretch make -f Makefile.work stretch
+	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=stretch -f Makefile.work stretch
 endif
-	BLDENV=buster make -f Makefile.work $@
+	$(MAKE_WITH_RETRY) BLDENV=buster -f Makefile.work $@
 
 jessie:
 	@echo "+++ Making $@ +++"
