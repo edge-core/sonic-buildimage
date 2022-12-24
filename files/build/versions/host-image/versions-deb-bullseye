@@ -29,7 +29,7 @@ curl==7.74.0-1.3+deb11u3
 dbus==1.12.24-0+deb11u1
 device-tree-compiler==1.6.0-1
 dirmngr==2.2.27-2+deb11u2
-distro-info-data==0.51+deb11u2
+distro-info-data==0.51+deb11u3
 dmidecode==3.3-2
 dmsetup==2:1.02.175-2.1
 docker-ce==5:20.10.14~3-0~debian-bullseye
@@ -67,8 +67,8 @@ gpg-wks-client==2.2.27-2+deb11u2
 gpg-wks-server==2.2.27-2+deb11u2
 gpgconf==2.2.27-2+deb11u2
 gpgsm==2.2.27-2+deb11u2
-grub-common==2.06-3~deb11u4
-grub2-common==2.06-3~deb11u4
+grub-common==2.06-3~deb11u5
+grub2-common==2.06-3~deb11u5
 haveged==1.9.14-1
 hdparm==9.60+ds-1
 hping3==3.a2.ds2-10
@@ -108,10 +108,8 @@ libbrotli-dev==1.0.9-2+b2
 libbrotli1==1.0.9-2+b2
 libbsd0==0.11.3-1
 libc-ares2==1.17.1-1+deb11u1
-libc-bin==2.31-13+deb11u5
 libc-dev-bin==2.31-13+deb11u5
 libc-l10n==2.31-13+deb11u5
-libc6==2.31-13+deb11u5
 libc6-dev==2.31-13+deb11u5
 libcairo-gobject2==1.16.0-5
 libcairo-script-interpreter2==1.16.0-5
@@ -172,7 +170,6 @@ libgomp1==10.2.1-6
 libgpm2==1.20.7-8
 libgrpc++1==1.30.2-3
 libgrpc10==1.30.2-3
-libgssapi-krb5-2==1.18.3-6+deb11u3
 libhavege2==1.9.14-1
 libhiredis0.14==0.14.0-3~bpo9+1
 libi2c0==4.2-1+b1
@@ -190,12 +187,9 @@ libjs-jquery==3.5.1+dfsg+~3.5.5-7
 libjs-sphinxdoc==3.4.3-2
 libjs-underscore==1.9.1~dfsg-3
 libjson-c5==0.15-2
-libk5crypto3==1.18.3-6+deb11u3
 libklibc==2.0.8-6.1
 libkmod2==28-1
-libkrb5-3==1.18.3-6+deb11u3
-libkrb5support0==1.18.3-6+deb11u3
-libksba8==1.5.0-3+deb11u1
+libksba8==1.5.0-3+deb11u2
 libldap-2.4-2==2.4.57+dfsg-3+deb11u1
 liblognorm5==2.0.5-1.1
 liblsan0==10.2.1-6
@@ -315,9 +309,9 @@ libyang-cpp==1.0.73
 libzmq5==4.3.4-1
 linux-base==4.6
 linux-image-5.10.0-18-2-amd64-unsigned==5.10.140-1
-linux-libc-dev==5.10.149-2
-linux-perf==5.10.149-2
-linux-perf-5.10==5.10.149-2
+linux-libc-dev==5.10.158-2
+linux-perf==5.10.158-2
+linux-perf-5.10==5.10.158-2
 locales==2.31-13+deb11u5
 logrotate==3.18.0-2+deb11u1
 lsb-release==11.1.0
@@ -406,7 +400,6 @@ systemd-sysv==247.3-7+deb11u1
 tcpdump==4.99.0-2+deb11u1
 tcptraceroute==1.5beta7+debian-4.1+b1
 traceroute==1:2.1.0-2+b1
-tzdata==2021a-1+deb11u8
 u-boot-tools==2021.01+dfsg-5
 ucf==3.0043
 udev==247.3-7+deb11u1

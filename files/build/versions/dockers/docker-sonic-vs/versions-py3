@@ -12,7 +12,7 @@ docker-image-py==0.1.12
 enlighten==1.11.1
 filelock==3.8.2
 idna==3.4
-importlib-metadata==5.1.0
+importlib-metadata==5.2.0
 jsonpatch==1.32
 jsonpointer==2.3
 lazy-object-proxy==1.8.0

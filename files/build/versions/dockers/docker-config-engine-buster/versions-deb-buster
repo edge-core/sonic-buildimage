@@ -45,7 +45,7 @@ libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libyang==1.0.73
 libyang-cpp==1.0.73
-linux-libc-dev==4.19.260-1
+linux-libc-dev==4.19.269-1
 make==4.2.1-1.2
 patch==2.7.6-3+deb10u1
 python3-dev==3.7.3-1

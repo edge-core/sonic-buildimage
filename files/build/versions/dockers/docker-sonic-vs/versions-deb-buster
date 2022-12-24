@@ -175,7 +175,7 @@ libxrender-dev==1:0.9.10-1
 libxrender1==1:0.9.10-1
 libyang2==2.0.112-6
 libzmq3-dev==4.3.1-4+deb10u2
-linux-libc-dev==4.19.260-1
+linux-libc-dev==4.19.269-1
 logrotate==3.14.0-4
 lsof==4.91+dfsg-1
 make==4.2.1-1.2
