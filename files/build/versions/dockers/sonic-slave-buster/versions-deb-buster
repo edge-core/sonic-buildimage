@@ -1347,9 +1347,9 @@ libzzip-0-13==0.13.62-3.2+deb10u1
 licensecheck==3.0.31-3
 lintian==2.15.0
 linux-compiler-gcc-8-x86==4.19.269-1
-linux-headers-4.19.0-22-amd64==4.19.260-1
-linux-headers-4.19.0-22-common==4.19.260-1
-linux-headers-amd64==4.19+105+deb10u17
+linux-headers-4.19.0-23-amd64==4.19.269-1
+linux-headers-4.19.0-23-common==4.19.269-1
+linux-headers-amd64==4.19+105+deb10u18
 linux-kbuild-4.19==4.19.269-1
 linux-libc-dev==4.19.269-1
 linuxdoc-tools==0.9.73-2

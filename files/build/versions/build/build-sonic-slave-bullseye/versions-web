@@ -6,7 +6,7 @@ http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.dsc==983d
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0.orig.tar.gz==f60e47b5eb50bbeed48a9f43bb08dd5e
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg-1.debian.tar.xz==896c9b6679f379d8967b012a0cc792c2
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg.orig.tar.xz==c1c557036197188a22ec285fa53149d8
-http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==d41d8cd98f00b204e9800998ecf8427e
+http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
 https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
