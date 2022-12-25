@@ -98,7 +98,7 @@ libkadm5clnt-mit11==1.17-3+deb10u5
 libkadm5srv-mit11==1.17-3+deb10u5
 libkdb5-9==1.17-3+deb10u5
 libkrb5-dev==1.17-3+deb10u5
-libksba8==1.3.5-2+deb10u1
+libksba8==1.3.5-2+deb10u2
 liblsan0==8.3.0-6
 liblzo2-2==2.10-0.1
 libmount-dev==2.33.1-0.1
