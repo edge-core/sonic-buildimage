@@ -354,9 +354,6 @@ RUN apt-get update && apt-get install -y \
         libsystemd-dev \
         pkg-config
 
-# Upgrade cmake to support dbus-python build in armhf
-RUN apt-get install -t buster-backports -y cmake
-
 RUN apt-get -y build-dep openssh
 
 # Build fix for ARMHF buster libsairedis
@@ -380,6 +377,9 @@ RUN apt-get -y build-dep openssh
 
        # workaround because of https://bugs.launchpad.net/qemu/+bug/1805913, just disable aspell
        RUN cp /bin/true /usr/bin/aspell
+
+       # The cmake (>3.15) is required to install the latest version of dbus-python in armhf, but the cmake will conflict with libyang
+       RUN pip3 install dbus-python==1.2.18
 {%- endif %}
 
 ## Config dpkg
