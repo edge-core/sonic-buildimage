@@ -51,7 +51,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.13-1
+containerd.io==1.6.14-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -723,7 +723,7 @@ libkpathsea6==2018.20181218.49446-1
 libkrb5-3==1.17-3+deb10u5
 libkrb5-dev==1.17-3+deb10u5
 libkrb5support0==1.17-3+deb10u5
-libksba8==1.3.5-2+deb10u1
+libksba8==1.3.5-2+deb10u2
 liblab-gamut1==2.40.1-6+deb10u1
 liblcms2-2==2.9-3
 libldap-2.4-2==2.4.47+dfsg-3+deb10u7
@@ -1344,12 +1344,12 @@ libzvbi0==0.2.35-16
 libzzip-0-13==0.13.62-3.2+deb10u1
 licensecheck==3.0.31-3
 lintian==2.15.0
-linux-compiler-gcc-8-x86==4.19.260-1
-linux-headers-4.19.0-22-amd64==4.19.260-1
-linux-headers-4.19.0-22-common==4.19.260-1
-linux-headers-amd64==4.19+105+deb10u17
-linux-kbuild-4.19==4.19.260-1
-linux-libc-dev==4.19.260-1
+linux-compiler-gcc-8-x86==4.19.269-1
+linux-headers-4.19.0-23-amd64==4.19.269-1
+linux-headers-4.19.0-23-common==4.19.269-1
+linux-headers-amd64==4.19+105+deb10u18
+linux-kbuild-4.19==4.19.269-1
+linux-libc-dev==4.19.269-1
 linuxdoc-tools==0.9.73-2
 llvm-7==1:7.0.1-8+deb10u2
 llvm-7-dev==1:7.0.1-8+deb10u2

@@ -114,7 +114,7 @@ libkeyutils1==1.6-6
 libkmod2==26-1
 libkrb5-3==1.17-3+deb10u5
 libkrb5support0==1.17-3+deb10u5
-libksba8==1.3.5-2+deb10u1
+libksba8==1.3.5-2+deb10u2
 libldap-2.4-2==2.4.47+dfsg-3+deb10u7
 libldap-common==2.4.47+dfsg-3+deb10u7
 liblocale-gettext-perl==1.07-3+b4
@@ -197,7 +197,7 @@ libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1+b2
 libxml2==2.9.4+dfsg1-7+deb10u5
 libxmuu1==2:1.1.2-2+b3
-linux-libc-dev==4.19.260-1
+linux-libc-dev==4.19.269-1
 logrotate==3.14.0-4
 lsb-base==10.2019051400
 lsof==4.91+dfsg-1

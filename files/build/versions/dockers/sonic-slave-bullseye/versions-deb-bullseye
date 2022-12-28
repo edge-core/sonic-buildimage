@@ -51,7 +51,7 @@ cmake==3.18.4-2+deb11u1
 cmake-data==3.18.4-2+deb11u1
 cmocka-doc==1.1.5-2
 comerr-dev==2.1-1.46.2-2
-containerd.io==1.6.13-1
+containerd.io==1.6.14-1
 cowbuilder==0.89
 cowdancer==0.89
 cpio==2.13+dfsg-4
@@ -709,7 +709,7 @@ libkdb5-10==1.18.3-6+deb11u3
 libkmod2==28-1
 libkpathsea6==2020.20200327.54578-7
 libkrb5-dev==1.18.3-6+deb11u3
-libksba8==1.5.0-3+deb11u1
+libksba8==1.5.0-3+deb11u2
 liblab-gamut1==2.42.2-5
 liblapack3==3.9.0-3
 liblcms2-2==2.12~rc1-2
