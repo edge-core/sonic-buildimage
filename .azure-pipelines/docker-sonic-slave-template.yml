@@ -58,7 +58,7 @@ jobs:
       if echo ${{ parameters.pool }} | grep ${{ parameters.arch }};then
         image_latest=$(echo ${image_latest} | sed 's/:/-${{ parameters.arch }}:/')
       fi
-      image_branch=$(echo $(echo $image_tag | awk -F: '{print$1}'):$(Build.SourceBranchName))
+      image_branch=$(echo $(echo $image_latest | awk -F: '{print$1}'):$(Build.SourceBranchName))
       docker rmi $image_tag || true
 
       if [[ "$(Build.Reason)" =~ [a-zA-Z]*CI ]] && docker pull ${{ parameters.registry_url }}/${image_tag};then
