@@ -35,8 +35,8 @@ gpg-wks-server==2.2.12-1+deb10u2
 gpgconf==2.2.12-1+deb10u2
 gpgsm==2.2.12-1+deb10u2
 gpgv==2.2.12-1+deb10u2
-grub-common==2.06-3~deb10u1
-grub2-common==2.06-3~deb10u1
+grub-common==2.06-3~deb10u3
+grub2-common==2.06-3~deb10u3
 ifupdown==0.8.35
 iptables==1.8.2-4
 libapparmor1==2.13.2-10
@@ -90,7 +90,7 @@ libisl19==0.20-2
 libitm1==8.3.0-6
 libjson-c3==0.12.1+ds-2+deb10u1
 libjudydebian1==1.0.5-5
-libksba8==1.3.5-2+deb10u1
+libksba8==1.3.5-2+deb10u2
 liblsan0==8.3.0-6
 liblzo2-2==2.10-0.1
 libmount-dev==2.33.1-0.1
@@ -108,8 +108,8 @@ libpcre2-16-0==10.32-5
 libpcre3-dev==2:8.39-12
 libpcre32-3==2:8.39-12
 libpcrecpp0v5==2:8.39-12
-libpixman-1-0==0.36.0-1
-libpixman-1-dev==0.36.0-1
+libpixman-1-0==0.36.0-1+deb10u1
+libpixman-1-dev==0.36.0-1+deb10u1
 libpng-dev==1.6.36-6
 libpng16-16==1.6.36-6
 libpopt0==1.16-12
@@ -162,7 +162,7 @@ libxext6==2:1.3.3-1+b2
 libxrender-dev==1:0.9.10-1
 libxrender1==1:0.9.10-1
 libyang1==1.0.184-2
-linux-libc-dev==4.19.260-1
+linux-libc-dev==4.19.269-1
 logrotate==3.14.0-4
 make==4.2.1-1.2
 ndisc6==1.0.4-1

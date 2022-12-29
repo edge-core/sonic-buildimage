@@ -1,0 +1,2 @@
+cryptography==3.3.1
+dbus-python==1.2.18

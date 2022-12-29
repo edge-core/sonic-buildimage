@@ -33,7 +33,7 @@ libsairedis-dbg==1.0.0
 libswsscommon-dbg==1.0.0
 libunwind8==1.2.1-10~deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u5
-linux-libc-dev==4.19.260-1
+linux-libc-dev==4.19.269-1
 mft==4.17.2-12
 mlnx-sai==1.mlnx.SAIRel1.20.2
 openssh-client==1:7.9p1-10+deb10u2
@@ -67,7 +67,7 @@ sxd-libs==1.mlnx.4.5.1208
 sxd-libs-dev==1.mlnx.4.5.1208
 syncd==1.0.0
 syncd-dbg==1.0.0
-vim==2:8.1.0875-5+deb10u2
-vim-runtime==2:8.1.0875-5+deb10u2
+vim==2:8.1.0875-5+deb10u4
+vim-runtime==2:8.1.0875-5+deb10u4
 wjh-libs==1.mlnx.4.5.1208
 wjh-libs-dev==1.mlnx.4.5.1208
