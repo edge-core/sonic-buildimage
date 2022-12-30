@@ -22,7 +22,7 @@ if [ -z "$DISTRO" ]; then
     [ -z "$DISTRO" ] && DISTRO=jessie
 fi
 
-if [[ "$IMAGENAME" == docker-base-* ]]; then
+if [[ "$IMAGENAME" == docker-base-* ]] || [[ "$IMAGENAME" == docker-ptf ]]; then
     scripts/build_mirror_config.sh ${DOCKERFILE_PATH} $ARCH $DISTRO
 fi
 
