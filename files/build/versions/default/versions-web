@@ -32,7 +32,7 @@ https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==535ee79372649a44e963a1bd4db9ac5b
 https://deb.nodesource.com/node_14.x/dists/buster/Release==d701f2bf6451c4b10cf3670af05ab217
-https://deb.nodesource.com/setup_14.x==8b4c0534353a1bf3154e84f6b1654460
+https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae

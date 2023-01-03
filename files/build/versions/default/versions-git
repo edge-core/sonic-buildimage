@@ -1,4 +1,4 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==03af44a5163e9448e375a6bbe7bef1fc0e2bb205
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==5b0c93402623ee632077ae073555867a0f984fc6
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
 https://github.com/CESNET/libyang.git==f95b730cc8d8903c68f1b463a0b4d2856ad4943f
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
@@ -20,4 +20,4 @@ https://salsa.debian.org/debian/libteam.git==48142125234a665ad5367b724af36a58fb4
 https://salsa.debian.org/kernel-team/ethtool/==b24474c5f4cad2bb690ced33a3c7df397170a699
 https://salsa.debian.org/kernel-team/initramfs-tools.git==dd16eade69ef76b304a369fac2f6c0de508b855b
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==f1b82547e654ea81ab2f0cd40d7d98a3a30a7ef7
+https://salsa.debian.org/ssh-team/openssh.git==af3ead22021a201755bc3b18b005a6390665a055

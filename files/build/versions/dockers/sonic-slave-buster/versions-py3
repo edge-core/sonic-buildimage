@@ -4,7 +4,7 @@ async-timeout==4.0.2
 atomicwrites==1.1.5
 attrs==18.2.0
 babel==2.6.0
-bitarray==2.6.1
+bitarray==2.6.2
 certifi==2018.8.24
 chardet==3.0.4
 cov-core==1.15.0
@@ -20,7 +20,7 @@ gcovr==4.1
 gpg==1.12.0
 idna==2.6
 imagesize==1.0.0
-importlib-metadata==5.2.0
+importlib-metadata==6.0.0
 jinja2==3.0.3
 keyring==17.1.1
 keyrings.alt==3.1.1

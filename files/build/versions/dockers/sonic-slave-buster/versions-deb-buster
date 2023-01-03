@@ -111,7 +111,7 @@ exim4-base==4.92-8+deb10u7
 exim4-config==4.92-8+deb10u7
 exim4-daemon-light==4.92-8+deb10u7
 expat==2.2.6-2+deb10u6
-exuberant-ctags==1:5.9~svn20110310-12
+exuberant-ctags==1:5.9~svn20110310-12+deb10u1
 fakeroot==1.23-1
 file==1:5.35-4+deb10u2
 flex==2.6.4-6.2
