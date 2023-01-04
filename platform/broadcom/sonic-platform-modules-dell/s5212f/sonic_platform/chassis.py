@@ -106,10 +106,7 @@ class Chassis(ChassisBase):
         for port_num in range(self.PORT_START, (self.PORT_END + 1)):
             # sfp get uses zero-indexing, but port numbers start from 1
             presence = self.get_sfp(port_num).get_presence()
-            if presence:
-                self._global_port_pres_dict[port_num] = '1'
-            else:
-                self._global_port_pres_dict[port_num] = '0'
+            self._global_port_pres_dict[port_num] = '0'
 
         self._watchdog = Watchdog()
 
