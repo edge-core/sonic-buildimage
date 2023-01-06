@@ -301,7 +301,7 @@ function UpgradeCPLDFW() {
         ExitFailure "could not retrieve current CPLD firmware version"
     fi
 
-    if [[ "${_CURRENT_CPLD_VERSION}" = "${_TARGET_CPLD_VERSION}" ]]; then
+    if [[ "${_CURRENT_CPLD_VERSION}" -ge "${_TARGET_CPLD_VERSION}" ]]; then
         LogInfo "CPLD firmware is up to date"
         return "${EXIT_SUCCESS}"
     fi
