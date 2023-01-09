@@ -38,7 +38,7 @@ setup(
         'pytest',
         'pyfakefs',
         'sonic-py-common',
-        'deepdiff'
+        'deepdiff==6.2.2'
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',
