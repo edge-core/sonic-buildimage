@@ -324,7 +324,7 @@ class FeatureHandler(object):
             None.
         """
 
-        cmds = []
+
         feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature_config, True)
         for feature_name in feature_names:
             if '@' not in feature_name:
@@ -333,6 +333,7 @@ class FeatureHandler(object):
             if not unit_file_state:
                 continue
             if unit_file_state != "disabled" and not feature_config.has_per_asic_scope:
+                cmds = []
                 for suffix in reversed(feature_suffixes):
                     cmds.append("sudo systemctl stop {}.{}".format(feature_name, suffix))
                     cmds.append("sudo systemctl disable {}.{}".format(feature_name, feature_suffixes[-1]))
@@ -420,14 +421,13 @@ class FeatureHandler(object):
         return props["UnitFileState"]
 
     def enable_feature(self, feature):
-        cmds = []
         feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature)
         for feature_name in feature_names:
             # Check if it is already enabled, if yes skip the system call
             unit_file_state = self.get_systemd_unit_state("{}.{}".format(feature_name, feature_suffixes[-1]))
             if unit_file_state == "enabled" or not unit_file_state:
                 continue
-
+            cmds = []    
             for suffix in feature_suffixes:
                 cmds.append("sudo systemctl unmask {}.{}".format(feature_name, suffix))
 
@@ -450,14 +450,13 @@ class FeatureHandler(object):
         self.set_feature_state(feature, self.FEATURE_STATE_ENABLED)
 
     def disable_feature(self, feature):
-        cmds = []
         feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature)
         for feature_name in feature_names:
             # Check if it is already disabled, if yes skip the system call
             unit_file_state = self.get_systemd_unit_state("{}.{}".format(feature_name, feature_suffixes[-1]))
             if unit_file_state in ("disabled", "masked") or not unit_file_state:
                 continue
-
+            cmds = []
             for suffix in reversed(feature_suffixes):
                 cmds.append("sudo systemctl stop {}.{}".format(feature_name, suffix))
                 cmds.append("sudo systemctl disable {}.{}".format(feature_name, feature_suffixes[-1]))
