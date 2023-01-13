@@ -322,3 +322,4 @@ system_ref_core_clock_khz
 cmic_dma_abort_in_cold_boot
 hybrid_pfc_deadlock_enable
 sai_pfc_dlr_init_capability
+sai_disable_srcmacqedstmac_ctrl
