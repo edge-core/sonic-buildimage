@@ -1,5 +1,5 @@
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3.debian.tar.xz==72af4f677ebb88970bdcae0f73f2d9e8
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3.dsc==ff46d1b27970c3648701be4c20a5128a
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.debian.tar.xz==8c3640097a1b4cc59e927badbd45b3f0
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.dsc==1af0a028a9655235ec3372332f94a19c
 http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1.orig.tar.gz==dbcba5108f659278200218ac0847ce3f
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.debian.tar.xz==8eab143a53c71c03695ebc78e4b5ed36
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.dsc==983d68fb43001bb2fc94862bc4bc2e2b
@@ -60,6 +60,6 @@ https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/python3.9_3.9.2-1+fips_amd64.deb==30be224443931a2a3428aa270b87384a
 https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.4/amd64/symcrypt-openssl_0.4_amd64.deb==333246e63a3c5008d970d0e409d491d2
 https://sonicstorage.blob.core.windows.net/public/sai/bcmpai/REL_3.8/3.8/libsaibroncos_3.8_amd64.deb==f7c3f0ed8c97c2572e3c2e59faaae4a8
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm-dev_7.1.28.4_amd64.deb==1109a8de6e77b62645c75fa6edc88ed7
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm_7.1.28.4_amd64.deb==18c9d8ff9cc7a39b05de9bacb441725b
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.28.4/libsaibcm_dnx_7.1.28.4_amd64.deb==6f4bdcee68ebce7c1b662b798274cc64
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.31.4/libsaibcm-dev_7.1.31.4_amd64.deb==43caee1884dfc9acaf4440a6ddac4e7c
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.31.4/libsaibcm_7.1.31.4_amd64.deb==e239a78f53ba7f1cc44309313acd32d7
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0_202205/7.1.31.4/libsaibcm_dnx_7.1.31.4_amd64.deb==78e4c8917ab029342b1ba520189408b5

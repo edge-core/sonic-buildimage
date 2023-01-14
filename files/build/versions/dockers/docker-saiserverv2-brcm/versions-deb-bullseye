@@ -11,7 +11,7 @@ libicu67==67.1-7
 libipt2==2.0.3-1
 libkmod2==28-1
 libmpfr6==4.1.0-3
-libsaibcm==7.1.28.4
+libsaibcm==7.1.31.4
 libsaithrift-dev==0.9.4
 libsource-highlight-common==3.1.9-3
 libsource-highlight4v5==3.1.9-3+b1

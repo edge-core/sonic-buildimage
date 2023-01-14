@@ -1,5 +1,5 @@
 blessed==1.19.1
-charset-normalizer==2.1.1
+charset-normalizer==3.0.1
 click-log==0.4.0
 colorful==0.5.5
 docker==6.0.1

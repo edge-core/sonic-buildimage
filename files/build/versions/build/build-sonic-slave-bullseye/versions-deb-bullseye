@@ -1,7 +1,7 @@
 applibs==1.mlnx.4.5.3186
 applibs-dev==1.mlnx.4.5.3186
 iproute2-dev==1.mlnx.4.5.3186
-isc-dhcp-relay==4.4.1-2.3
+isc-dhcp-relay==4.4.1-2.3+deb11u1
 kernel-mft-dkms==4.21.0-100
 libhiredis-dev==0.14.0-3~bpo9+1
 libhiredis0.14==0.14.0-3~bpo9+1
@@ -13,8 +13,8 @@ libnl-genl-3-dev==3.5.0-1
 libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
 libnl-route-3-dev==3.5.0-1
-libsaibcm==7.1.28.4
-libsaibcm-dev==7.1.28.4
+libsaibcm==7.1.31.4
+libsaibcm-dev==7.1.31.4
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0

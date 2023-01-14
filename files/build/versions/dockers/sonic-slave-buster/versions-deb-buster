@@ -50,7 +50,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.14-1
+containerd.io==1.6.15-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -1113,8 +1113,9 @@ libsystemd-dev==241-7~deb10u8
 libtag1v5==1.11.1+dfsg.1-0.3+deb10u1
 libtag1v5-vanilla==1.11.1+dfsg.1-0.3+deb10u1
 libtask-weaken-perl==1.06-1
-libtasn1-6-dev==4.13-3
-libtasn1-doc==4.13-3
+libtasn1-6==4.13-3+deb10u1
+libtasn1-6-dev==4.13-3+deb10u1
+libtasn1-doc==4.13-3+deb10u1
 libtcl8.6==8.6.9+dfsg-2
 libtcmalloc-minimal4==2.7-1
 libteckit0==2.5.8+ds2-5

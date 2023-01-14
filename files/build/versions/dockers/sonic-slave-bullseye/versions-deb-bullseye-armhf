@@ -37,7 +37,7 @@ linux-compiler-gcc-10-arm==5.10.158-2
 linux-headers-5.10.0-20-armmp==5.10.158-2
 linux-headers-armmp==5.10.158-2
 mat2==0.12.1-2+deb11u1
-nodejs==14.21.1-deb-1nodesource1
+nodejs==14.21.2-deb-1nodesource1
 ps2eps==1.68+binaryfree-3
 python3-cairo==1.16.2-4+b2
 python3-gi-cairo==3.38.0-2
