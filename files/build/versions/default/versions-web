@@ -4,8 +4,8 @@ http://deb.debian.org/debian/pool/main/i/iproute2/iproute2_5.10.0.orig.tar.xz==f
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2-4.debian.tar.xz==c27e499611c48ba307792518d29cdcc7
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2-4.dsc==d9572a9f48c88293341681601a7b18c5
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2.orig.tar.bz2==944558e88ddcc3b9b0d9550070fa3599
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3.debian.tar.xz==72af4f677ebb88970bdcae0f73f2d9e8
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3.dsc==ff46d1b27970c3648701be4c20a5128a
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.debian.tar.xz==8c3640097a1b4cc59e927badbd45b3f0
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.dsc==1af0a028a9655235ec3372332f94a19c
 http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1.orig.tar.gz==dbcba5108f659278200218ac0847ce3f
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.debian.tar.xz==8eab143a53c71c03695ebc78e4b5ed36
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.dsc==983d68fb43001bb2fc94862bc4bc2e2b
@@ -25,10 +25,10 @@ https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
-https://deb.nodesource.com/node_14.x/dists/bullseye/Release==535ee79372649a44e963a1bd4db9ac5b
-https://deb.nodesource.com/node_14.x/dists/buster/Release==d701f2bf6451c4b10cf3670af05ab217
+https://deb.nodesource.com/node_14.x/dists/bullseye/Release==e7d1d56ab4f993a91b7d6fabd77f298c
+https://deb.nodesource.com/node_14.x/dists/buster/Release==8c7f066a1fa7e957109aaca26b1262e0
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==8b4c0534353a1bf3154e84f6b1654460
+https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220815_sai_1.10_deb11.deb==ece1121c25dbfcbe674788b30ed105cf
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220815_sai_1.10_deb11.deb==944cf175710101883c5e6e19282cd1ce

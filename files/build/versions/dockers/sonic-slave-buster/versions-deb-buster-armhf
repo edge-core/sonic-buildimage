@@ -7,4 +7,4 @@ libdrm-tegra0==2.4.97-1
 libgles2-mesa-dev==18.3.6-2+deb10u1
 libxslt1-dev==1.1.32-2.2~deb10u2
 linux-compiler-gcc-8-arm==4.19.269-1
-nodejs==14.21.1-deb-1nodesource1
+nodejs==14.21.2-deb-1nodesource1
