@@ -14,7 +14,7 @@ bzip2==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.6.14-1
+containerd.io==1.6.15-1
 cpio==2.12+dfsg-9
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
@@ -250,6 +250,7 @@ libsysfs2==2.1.0+repack-5
 libsystemd-dev==247.3-6~bpo10+1
 libsystemd0==247.3-6~bpo10+1
 libtac2==1.4.1-1
+libtasn1-6==4.13-3+deb10u1
 libtcl8.6==8.6.9+dfsg-2
 libtinfo6==6.1+20181013-2+deb10u3
 libtsan0==8.3.0-6
