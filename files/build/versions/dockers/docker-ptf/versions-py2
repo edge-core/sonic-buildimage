@@ -62,7 +62,7 @@ traitlets==4.3.3
 twisted==16.0.0
 typing==3.10.0.0
 unittest-xml-reporting==2.5.2
-wcwidth==0.2.5
+wcwidth==0.2.6
 werkzeug==1.0.1
 yabgp==0.8.2
 zipp==1.2.0
