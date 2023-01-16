@@ -470,6 +470,9 @@ RUN pip3 install mmh3==2.5.1
 
 RUN pip3 install parameterized==0.8.1
 
+# For latest version error, use previous version
+RUN pip3 install deepdiff==6.2.2
+
 RUN apt-get install -y xsltproc
 
 # Install dependencies for isc-dhcp-relay build
