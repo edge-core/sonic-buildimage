@@ -86,6 +86,7 @@ export DOCKER_BASE_ARCH
 export CROSS_BUILD_ENVIRON
 export BLDENV
 export BUILD_WORKDIR
+export MIRROR_SNAPSHOT
 
 ###############################################################################
 ## Utility rules
