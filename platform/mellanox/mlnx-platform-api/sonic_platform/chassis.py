@@ -13,6 +13,7 @@ try:
     from sonic_py_common.logger import Logger
     from os import listdir
     from os.path import isfile, join
+    from . import utils
     import sys
     import io
     import re
@@ -37,6 +38,10 @@ SPECTRUM1_CHIP_ID = '52100'
 REBOOT_CAUSE_ROOT = HWMGMT_SYSTEM_ROOT
 
 REBOOT_CAUSE_FILE_LENGTH = 1
+
+REBOOT_TYPE_KEXEC_FILE = "/proc/cmdline"
+REBOOT_TYPE_KEXEC_PATTERN_WARM = ".*SONIC_BOOT_TYPE=(warm|fastfast).*"
+REBOOT_TYPE_KEXEC_PATTERN_FAST = ".*SONIC_BOOT_TYPE=(fast|fast-reboot).*"
 
 # Global logger class instance
 logger = Logger()
@@ -350,6 +355,17 @@ class Chassis(ChassisBase):
         '''
         return bool(int(self._read_generic_file(join(REBOOT_CAUSE_ROOT, filename), REBOOT_CAUSE_FILE_LENGTH).rstrip('\n')))
 
+    def _parse_warmfast_reboot_from_proc_cmdline(self):
+        if isfile(REBOOT_TYPE_KEXEC_FILE):
+            with open(REBOOT_TYPE_KEXEC_FILE) as cause_file:
+                cause_file_kexec = cause_file.readline()
+            m = re.search(REBOOT_TYPE_KEXEC_PATTERN_WARM, cause_file_kexec)
+            if m and m.group(1):
+                return 'warm-reboot'
+            m = re.search(REBOOT_TYPE_KEXEC_PATTERN_FAST, cause_file_kexec)
+            if m and m.group(1):
+                return 'fast-reboot'
+        return None
 
     def initialize_reboot_cause(self):
         self.reboot_major_cause_dict = {
@@ -388,6 +404,13 @@ class Chassis(ChassisBase):
             is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
             to pass a description of the reboot cause.
         """
+        # To avoid the leftover hardware reboot cause confusing the reboot cause determine service
+        # Skip the hardware reboot cause check if warm/fast reboot cause found from cmdline
+        if utils.is_host():
+            reboot_cause = self._parse_warmfast_reboot_from_proc_cmdline()
+            if reboot_cause:
+                return self.REBOOT_CAUSE_NON_HARDWARE, ''
+
         #read reboot causes files in the following order
         if not self.reboot_cause_initialized:
             self.initialize_reboot_cause()
