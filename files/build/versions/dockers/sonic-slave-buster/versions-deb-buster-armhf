@@ -104,9 +104,6 @@ librust-winapi-i686-pc-windows-gnu-dev==0.4.0-1
 librust-winapi-x86-64-pc-windows-gnu-dev==0.4.0-1
 librust-wincolor-dev==1.0.0-1
 libsass1==3.5.5-4
-libsnmp-base==5.7.3+dfsg-5+deb10u4
-libsnmp-dev==5.7.3+dfsg-5+deb10u4
-libsnmp30==5.7.3+dfsg-5+deb10u4
 libsombok3==2.4.0-2
 libspecio-perl==0.43-1
 libunicode-linebreak-perl==0.0.20190101-1
