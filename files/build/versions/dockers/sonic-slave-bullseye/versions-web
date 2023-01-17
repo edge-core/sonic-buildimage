@@ -1,4 +1,0 @@
-https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==4c3f0a07a6d21c6d1ce2b1fef9acf357
-https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/amd64/golang-1.15-go_1.15.15-1~deb11u4%2Bfips_amd64.deb==b60f6db62805696b47ab422ab798fe56
-https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/amd64/golang-1.15-src_1.15.15-1~deb11u4%2Bfips_amd64.deb==1c920937aa49b602a1bfec3c49747131

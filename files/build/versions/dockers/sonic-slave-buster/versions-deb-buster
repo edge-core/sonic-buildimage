@@ -1070,9 +1070,9 @@ libsnappy-java==1.1.7.2-1
 libsnappy-jni==1.1.7.2-1
 libsnappy1v5==1.1.7-1
 libsndfile1==1.0.28-6+deb10u2
-libsnmp-base==5.7.3+dfsg-5+deb10u3
-libsnmp-dev==5.7.3+dfsg-5+deb10u3
-libsnmp30==5.7.3+dfsg-5+deb10u3
+libsnmp-base==5.7.3+dfsg-5+deb10u4
+libsnmp-dev==5.7.3+dfsg-5+deb10u4
+libsnmp30==5.7.3+dfsg-5+deb10u4
 libsoap-lite-perl==1.27-1
 libsodium-dev==1.0.17-1
 libsodium23==1.0.17-1

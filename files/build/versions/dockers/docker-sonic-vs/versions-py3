@@ -20,7 +20,7 @@ m2crypto==0.38.0
 netifaces==0.10.9
 packaging==23.0
 pexpect==4.8.0
-prefixed==0.5.0
+prefixed==0.6.0
 prettyprinter==0.18.0
 ptyprocess==0.7.0
 pycairo==1.23.0
