@@ -1,0 +1,10 @@
+{
+    "chassis": {
+        "SSE-G3748": {
+            "component": {
+                "U-Boot": { },
+                "System-CPLD": { }
+            }
+        }
+    }
+}
