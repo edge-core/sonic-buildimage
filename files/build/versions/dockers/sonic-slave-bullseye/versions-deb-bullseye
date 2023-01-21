@@ -95,7 +95,7 @@ docbook-utils==0.6.14-3.4
 docbook-xml==4.5-9
 docker-ce==5:20.10.14~3-0~debian-bullseye
 docker-ce-cli==5:20.10.14~3-0~debian-bullseye
-docker-ce-rootless-extras==5:20.10.22~3-0~debian-bullseye
+docker-ce-rootless-extras==5:20.10.23~3-0~debian-bullseye
 docker-scan-plugin==0.23.0~debian-bullseye
 docutils-common==0.16+dfsg-4
 dosfstools==4.2-1
@@ -1663,7 +1663,7 @@ sphinx-rtd-theme-common==0.5.1+dfsg-1
 squashfs-tools==1:4.4-2+deb11u2
 stgit==0.19-1
 strace==5.10-1
-sudo==1.9.5p2-3
+sudo==1.9.5p2-3+deb11u1
 swig==4.0.2-1
 swig4.0==4.0.2-1
 systemd==247.3-7+deb11u1
