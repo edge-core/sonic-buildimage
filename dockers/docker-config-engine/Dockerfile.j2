@@ -3,7 +3,7 @@ FROM docker-base
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 # Dependencies for sonic-cfggen
 RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev python-natsort

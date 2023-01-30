@@ -7,7 +7,7 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update apt's cache of available packages
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 # Install required packages
 RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4 libpython2.7

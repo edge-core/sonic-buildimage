@@ -34,7 +34,12 @@ RUN echo "deb [arch=arm64] http://archive.debian.org/debian jessie main contrib 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
+COPY ["faketime_0.9.7-2_amd64.deb","/root"]
+COPY ["libfaketime_0.9.7-2_amd64.deb","/root"]
+RUN dpkg -i /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+RUN rm /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+
+RUN faketime "2022-11-01" apt-get update && apt-get install -y \
         apt-utils \
         default-jre-headless \
         openssh-server \
@@ -346,7 +351,7 @@ RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /
 ENV PATH /usr/share/depot_tools:$PATH
 
 # Install docker engine 17.03.2~ce-0 inside docker and enable experimental feature
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 RUN apt-get install -y \
            apt-transport-https \
            ca-certificates \
@@ -358,7 +363,7 @@ RUN add-apt-repository \
            "deb [arch={{ CONFIGURED_ARCH }}] https://download.docker.com/linux/debian \
            $(lsb_release -cs) \
            stable"
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 {%- if CONFIGURED_ARCH == "amd64" %}
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
 {%- else %}
@@ -368,5 +373,5 @@ RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/d
 
 # For jenkins slave
 RUN echo "deb [arch={{ CONFIGURED_ARCH }}] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-RUN apt-get -o Acquire::Check-Valid-Until=false update
+RUN faketime "2022-11-01" apt-get -o Acquire::Check-Valid-Until=false update
 RUN apt-get -y -o Acquire::Check-Valid-Until=false install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk

@@ -89,7 +89,7 @@ RUN apt-get -y purge   \
 {%- endif %}
 
 # Add support for supervisord to handle startup dependencies
-RUN pip install supervisord-dependent-startup==1.4.0
+RUN pip install supervisord-dependent-startup==1.4.0 'toposort<=1.7'
 
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images
