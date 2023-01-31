@@ -549,9 +549,6 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
     const uint8_t *tmp = NULL;
     auto dhcp_relay_header = parse_dhcpv6_relay(msg);
     current_position += sizeof(struct dhcpv6_relay_msg);
-    
-    auto position = current_position + sizeof(struct dhcpv6_option);
-    auto dhcpv6msg = parse_dhcpv6_hdr(position);
 
     while ((current_position - msg) < len) {
         auto option = parse_dhcpv6_opt(current_position, &tmp);
@@ -560,11 +557,13 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
             break;
         }
         switch (ntohs(option->option_code)) {
-            case OPTION_RELAY_MSG:
-                memcpy(current_buffer_position, ((uint8_t *)option) + sizeof(struct dhcpv6_option), ntohs(option->option_length));
+            case OPTION_RELAY_MSG: {
+                uint8_t *dhcpv6_position = ((uint8_t *)option) + sizeof(struct dhcpv6_option);
+                type = parse_dhcpv6_hdr(dhcpv6_position)->msg_type;
+                memcpy(current_buffer_position, dhcpv6_position, ntohs(option->option_length));
                 current_buffer_position += ntohs(option->option_length);
-                type = dhcpv6msg->msg_type;
                 break;
+            }
             default:
                 break;
         }
