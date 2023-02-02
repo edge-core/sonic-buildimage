@@ -1350,6 +1350,80 @@
                 "login": "local"
             }
         },
+        "SYSTEM_PORT": {
+            "host227-4|asic0|Cpu0": {
+                "core_index": "0",
+                "core_port_index": "0",
+                "num_voq": "8",
+                "speed": "10000",
+                "switch_id": "0",
+                "system_port_id": "1"
+            },
+            "host227-4|asic0|Ethernet0": {
+                "core_index": "1",
+                "core_port_index": "1",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "0",
+                "system_port_id": "2"
+            },
+            "host227-4|asic0|Ethernet4": {
+                "core_index": "1",
+                "core_port_index": "2",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "0",
+                "system_port_id": "3"
+            },
+            "host227-4|asic1|Cpu0": {
+                "core_index": "0",
+                "core_port_index": "0",
+                "num_voq": "8",
+                "speed": "10000",
+                "switch_id": "0",
+                "system_port_id": "41"
+            },
+            "host227-4|asic1|Ethernet8": {
+                "core_index": "0",
+                "core_port_index": "1",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "2",
+                "system_port_id": "42"
+            },
+            "host227-4|asic1|Ethernet12": {
+                "core_index": "0",
+                "core_port_index": "2",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "2",
+                "system_port_id": "43"
+            },
+            "host227-5|asic0|Cpu0": {
+                "core_index": "0",
+                "core_port_index": "0",
+                "num_voq": "8",
+                "speed": "10000",
+                "switch_id": "0",
+                "system_port_id": "81"
+            },
+            "host227-5|asic0|Ethernet0": {
+                "core_index": "1",
+                "core_port_index": "1",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "4",
+                "system_port_id": "82"
+            },
+            "host227-5|asic0|Ethernet4": {
+                "core_index": "1",
+                "core_port_index": "2",
+                "num_voq": "8",
+                "speed": "100000",
+                "switch_id": "4",
+                "system_port_id": "83"
+            }
+        },
         "TACPLUS": {
             "global": {
                 "auth_type": "pap",
