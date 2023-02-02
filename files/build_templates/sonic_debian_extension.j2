@@ -796,6 +796,12 @@ sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
 
 {% if sonic_asic_platform == "mellanox" %}
 sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/
+if [ -n "$MLNX_BIOS_ARCHIVES" ]; then
+sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/bios/
+for MLNX_BIOS_ARCHIVE in $MLNX_BIOS_ARCHIVES; do
+    sudo cp $files_path/$MLNX_BIOS_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/bios/
+done
+fi
 sudo cp $files_path/$MLNX_SPC_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
 sudo cp $files_path/$MLNX_SPC2_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC2.mfa
 sudo cp $files_path/$MLNX_SPC3_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC3.mfa
