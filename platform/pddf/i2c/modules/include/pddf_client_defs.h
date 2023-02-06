@@ -33,6 +33,8 @@
 #define GPIO "PDDF_GPIO"
 #define SYSSTATUS "PDDF_SYSSTATUS"
 #define XCVR "PDDF_XCVR"
+#define FPGA "PDDF_FPGAPCI"
+
 
 #define PDDF_DEBUG
 #ifdef PDDF_DEBUG
