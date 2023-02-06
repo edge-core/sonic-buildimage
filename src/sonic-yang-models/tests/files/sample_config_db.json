@@ -324,6 +324,28 @@
                 "AETH_SYNDROME": "0x60/0x60"
             }
         },
+        "SWITCH_HASH": {
+            "GLOBAL": {
+                "ecmp_hash": [
+                    "DST_IP",
+                    "SRC_IP",
+                    "IP_PROTOCOL",
+                    "L4_DST_PORT",
+                    "L4_SRC_PORT",
+                    "INNER_DST_IP",
+                    "INNER_SRC_IP"
+                ],
+                "lag_hash": [
+                    "DST_IP",
+                    "SRC_IP",
+                    "IP_PROTOCOL",
+                    "L4_DST_PORT",
+                    "L4_SRC_PORT",
+                    "INNER_DST_IP",
+                    "INNER_SRC_IP"
+                ]
+            }
+        },
         "DEVICE_METADATA": {
             "localhost": {
                 "type": "ToRRouter",

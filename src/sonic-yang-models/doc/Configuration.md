@@ -27,6 +27,7 @@ Table of Contents
          * [Device neighbor metada](#device-neighbor-metada)  
          * [DSCP_TO_TC_MAP](#dscp_to_tc_map)  
          * [FLEX_COUNTER_TABLE](#flex_counter_table)  
+         * [Hash](#hash)  
          * [KDUMP](#kdump)  
          * [Kubernetes Master](#kubernetes-master)  
          * [L2 Neighbors](#l2-neighbors)  
@@ -934,6 +935,58 @@ instance is supported in SONiC.
 	}
 }
 
+```
+
+### Hash
+
+Generic hash allows user to configure which hash fields are suppose to be used by a hashing algorithm.  
+The configuration is applied globally for each ECMP and LAG on a switch.
+
+***ECMP/LAG HASH***
+
+```
+{
+    "SWITCH_HASH": {
+        "GLOBAL": {
+            "ecmp_hash": [
+                "DST_MAC",
+                "SRC_MAC",
+                "ETHERTYPE",
+                "IP_PROTOCOL",
+                "DST_IP",
+                "SRC_IP",
+                "L4_DST_PORT",
+                "L4_SRC_PORT",
+                "INNER_DST_MAC",
+                "INNER_SRC_MAC",
+                "INNER_ETHERTYPE",
+                "INNER_IP_PROTOCOL",
+                "INNER_DST_IP",
+                "INNER_SRC_IP",
+                "INNER_L4_DST_PORT",
+                "INNER_L4_SRC_PORT"
+            ],
+            "lag_hash": [
+                "DST_MAC",
+                "SRC_MAC",
+                "ETHERTYPE",
+                "IP_PROTOCOL",
+                "DST_IP",
+                "SRC_IP",
+                "L4_DST_PORT",
+                "L4_SRC_PORT",
+                "INNER_DST_MAC",
+                "INNER_SRC_MAC",
+                "INNER_ETHERTYPE",
+                "INNER_IP_PROTOCOL",
+                "INNER_DST_IP",
+                "INNER_SRC_IP",
+                "INNER_L4_DST_PORT",
+                "INNER_L4_SRC_PORT"
+            ]
+        }
+    }
+}
 ```
 
 ### KDUMP
