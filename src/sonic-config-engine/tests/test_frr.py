@@ -1,4 +1,5 @@
 import filecmp
+import json
 import os
 import subprocess
 
@@ -46,12 +47,16 @@ class TestCfgGen(TestCase):
 
         return output
 
-    def run_case(self, template, target):
+    def run_case(self, template, target, extra_data=None):
         template_dir = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', "frr")
         conf_template = os.path.join(template_dir, template)
         constants = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'constants', 'constants.yml')
-        cmd_args = self.t0_minigraph, self.t0_port_config, constants, conf_template, template_dir, self.output_file
-        cmd = "-m %s -p %s -y %s -t %s -T %s > %s" % cmd_args
+        if extra_data:
+            cmd_args = self.t0_minigraph, self.t0_port_config, constants, conf_template, template_dir, json.dumps(extra_data), self.output_file
+            cmd = "-m %s -p %s -y %s -t %s -T %s -a '%s' > %s" % cmd_args
+        else:
+            cmd_args = self.t0_minigraph, self.t0_port_config, constants, conf_template, template_dir, self.output_file
+            cmd = "-m %s -p %s -y %s -t %s -T %s > %s" % cmd_args
         self.run_script(cmd)
 
         original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, target)
@@ -69,4 +74,6 @@ class TestCfgGen(TestCase):
     def test_zebra_frr(self):
         self.assertTrue(*self.run_case('zebra/zebra.conf.j2', 'zebra_frr.conf'))
 
-
+    def test_bgpd_frr_dualtor(self):
+        extra_data = {"DEVICE_METADATA": {"localhost": {"subtype": "DualToR"}}}
+        self.assertTrue(*self.run_case('bgpd/bgpd.conf.j2', 'bgpd_frr_dualtor.conf', extra_data=extra_data))
