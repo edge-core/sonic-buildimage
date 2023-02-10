@@ -81,6 +81,7 @@ export IMAGE_DISTRO_DEBS_PATH
 export MULTIARCH_QEMU_ENVIRON
 export DOCKER_BASE_ARCH
 export BLDENV
+export MIRROR_SNAPSHOT
 
 ###############################################################################
 ## Utility rules

@@ -153,9 +153,12 @@ endif
 endif
 
 # Generate the version control build info
-$(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
-    TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-    scripts/generate_buildinfo_config.sh)
+$(shell \
+	SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
+	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
+	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
+	MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) \
+	scripts/generate_buildinfo_config.sh)
 
 # Generate the slave Dockerfile, and prepare build info for it
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
@@ -388,6 +391,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SONIC_SLAVE_DOCKER_DRIVER=$(SONIC_SLAVE_DOCKER_DRIVER) \
                            MIRROR_URLS=$(MIRROR_URLS) \
                            MIRROR_SECURITY_URLS=$(MIRROR_SECURITY_URLS) \
+                           MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

@@ -475,12 +475,13 @@ class VersionBuild:
             module.filter(ctypes=ctypes)
 
     def get_default_module(self):
-        if DEFAULT_MODULE in self.modules:
-            return self.modules[DEFAULT_MODULE]
+        default_module = self.modules.get(DEFAULT_MODULE, VersionModule(DEFAULT_MODULE, []))
         ctypes = self.get_component_types()
         dists = self.get_dists()
         components = []
         for ctype in ctypes:
+            if ctype in DEFAULT_OVERWRITE_COMPONENTS:
+                continue
             if ctype == 'deb':
                 for dist in dists:
                     versions = self._get_versions(ctype, dist)
@@ -492,7 +493,9 @@ class VersionBuild:
                 common_versions = self._get_common_versions(versions)
                 component = Component(common_versions, ctype)
                 components.append(component)
-        return VersionModule(DEFAULT_MODULE, components)
+        module = VersionModule(DEFAULT_MODULE, components)
+        module.overwrite(default_module, True, True)
+        return module
 
     def get_aggregatable_modules(self):
         modules = {}
