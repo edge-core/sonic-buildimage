@@ -385,7 +385,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     gpg                     \
     jq                      \
     auditd                  \
-    linux-perf
+    linux-perf              \
+    resolvconf
 
 # Have systemd create the auditd log directory
 sudo mkdir -p ${FILESYSTEM_ROOT}/etc/systemd/system/auditd.service.d
@@ -661,7 +662,11 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 ## Note: -x to skip directories on different file systems, such as /proc
 sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
-sudo cp files/image_config/resolv-config/resolv.conf $FILESYSTEM_ROOT/etc/resolv.conf
+
+## Clear DNS configuration inherited from the build server
+sudo rm -f $FILESYSTEM_ROOT/etc/resolvconf/resolv.conf.d/original
+sudo cp files/image_config/resolv-config/resolv.conf.head $FILESYSTEM_ROOT/etc/resolvconf/resolv.conf.d/head
+
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
 # Ensure admin gid is 1000
