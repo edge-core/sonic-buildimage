@@ -102,6 +102,25 @@ jobs:
     buildSteps:
       - template: template-skipvstest.yml
       - bash: |
+          (
+            while true
+            do
+              sleep 120
+              now=$(date +%s)
+              pids=$(ps aux | grep -v grep | grep -E "^.{,100}docker build" | awk '{print$2}')
+              for pid in $pids
+              do
+                start=$(date --date="$(ls -dl /proc/$pid --time-style full-iso | awk '{print$6,$7}')" +%s)
+                time_s=$(($now-$start))
+                if [[ $time_s -gt $(DOCKER_BUILD_TIMEOUT) ]]; then
+                  echo =========== $(date +%F%T) $time_s &>> target/daemon.log
+                  ps $pid &>> target/daemon.log
+                  sudo kill $pid
+                fi
+              done
+            done
+          ) &
+          daemon_pid=$!
           set -ex
           if [ $(GROUP_NAME) == vs ]; then
             if [ $(dbg_image) == yes ]; then
@@ -164,5 +183,6 @@ jobs:
             fi
             make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).bin
           fi
+          sudo kill $daemon_pid
         displayName: "Build sonic image"
       - template: check-dirty-version.yml
