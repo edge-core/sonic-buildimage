@@ -115,6 +115,12 @@ jobs:
             git stash
             popd 
           fi
+          if [ $(GROUP_NAME) == marvell-armhf ]; then 
+            make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_SYNCD_RPC=y SAITHRIFT_V2=y PLATFORM_ARCH=armhf target/docker-saiserverv2-mrvl.gz
+            pushd ./src/sonic-sairedis/SAI
+            git stash
+            popd
+          fi
         fi
 
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin

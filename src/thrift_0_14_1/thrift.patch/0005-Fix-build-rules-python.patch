@@ -1,0 +1,13 @@
+diff --git a/debian/rules b/debian/rules
+index 3a50319ee..4b2a05932 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -86,7 +86,7 @@ clean:
+ 	dh_testroot
+ 	rm -f build-arch-stamp build-indep-stamp configure-stamp
+ 
+-	cd $(CURDIR)/lib/py && python setup.py clean --all
++	if [ -z $(shell command -v python) ]; then cd $(CURDIR)/lib/py && python3 setup.py clean --all; else cd $(CURDIR)/lib/py && python setup.py clean --all; fi
+ 
+ 	# Add here commands to clean up after the build process.
+ 	-$(MAKE) clean
