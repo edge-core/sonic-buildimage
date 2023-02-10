@@ -652,7 +652,6 @@ write_platform_specific_cmdline() {
     fi
 
     cmdline_add "varlog_size=$varlog_size"
-
     cmdline_add "sonic.mode=$sonic_mode"
 }
 
@@ -669,6 +668,9 @@ write_image_specific_cmdline() {
 
     # disable unified cgroup hierarchy to workaround dockerd limitation
     cmdline_add systemd.unified_cgroup_hierarchy=0
+
+    # increase kernel log buffer size
+    cmdline_add log_buf_len=1M
 
     # verbosity
     cmdline_add quiet
