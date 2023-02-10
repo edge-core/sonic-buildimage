@@ -55,6 +55,7 @@ Table of Contents
          * [Virtual router](#virtual-router)  
          * [WRED_PROFILE](#wred_profile)  
          * [PASSWORD_HARDENING](#password_hardening)
+         * [RADIUS](#radius)
    * [For Developers](#for-developers)  
       * [Generating Application Config by Jinja2 Template](#generating-application-config-by-jinja2-template)
       * [Incremental Configuration by Subscribing to ConfigDB](#incremental-configuration-by-subscribing-to-configdb)
@@ -1712,6 +1713,29 @@ The method could be:
     }
 }
 ```
+
+### RADIUS
+
+The RADIUS and RADIUS_SERVER tables define RADIUS config paramerters. RADIUS table carries global configuration while RADIUS_SERVER table carries per server configuration.
+
+```
+"RADIUS": {
+    "global": {
+       "auth_type": "pap",
+       "timeout": "5"
+    }
+}
+
+"RADIUS_SERVER": {
+    "192.168.1.2": {
+       "priority": "4",
+       "retransmit": "2",
+       "timeout": "5"
+    }
+}
+
+```
+
 
 For Developers
 ==============

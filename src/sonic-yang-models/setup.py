@@ -130,6 +130,7 @@ setup(
                          './yang-models/sonic-syslog.yang',
                          './yang-models/sonic-system-aaa.yang',
                          './yang-models/sonic-system-tacacs.yang',
+                         './yang-models/sonic-system-radius.yang',
                          './yang-models/sonic-telemetry.yang',
                          './yang-models/sonic-types.yang',
                          './yang-models/sonic-versions.yang',
