@@ -50,7 +50,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.15-1
+containerd.io==1.6.16-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -236,7 +236,7 @@ libapt-inst2.0==1.8.2.3
 libapt-pkg-perl==0.1.34+b1
 libarchive-cpio-perl==0.10-1
 libarchive-zip-perl==1.64-1
-libarchive13==3.3.3-4+deb10u2
+libarchive13==3.3.3-4+deb10u3
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libasm-java==7.0-1
@@ -1082,7 +1082,6 @@ libsystemd-dev==241-7~deb10u8
 libtag1v5==1.11.1+dfsg.1-0.3+deb10u1
 libtag1v5-vanilla==1.11.1+dfsg.1-0.3+deb10u1
 libtask-weaken-perl==1.06-1
-libtasn1-6==4.13-3+deb10u1
 libtasn1-6-dev==4.13-3+deb10u1
 libtasn1-doc==4.13-3+deb10u1
 libtcl8.6==8.6.9+dfsg-2
@@ -1359,10 +1358,10 @@ nettle-dev==3.4.1-1+deb10u1
 nftables==0.9.0-2
 ocl-icd-libopencl1==2.2.12-2
 openjade==1.4devel1-21.3+b1
-openjdk-11-jdk==11.0.16+8-1~deb10u1
-openjdk-11-jdk-headless==11.0.16+8-1~deb10u1
-openjdk-11-jre==11.0.16+8-1~deb10u1
-openjdk-11-jre-headless==11.0.16+8-1~deb10u1
+openjdk-11-jdk==11.0.18+10-1~deb10u1
+openjdk-11-jdk-headless==11.0.18+10-1~deb10u1
+openjdk-11-jre==11.0.18+10-1~deb10u1
+openjdk-11-jre-headless==11.0.18+10-1~deb10u1
 openmpi-bin==3.1.3-11
 openmpi-common==3.1.3-11
 opensp==1.5.2-13+b1
