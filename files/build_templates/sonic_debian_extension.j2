@@ -521,6 +521,18 @@ sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
 {% endfor -%}
 
 {% if sonic_asic_platform == "mellanox" %}
+if [ -n "$MLNX_CPLD_ARCHIVES" ]; then
+sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/cpld/
+for MLNX_CPLD_ARCHIVE in $MLNX_CPLD_ARCHIVES; do
+    sudo cp $files_path/$MLNX_CPLD_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/cpld/
+done
+fi
+if [ -n "$MLNX_BIOS_ARCHIVES" ]; then
+sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/bios/
+for MLNX_BIOS_ARCHIVE in $MLNX_BIOS_ARCHIVES; do
+    sudo cp $files_path/$MLNX_BIOS_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/bios/
+done
+fi
 sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/
 sudo cp $files_path/$MLNX_SPC_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
 sudo cp $files_path/$MLNX_SPC2_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC2.mfa
@@ -529,10 +541,6 @@ sudo cp $files_path/$ISSU_VERSION_FILE $FILESYSTEM_ROOT/etc/mlnx/issu-version
 sudo cp $files_path/$MLNX_FFB_SCRIPT $FILESYSTEM_ROOT/usr/bin/mlnx-ffb.sh
 sudo cp $files_path/$MLNX_ONIE_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_ONIE_FW_UPDATE
 sudo cp $files_path/$MLNX_SSD_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_SSD_FW_UPDATE
-sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/cpld/
-for MLNX_CPLD_ARCHIVE in $MLNX_CPLD_ARCHIVES; do
-    sudo cp $files_path/$MLNX_CPLD_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/cpld/
-done
 j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 

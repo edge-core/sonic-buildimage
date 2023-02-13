@@ -1,5 +1,6 @@
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/cpld.mk
+include $(PLATFORM_PATH)/bios.mk
 include $(PLATFORM_PATH)/fw.mk
 include $(PLATFORM_PATH)/mft.mk
 include $(PLATFORM_PATH)/mlnx-sai.mk
