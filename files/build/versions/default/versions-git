@@ -1,8 +1,8 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==10369890bb0452c44ab2bfc1240aeb61db3b345c
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==ce1ef9afdff997aad43645afae13082522279c12
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
 https://github.com/CESNET/libyang.git==35131b9396a965e01f899127763fb4e0871b845a
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
-https://github.com/FreeRADIUS/freeradius-server.git==1308ed1bfaa4260b3b23901939a8f9a3ee49521c
+https://github.com/FreeRADIUS/freeradius-server.git==282e17eb074c43d5fc7fc20d6c314d49ac4592e8
 https://github.com/FreeRADIUS/pam_radius.git==bcafcf535c763ee193ce7803a56cddb929db04cb
 https://github.com/jeroennijhof/pam_tacplus.git==4f91b0de2be88d02984bef8fb0f64c213c650ed9
 https://github.com/jpirko/libteam.git==61e27812c1074a865d7e1a778c0ce442837c28d7
