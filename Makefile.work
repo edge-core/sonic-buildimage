@@ -529,6 +529,7 @@ endif
 
 export MIRROR_URLS
 export MIRROR_SECURITY_URLS
+export SONIC_VERSION_CONTROL_COMPONENTS
 
 %:: | sonic-build-hooks
 ifneq ($(filter y, $(MULTIARCH_QEMU_ENVIRON) $(CROSS_BUILD_ENVIRON)),)
