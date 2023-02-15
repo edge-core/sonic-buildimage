@@ -581,6 +581,10 @@ write_platform_specific_cmdline() {
         cmdline_add intel_idle.max_cstate=0
         read_system_eeprom
     fi
+    if in_array "$platform" "rook"; then
+        # Currently applies to Alhambra, Blackhawk, Gardena and Mineral
+        cmdline_add libata.force=1.00:noncq
+    fi
     if in_array "$platform" "crow" "magpie"; then
         cmdline_add amd_iommu=off
         cmdline_add modprobe.blacklist=snd_hda_intel,hdaudio
