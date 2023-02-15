@@ -11,7 +11,7 @@ libhiredis0.14-dbgsym==0.14.0-3~bpo9+1
 libipt2==2.0-2
 libkmod2==26-1
 libpopt0==1.16-12
-libsai==1.10.1-0
+libsai==1.11.0-1
 libsaimetadata==1.0.0
 libsairedis==1.0.0
 libswsscommon-dbg==1.0.0

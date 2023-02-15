@@ -4,7 +4,7 @@ dvipng==1.15-1.1
 golang-1.15-go==1.15.15-1~deb11u4
 golang-1.15-src==1.15.15-1~deb11u4
 libxslt1-dev==1.1.34-4+deb11u1
-linux-compiler-gcc-10-arm==5.10.158-2
-linux-headers-5.10.0-20-armmp==5.10.158-2
-linux-headers-armmp==5.10.158-2
+linux-compiler-gcc-10-arm==5.10.162-1
+linux-headers-5.10.0-21-armmp==5.10.162-1
+linux-headers-armmp==5.10.162-1
 nodejs==14.21.2-deb-1nodesource1

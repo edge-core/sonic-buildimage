@@ -35,7 +35,7 @@ libcc1-0==10.2.1-6
 libcrypt-dev==1:4.4.18-4
 libctf-nobfd0==2.35.2-2
 libctf0==2.35.2-2
-libcurl3-gnutls==7.74.0-1.3+deb11u3
+libcurl3-gnutls==7.74.0-1.3+deb11u5
 libdatrie1==0.2.13-1
 libdbi1==0.9.0-6
 libdebuginfod1==0.183-1
@@ -101,7 +101,7 @@ libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1.1
 libxml2==2.9.10+dfsg-6.7+deb11u3
 libxrender1==1:0.9.10-1
-linux-libc-dev==5.10.158-2
+linux-libc-dev==5.10.162-1
 lm-sensors==1:3.6.0-7
 lm-sensors-dbgsym==1:3.6.0-7
 make==4.3-4.1

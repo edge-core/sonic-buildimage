@@ -1,6 +1,6 @@
 alabaster==0.7.8
 babel==2.3.4
-bitarray==2.6.2
+bitarray==2.7.2
 chardet==2.3.0
 cryptography==1.7.1
 devscripts==2.17.6+deb9u2

@@ -1,6 +1,7 @@
 adwaita-icon-theme==3.30.1-1
 ant==1.10.5-2
 ant-optional==1.10.5-2
+apparmor==2.13.2-10
 apt-file==3.2.2
 apt-transport-https==1.8.2.3
 apt-utils==1.8.2.3
@@ -11,8 +12,6 @@ aspell-en==2018.04.16-0-1
 at==3.1.23-1
 at-spi2-core==2.30.0-7
 auditd==1:2.8.4-3
-aufs-dkms==4.19+20190211-1
-aufs-tools==1:4.14+20190211-1
 augeas-lenses==1.11.0-3
 augeas-tools==1.11.0-3
 autoconf==2.69-11
@@ -40,7 +39,6 @@ bzip2-doc==1.0.6-9.2~deb10u2
 ca-certificates==20200601~deb10u2
 ca-certificates-java==20190405
 cdbs==0.4.159
-cgroupfs-mount==1.4
 check==0.10.0-3+b3
 chrpath==0.16-2+b1
 clang==1:7.0-47
@@ -50,7 +48,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.15-1
+containerd.io==1.6.16-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -58,7 +56,7 @@ cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 cppcheck==1.86-1
 cron==3.0pl1-134+deb10u1
-curl==7.64.0-4+deb10u3
+curl==7.64.0-4+deb10u4
 dbus==1.12.24-0+deb10u1
 dbus-user-session==1.12.24-0+deb10u1
 dconf-gsettings-backend==0.30.1-2
@@ -93,8 +91,10 @@ docbook-dsssl==1.79-9.1
 docbook-to-man==1:2.0.0-42
 docbook-utils==0.6.14-3.3
 docbook-xml==4.5-8
-docker-ce==5:18.09.5~3-0~debian-buster
-docker-ce-cli==5:18.09.5~3-0~debian-buster
+docker-ce==5:20.10.21~3-0~debian-buster
+docker-ce-cli==5:20.10.21~3-0~debian-buster
+docker-ce-rootless-extras==5:23.0.1-1~debian.10~buster
+docker-scan-plugin==0.23.0~debian-buster
 docutils-common==0.14+dfsg-4
 docutils-doc==0.14+dfsg-4
 dosfstools==4.1-2
@@ -154,9 +154,9 @@ gir1.2-gtk-3.0==3.24.5-1
 gir1.2-harfbuzz-0.0==2.3.1-1
 gir1.2-packagekitglib-1.0==1.1.12-5
 gir1.2-pango-1.0==1.42.4-8~deb10u1
-git==1:2.20.1-2+deb10u6
+git==1:2.20.1-2+deb10u7
 git-buildpackage==0.9.14
-git-man==1:2.20.1-2+deb10u6
+git-man==1:2.20.1-2+deb10u7
 glib-networking==2.58.0-2+deb10u2
 glib-networking-common==2.58.0-2+deb10u2
 glib-networking-services==2.58.0-2+deb10u2
@@ -238,7 +238,7 @@ libapt-inst2.0==1.8.2.3
 libapt-pkg-perl==0.1.34+b1
 libarchive-cpio-perl==0.10-1
 libarchive-zip-perl==1.64-1
-libarchive13==3.3.3-4+deb10u2
+libarchive13==3.3.3-4+deb10u3
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libasm-java==7.0-1
@@ -414,10 +414,10 @@ libcunit1-dev==2.1-3-dfsg-2+b12
 libcups2==2.2.10-6+deb10u6
 libcupsfilters1==1.21.6-5
 libcupsimage2==2.2.10-6+deb10u6
-libcurl3-gnutls==7.64.0-4+deb10u3
-libcurl3-nss==7.64.0-4+deb10u3
-libcurl4==7.64.0-4+deb10u3
-libcurl4-nss-dev==7.64.0-4+deb10u3
+libcurl3-gnutls==7.64.0-4+deb10u4
+libcurl3-nss==7.64.0-4+deb10u4
+libcurl4==7.64.0-4+deb10u4
+libcurl4-nss-dev==7.64.0-4+deb10u4
 libdaemon-dev==0.14-7
 libdaemon0==0.14-7
 libdata-dump-perl==1.23-1
@@ -432,7 +432,7 @@ libdbus-glib-1-2==0.110-4
 libdbus-glib-1-dev==0.110-4
 libdbus-glib-1-dev-bin==0.110-4
 libdconf1==0.30.1-2
-libde265-0==1.0.3-1+deb10u1
+libde265-0==1.0.3-1+deb10u3
 libdebhelper-perl==13.3.3~bpo10+1
 libdevel-callchecker-perl==0.008-1
 libdevel-caller-perl==2.06-2+b1
@@ -1115,7 +1115,6 @@ libsystemd-dev==241-7~deb10u8
 libtag1v5==1.11.1+dfsg.1-0.3+deb10u1
 libtag1v5-vanilla==1.11.1+dfsg.1-0.3+deb10u1
 libtask-weaken-perl==1.06-1
-libtasn1-6==4.13-3+deb10u1
 libtasn1-6-dev==4.13-3+deb10u1
 libtasn1-doc==4.13-3+deb10u1
 libtcl8.6==8.6.9+dfsg-2
@@ -1138,7 +1137,7 @@ libthai-data==0.1.28-2
 libthai0==0.1.28-2
 libtheora0==1.1.1+dfsg.1-15
 libtie-ixhash-perl==1.23-2
-libtiff5==4.1.0+git191117-2~deb10u4
+libtiff5==4.1.0+git191117-2~deb10u6
 libtimedate-perl==2.3000-2+deb10u1
 libtinyxml2-6a==7.0.0+dfsg-1
 libtinyxml2-dev==7.0.0+dfsg-1
@@ -1395,10 +1394,10 @@ nettle-dev==3.4.1-1+deb10u1
 nftables==0.9.0-2
 ocl-icd-libopencl1==2.2.12-2
 openjade==1.4devel1-21.3+b1
-openjdk-11-jdk==11.0.16+8-1~deb10u1
-openjdk-11-jdk-headless==11.0.16+8-1~deb10u1
-openjdk-11-jre==11.0.16+8-1~deb10u1
-openjdk-11-jre-headless==11.0.16+8-1~deb10u1
+openjdk-11-jdk==11.0.18+10-1~deb10u1
+openjdk-11-jdk-headless==11.0.18+10-1~deb10u1
+openjdk-11-jre==11.0.18+10-1~deb10u1
+openjdk-11-jre-headless==11.0.18+10-1~deb10u1
 openmpi-bin==3.1.3-11
 openmpi-common==3.1.3-11
 opensp==1.5.2-13+b1
@@ -1702,7 +1701,7 @@ sphinx-rtd-theme-common==0.4.3+dfsg-1
 squashfs-tools==1:4.3-12+deb10u2
 stgit==0.18-1
 strace==4.26-0.2
-sudo==1.8.27-1+deb10u4
+sudo==1.8.27-1+deb10u5
 swig==3.0.12-2
 swig3.0==3.0.12-2
 systemd==241-7~deb10u8

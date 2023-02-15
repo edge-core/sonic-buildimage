@@ -16,7 +16,7 @@ cmake-data==3.13.4-1
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 cron==3.0pl1-134+deb10u1
-curl==7.64.0-4+deb10u3
+curl==7.64.0-4+deb10u4
 dbus==1.12.24-0+deb10u1
 dh-python==3.20190308
 dirmngr==2.2.12-1+deb10u2
@@ -41,8 +41,8 @@ gcc==4:8.3.0-1
 gcc-8==8.3.0-6
 gdb==8.2.1-2+b3
 gir1.2-glib-2.0==1.58.3-2
-git==1:2.20.1-2+deb10u6
-git-man==1:2.20.1-2+deb10u6
+git==1:2.20.1-2+deb10u7
+git-man==1:2.20.1-2+deb10u7
 gnupg==2.2.12-1+deb10u2
 gnupg-l10n==2.2.12-1+deb10u2
 gnupg-utils==2.2.12-1+deb10u2
@@ -62,7 +62,7 @@ libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
 libalgorithm-merge-perl==0.08-3
 libapparmor1==2.13.2-10
-libarchive13==3.3.3-4+deb10u2
+libarchive13==3.3.3-4+deb10u3
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libassuan0==2.5.2-1
@@ -88,8 +88,8 @@ libcryptsetup12==2:2.1.0-5+deb10u2
 libcups2==2.2.10-6+deb10u6
 libcupsfilters1==1.21.6-5
 libcupsimage2==2.2.10-6+deb10u6
-libcurl3-gnutls==7.64.0-4+deb10u3
-libcurl4==7.64.0-4+deb10u3
+libcurl3-gnutls==7.64.0-4+deb10u4
+libcurl4==7.64.0-4+deb10u4
 libdaemon0==0.14-7
 libdata-dump-perl==1.23-1
 libdatrie1==0.2.12-2
@@ -298,7 +298,7 @@ libthai-data==0.1.28-2
 libthai0==0.1.28-2
 libthrift-0.11.0==0.11.0-4
 libtie-ixhash-perl==1.23-2
-libtiff5==4.1.0+git191117-2~deb10u5
+libtiff5==4.1.0+git191117-2~deb10u6
 libtimedate-perl==2.3000-2+deb10u1
 libtk8.6==8.6.9-2
 libtry-tiny-perl==0.30-1
@@ -455,6 +455,7 @@ python3.7-minimal==3.7.3-2+deb10u4
 python3.7-venv==3.7.3-2+deb10u4
 qttranslations5-l10n==5.11.3-2
 readline-common==7.0-5
+rsync==3.1.3-6
 rsyslog==8.1901.0-1+deb10u2
 sensible-utils==0.0.12
 shared-mime-info==1.10-1
@@ -470,7 +471,7 @@ texlive-base==2018.20190227-2
 texlive-binaries==2018.20181218.49446-1
 texlive-latex-base==2018.20190227-2
 tk8.6-blt2.5==2.5.3+dfsg-4
-tmux==2.8-3
+tmux==2.8-3+deb10u1
 traceroute==1:2.1.0-2
 ttf-bitstream-vera==1.10-8
 ucf==3.0038+nmu1
