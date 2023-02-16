@@ -10,7 +10,7 @@ g++==4:8.3.0-1
 g++-8==8.3.0-6
 gcc==4:8.3.0-1
 gcc-8==8.3.0-6
-libarchive13==3.3.3-4+deb10u2
+libarchive13==3.3.3-4+deb10u3
 libasan5==8.3.0-6
 libbinutils==2.31.1-16
 libboost-atomic1.71-dev==1.71.0-6~bpo10+1

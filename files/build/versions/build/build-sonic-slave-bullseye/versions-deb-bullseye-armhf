@@ -1,3 +1,6 @@
 libnl-3-200==3.5.0-1
 libnl-route-3-200==3.5.0-1
+libthrift-dev==0.14.1
 linux-headers-5.10.0-18-2-armmp==5.10.140-1
+mrvllibsai==1.10.2-2
+thrift-compiler==0.14.1

@@ -35,7 +35,7 @@ libcc1-0==10.2.1-6
 libcrypt-dev==1:4.4.18-4
 libctf-nobfd0==2.35.2-2
 libctf0==2.35.2-2
-libcurl3-gnutls==7.74.0-1.3+deb11u3
+libcurl3-gnutls==7.74.0-1.3+deb11u5
 libdatrie1==0.2.13-1
 libdbi1==0.9.0-6
 libdebuginfod1==0.183-1
