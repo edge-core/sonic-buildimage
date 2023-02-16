@@ -14,42 +14,84 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
 
+#Install syncd dependences
+RUN mkdir -p /var/run/sx_sdk
+
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update && \
+    apt-get install -y \
+        libxml2     \
+        python3-pip  \
+        python3-dev \
+        python-is-python3 \
+{%- if ENABLE_ASAN == "y" %}
+        libasan6 \
+{%- endif %}
+        python3-setuptools
+
+RUN pip3 install --upgrade pip
+RUN apt-get purge -y python-pip
+
+#install syncd_rpc dependences
 ## Pre-install the fundamental packages
 RUN apt-get update \
  && apt-get -y install  \
     gdb                 \
+    net-tools           \
+    python-setuptools   \
+    build-essential     \
+    libssl-dev          \
+    libffi-dev          \
+    python-dev          \
+    wget                \
+    cmake               \
+    libqt5core5a        \
+    libqt5network5      \
     libboost-atomic1.74.0
 
-COPY \
-{% for deb in docker_saiserver_mlnx_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+# Build and install python-scapy
+RUN curl http://ftp.us.debian.org/debian/pool/main/s/scapy/python-scapy_2.4.0-2_all.deb --output python-scapy_2.4.0-2_all.deb \
+ && dpkg -i python-scapy_2.4.0-2_all.deb \
+ && apt install -f
 
-COPY \
-{% for deb in docker_saiserver_mlnx_pydebs.split(' ') -%}
-python-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+{% if docker_saiserver_mlnx_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_saiserver_mlnx_debs.split(' '), "/debs/") }}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_saiserver_mlnx_debs.split(' ')) }}
+{% endif %}
+
+{% if docker_saiserver_mlnx_pydebs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{ copy_files("python-debs/", docker_saiserver_mlnx_pydebs.split(' '), "/debs/") }}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_saiserver_mlnx_pydebs.split(' ')) }}
+{% endif %}
+
 
 RUN apt-get install -y --no-install-recommends libxml2 iptables libbsd0 protobuf-c-compiler protobuf-compiler python3-protobuf libprotobuf-c1 python3-future python3-ipaddr libnet1 pkg-config asciidoc xmlto
 
-{{ install_debian_packages(docker_saiserver_mlnx_debs.split(' ')) }}
-
 COPY ["start.sh", "/usr/bin/"]
-
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-
+COPY ["old_start.sh", "/usr/bin/"]
+COPY ["saiserver_start.sh", "/usr/bin/"]
+COPY ["files/syncd_init_common.sh", "/usr/bin/"]
+RUN chmod +x /usr/bin/saiserver_start.sh /usr/bin/syncd_init_common.sh /usr/bin/old_start.sh
 COPY ["profile.ini", "portmap.ini", "/etc/sai/"]
+COPY ["supervisord.conf.j2", "/usr/share/sonic/templates/"]
+
+RUN mkdir -p /etc/supervisor/conf.d/
+RUN sonic-cfggen -a "{\"ENABLE_ASAN\":\"{{ENABLE_ASAN}}\"}" -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
+RUN rm -f /usr/share/sonic/templates/supervisord.conf.j2
 
 COPY ["sai_2700.xml", "/usr/share/"]
 
