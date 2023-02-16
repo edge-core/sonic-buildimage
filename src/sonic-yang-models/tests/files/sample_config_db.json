@@ -1183,6 +1183,18 @@
                 "port": "50051"
             }
         },
+        "GNMI": {
+            "certs": {
+                "ca_crt": "/etc/sonic/credentials/dsmsroot.cer",
+                "server_crt": "/etc/sonic/credentials/server.cer",
+                "server_key": "/etc/sonic/credentials/server.key"
+            },
+            "gnmi": {
+                "client_auth": "true",
+                "log_level": "2",
+                "port": "50052"
+            }
+        },
         "TUNNEL": {
             "MuxTunnel0": {
                 "dscp_mode": "uniform",
