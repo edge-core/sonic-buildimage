@@ -2041,11 +2041,7 @@
                 "direction": "RX",
                 "type": "SPAN",
                 "dst_port": "Ethernet2",
-                "src_port": [
-                    "Ethernet3",
-                    "Ethernet4"
-                ]
-
+                "src_port": "Ethernet3,Ethernet4"
             }
         },
 
