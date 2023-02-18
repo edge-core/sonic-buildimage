@@ -1,8 +1,8 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==ce1ef9afdff997aad43645afae13082522279c12
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==62c7a8bad074fdb4339e544b0053206a4f820e15
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
-https://github.com/CESNET/libyang.git==35131b9396a965e01f899127763fb4e0871b845a
+https://github.com/CESNET/libyang.git==b5bba13012ab0b04ecd1676a851784e9d8a3fbce
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
-https://github.com/FreeRADIUS/freeradius-server.git==282e17eb074c43d5fc7fc20d6c314d49ac4592e8
+https://github.com/FreeRADIUS/freeradius-server.git==e525d14fa9a9b9b39f47f966cf8f42137816ef5d
 https://github.com/FreeRADIUS/pam_radius.git==bcafcf535c763ee193ce7803a56cddb929db04cb
 https://github.com/jeroennijhof/pam_tacplus.git==4f91b0de2be88d02984bef8fb0f64c213c650ed9
 https://github.com/jpirko/libteam.git==61e27812c1074a865d7e1a778c0ce442837c28d7
@@ -10,7 +10,7 @@ https://github.com/lguohan/gnxi.git==f2b11e45b16ab13485ae14933f30c18ee6336499
 https://github.com/Marvell-switching/mrvl-prestera.git==3f379dc8c48ebb77f074b0512d3dae1a5aa95111
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/p4lang/scapy-vxlan.git==85ffe83da156568ee47a0750f638227e6e1d7479
-https://github.com/sflow/host-sflow==b730e7759715dd9822e1eb26544595bfe05d0766
+https://github.com/sflow/host-sflow==6889a0914b821c8dcfd0e37794196f5c7d017221
 https://github.com/sflow/sflowtool==8c914e79ecb7930adcba2e5296041c3f9eb8e450
 https://github.com/thom311/libnl==cbafad9ddf24caef5230fef715d34f0539603be0
 https://salsa.debian.org/debian/libteam.git==48142125234a665ad5367b724af36a58fb484d3d
