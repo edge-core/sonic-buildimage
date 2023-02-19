@@ -16,7 +16,7 @@ cmake-data==3.13.4-1
 cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 cron==3.0pl1-134+deb10u1
-curl==7.64.0-4+deb10u3
+curl==7.64.0-4+deb10u4
 dbus==1.12.24-0+deb10u1
 dirmngr==2.2.12-1+deb10u2
 dmsetup==2:1.02.155-3
@@ -32,8 +32,8 @@ g++-8==8.3.0-6
 gcc==4:8.3.0-1
 gcc-8==8.3.0-6
 gdb==8.2.1-2+b3
-git==1:2.20.1-2+deb10u6
-git-man==1:2.20.1-2+deb10u6
+git==1:2.20.1-2+deb10u7
+git-man==1:2.20.1-2+deb10u7
 gnupg==2.2.12-1+deb10u2
 gnupg-l10n==2.2.12-1+deb10u2
 gnupg-utils==2.2.12-1+deb10u2
@@ -52,7 +52,7 @@ libalgorithm-diff-perl==1.19.03-2
 libalgorithm-diff-xs-perl==0.04-5+b1
 libalgorithm-merge-perl==0.08-3
 libapparmor1==2.13.2-10
-libarchive13==3.3.3-4+deb10u2
+libarchive13==3.3.3-4+deb10u3
 libargon2-1==0~20171227-0.2
 libasan5==8.3.0-6
 libassuan0==2.5.2-1
@@ -69,8 +69,8 @@ libc6-dbg==2.28-10+deb10u2
 libc6-dev==2.28-10+deb10u2
 libcc1-0==8.3.0-6
 libcryptsetup12==2:2.1.0-5+deb10u2
-libcurl3-gnutls==7.64.0-4+deb10u3
-libcurl4==7.64.0-4+deb10u3
+libcurl3-gnutls==7.64.0-4+deb10u4
+libcurl4==7.64.0-4+deb10u4
 libdaemon0==0.14-7
 libdbus-1-3==1.12.24-0+deb10u1
 libdevmapper1.02.1==2:1.02.155-3
@@ -95,8 +95,8 @@ libgdbm6==1.18.1-4
 libglib2.0-0==2.58.3-2+deb10u4
 libglib2.0-data==2.58.3-2+deb10u4
 libgmp10==2:6.1.2+dfsg-4+deb10u1
-libgnutls-dane0==3.6.7-4+deb10u9
-libgnutls30==3.6.7-4+deb10u9
+libgnutls-dane0==3.6.7-4+deb10u10
+libgnutls30==3.6.7-4+deb10u10
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
 libgssapi-krb5-2==1.17-3+deb10u5
@@ -252,7 +252,7 @@ systemd-sysv==241-7~deb10u8
 tacacs+==4.0.4.27a-3
 tcpdump==4.9.3-1~deb10u2
 telnet==0.17-41.2
-tmux==2.8-3
+tmux==2.8-3+deb10u1
 traceroute==1:2.1.0-2
 tzdata==2021a-0+deb10u8
 ucf==3.0038+nmu1

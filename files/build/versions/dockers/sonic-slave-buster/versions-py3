@@ -3,7 +3,7 @@ asn1crypto==0.24.0
 atomicwrites==1.1.5
 attrs==18.2.0
 babel==2.6.0
-bitarray==2.6.1
+bitarray==2.7.2
 certifi==2018.8.24
 chardet==3.0.4
 cov-core==1.15.0
@@ -46,7 +46,7 @@ pyang==2.4.0
 pyangbind==0.8.1
 pycrypto==2.6.1
 pycurl==7.43.0.2
-pyfakefs==5.0.0
+pyfakefs==5.1.0
 pygments==2.3.1
 pygobject==3.30.4
 pympler==0.8

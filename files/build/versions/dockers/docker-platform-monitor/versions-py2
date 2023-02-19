@@ -2,7 +2,7 @@ bitarray==1.5.3
 contextlib2==0.6.0.post1
 enum34==1.1.10
 functools32==3.2.3.post2
-future==0.18.2
+future==0.18.3
 futures==3.4.0
 grpcio==1.39.0
 grpcio-tools==1.39.0
