@@ -192,9 +192,9 @@ i965-va-driver==2.4.1+dfsg1-1
 ibverbs-providers==33.2-1
 icc-profiles-free==2.0.1+dfsg-1.1
 icu-devtools==67.1-7
-imagemagick==8:6.9.11.60+dfsg-1.3
-imagemagick-6-common==8:6.9.11.60+dfsg-1.3
-imagemagick-6.q16==8:6.9.11.60+dfsg-1.3
+imagemagick==8:6.9.11.60+dfsg-1.3+deb11u1
+imagemagick-6-common==8:6.9.11.60+dfsg-1.3+deb11u1
+imagemagick-6.q16==8:6.9.11.60+dfsg-1.3+deb11u1
 install-info==6.7.0.dfsg.2-6
 intel-media-va-driver==21.1.1+dfsg1-1
 intltool-debian==0.35.0+20060710.5
@@ -607,7 +607,8 @@ libgme0==0.6.3-2
 libgmock-dev==1.10.0.20201025-1.1
 libgmp-dev==2:6.2.1+dfsg-1+deb11u1
 libgmpxx4ldbl==2:6.2.1+dfsg-1+deb11u1
-libgnutls-dane0==3.7.1-5+deb11u2
+libgnutls-dane0==3.7.1-5+deb11u3
+libgnutls30==3.7.1-5+deb11u3
 libgomp1==10.2.1-6
 libgoogle-perftools4==2.8.1-1
 libgpgme11==1.14.0-1+b2
@@ -779,9 +780,9 @@ liblzo2-2==2.10-2
 liblzo2-dev==2.10-2
 libmagic-mgc==1:5.39-3
 libmagic1==1:5.39-3
-libmagickcore-6.q16-6==8:6.9.11.60+dfsg-1.3
-libmagickcore-6.q16-6-extra==8:6.9.11.60+dfsg-1.3
-libmagickwand-6.q16-6==8:6.9.11.60+dfsg-1.3
+libmagickcore-6.q16-6==8:6.9.11.60+dfsg-1.3+deb11u1
+libmagickcore-6.q16-6-extra==8:6.9.11.60+dfsg-1.3+deb11u1
+libmagickwand-6.q16-6==8:6.9.11.60+dfsg-1.3+deb11u1
 libmail-sendmail-perl==0.80-1.1
 libmailtools-perl==2.21-1
 libmailutils7==1:3.10-3+b1
