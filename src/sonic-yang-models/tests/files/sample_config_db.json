@@ -8,6 +8,10 @@
             "192.0.0.8": {},
             "192.0.0.8": {}
         },
+        "DNS_NAMESERVER": {
+            "1.1.1.1": {},
+            "fe80:1000:2000:3000::1": {}
+        },
         "BUFFER_POOL": {
             "ingress_lossy_pool": {
                "mode": "static",

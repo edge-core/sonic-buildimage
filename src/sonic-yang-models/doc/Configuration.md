@@ -66,8 +66,9 @@ Table of Contents
          * [LOGGER](#logger)           
          * [WRED_PROFILE](#wred_profile)  
          * [PASSWORD_HARDENING](#password_hardening)  
-         * [SYSTEM_DEFAULTS table](#systemdefaults-table)
-         * [RADIUS](#radius)
+         * [SYSTEM_DEFAULTS table](#systemdefaults-table)  
+         * [RADIUS](#radius)  
+         * [Static DNS](#static-dns)  
    * [For Developers](#for-developers)  
       * [Generating Application Config by Jinja2 Template](#generating-application-config-by-jinja2-template)
       * [Incremental Configuration by Subscribing to ConfigDB](#incremental-configuration-by-subscribing-to-configdb)
@@ -2094,6 +2095,19 @@ The RADIUS and RADIUS_SERVER tables define RADIUS configuration parameters. RADI
                "timeout": "5"
         }
     }
+```
+
+### Static DNS
+
+The DNS_NAMESERVER table introduces static DNS nameservers configuration.
+
+```json
+{
+	"DNS_NAMESERVER": {
+		"1.1.1.1": {},
+		"fe80:1000:2000:3000::1": {}
+	},
+}
 ```
 
 #### 5.2.3 Update value directly in db memory
