@@ -98,6 +98,7 @@ jobs:
 
     buildSteps:
       - template: template-skipvstest.yml
+      - template: template-daemon.yml
       - bash: |
           set -ex
           if [ $(GROUP_NAME) == vs ]; then
