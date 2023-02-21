@@ -1,0 +1,83 @@
+{
+    "SNMP_SYSTEM_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP": {
+                "CONTACT": {
+                        "Contact": "support@xyz.com"
+                },
+                "LOCATION": {
+                        "Location": "Test location"
+                }
+            }
+        }
+    },
+    "SNMP_SYSTEM_CONTACT_NEG_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP": {
+                "CONTACT": {
+                        "Contact": ""
+                }
+            }
+        }
+    },
+    "SNMP_SYSTEM_LOCATION_NEG_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP": {
+                "LOCATION": {
+                        "Location": ""
+                }
+            }
+        }
+    },
+
+    "SNMP_COMMUNITY_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP_COMMUNITY": {
+                "SNMP_COMMUNITY_LIST": [
+                    {
+                        "name": "sonicSnmp",
+                        "TYPE": "RO"
+                    },
+                    {
+                        "name": "sonicSnmpRW",
+                        "TYPE": "RW"
+                    }
+                ]
+            }
+        }
+    },
+    "SNMP_COMMUNITY_MIN_NEG_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP_COMMUNITY": {
+                "SNMP_COMMUNITY_LIST": [
+                    {
+                        "name": "abc"
+                    }
+                ]
+            }
+        }
+    },
+    "SNMP_COMMUNITY_MAX_NEG_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP_COMMUNITY": {
+                "SNMP_COMMUNITY_LIST": [
+                    {
+                        "name": "01234567890123456789012345678901234"
+                    }
+                ]
+            }
+        }
+    },
+    "SNMP_COMMUNITY_WRONG_TYPE_TEST": {
+        "sonic-snmp:sonic-snmp": {
+            "sonic-snmp:SNMP_COMMUNITY": {
+                "SNMP_COMMUNITY_LIST": [
+                    {
+                        "name": "sonicSnmp",
+                        "TYPE": "RR"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1908,8 +1908,24 @@
                      "LAG"
                  ]
              }
-         },
+        },
 
+        "SNMP": {
+            "CONTACT": {
+                "Contact": "testuser@contoso.com"
+            },
+            "LOCATION": {
+                "Location": "SNMP Server Location"
+            }
+        },
+        "SNMP_COMMUNITY": {
+            "public": {
+                "TYPE": "RO"
+            },
+            "private": {
+                "TYPE": "RW"
+            }
+        },
         "LOSSLESS_TRAFFIC_PATTERN": {
             "AZURE": {
                 "mtu": "1024",
