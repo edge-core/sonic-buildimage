@@ -959,6 +959,14 @@ class TestCfgGen(TestCase):
                 "admin_status": "up"
             })
 
+        argument = ["-j", self.macsec_profile, "-m", self.sample_graph_voq, "-p", self.voq_port_config, "--var-json", "INTERFACE"]
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
+        self.assertDictEqual(
+            output_dict['Ethernet-Rec0'],
+            {}
+        )
+
     def test_minigraph_dhcp(self):
         argument = ['-m', self.sample_graph_simple_case, '-p', self.port_config, '-v', 'DHCP_RELAY']
         output = self.run_script(argument)
