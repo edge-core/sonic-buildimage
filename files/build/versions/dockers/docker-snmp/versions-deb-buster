@@ -30,7 +30,7 @@ libipt2==2.0-2
 libisl19==0.20-2
 libitm1==8.3.0-6
 liblsan0==8.3.0-6
-libmariadb3==1:10.3.36-0+deb10u2
+libmariadb3==1:10.3.38-0+deb10u1
 libmpc3==1.1.0-1
 libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
@@ -50,7 +50,7 @@ libunwind8==1.2.1-10~deb10u1
 linux-libc-dev==4.19.269-1
 locales==2.28-10+deb10u2
 make==4.2.1-1.2
-mariadb-common==1:10.3.36-0+deb10u2
+mariadb-common==1:10.3.38-0+deb10u1
 mysql-common==5.8+1.0.5
 openssh-client==1:7.9p1-10+deb10u2
 python3-dev==3.7.3-1
