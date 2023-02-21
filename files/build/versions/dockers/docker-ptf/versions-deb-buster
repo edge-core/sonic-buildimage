@@ -285,8 +285,8 @@ libsigsegv2==2.12-2
 libsm6==2:1.2.3-1
 libsqlite3-0==3.27.2-3+deb10u2
 libssh2-1==1.8.0-2.1
-libssl-dev==1.1.1n-0+deb10u3
-libssl1.1==1.1.1n-0+deb10u3
+libssl-dev==1.1.1n-0+deb10u4
+libssl1.1==1.1.1n-0+deb10u4
 libstdc++-8-dev==8.3.0-6
 libsynctex2==2018.20181218.49446-1
 libtacacs+1==4.0.4.27a-3
@@ -386,7 +386,7 @@ ntpstat==0.0.0.1-2
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1n-0+deb10u3
+openssl==1.1.1n-0+deb10u4
 patch==2.7.6-3+deb10u1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1
