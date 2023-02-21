@@ -443,6 +443,99 @@ class TestMultiNpuCfgGen(TestCase):
                 }
             }
         )
+
+    def test_buffers_chassis_packet_lc_template(self):
+        build_root_dir = os.path.join(
+            self.test_dir, "..", "..", ".."
+        )
+        # using T2 buffer configuration
+        buffer_template = os.path.join(
+            build_root_dir, "files", "build_templates", "buffers_config.j2"
+        )
+        minigraph = os.path.join(
+            self.test_dir, "sample-chassis-packet-lc-graph.xml"
+        )
+        port_config_ini_asic1 = os.path.join(
+            self.test_dir, "sample-chassis-packet-lc-port-config.ini"
+        )
+        device_config_dir = self.test_data_dir
+        device_buffer_template = os.path.join(
+            device_config_dir, "buffers.json.j2"
+        )
+        shutil.copy2(buffer_template, device_config_dir)
+        # asic1 - mix of front end and back end ports
+        argument = "-m {} -p {} -n asic1 -t {}".format(
+            minigraph, port_config_ini_asic1, device_buffer_template
+        )
+        output = json.loads(self.run_script(argument, check_stderr=True))
+        os.remove(os.path.join(device_config_dir, "buffers_config.j2"))
+        self.assertDictEqual(
+            output['CABLE_LENGTH'],
+            {
+                'AZURE': {
+                    'Ethernet13': '300m',
+                    'Ethernet14': '300m',
+                    'Ethernet16': '300m',
+                    'Ethernet17': '300m',
+                    'Ethernet19': '300m',
+                    'Ethernet20': '300m',
+                    'Ethernet22': '300m',
+                    'Ethernet23': '300m',
+                    'Ethernet25': '300m',
+                    'Ethernet26': '300m',
+                    'Ethernet28': '300m',
+                    'Ethernet29': '300m',
+                    'Ethernet31': '300m',
+                    'Ethernet32': '300m',
+                    'Ethernet34': '300m',
+                    'Ethernet35': '300m',
+                    'Ethernet37': '300m',
+                    'Ethernet38': '300m',
+                    'Ethernet40': '300m',
+                    'Ethernet41': '300m',
+                    'Ethernet43': '300m',
+                    'Ethernet44': '300m',
+                    'Ethernet46': '300m',
+                    'Ethernet47': '300m',
+                    'Ethernet-BP2320': '1m',
+                    'Ethernet-BP2452': '1m',
+                    'Ethernet-BP2454': '1m',
+                    'Ethernet-BP2456': '1m',
+                    'Ethernet-BP2458': '1m',
+                    'Ethernet-BP2460': '1m',
+                    'Ethernet-BP2462': '1m',
+                    'Ethernet-BP2464': '1m',
+                    'Ethernet-BP2466': '1m',
+                    'Ethernet-BP2468': '1m',
+                    'Ethernet-BP2470': '1m',
+                    'Ethernet-BP2472': '1m',
+                    'Ethernet-BP2474': '1m',
+                    'Ethernet-BP2476': '1m',
+                    'Ethernet-BP2478': '1m',
+                    'Ethernet-BP2480': '1m',
+                    'Ethernet-BP2482': '1m',
+                    'Ethernet-BP2484': '1m',
+                    'Ethernet-BP2486': '1m',
+                    'Ethernet-BP2488': '1m',
+                    'Ethernet-BP2490': '1m',
+                    'Ethernet-BP2492': '1m',
+                    'Ethernet-BP2494': '1m',
+                    'Ethernet-BP2496': '1m',
+                    'Ethernet-BP2498': '1m',
+                    'Ethernet-BP2500': '1m',
+                    'Ethernet-BP2502': '1m',
+                    'Ethernet-BP2504': '1m',
+                    'Ethernet-BP2506': '1m',
+                    'Ethernet-BP2508': '1m',
+                    'Ethernet-BP2510': '1m',
+                    'Ethernet-BP2512': '1m',
+                    'Ethernet-BP2514': '1m',
+                    'Ethernet-BP2516': '1m',
+                    'Ethernet-BP2518': '1m'
+                }
+            }
+        )
+
     def test_bgpd_frr_frontendasic(self):
         self.assertTrue(*self.run_frr_asic_case('bgpd/bgpd.conf.j2', 'bgpd_frr_frontend_asic.conf', "asic0", self.port_config[0]))
 
