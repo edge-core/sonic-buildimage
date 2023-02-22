@@ -2066,6 +2066,10 @@
         "SYSTEM_DEFAULTS": {
             "tunnel_qos_remap": {
                 "status": "enabled"
+            },
+            "mux_tunnel_egress_acl":
+            {
+                "status": "enabled"
             }
          },
         "LOSSLESS_TRAFFIC_PATTERN": {
