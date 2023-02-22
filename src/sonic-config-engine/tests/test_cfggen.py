@@ -961,7 +961,7 @@ class TestCfgGen(TestCase):
                 "admin_status": "up"
             })
 
-        argument = ["-j", self.macsec_profile, "-m", self.sample_graph_voq, "-p", self.voq_port_config, "--var-json", "INTERFACE"]
+        argument = "-j {} -m {} -p {} --var-json INTERFACE".format(self.macsec_profile, self.sample_graph_voq, self.voq_port_config)
         output = self.run_script(argument)
         output_dict = utils.to_dict(output.strip())
         self.assertDictEqual(
