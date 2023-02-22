@@ -796,15 +796,28 @@ sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
 
 {% if sonic_asic_platform == "mellanox" %}
 sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/
+
 if [ -n "$MLNX_BIOS_ARCHIVES" ]; then
 sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/bios/
+sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/fw/bios/
 for MLNX_BIOS_ARCHIVE in $MLNX_BIOS_ARCHIVES; do
-    sudo cp $files_path/$MLNX_BIOS_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/bios/
+    sudo cp $files_path/$MLNX_BIOS_ARCHIVE $FILESYSTEM_ROOT/$PLATFORM_DIR/fw/bios/
+    # Link old BIOS location to not break existing automation/scripts
+    sudo ln -s /host/image-$SONIC_IMAGE_VERSION/$PLATFORM_DIR/fw/bios/$MLNX_BIOS_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/bios/$MLNX_BIOS_ARCHIVE
 done
 fi
-sudo cp $files_path/$MLNX_SPC_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
-sudo cp $files_path/$MLNX_SPC2_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC2.mfa
-sudo cp $files_path/$MLNX_SPC3_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC3.mfa
+
+declare -rA FW_FILE_MAP=( \
+    [$MLNX_SPC_FW_FILE]="fw-SPC.mfa" \
+    [$MLNX_SPC2_FW_FILE]="fw-SPC2.mfa" \
+    [$MLNX_SPC3_FW_FILE]="fw-SPC3.mfa" \
+)
+sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/fw/asic/
+for fw_file_name in ${!FW_FILE_MAP[@]}; do
+    sudo cp $files_path/$fw_file_name $FILESYSTEM_ROOT/$PLATFORM_DIR/fw/asic/${FW_FILE_MAP[$fw_file_name]}
+    # Link old FW location to not break existing automation/scripts
+    sudo ln -s /host/image-$SONIC_IMAGE_VERSION/$PLATFORM_DIR/fw/asic/${FW_FILE_MAP[$fw_file_name]} $FILESYSTEM_ROOT/etc/mlnx/${FW_FILE_MAP[$fw_file_name]}
+done
 sudo cp $files_path/$ISSU_VERSION_FILE $FILESYSTEM_ROOT/etc/mlnx/issu-version
 sudo cp $files_path/$MLNX_FFB_SCRIPT $FILESYSTEM_ROOT/usr/bin/mlnx-ffb.sh
 sudo cp $files_path/$MLNX_ONIE_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_ONIE_FW_UPDATE
