@@ -25,7 +25,7 @@ jobs:
     jobFilters: ${{ parameters.jobFilters }}
     jobVariables: ${{ parameters.jobVariables }}
     preSteps:
-      - template: cleanup.yml
+      - template: .azure-pipelines/cleanup.yml@buildimage
       - ${{ parameters.preSteps }}
       - script: |
           if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM_AZP) | grep -E -q "^(vs|broadcom|mellanox)$"; then
@@ -59,6 +59,6 @@ jobs:
         artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)$(System.JobAttempt)'
         displayName: "Archive failed sonic image"
       - ${{ parameters.postSteps }}
-      - template: cleanup.yml
+      - template: .azure-pipelines/cleanup.yml@buildimage
     jobGroups: ${{ parameters.jobGroups }}
     buildSteps: ${{ parameters.buildSteps }}
