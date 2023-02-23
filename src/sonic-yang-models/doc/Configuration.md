@@ -1883,6 +1883,7 @@ table allow to change properties of a virtual router. Attributes:
     packets with IP options
 -   'l3_mc_action' contains packet action. Defines the action for
     unknown L3 multicast packets
+-   'vni' contains L3 VNI value. VNI associated Virtual router instance.
 
 The packet action could be:
 
@@ -1904,7 +1905,8 @@ The packet action could be:
 	'src_mac': '02:04:05:06:07:08',
 	'ttl_action': 'copy',
 	'ip_opt_action': 'deny',
-	'l3_mc_action': 'drop'
+	'l3_mc_action': 'drop',
+	'vni': '100'
 }
 ```
 

@@ -2,6 +2,7 @@
     "SAMPLE_CONFIG_DB_JSON": {
         "VRF": {
                 "Vrf_blue": {
+                    "vni" : "100"
                 }
         },
         "DHCP_SERVER": {
