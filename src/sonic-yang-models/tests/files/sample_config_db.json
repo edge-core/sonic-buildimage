@@ -86,9 +86,6 @@
             "PortChannel0003": {
                 "admin_status": "up",
                 "min_links": "1",
-                "members": [
-                    "Ethernet1"
-                ],
                 "tpid": "0x8100",
                 "mtu": "9100",
                 "lacp_key": "auto"
@@ -96,9 +93,6 @@
             "PortChannel0004": {
                 "admin_status": "up",
                 "min_links": "1",
-                "members": [
-                    "Ethernet2"
-                ],
                 "tpid": "0x9200",
                 "mtu": "9100",
                 "lacp_key": "auto"
@@ -106,19 +100,12 @@
             "PortChannel2": {
                 "admin_status": "up",
                 "min_links": "1",
-                "members": [
-                    "Ethernet12"
-                ],
                 "tpid": "0x9200",
                 "mtu": "9100",
                 "lacp_key": "auto"
             },
             "PortChannel42": {
                 "admin_status": "up",
-                "members": [
-                    "Ethernet-BP0",
-                    "Ethernet-BP4"
-                ],
                 "min_links": "2",
                 "mtu": "9100",
                 "tpid": "0x8100"
