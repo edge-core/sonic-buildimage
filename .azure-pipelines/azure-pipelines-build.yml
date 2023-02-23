@@ -100,7 +100,8 @@ jobs:
             platform_rpc: nephos
 
     buildSteps:
-      - template: template-skipvstest.yml
+      - template: .azure-pipelines/template-skipvstest.yml@buildimage
+      - template: .azure-pipelines/template-daemon.yml@buildimage
       - bash: |
           (
             while true
@@ -170,4 +171,4 @@ jobs:
           fi
           sudo kill $daemon_pid
         displayName: "Build sonic image"
-      - template: check-dirty-version.yml
+      - template: .azure-pipelines/check-dirty-version.yml@buildimage
