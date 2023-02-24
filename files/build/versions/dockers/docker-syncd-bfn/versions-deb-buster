@@ -1,7 +1,7 @@
 bfnplatform==1.0.0
 bfnsdk==1.0.0
 libbsd0==0.9.1-2+deb10u1
-libc-ares2==1.14.0-1+deb10u1
+libc-ares2==1.14.0-1+deb10u2
 libc-dev-bin==2.28-10+deb10u2
 libc6-dev==2.28-10+deb10u2
 libcurl3-gnutls==7.64.0-4+deb10u4

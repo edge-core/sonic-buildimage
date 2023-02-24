@@ -165,6 +165,7 @@ libglib2.0-bin==2.66.8-1
 libglib2.0-data==2.66.8-1
 libglib2.0-dev==2.66.8-1
 libglib2.0-dev-bin==2.66.8-1
+libgnutls30==3.7.1-5+deb11u3
 libgomp1==10.2.1-6
 libgpm2==1.20.7-8
 libgrpc++1==1.30.2-3

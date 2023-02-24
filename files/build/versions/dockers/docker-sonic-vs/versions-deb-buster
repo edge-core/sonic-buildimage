@@ -51,7 +51,7 @@ libboost-system1.71.0==1.71.0-6~bpo10+1
 libboost-thread1.71.0==1.71.0-6~bpo10+1
 libbpf0==1:0.3-2~bpo10+1
 libbsd0==0.9.1-2+deb10u1
-libc-ares2==1.14.0-1+deb10u1
+libc-ares2==1.14.0-1+deb10u2
 libc-dev-bin==2.28-10+deb10u2
 libc6-dev==2.28-10+deb10u2
 libcairo-gobject2==1.16.0-4+deb10u1
@@ -138,7 +138,7 @@ libselinux1-dev==2.8-1+b1
 libsepol1-dev==2.8-1
 libsm-dev==2:1.2.3-1
 libsm6==2:1.2.3-1
-libssl-dev==1.1.1n-0+deb10u3
+libssl-dev==1.1.1n-0+deb10u4
 libstdc++-8-dev==8.3.0-6
 libsystemd-dev==241-7~deb10u8
 libteam-utils==1.30-1
