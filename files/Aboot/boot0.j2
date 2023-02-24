@@ -517,6 +517,7 @@ write_platform_specific_cmdline() {
     if [ "$sid" = "Lodoga" ]; then
         aboot_machine=arista_7050cx3_32s
         cmdline_add logs_inram=on
+        cmdline_add libata.force=2.00:noncq
     fi
     if [ "$sid" = "Marysville" ]; then
         aboot_machine=arista_7050sx3_48yc8
