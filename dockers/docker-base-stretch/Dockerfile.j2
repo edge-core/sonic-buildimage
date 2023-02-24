@@ -94,7 +94,7 @@ RUN pip install j2cli
 RUN pip install supervisor>=3.4.0
 
 # Add support for supervisord to handle startup dependencies
-RUN pip install supervisord-dependent-startup==1.4.0
+RUN pip install supervisord-dependent-startup==1.4.0 toposort==1.7
 
 RUN mkdir -p /etc/supervisor /var/log/supervisor
 
