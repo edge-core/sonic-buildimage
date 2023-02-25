@@ -262,6 +262,8 @@ librtmp1==2.4+20151223.gitfa8646d.1-2+b2
 libsasl2-2==2.1.27+dfsg-2.1+deb11u1
 libsasl2-modules-db==2.1.27+dfsg-2.1+deb11u1
 libselinux1-dev==3.1-3
+libsensors-config==1:3.6.0-7
+libsensors5==1:3.6.0-7
 libsepol1-dev==3.1-1
 libslang2==2.3.2-5
 libsm-dev==2:1.2.3-1
@@ -316,6 +318,7 @@ linux-perf-5.10==5.10.162-1
 locales==2.31-13+deb11u5
 logrotate==3.18.0-2+deb11u1
 lsb-release==11.1.0
+lsof==4.93.2+dfsg-1.1
 make==4.3-4.1
 makedev==2.3.1-94.1
 makedumpfile==1:1.6.8-4
@@ -376,7 +379,7 @@ rasdaemon==0.6.6-2
 readline-common==8.1-1
 resolvconf==1.87
 rsync==3.2.3-4+deb11u1
-rsyslog==8.2212.0-1~bpo11+1
+rsyslog==8.2302.0-1~bpo11+1
 runit-helper==2.10.3
 screen==4.8.0-6
 sensible-utils==0.0.14
@@ -396,6 +399,7 @@ swig4.0==4.0.2-1
 sx-kernel==1.mlnx.4.5.4150
 symcrypt-openssl==0.1
 sysfsutils==2.1.0+repack-7
+sysstat==12.5.2-2
 systemd==247.3-7+deb11u1
 systemd-bootchart==234-1
 systemd-sonic-generator==1.0.0
