@@ -1,7 +1,7 @@
-https://github.com/CESNET/libyang.git==b5bba13012ab0b04ecd1676a851784e9d8a3fbce
+https://github.com/CESNET/libyang.git==d57c8888922d1663508ad0f0a5b66f8ad600276d
 https://github.com/jpirko/libteam.git==61e27812c1074a865d7e1a778c0ce442837c28d7
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
-https://github.com/sflow/host-sflow==6889a0914b821c8dcfd0e37794196f5c7d017221
+https://github.com/sflow/host-sflow==e026e2b57f3c7736a75cd1278f7867fb5e5006ee
 https://github.com/sflow/sflowtool==8c914e79ecb7930adcba2e5296041c3f9eb8e450
 https://github.com/thom311/libnl==cbafad9ddf24caef5230fef715d34f0539603be0
 https://salsa.debian.org/debian/libteam.git==48142125234a665ad5367b724af36a58fb484d3d
