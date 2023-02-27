@@ -298,7 +298,7 @@ rasdaemon==0.6.6-2
 readline-common==8.1-1
 resolvconf==1.87
 rsync==3.2.3-4+deb11u1
-rsyslog==8.2212.0-1~bpo11+1
+rsyslog==8.2302.0-1~bpo11+1
 runit-helper==2.10.3
 screen==4.8.0-6
 sensible-utils==0.0.14
