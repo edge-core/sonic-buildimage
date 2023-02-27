@@ -7,7 +7,6 @@ https://github.com/FreeRADIUS/pam_radius.git==bcafcf535c763ee193ce7803a56cddb929
 https://github.com/jeroennijhof/pam_tacplus.git==7908a7faa0205beda9ea198bdd3aa37868be6da2
 https://github.com/jpirko/libteam.git==61e27812c1074a865d7e1a778c0ce442837c28d7
 https://github.com/lguohan/gnxi.git==f2b11e45b16ab13485ae14933f30c18ee6336499
-https://github.com/Marvell-switching/mrvl-prestera.git==3f379dc8c48ebb77f074b0512d3dae1a5aa95111
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/p4lang/scapy-vxlan.git==85ffe83da156568ee47a0750f638227e6e1d7479
 https://github.com/sflow/host-sflow==e026e2b57f3c7736a75cd1278f7867fb5e5006ee
