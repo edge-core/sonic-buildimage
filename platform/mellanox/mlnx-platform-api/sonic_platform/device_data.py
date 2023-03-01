@@ -227,6 +227,11 @@ class DeviceDataManager:
 
     @classmethod
     @utils.read_only_cache()
+    def get_sodimm_thermal_count(cls):
+        return len(glob.glob('/run/hw-management/thermal/sodimm*_temp_input'))
+
+    @classmethod
+    @utils.read_only_cache()
     def get_minimum_table(cls):
         platform_data = DEVICE_DATA.get(cls.get_platform_name(), None)
         if not platform_data:

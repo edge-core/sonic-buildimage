@@ -38,6 +38,7 @@ class TestThermal:
     @mock.patch('os.path.exists', mock.MagicMock(return_value=True))
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_gearbox_count', mock.MagicMock(return_value=2))
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_cpu_thermal_count', mock.MagicMock(return_value=2))
+    @mock.patch('sonic_platform.device_data.DeviceDataManager.get_sodimm_thermal_count', mock.MagicMock(return_value=2))
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_platform_name', mock.MagicMock(return_value='x86_64-mlnx_msn2700-r0'))
     def test_chassis_thermal(self):
         from sonic_platform.thermal import THERMAL_NAMING_RULE
@@ -48,6 +49,7 @@ class TestThermal:
         thermal_dict = {thermal.get_name(): thermal for thermal in thermal_list}
         gearbox_thermal_rule = None
         cpu_thermal_rule = None
+        sodimm_thermal_rule = None
         for rule in THERMAL_NAMING_RULE['chassis thermals']:
             thermal_type = rule.get('type', 'single')
             if thermal_type == 'single':
@@ -69,9 +71,12 @@ class TestThermal:
                     gearbox_thermal_rule = rule
                 elif 'CPU Core' in rule['name']:
                     cpu_thermal_rule = rule
+                elif 'SODIMM' in rule['name']:
+                    sodimm_thermal_rule = rule
 
         gearbox_thermal_count = 0
         cpu_thermal_count = 0
+        sodimm_thermal_count = 0
         for thermal in thermal_list:
             if 'Gearbox' in thermal.get_name():
                 start_index = gearbox_thermal_rule.get('start_index', 1)
@@ -89,9 +94,18 @@ class TestThermal:
                 assert cpu_thermal_rule['high_threshold'].format(start_index) in thermal.high_threshold
                 assert cpu_thermal_rule['high_critical_threshold'].format(start_index) in thermal.high_critical_threshold
                 cpu_thermal_count += 1
+            elif 'SODIMM' in thermal.get_name():
+                start_index = sodimm_thermal_rule.get('start_index', 1)
+                start_index += sodimm_thermal_count
+                assert thermal.get_name() == sodimm_thermal_rule['name'].format(start_index)
+                assert sodimm_thermal_rule['temperature'].format(start_index) in thermal.temperature
+                assert sodimm_thermal_rule['high_threshold'].format(start_index) in thermal.high_threshold
+                assert sodimm_thermal_rule['high_critical_threshold'].format(start_index) in thermal.high_critical_threshold
+                sodimm_thermal_count += 1
 
         assert gearbox_thermal_count == 2
         assert cpu_thermal_count == 2
+        assert sodimm_thermal_count == 2
 
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_platform_name', mock.MagicMock(return_value='x86_64-nvidia_sn2201-r0'))
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_thermal_capability', mock.MagicMock(return_value={'comex_amb': False, 'cpu_amb': True, 'swb_amb': True}))

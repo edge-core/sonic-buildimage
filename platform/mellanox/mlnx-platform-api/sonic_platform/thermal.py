@@ -119,6 +119,13 @@ THERMAL_NAMING_RULE = {
             "name": "Ambient Switch Board Temp",
             "temperature": "swb_amb",
             "default_present": False
+        },
+        {
+            "name": "SODIMM {} Temp",
+            "temperature": "sodimm{}_temp_input",
+            "high_threshold": "sodimm{}_temp_max",
+            "high_critical_threshold": "sodimm{}_temp_crit",
+            "type": "indexable"
         }
     ],
     'linecard thermals': {
@@ -161,6 +168,8 @@ def initialize_chassis_thermals():
                 count = DeviceDataManager.get_gearbox_count('/run/hw-management/config')
             elif 'CPU Core' in rule['name']:
                 count = DeviceDataManager.get_cpu_thermal_count()
+            elif 'SODIMM' in rule['name']:
+                count = DeviceDataManager.get_sodimm_thermal_count()
             if count == 0:
                 logger.log_debug('Failed to get thermal object count for {}'.format(rule['name']))
                 continue
