@@ -28,7 +28,7 @@ jsonpatch==1.32
 jsonpointer==2.3
 jsonschema==2.6.0
 lazy-object-proxy==1.9.0
-lxml==4.6.5
+lxml==4.9.1
 m2crypto==0.38.0
 markupsafe==2.1.2
 natsort==6.2.1
