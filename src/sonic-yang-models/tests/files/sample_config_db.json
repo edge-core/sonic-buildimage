@@ -2273,6 +2273,46 @@
                "vni": "10",
                "guid":"guid-vnet1"
              }
+        },
+        "FG_NHG": {
+            "nhg1": {
+                "bucket_size": "16",
+                "match_mode": "nexthop-based"
+            },
+            "nhg2": {
+                "bucket_size": "32",
+                "match_mode": "route-based"
+            }
+        },
+        "FG_NHG_PREFIX": {
+            "10.0.0.0/24": {
+                "FG_NHG": "nhg1"
+            },
+            "192.168.0.0/16": {
+                "FG_NHG": "nhg2"
+            }
+        },
+        "FG_NHG_MEMBER": {
+            "192.168.1.1": {
+                "FG_NHG": "nhg1",
+                "bank": "0",
+                "link": "Ethernet1"
+            },
+            "192.168.1.2": {
+                "FG_NHG": "nhg1",
+                "bank": "0",
+                "link": "Ethernet2"
+            },
+            "10.0.0.1": {
+                "FG_NHG": "nhg2",
+                "bank": "1",
+                "link": "PortChannel42"
+            },
+            "10.0.0.2": {
+                "FG_NHG": "nhg2",
+                "bank": "1",
+                "link": "PortChannel2"
+            }
         }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
