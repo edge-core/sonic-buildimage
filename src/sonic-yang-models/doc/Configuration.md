@@ -1476,7 +1476,9 @@ name as object key and member list as attribute.
         "members": [
             "Ethernet56"
         ],
-        "mtu": "9100"
+        "mtu": "9100",
+        "fallback": "false",
+        "fast_rate": "true"
     }
   }
 }
