@@ -191,7 +191,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                                  " | awk '{print $4}' | cut -d'/' -f1 | head -1"
         return self.run_commands([ipv6_address_get_command])
 
-    def run_commands(self, commands):
+    def run_commands(self, commands, ignore_error=False):
         """
         Given a list of shell commands, run them in order
         Args:
@@ -202,7 +202,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
             (stdout, stderr) = proc.communicate()
 
-            if proc.returncode != 0:
+            if proc.returncode != 0 and not ignore_error:
                 self.log_error("Error running command '{}'".format(cmd))
             elif stdout:
                 return stdout.rstrip('\n')
@@ -274,6 +274,15 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                         self.log_warning("Unrecognized IP address type on interface '{}': {}".format(iface_name, ip_ntwrk))
 
         return block_ip2me_cmds
+
+    def check_chassis_midplane_interface_exist(self):
+        return self.run_commands(["ip link show" + " | grep -w 'eth1-midplane'" ], ignore_error=True)
+
+    def generate_allow_internal_chasis_midplane_traffic(self, namespace):
+        if not namespace and self.check_chassis_midplane_interface_exist():
+            return ["iptables -A INPUT -i eth1-midplane -j ACCEPT"]
+        else:
+            return []
 
     def generate_allow_internal_docker_ip_traffic_commands(self, namespace):
         allow_internal_docker_ip_cmds = []
@@ -528,6 +537,9 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
         # Add iptables commands to allow internal docker traffic
         iptables_cmds += self.generate_allow_internal_docker_ip_traffic_commands(namespace)
+
+        # Add iptables commands to allow internal chasiss midplane traffic
+        iptables_cmds += self.generate_allow_internal_chasis_midplane_traffic(namespace)
 
         # Add iptables/ip6tables commands to allow all incoming packets from established
         # connections or new connections which are related to established connections

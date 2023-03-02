@@ -38,6 +38,7 @@ class TestCaclmgrdExternalClientAcl(TestCase):
         self.caclmgrd.ControlPlaneAclManager.get_namespace_mgmt_ipv6 = mock.MagicMock()
         self.caclmgrd.ControlPlaneAclManager.generate_block_ip2me_traffic_iptables_commands = mock.MagicMock(return_value=[])
         self.caclmgrd.ControlPlaneAclManager.get_chain_list = mock.MagicMock(return_value=["INPUT", "FORWARD", "OUTPUT"])
+        self.caclmgrd.ControlPlaneAclManager.check_chassis_midplane_interface_exist = mock.MagicMock(return_value=False)
         caclmgrd_daemon = self.caclmgrd.ControlPlaneAclManager("caclmgrd")
 
         iptables_rules_ret, _ = caclmgrd_daemon.get_acl_rules_and_translate_to_iptables_commands('')
