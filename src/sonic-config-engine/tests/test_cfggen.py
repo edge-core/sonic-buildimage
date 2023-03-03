@@ -403,7 +403,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_default_vxlan(self):
-        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "VXLAN_TUNNEL"'
+        argument = '-m "' + self.sample_graph_deployment_id + '" -p "' + self.port_config + '" -v "VXLAN_TUNNEL"'
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),
@@ -411,7 +411,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_default_vnet(self):
-        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "VNET"'
+        argument = '-m "' + self.sample_graph_deployment_id  + '" -p "' + self.port_config + '" -v "VNET"'
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),
