@@ -77,7 +77,7 @@ isc-dhcp-client==4.4.1-2+deb10u3
 iso-codes==4.2-1
 jq==1.5+dfsg-2+b1
 kdump-tools==1:1.6.1-1
-kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.18.0
+kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.21.0
 kexec-tools==1:2.0.18-1
 klibc-utils==2.0.6-1+deb10u1
 kmod==26-1
@@ -240,8 +240,8 @@ lsb-release==10.2019051400
 make==4.2.1-1.2
 makedev==2.3.1-94
 makedumpfile==1:1.6.5-1
-mft==4.18.0-106
-mft-oem==4.18.0-106
+mft==4.21.0-100
+mft-oem==4.21.0-100
 mime-support==3.62
 monit==1:5.20.0-6
 mtd-utils==1:2.0.1-1

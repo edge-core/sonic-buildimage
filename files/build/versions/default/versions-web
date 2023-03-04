@@ -14,7 +14,7 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==7104
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
-http://www.mellanox.com/downloads/MFT/mft-4.18.0-106-x86_64-deb.tgz==83d169e43bc9fea43fa0d69a4f8c1398
+http://www.mellanox.com/downloads/MFT/mft-4.21.0-100-x86_64-deb.tgz==51efe115cbada1120fefe7e4c6958baf
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
