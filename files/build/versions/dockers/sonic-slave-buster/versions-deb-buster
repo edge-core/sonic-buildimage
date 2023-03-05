@@ -432,7 +432,7 @@ libdbus-glib-1-2==0.110-4
 libdbus-glib-1-dev==0.110-4
 libdbus-glib-1-dev-bin==0.110-4
 libdconf1==0.30.1-2
-libde265-0==1.0.3-1+deb10u3
+libde265-0==1.0.11-0+deb10u4
 libdebhelper-perl==13.3.3~bpo10+1
 libdevel-callchecker-perl==0.008-1
 libdevel-caller-perl==2.06-2+b1
