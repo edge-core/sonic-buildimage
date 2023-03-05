@@ -9,7 +9,7 @@ libc-ares2==1.17.1-1+deb11u1
 libc-dev-bin==2.31-13+deb11u5
 libc6-dev==2.31-13+deb11u5
 libcrypt-dev==1:4.4.18-4
-libcurl3-gnutls==7.74.0-1.3+deb11u5
+libcurl3-gnutls==7.74.0-1.3+deb11u7
 libdbus-1-dev==1.12.24-0+deb11u1
 libdouble-conversion3==3.1.5-6.1
 libdpkg-perl==1.20.12

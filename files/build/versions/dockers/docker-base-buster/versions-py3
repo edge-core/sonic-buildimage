@@ -5,5 +5,5 @@ pip==23.0.1
 setuptools==49.6.0
 supervisor==4.2.1
 supervisord-dependent-startup==1.4.0
-toposort==1.9
+toposort==1.10
 wheel==0.35.1
