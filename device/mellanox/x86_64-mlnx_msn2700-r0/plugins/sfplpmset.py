@@ -11,7 +11,6 @@ from python_sdk_api.sx_api import *
 
 DEVICE_ID = 1
 SWITCH_ID = 0
-SX_PORT_ATTR_ARR_SIZE = 64
 
 PORT_TYPE_CPU = 4
 PORT_TYPE_NVE = 8
@@ -51,9 +50,13 @@ def set_port_admin_status_by_log_port(handle, log_port, admin_status):
 
 
 def get_log_ports(handle, sfp_module):
-    port_attributes_list = new_sx_port_attributes_t_arr(SX_PORT_ATTR_ARR_SIZE)
     port_cnt_p = new_uint32_t_p()
-    uint32_t_p_assign(port_cnt_p, SX_PORT_ATTR_ARR_SIZE)
+    uint32_t_p_assign(port_cnt_p, 0)
+    rc = sx_api_port_device_get(handle, DEVICE_ID, SWITCH_ID, None,  port_cnt_p)
+
+    assert rc == SX_STATUS_SUCCESS, "sx_api_port_device_get failed, rc = %d" % rc
+    port_cnt = uint32_t_p_value(port_cnt_p)
+    port_attributes_list = new_sx_port_attributes_t_arr(port_cnt)
 
     rc = sx_api_port_device_get(handle, DEVICE_ID, SWITCH_ID, port_attributes_list,  port_cnt_p)
     assert rc == SX_STATUS_SUCCESS, "sx_api_port_device_get failed, rc = %d" % rc
