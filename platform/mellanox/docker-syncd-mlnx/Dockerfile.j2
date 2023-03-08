@@ -29,16 +29,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
         libxml2     \
+	python-dev \
         python3-pip  \
         python3-dev \
-        python-is-python3 \
 {%- if ENABLE_ASAN == "y" %}
         libasan6 \
 {%- endif %}
+	python-setuptools \
         python3-setuptools
 
 RUN pip3 install --upgrade pip
 RUN apt-get purge -y python-pip
+
+RUN curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 
 {% if docker_syncd_mlnx_debs.strip() -%}
 # Copy locally-built Debian package dependencies
