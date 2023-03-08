@@ -223,7 +223,7 @@ def main():
         os.makedirs(REBOOT_CAUSE_DIR)
 
     # Remove stale PREVIOUS_REBOOT_CAUSE_FILE if it exists
-    if os.path.exists(PREVIOUS_REBOOT_CAUSE_FILE):
+    if os.path.exists(PREVIOUS_REBOOT_CAUSE_FILE) or os.path.islink(PREVIOUS_REBOOT_CAUSE_FILE):
         os.remove(PREVIOUS_REBOOT_CAUSE_FILE)
 
     previous_reboot_cause, additional_reboot_info = determine_reboot_cause()
