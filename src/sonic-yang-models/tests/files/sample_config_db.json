@@ -1177,6 +1177,24 @@
                 "port": "50051"
             }
         },
+        "TELEMETRY_CLIENT": {
+            "Global": {
+                "encoding": "JSON_IETF",
+                "retry_interval": "30",
+                "src_ip": "30.57.185.38",
+                "unidirectional": "true"
+            },
+            "DestinationGroup_HS": {
+                "dst_addr": "30.57.186.214:8081,30.57.185.39:8081"
+            },
+            "Subscription_HS_RDMA": {
+                "dst_group": "HS",
+                "path_target": "COUNTERS_DB",
+                "paths": "COUNTERS/Ethernet*,COUNTERS_PORT_NAME_MAP",
+                "report_interval": "5000",
+                "report_type": "periodic"
+            }
+        },
         "GNMI": {
             "certs": {
                 "ca_crt": "/etc/sonic/credentials/dsmsroot.cer",
