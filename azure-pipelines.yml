@@ -346,7 +346,7 @@ stages:
         parameters:
           TOPOLOGY: t1-8-lag
           TEST_SET: multi-asic-t1-lag
-          MIN_WORKER: 1
-          MAX_WORKER: 1
+          MIN_WORKER: $(MULTI_ASIC_INSTANCE_NUM)
+          MAX_WORKER: $(MULTI_ASIC_INSTANCE_NUM)
           NUM_ASIC: 4
           MGMT_BRANCH: 202205
