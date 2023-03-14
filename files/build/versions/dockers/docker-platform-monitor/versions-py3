@@ -1,3 +1,5 @@
+guacamole==0.9.2
 jsonschema==2.6.0
+libpci==0.2
 python_sdk_api==4.5.3196
 thrift==0.13.0
