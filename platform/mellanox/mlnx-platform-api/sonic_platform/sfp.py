@@ -263,7 +263,6 @@ PATH_PAGE00_A2 = '/0/i2c-0x51/data'
 REGISTER_NUM = 1
 DEVICE_ID = 1
 SWITCH_ID = 0
-SX_PORT_ATTR_ARR_SIZE = 64
 
 PMAOS_ASE = 1
 PMAOS_EE = 1
@@ -1978,14 +1977,17 @@ class SFP(SfpBase):
 
     def get_logical_ports(self):
         # Get all the ports related to the sfp, if port admin status is up, put it to list
-        port_attributes_list = new_sx_port_attributes_t_arr(SX_PORT_ATTR_ARR_SIZE)
         port_cnt_p = new_uint32_t_p()
-        uint32_t_p_assign(port_cnt_p, SX_PORT_ATTR_ARR_SIZE)
+        uint32_t_p_assign(port_cnt_p, 0)
+        rc = sx_api_port_device_get(self.sdk_handle, DEVICE_ID, SWITCH_ID, None,  port_cnt_p)
+        assert rc == SX_STATUS_SUCCESS, "sx_api_port_device_get failed, rc = %d" % rc
+        port_cnt = uint32_t_p_value(port_cnt_p)
+        port_attributes_list = new_sx_port_attributes_t_arr(port_cnt)
+
 
         rc = sx_api_port_device_get(self.sdk_handle, DEVICE_ID , SWITCH_ID, port_attributes_list,  port_cnt_p)
         assert rc == SX_STATUS_SUCCESS, "sx_api_port_device_get failed, rc = %d" % rc
 
-        port_cnt = uint32_t_p_value(port_cnt_p)
         log_port_list = []
         for i in range(0, port_cnt):
             port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list, i)
