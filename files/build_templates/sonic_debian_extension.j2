@@ -78,6 +78,10 @@ fi
 # Update apt's snapshot of its repos
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get update
 
+# Install efitools to support secure upgrade
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install efitools
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install mokutil
+
 # Apply environtment configuration files
 sudo cp $IMAGE_CONFIGS/environment/environment $FILESYSTEM_ROOT/etc/
 sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
