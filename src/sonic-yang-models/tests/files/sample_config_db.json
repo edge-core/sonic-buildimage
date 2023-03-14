@@ -117,7 +117,9 @@
                 ],
                 "min_links": "2",
                 "mtu": "9100",
-                "tpid": "0x8100"
+                "tpid": "0x8100",
+                "fast_rate": "false",
+                "fallback" : "true"
             }
         },
         "PORTCHANNEL_INTERFACE": {
