@@ -1400,6 +1400,14 @@
             "prefix1|1|10.0.0.0/8|8..16": {
             }
         },
+        "CHASSIS_MODULE": {
+            "LINE-CARD0": {
+                "admin_status": "down"
+            },
+            "FABRIC-CARD1": {
+                "admin_status": "down"
+            }
+        },
         "COPP_GROUP": {
             "queue1_group1": {
                 "queue": "1",
