@@ -549,6 +549,11 @@ sudo cp $IMAGE_CONFIGS/config-chassisdb/config-chassisdb $FILESYSTEM_ROOT/usr/bi
 echo "config-chassisdb.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable config-chassisdb.service
 
+# Copy backend-acl script and service file
+sudo cp $IMAGE_CONFIGS/backend_acl/backend-acl.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM/backend-acl.service
+sudo cp $IMAGE_CONFIGS/backend_acl/backend_acl.py $FILESYSTEM_ROOT/usr/bin/backend_acl.py
+echo "backend-acl.service" | sudo tee -a $GENERATED_SERVICE_FILE
+
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
