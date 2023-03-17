@@ -87,7 +87,7 @@ isc-dhcp-client==4.4.1-2.3+deb11u1
 iso-codes==4.6.0-1
 jq==1.6-2.1
 kdump-tools==1:1.6.8.4
-kernel-mft-dkms-modules-5.10.0-18-2-amd64==4.21.0
+kernel-mft-dkms-modules-5.10.0-18-2-amd64==4.22.1
 kexec-tools==1:2.0.20-2.1
 klibc-utils==2.0.8-6.1
 kmod==28-1
@@ -317,8 +317,8 @@ make==4.3-4.1
 makedev==2.3.1-94.1
 makedumpfile==1:1.6.8-4
 media-types==4.0.0
-mft==4.21.0-100
-mft-oem==4.21.0-100
+mft==4.22.1-15
+mft-oem==4.22.1-15
 monit==1:5.20.0-6
 mtd-utils==1:2.1.2-2
 mtr-tiny==0.94-1+deb11u1
@@ -388,7 +388,7 @@ squashfs-tools==1:4.4-2+deb11u2
 sudo==1.9.5p2-3+deb11u1
 swig==4.0.2-1
 swig4.0==4.0.2-1
-sx-kernel==1.mlnx.4.5.4150
+sx-kernel==1.mlnx.4.5.4206
 symcrypt-openssl==0.1
 sysfsutils==2.1.0+repack-7
 sysstat==12.5.2-2
