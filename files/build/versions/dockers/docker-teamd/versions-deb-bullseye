@@ -16,7 +16,7 @@ libipt2==2.0.3-1
 libmpfr6==4.1.0-3
 libsource-highlight-common==3.1.9-3
 libsource-highlight4v5==3.1.9-3+b1
-libswsscommon-dbg==1.0.0
+libswsscommon-dbgsym==1.0.0
 libteam-utils==1.30-1
 libteam-utils-dbgsym==1.30-1
 libteamdctl0-dbgsym==1.30-1

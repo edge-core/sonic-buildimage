@@ -29,7 +29,7 @@ libquadmath0==10.2.1-6
 libsource-highlight-common==3.1.9-3
 libsource-highlight4v5==3.1.9-3+b1
 libstdc++-10-dev==10.2.1-6
-libswsscommon-dbg==1.0.0
+libswsscommon-dbgsym==1.0.0
 libswsscommon-dev==1.0.0
 libtirpc-dev==1.3.1-1+deb11u1
 libtsan0==10.2.1-6
