@@ -104,7 +104,7 @@ libnftnl11==1.1.2-2
 libnpth0==1.6-1
 libpcap0.8==1.8.1-6+deb10u1
 libpcre16-3==2:8.39-12
-libpcre2-16-0==10.32-5
+libpcre2-16-0==10.32-5+deb10u1
 libpcre3-dev==2:8.39-12
 libpcre32-3==2:8.39-12
 libpcrecpp0v5==2:8.39-12
