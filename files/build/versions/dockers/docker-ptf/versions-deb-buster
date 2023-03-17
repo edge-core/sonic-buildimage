@@ -143,8 +143,8 @@ libnss-systemd==241-7~deb10u8
 libopts25==1:5.18.12-4
 libpam-systemd==241-7~deb10u8
 libpcap0.8==1.8.1-6+deb10u1
-libpcre2-16-0==10.32-5
-libpcre2-8-0==10.32-5
+libpcre2-16-0==10.32-5+deb10u1
+libpcre2-8-0==10.32-5+deb10u1
 libperl5.28==5.28.1-6+deb10u1
 libpopt0==1.16-12
 libprocps7==2:3.3.15-2

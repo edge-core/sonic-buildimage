@@ -1,11 +1,11 @@
 blessed==1.20.0
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
 click-log==0.4.0
 colorful==0.5.5
 docker==6.0.1
 docker-image-py==0.1.12
 enlighten==1.11.2
-filelock==3.9.0
+filelock==3.10.0
 ijson==2.6.1
 ipaddress==1.0.23
 jsondiff==2.0.0
