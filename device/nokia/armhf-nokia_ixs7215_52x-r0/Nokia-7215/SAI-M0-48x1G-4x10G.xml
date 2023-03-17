@@ -295,7 +295,7 @@
     </SAIplt:Scaling>
     <SAIplt:Counters>
       <SAIplt:cnc-base-list>
-        <SAIplt:counter-base SAIplt:type="uint32">0</SAIplt:counter-base>
+        <SAIplt:counter-base SAIplt:type="uint32">4096</SAIplt:counter-base>
       </SAIplt:cnc-base-list>
     </SAIplt:Counters>
   </SAIplt:SAI>
