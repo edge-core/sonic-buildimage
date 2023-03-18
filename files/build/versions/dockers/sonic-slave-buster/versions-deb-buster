@@ -189,9 +189,9 @@ i965-va-driver==2.3.0+dfsg1-1
 ibverbs-providers==22.1-1
 icc-profiles-free==2.0.1+dfsg-1
 icu-devtools==63.1-6+deb10u3
-imagemagick==8:6.9.10.23+dfsg-2.1+deb10u2
-imagemagick-6-common==8:6.9.10.23+dfsg-2.1+deb10u2
-imagemagick-6.q16==8:6.9.10.23+dfsg-2.1+deb10u2
+imagemagick==8:6.9.10.23+dfsg-2.1+deb10u3
+imagemagick-6-common==8:6.9.10.23+dfsg-2.1+deb10u3
+imagemagick-6.q16==8:6.9.10.23+dfsg-2.1+deb10u3
 install-info==6.5.0.dfsg.1-4+b1
 intel-media-va-driver==18.4.1+dfsg1-1
 intltool-debian==0.35.0+20060710.5
@@ -758,9 +758,9 @@ liblzo2-2==2.10-0.1
 liblzo2-dev==2.10-0.1
 libmagic-mgc==1:5.35-4+deb10u2
 libmagic1==1:5.35-4+deb10u2
-libmagickcore-6.q16-6==8:6.9.10.23+dfsg-2.1+deb10u2
-libmagickcore-6.q16-6-extra==8:6.9.10.23+dfsg-2.1+deb10u2
-libmagickwand-6.q16-6==8:6.9.10.23+dfsg-2.1+deb10u2
+libmagickcore-6.q16-6==8:6.9.10.23+dfsg-2.1+deb10u3
+libmagickcore-6.q16-6-extra==8:6.9.10.23+dfsg-2.1+deb10u3
+libmagickwand-6.q16-6==8:6.9.10.23+dfsg-2.1+deb10u3
 libmail-sendmail-perl==0.80-1
 libmailtools-perl==2.18-1
 libmariadb-dev==1:10.3.38-0+deb10u1
