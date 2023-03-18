@@ -30,8 +30,8 @@ liblsan0==8.3.0-6
 libmpc3==1.1.0-1
 libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
-libpcre2-16-0==10.32-5
-libpcre2-8-0==10.32-5
+libpcre2-16-0==10.32-5+deb10u1
+libpcre2-8-0==10.32-5+deb10u1
 libpython-dev==2.7.16-1
 libpython-stdlib==2.7.16-1
 libpython2-dev==2.7.16-1

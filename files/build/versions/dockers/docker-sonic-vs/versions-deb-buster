@@ -75,7 +75,7 @@ libnfnetlink0==1.0.1-3+b1
 libnftnl11==1.1.2-2
 libnpth0==1.6-1
 libpcap0.8==1.8.1-6+deb10u1
-libpcre2-16-0==10.32-5
+libpcre2-16-0==10.32-5+deb10u1
 libpng16-16==1.6.36-6
 libpopt0==1.16-12
 libpython-dev==2.7.16-1
