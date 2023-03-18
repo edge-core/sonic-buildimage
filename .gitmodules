@@ -23,6 +23,7 @@
 [submodule "sonic-dbsyncd"]
 	path = src/sonic-dbsyncd
 	url = https://github.com/sonic-net/sonic-dbsyncd
+	branch = 202205
 [submodule "src/sonic-py-swsssdk"]
 	path = src/sonic-py-swsssdk
 	url = https://github.com/sonic-net/sonic-py-swsssdk.git
