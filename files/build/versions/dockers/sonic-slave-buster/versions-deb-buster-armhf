@@ -96,7 +96,7 @@ libsass1==3.5.5-4
 libsombok3==2.4.0-2
 libspecio-perl==0.43-1
 libunicode-linebreak-perl==0.0.20190101-1
-libxapian-dev==1.4.11-1
+libxapian-dev==1.4.11-1+deb10u1
 libxslt1-dev==1.1.32-2.2~deb10u2
 libyaml-tiny-perl==1.73-1
 linux-compiler-gcc-8-arm==4.19.269-1
