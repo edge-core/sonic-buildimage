@@ -1,11 +1,11 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==c5b38329e6b5fd3ebf87afb2267620ad2d9269ea
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==3f3e2f789e27d41d3c20a555fd60a39ebd631e15
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
-https://github.com/CESNET/libyang.git==d57c8888922d1663508ad0f0a5b66f8ad600276d
+https://github.com/CESNET/libyang.git==9a4e5b2ce30b9696116d6e654ee55caab5aafed8
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/dyninc/OpenBFDD.git==e35f43ad8d2b3f084e96a84c392528a90d05a287
-https://github.com/flashrom/flashrom.git==9fea866ad15748809ff0c75bc591349a31a8b6f4
-https://github.com/FreeRADIUS/freeradius-server.git==0f1969b24067b8507a26548d9ae019924b5fced4
+https://github.com/flashrom/flashrom.git==028099dbfd92e62eb0c6227d1194ff714f55e67c
+https://github.com/FreeRADIUS/freeradius-server.git==56d38bc1b59132c5e8ad637660ed3bd577637fd6
 https://github.com/FreeRADIUS/pam_radius.git==8d373539bb9f13b0abfe8bcae0095a930a00fad0
 https://github.com/jeroennijhof/pam_tacplus.git==4284d9016e64def2bb81d5f50f96dc3b59bfdc39
 https://github.com/jpirko/libteam.git==61e27812c1074a865d7e1a778c0ce442837c28d7
