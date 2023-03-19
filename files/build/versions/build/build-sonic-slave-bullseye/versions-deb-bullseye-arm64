@@ -1,3 +1,5 @@
 libnl-3-200==3.5.0-1
 libnl-route-3-200==3.5.0-1
+libyang2==2.0.112-6
+libyang2-dev==2.0.112-6
 linux-headers-5.10.0-18-2-arm64==5.10.140-1
