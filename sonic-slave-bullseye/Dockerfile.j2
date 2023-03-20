@@ -395,7 +395,7 @@ RUN apt-get purge -y python3-pip python3-yaml
 
 # For building Python packages
 RUN pip3 install setuptools==49.6.00
-RUN pip3 install wheel==0.35.1
+RUN pip3 install wheel==0.38.1
 
 # For building sonic-utilities
 RUN pip3 install fastentrypoints mock
@@ -404,6 +404,19 @@ RUN pip3 install fastentrypoints mock
 RUN pip3 install pytest-runner==5.2
 RUN pip3 install nose==1.3.7
 RUN pip3 install mockredispy==2.9.3
+
+# Fix CVE-2021-23437, need to build and install libjpeg-dev for armhf for pillow 9.4.0
+{%- if CONFIGURED_ARCH == "armhf" %}
+RUN TMP_DIR=$(mktemp -d) && \
+    cd $TMP_DIR && \
+    apt-get install -y nasm && \
+    apt-get source libjpeg-turbo && \
+    cd $(ls -d libjpeg-turbo*/) && \
+    dpkg-buildpackage -rfakeroot -b -us -uc > $TMP_DIR/libjpeg-dev.log && \
+    dpkg -i $TMP_DIR/libjpeg*-dev*.deb && \
+    rm -rf $TMP_DIR
+{%- endif %}
+RUN pip3 install pillow==9.4.0
 
 # For p4 build
 RUN pip3 install \
@@ -422,7 +435,7 @@ RUN pip3 install j2cli==0.3.10
 
 # For sonic-mgmt-framework
 RUN pip3 install "PyYAML==5.4.1"
-RUN pip3 install "lxml==4.6.2"
+RUN pip3 install "lxml==4.9.1"
 
 # For sonic-platform-common testing
 RUN pip3 install redis
