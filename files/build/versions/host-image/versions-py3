@@ -41,7 +41,7 @@ pyangbind==0.8.1
 pycairo==1.23.0
 pycparser==2.21
 pygments==2.14.0
-pygobject==3.42.2
+pygobject==3.44.0
 pyroute2==0.5.19
 python-dateutil==2.8.2
 pyyaml==5.4.1

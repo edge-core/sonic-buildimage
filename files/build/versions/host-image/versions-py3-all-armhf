@@ -1,3 +1,2 @@
 cryptography==3.3.1
 dbus-python==1.2.18
-pygobject==3.44.0
