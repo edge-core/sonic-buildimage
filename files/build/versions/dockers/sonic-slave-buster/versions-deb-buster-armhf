@@ -14,6 +14,8 @@ libexception-class-perl==1.44-1
 libgles2-mesa-dev==18.3.6-2+deb10u1
 libipc-shareable-perl==0.61-2
 libjargs-java==1.0.0-4
+libjpeg-dev==1:1.5.2-2+deb10u1
+libjpeg62-turbo-dev==1:1.5.2-2+deb10u1
 liblog-dispatch-perl==2.68-1
 liblog-log4perl-perl==1.49-1
 libmime-charset-perl==1.012.2-1
@@ -103,6 +105,7 @@ linux-compiler-gcc-8-arm==4.19.269-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
+nasm==2.14-1
 nodejs==14.21.3-deb-1nodesource1
 ps2eps==1.68+binaryfree-2
 rdfind==1.4.1-1

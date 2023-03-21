@@ -15,6 +15,8 @@ libfaketime==0.9.8-9
 libimage-exiftool-perl==12.16+dfsg-2
 libipc-shareable-perl==0.61-2
 libjargs-java==1.0.0-5
+libjpeg-dev==1:2.0.6-4
+libjpeg62-turbo-dev==1:2.0.6-4
 liblog-dispatch-perl==2.70-1
 liblog-log4perl-perl==1.54-1
 libmime-charset-perl==1.012.2-1
@@ -37,6 +39,7 @@ linux-compiler-gcc-10-arm==5.10.162-1
 linux-headers-5.10.0-21-armmp==5.10.162-1
 linux-headers-armmp==5.10.162-1
 mat2==0.12.1-2+deb11u1
+nasm==2.15.05-1
 nodejs==14.21.3-deb-1nodesource1
 ps2eps==1.68+binaryfree-3
 python3-cairo==1.16.2-4+b2
