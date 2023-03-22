@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -21,12 +21,10 @@ RUN apt-get install -y redis-tools redis-server
 {{ install_debian_packages(docker_database_debs.split(' ')) }}
 {%- endif %}
 
-# Clean up
-RUN apt-get clean -y                                  && \
-    apt-get autoclean -y                              && \
-    apt-get autoremove -y                             && \
-    rm -rf /debs ~/.cache                             && \
-    sed -ri 's/^(save .*$)/# \1/g;                       \
+{{ cleanup_apt_and_python_cache() }}
+
+# Configure redis
+RUN sed -ri 's/^(save .*$)/# \1/g;                       \
              s/^daemonize yes$/daemonize no/;            \
              s/^logfile .*$/logfile ""/;                 \
              s/^# syslog-enabled no$/syslog-enabled no/; \

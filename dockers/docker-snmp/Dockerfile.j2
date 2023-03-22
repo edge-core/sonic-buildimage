@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python3_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python3_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -60,12 +60,9 @@ RUN python3 -m sonic_ax_impl install
 RUN apt-get -y purge     \
         python3-dev      \
         gcc              \
-        make                && \
-    apt-get clean -y        && \
-    apt-get autoclean -y    && \
-    apt-get autoremove -y --purge && \
-    find / | grep -E "__pycache__" | xargs rm -rf && \
-    rm -rf /debs /python-wheels ~/.cache
+        make
+
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["snmp_yml_to_configdb.py", "/usr/bin/"]

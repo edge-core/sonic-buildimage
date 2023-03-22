@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-swss-layer-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -20,10 +20,7 @@ RUN apt-get update      && \
 {{ install_debian_packages(docker_sflow_debs.split(' ')) }}
 {%- endif %}
 
-RUN apt-get clean -y      && \
-    apt-get autoclean -y  && \
-    apt-get autoremove -y && \
-    rm -rf /debs
+{{ cleanup_apt_and_python_cache() }}
 
 RUN sed -ri '/^DAEMON_ARGS=""/c DAEMON_ARGS="-c /var/log/hsflowd.crash"' /etc/init.d/hsflowd
 

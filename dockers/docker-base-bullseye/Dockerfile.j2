@@ -1,5 +1,5 @@
 {% set prefix = DEFAULT_CONTAINER_REGISTRY %}
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 {% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM {{ prefix }}multiarch/debian-debootstrap:armhf-bullseye
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
@@ -92,17 +92,12 @@ RUN apt-get -y purge   \
 {{ install_debian_packages(docker_base_bullseye_debs.split(' ')) }}
 {%- endif %}
 
-# Clean up apt
-# Remove /var/lib/apt/lists/*, could be obsoleted for derived images
-RUN apt-get clean -y                     && \
-    apt-get autoclean -y                 && \
-    apt-get autoremove -y                && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/.cache
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
 COPY ["root/.vimrc", "/root/.vimrc"]
 
-RUN ln /usr/bin/vim.tiny /usr/bin/vim
+RUN ln -s /usr/bin/vim.tiny /usr/bin/vim
 
 COPY ["etc/supervisor/supervisord.conf", "/etc/supervisor/"]

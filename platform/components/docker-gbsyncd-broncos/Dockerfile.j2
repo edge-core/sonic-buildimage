@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -36,8 +37,6 @@ COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["files/dsserve", "/usr/bin/"]
 RUN chmod +x /usr/bin/dsserve
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+{{ cleanup_apt_and_python_cache() }}
 
 ENTRYPOINT ["/usr/bin/docker-init.sh"]

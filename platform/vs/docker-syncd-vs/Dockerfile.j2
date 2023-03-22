@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -11,16 +12,11 @@ RUN apt-get update
 
 RUN apt-get install -f -y libcap2-bin
 
-COPY \
-{% for deb in docker_syncd_vs_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_syncd_vs_debs.split(' '), "/debs/") }}
 
-RUN dpkg -i \
-{% for deb in docker_syncd_vs_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %} || apt-get install -f -y
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_vs_debs.split(' ')) }}
 
 COPY ["start.sh", "/usr/bin/"]
 
@@ -28,8 +24,6 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor/"]
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+{{ cleanup_apt_and_python_cache() }}
 
 ENTRYPOINT ["/usr/local/bin/supervisord"]

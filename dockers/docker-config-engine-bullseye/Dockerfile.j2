@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-base-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ## Make apt-get non-interactive
@@ -45,8 +45,6 @@ COPY ["files/swss_vars.j2", "/usr/share/sonic/templates/"]
 ## Clean up
 RUN apt-get purge -y               \
         python3-dev                \
-        build-essential         && \
-    apt-get clean -y            && \
-    apt-get autoclean -y        && \
-    apt-get autoremove -y       && \
-    rm -rf /debs /python-wheels ~/.cache
+        build-essential
+
+{{ cleanup_apt_and_python_cache() }}

@@ -37,3 +37,10 @@ COPY \
     {%- endfor %}
     {{ dest }}
 {%- endmacro %}
+
+{% macro cleanup_apt_and_python_cache() -%}
+RUN apt-get clean -y                     && \
+    apt-get autoclean -y                 && \
+    apt-get autoremove -y                && \
+    rm -rf /debs /python-wheels /tmp/* ~/.cache /var/lib/apt/lists/*
+{%- endmacro %}

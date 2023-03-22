@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -30,13 +30,7 @@ RUN apt-get update
 {{ install_python_wheels(docker_lldp_whls.split(' ')) }}
 {% endif %}
 
-# Clean up
-RUN apt-get clean -y            && \
-    apt-get autoclean -y        && \
-    apt-get autoremove -y       && \
-    rm -rf /debs                   \
-           /python-wheels          \
-           ~/.cache
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["docker-lldp-init.sh", "/usr/bin/"]
 COPY ["start.sh", "/usr/bin/"]

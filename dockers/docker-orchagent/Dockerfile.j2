@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-swss-layer-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -60,11 +60,9 @@ RUN apt-get remove -y gcc
 # Clean up
 RUN apt-get purge -y          \
         build-essential       \
-        python3-dev        && \
-    apt-get clean -y       && \
-    apt-get autoclean -y   && \
-    apt-get autoremove -y  && \
-    rm -rf /debs ~/.cache
+        python3-dev
+
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["files/arp_update", "/usr/bin"]
 COPY ["arp_update.conf", "files/arp_update_vars.j2", "/usr/share/sonic/templates/"]

@@ -17,8 +17,7 @@ RUN apt-get update
 {{ install_debian_packages( docker_sonic_restapi_debs.split(' ')) }}
 {%- endif %}
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["start.sh", "restapi.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]

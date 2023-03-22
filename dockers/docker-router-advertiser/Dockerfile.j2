@@ -1,4 +1,4 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, cleanup_apt_and_python_cache %}
 FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
@@ -25,11 +25,7 @@ RUN apt-get -y install radvd
 {{ install_debian_packages(docker_router_advertiser_debs.split(' ')) }}
 {%- endif %}
 
-# Clean up
-RUN apt-get clean -y        && \
-    apt-get autoclean -y    && \
-    apt-get autoremove -y   && \
-    rm -rf /debs
+{{ cleanup_apt_and_python_cache() }}
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["docker-init.sh", "/usr/bin/"]
