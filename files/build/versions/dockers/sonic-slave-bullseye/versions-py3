@@ -39,7 +39,7 @@ j2cli==0.3.10
 jinja2==2.11.3
 lazy-object-proxy==0.0.0
 logilab-common==1.8.1
-lxml==4.6.2
+lxml==4.9.1
 m2crypto==0.36.0
 mako==1.1.3
 markdown==3.3.4
