@@ -3,6 +3,7 @@ from setuptools import setup
 dependencies = [
     'natsort==6.2.1', # 6.2.1 is the last version which supports Python 2
     'pyyaml',
+    'redis-dump-load',
 ]
 
 setup(
