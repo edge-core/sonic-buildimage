@@ -13,8 +13,8 @@ libnl-genl-3-dev==3.5.0-1
 libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
 libnl-route-3-dev==3.5.0-1
-libsaibcm==7.1.32.4
-libsaibcm-dev==7.1.32.4
+libsaibcm==7.1.36.4
+libsaibcm-dev==7.1.36.4
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0
