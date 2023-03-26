@@ -21,4 +21,4 @@ https://salsa.debian.org/debian/libteam.git==48142125234a665ad5367b724af36a58fb4
 https://salsa.debian.org/kernel-team/ethtool/==68409b09a969b49a07fbf3930409f155b953434b
 https://salsa.debian.org/kernel-team/initramfs-tools.git==193dfbb7929e518976f89f6c8dd9201982e56f80
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==48770216530d8a0a57f5f1d7cc60addd67d1b549
+https://salsa.debian.org/ssh-team/openssh.git==49836a13815efec2773fbd76d34189424a26fb20

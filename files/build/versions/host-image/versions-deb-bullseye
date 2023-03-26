@@ -398,6 +398,7 @@ systemd-sysv==247.3-7+deb11u1
 tcpdump==4.99.0-2+deb11u1
 tcptraceroute==1.5beta7+debian-4.1+b1
 traceroute==1:2.1.0-2+b1
+tzdata==2021a-1+deb11u9
 u-boot-tools==2021.01+dfsg-5
 ucf==3.0043
 udev==247.3-7+deb11u1
