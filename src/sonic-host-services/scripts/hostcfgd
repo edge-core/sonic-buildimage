@@ -210,10 +210,25 @@ class AaaCfg(object):
         if modify_conf:
             self.modify_conf_file()
 
+    def check_file_not_empty(self, filename):
+        exists = os.path.exists(filename)
+        if not exists:
+            syslog.syslog(syslog.LOG_ERR, "file size check failed: {} is missing".format(filename))
+            return
+
+        size = os.path.getsize(filename)
+        if size == 0:
+            syslog.syslog(syslog.LOG_ERR, "file size check failed: {} is empty, file corrupted".format(filename))
+            return
+
+        syslog.syslog(syslog.LOG_INFO, "file size check pass: {} size is ({}) bytes".format(filename, size))
+
     def modify_single_file(self, filename, operations=None):
         if operations:
             cmd = "sed -e {0} {1} > {1}.new; mv -f {1} {1}.old; mv -f {1}.new {1}".format(' -e '.join(operations), filename)
             os.system(cmd)
+
+        self.check_file_not_empty(filename)
 
     def modify_conf_file(self):
         auth = self.auth_default.copy()

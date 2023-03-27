@@ -226,3 +226,68 @@ class TestHostcfgdDaemon(TestCase):
                         call('sonic-kdump-config --num_dumps 3', shell=True),
                         call('sonic-kdump-config --memory 0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M', shell=True)]
             mocked_subprocess.check_call.assert_has_calls(expected, any_order=True)
+
+class TesAaaCfgd(TestCase):
+    """
+        Test hostcfd daemon - AaaCfgd
+    """
+    def setUp(self):
+        MockConfigDb.CONFIG_DB['NTP'] = {'global': {'vrf': 'mgmt', 'src_intf': 'eth0'}}
+        MockConfigDb.CONFIG_DB['NTP_SERVER'] = {'0.debian.pool.ntp.org': {}}
+
+    def tearDown(self):
+        MockConfigDb.CONFIG_DB = {}
+
+    def test_aaa_sshd_not_empty(self):
+        with mock.patch('hostcfgd.subprocess') as mocked_subprocess:
+            popen_mock = mock.Mock()
+            attrs = {'communicate.return_value': ('output', 'error')}
+            popen_mock.configure_mock(**attrs)
+            mocked_subprocess.Popen.return_value = popen_mock
+
+            test_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            sample_output_path = os.path.join(test_path, "hostcfgd/sample_output/")
+
+            aaacfgd = hostcfgd.AaaCfg()
+            aaacfgd.modify_single_file(os.path.join(sample_output_path, "sshd_not_empty"))
+                
+            # render with empty sshd config file and check error log
+            test_file = os.path.join(sample_output_path, "sshd_empty")
+            original_syslog = hostcfgd.syslog
+            with mock.patch('hostcfgd.syslog.syslog') as mocked_syslog:
+                mocked_syslog.LOG_ERR = original_syslog.LOG_ERR
+                aaacfgd.modify_single_file(test_file)
+
+                # check sys log
+                expected = [
+                    mock.call(mocked_syslog.LOG_ERR, "file size check failed: {} is empty, file corrupted".format(test_file))
+                ]
+                mocked_syslog.assert_has_calls(expected)
+
+            # check with missing sshd config file and check error log
+            test_file = os.path.join(sample_output_path, "sshd_missing")
+            with mock.patch('hostcfgd.syslog.syslog') as mocked_syslog:
+                mocked_syslog.LOG_ERR = original_syslog.LOG_ERR
+
+                # missing file can't test by render config file,
+                # because missing file case difficult to reproduce: code always generate a empty file.
+                aaacfgd.check_file_not_empty(test_file)
+
+                # check sys log
+                expected = [
+                    mock.call(mocked_syslog.LOG_ERR, "file size check failed: {} is missing".format(test_file))
+                ]
+                mocked_syslog.assert_has_calls(expected)
+
+            # render with empty sshd config file and check error log
+            test_file = os.path.join(sample_output_path, "sshd_not_empty")
+            original_syslog = hostcfgd.syslog
+            with mock.patch('hostcfgd.syslog.syslog') as mocked_syslog:
+                mocked_syslog.LOG_INFO = original_syslog.LOG_INFO
+                aaacfgd.modify_single_file(test_file)
+
+                # check sys log
+                expected = [
+                    mock.call(mocked_syslog.LOG_INFO, "file size check pass: {} size is ({}) bytes".format(test_file, 21))
+                ]
+                mocked_syslog.assert_has_calls(expected)
