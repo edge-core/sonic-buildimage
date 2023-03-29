@@ -93,7 +93,7 @@ docbook-utils==0.6.14-3.3
 docbook-xml==4.5-8
 docker-ce==5:20.10.21~3-0~debian-buster
 docker-ce-cli==5:20.10.21~3-0~debian-buster
-docker-ce-rootless-extras==5:23.0.1-1~debian.10~buster
+docker-ce-rootless-extras==5:23.0.2-1~debian.10~buster
 docker-scan-plugin==0.23.0~debian-buster
 docutils-common==0.14+dfsg-4
 docutils-doc==0.14+dfsg-4
@@ -417,9 +417,8 @@ libcups2==2.2.10-6+deb10u6
 libcupsfilters1==1.21.6-5
 libcupsimage2==2.2.10-6+deb10u6
 libcurl3-gnutls==7.64.0-4+deb10u5
-libcurl3-nss==7.64.0-4+deb10u5
 libcurl4==7.64.0-4+deb10u5
-libcurl4-nss-dev==7.64.0-4+deb10u5
+libcurl4-openssl-dev==7.64.0-4+deb10u5
 libdaemon-dev==0.14-7
 libdaemon0==0.14-7
 libdata-dump-perl==1.23-1
