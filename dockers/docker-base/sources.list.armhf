@@ -1,7 +1,7 @@
 ## Debian mirror for ARM repo
 
 # ARMhf repo
-deb [arch=armhf] http://deb.debian.org/debian jessie main contrib non-free
-deb-src [arch=armhf] http://deb.debian.org/debian jessie main contrib non-free
-deb [arch=armhf] http://security.debian.org jessie/updates main contrib non-free
-deb-src [arch=armhf] http://security.debian.org jessie/updates main contrib non-free
+deb [arch=armhf] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free
+deb-src [arch=armhf] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free
+deb [arch=armhf] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free
+deb-src [arch=armhf] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free

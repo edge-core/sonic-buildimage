@@ -14,21 +14,21 @@ COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
 ## Remove retired jessie-updates repo
 RUN sed -i '/http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
 
-RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb [arch=amd64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src [arch=amd64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=amd64] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=amd64] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
 
 {% if CONFIGURED_ARCH == "armhf" %}
-RUN echo "deb [arch=armhf] http://deb.debian.org/debian jessie main contrib non-free" > /etc/apt/sources.list && \
-        echo "deb-src [arch=armhf] http://deb.debian.org/debian jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://security.debian.org jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=armhf] http://security.debian.org jessie/updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb [arch=armhf] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src [arch=armhf] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=armhf] http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
 {% elif CONFIGURED_ARCH == "arm64" %}
-RUN echo "deb [arch=arm64] http://archive.debian.org/debian jessie main contrib non-free" > /etc/apt/sources.list && \
-        echo "deb-src [arch=arm64] http://archive.debian.org/debian jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=arm64] http://archive.debian.org/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://archive.debian.org/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb [arch=arm64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src [arch=arm64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=arm64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie-backports main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie-backports main contrib non-free" >> /etc/apt/sources.list
 {% endif %}
 
 ## Make apt-get non-interactive
