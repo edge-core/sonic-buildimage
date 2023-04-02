@@ -48,7 +48,7 @@ pyang==2.4.0
 pyangbind==0.8.1
 pycrypto==2.6.1
 pycurl==7.43.0.2
-pyfakefs==5.1.0
+pyfakefs==5.2.0
 pygments==2.3.1
 pygobject==3.30.4
 pympler==0.8
@@ -63,7 +63,7 @@ python-magic==0.4.16
 pytz==2019.1
 pyxdg==0.25
 pyyaml==5.4.1
-redis==4.5.3
+redis==4.5.4
 regex==2022.10.31
 requests==2.21.0
 roman==2.0.0
