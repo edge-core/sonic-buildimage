@@ -309,6 +309,7 @@ platform_specific() {
     if [ "$sid" = "Lodoga" ]; then
         aboot_machine=arista_7050cx3_32s
         flash_size=3700
+        echo "libata.force=2.00:noncq" >> /tmp/append
     fi
     if [ "$sid" = "BlackhawkO" ]; then
         aboot_machine=arista_7060px4_32
@@ -337,6 +338,8 @@ platform_specific() {
     fi
     if in_array "$platform" "rook"; then
         echo "iommu=on intel_iommu=on" >>/tmp/append
+        # Currently applies to Alhambra, Blackhawk, Gardena and Mineral
+        echo "libata.force=1.00:noncq" >>/tmp/append
         read_system_eeprom
     fi
     if in_array "$platform" "crow" "woodpecker" "magpie"; then
