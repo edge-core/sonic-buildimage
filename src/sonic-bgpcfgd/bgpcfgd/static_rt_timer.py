@@ -12,7 +12,8 @@ class StaticRouteTimer(object):
 
     DEFAULT_TIMER = 180
     DEFAULT_SLEEP = 60
-    MAX_TIMER     = 1800
+    # keep same range as value defined in sonic-restapi/sonic_api.yaml
+    MAX_TIMER     = 172800
 
     def set_timer(self):
         """ Check for custom route expiry time in STATIC_ROUTE_EXPIRY_TIME """
