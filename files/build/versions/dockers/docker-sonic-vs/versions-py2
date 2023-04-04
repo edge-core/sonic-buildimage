@@ -1,6 +1,6 @@
 certifi==2021.10.8
 chardet==4.0.0
-crontab==1.0.0
+crontab==1.0.1
 idna==2.10
 monotonic==1.5
 netifaces==0.10.7
