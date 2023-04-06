@@ -33,9 +33,9 @@ dpkg-dev==1.19.8
 ebtables==2.0.10.4+snapshot20181205-3
 efibootmgr==15-1
 file==1:5.35-4+deb10u2
-firmware-amd-graphics==20190114-2
-firmware-linux-nonfree==20190114-2
-firmware-misc-nonfree==20190114-2
+firmware-amd-graphics==20190114+really20220913-0+deb10u1
+firmware-linux-nonfree==20190114+really20220913-0+deb10u1
+firmware-misc-nonfree==20190114+really20220913-0+deb10u1
 flashrom==1.0-1
 freeipmi-common==1.6.3-1.1
 g++==4:8.3.0-1
