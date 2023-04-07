@@ -7,15 +7,20 @@ COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
 ## Remove retired jessie-updates repo
 RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
 
-RUN echo "deb http://debian-archive.trafficmanager.net/debian/ jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src http://debian-archive.trafficmanager.net/debian/ jessie main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb http://debian-archive.trafficmanager.net/debian-security/ jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src http://debian-archive.trafficmanager.net/debian-security/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ jessie main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
+COPY ["faketime_0.9.7-2_amd64.deb","/root"]
+COPY ["libfaketime_0.9.7-2_amd64.deb","/root"]
+RUN dpkg -i /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+RUN rm /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+
+RUN faketime "2022-11-01" apt-get update && apt-get install -y \
         apt-utils \
         default-jre-headless \
         openssh-server \
@@ -319,7 +324,7 @@ RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /
 ENV PATH /usr/share/depot_tools:$PATH
 
 # Install docker engine 17.03.2~ce-0 inside docker and enable experimental feature
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 RUN apt-get install -y \
            apt-transport-https \
            ca-certificates \
@@ -327,12 +332,11 @@ RUN apt-get install -y \
            gnupg2 \
            software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-RUN add-apt-repository \
-           "deb [arch=amd64] https://download.docker.com/linux/debian \
-           $(lsb_release -cs) \
-           stable"
-RUN apt-get update
+RUN echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" >> /etc/apt/sources.list.d/docker.list
+
+RUN apt-get update -o Dir::Etc::sourcelist="sources.list.d/docker.list"
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
+RUN rm /etc/apt/sources.list.d/docker.list
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
 
 # Remove the stale cert and refresh the certs

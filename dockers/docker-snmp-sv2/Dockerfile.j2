@@ -10,7 +10,7 @@ ENV PYTHONOPTIMIZE 1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update apt's cache of available packages
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 # Install curl so we can download and install pip later
 # Also install major root CA certificates for curl to reference

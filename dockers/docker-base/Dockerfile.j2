@@ -24,7 +24,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
 COPY ["sources.list", "/etc/apt/sources.list"]
 COPY ["no-check-valid-until", "no-install-recommend-suggest", "/etc/apt/apt.conf.d/"]
-RUN apt-get update
+
+COPY ["faketime_0.9.7-2_amd64.deb", "/root"]
+COPY ["libfaketime_0.9.7-2_amd64.deb","/root"]
+RUN dpkg -i /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+RUN rm /root/faketime_0.9.7-2_amd64.deb /root/libfaketime_0.9.7-2_amd64.deb
+RUN faketime "2022-11-01" apt-get update
 
 # Pre-install fundamental packages
 RUN apt-get -y install \

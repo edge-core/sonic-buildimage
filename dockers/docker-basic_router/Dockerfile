@@ -6,7 +6,7 @@ MAINTAINER Xudong Wu
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Update apt's cache of available packages
-RUN apt-get clean && apt-get update
+RUN apt-get clean && faketime "2022-11-01" apt-get update
 
 COPY deps /deps
 

@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY ["sonic-dev.gpg.key", "/etc/apt/"]
 RUN apt-key add /etc/apt/sonic-dev.gpg.key
 RUN echo "deb http://packages.microsoft.com/repos/sonic-dev/ jessie main" >> /etc/apt/sources.list
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 RUN apt-get install -y net-tools \
                        arping \
@@ -36,7 +36,6 @@ RUN apt-get install -y net-tools \
                        iproute \
                        libpython2.7 \
                        grub2-common \
-                       python-click-default-group \
                        python-click \
                        python-natsort \
                        python-tabulate \
@@ -54,6 +53,10 @@ RUN pip install py2_ipaddress
 RUN pip install six
 RUN pip install pyroute2==0.5.3 netifaces==0.10.7
 RUN pip install monotonic==1.5
+
+# Fix the python-click-default-group not found issue
+RUN pip install --upgrade 'pip<21'
+RUN pip install click-default-group
 
 {% if docker_sonic_vs_debs.strip() -%}
 # Copy locally-built Debian package dependencies

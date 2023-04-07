@@ -3,7 +3,7 @@ FROM docker-fpm-quagga
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 COPY \
 {% for deb in docker_fpm_gobgp_debs.split(' ') -%}

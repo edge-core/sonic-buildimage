@@ -127,9 +127,17 @@ SONIC_BUILD_INSTRUCTION :=  make \
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 
 .DEFAULT_GOAL :=  all
+FAKETIME := rm -rf faketime_0.9.7-2_amd64.deb libfaketime_0.9.7-2_amd64.deb; \
+		curl "https://sonicstoragepublic.blob.core.windows.net/packages/libfaketime_0.9.7-2_amd64.deb?sp=r&st=2022-12-05T06:39:44Z&se=2032-12-05T14:39:44Z&spr=https&sv=2021-06-08&sr=b&sig=SDqUC7DtESpNHTc1Dsh%2B9%2Finxfo4OwNiXGw762OV2tM%3D" -o libfaketime_0.9.7-2_amd64.deb; \
+		curl "https://sonicstoragepublic.blob.core.windows.net/packages/faketime_0.9.7-2_amd64.deb?sp=r&st=2022-12-05T04:50:15Z&se=2033-12-06T12:50:15Z&spr=https&sv=2021-06-08&sr=b&sig=7l4dm4tyO73RwwAbRM6zNEglkOjs8bLV%2BJe9coiEHxo%3D" -o faketime_0.9.7-2_amd64.deb; \
+		cp faketime_0.9.7-2_amd64.deb libfaketime_0.9.7-2_amd64.deb dockers/docker-base/; \
+		cp faketime_0.9.7-2_amd64.deb libfaketime_0.9.7-2_amd64.deb sonic-slave/; \
+		cp faketime_0.9.7-2_amd64.deb libfaketime_0.9.7-2_amd64.deb dockers/docker-ptf/
 
 %::
 	@$(OVERLAY_MODULE_CHECK)
+	@$(FAKETIME)
+
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; }

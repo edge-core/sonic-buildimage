@@ -17,7 +17,7 @@ dpkg_apt debs/{{ deb }}{{'; '}}
 {%- endfor %}
 
 ## Pre-install the fundamental packages
-RUN apt-get update \
+RUN faketime "2022-11-01" apt-get update \
  && apt-get -y install  \
     net-tools           \
     python-pip          \

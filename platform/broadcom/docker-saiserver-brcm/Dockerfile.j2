@@ -6,7 +6,7 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
+RUN faketime "2022-11-01" apt-get update
 
 COPY \
 {% for deb in docker_saiserver_brcm_debs.split(' ') -%}
