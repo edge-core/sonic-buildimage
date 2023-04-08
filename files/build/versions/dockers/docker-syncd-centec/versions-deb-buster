@@ -15,6 +15,7 @@ libsai==1.11.0-1
 libsaimetadata==1.0.0
 libsairedis==1.0.0
 libswsscommon-dbg==1.0.0
+libswsscommon-dbgsym==1.0.0
 libunwind8==1.2.1-10~deb10u1
 openssh-client==1:7.9p1-10+deb10u2
 sshpass==1.06-1

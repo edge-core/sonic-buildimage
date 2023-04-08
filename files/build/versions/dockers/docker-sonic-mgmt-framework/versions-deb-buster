@@ -40,7 +40,7 @@ libpython3-dev==3.7.3-1
 libpython3.7-dev==3.7.3-2+deb10u4
 libquadmath0==8.3.0-6
 libstdc++-8-dev==8.3.0-6
-libswsscommon-dbg==1.0.0
+libswsscommon-dbgsym==1.0.0
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libunwind8==1.2.1-10~deb10u1
