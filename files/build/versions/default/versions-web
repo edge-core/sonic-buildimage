@@ -44,7 +44,7 @@ https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/ad
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.9.1-0_arm64.deb==c354c766cc763a5af621a88637b9e126
 https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58fbc11625336846cea7420
-https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.10.2-2_armhf.deb==4a8b1c9542f47164556ae83c917f438e
+https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.10.2-3_armhf.deb==13728edb8ddb2cede3244d031580a468
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC-rel-13_2010_4204-EVB.mfa==c511454113db7cbf01a5bc898250cf8d
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC2-rel-29_2010_4204-EVB.mfa==eb004feb6008dc7f109e42d36f372fc6
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC3-rel-30_2010_4204-EVB.mfa==9099a37a1efb22b6dce535ad2e1528d4
