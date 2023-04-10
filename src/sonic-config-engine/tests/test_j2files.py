@@ -279,15 +279,15 @@ class TestJ2Files(TestCase):
         assert utils.cmp(sample_output_file, self.output_file)
 
     def test_buffers_dell6100_render_template(self):
-        self._test_buffers_render_template('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'buffers.json.j2', 'buffers-dell6100.json', copy_files=True) 
+        self._test_buffers_render_template('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'buffers.json.j2', 'buffers-dell6100.json', copy_files=True)
 
     def test_buffers_mellanox2700_render_template(self):
         # Mellanox buffer template rendering for single ingress pool mode
-        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2700-r0', 'Mellanox-SN2700-D48C8', 'sample-mellanox-2700-t0-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2700.json') 
+        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2700-r0', 'Mellanox-SN2700-D48C8', 'sample-mellanox-2700-t0-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2700.json')
 
     def test_buffers_mellanox2410_render_template(self):
         # Mellanox buffer template rendering for double ingress pools mode
-        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2410.json') 
+        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2410.json')
 
     def test_config_brcm_render_template(self):
         if utils.PYvX_DIR != 'py3':
@@ -378,7 +378,7 @@ class TestJ2Files(TestCase):
         if utils.PYvX_DIR != 'py3':
             # Skip on python2 as the change will not be backported to previous version
             return
-          
+
         TEST_DATA = [
             # (vendor, platform, sku, minigraph, buffer_template, sample_output )
             ('arista', 'x86_64-arista_7050cx3_32s', 'Arista-7050CX3-32S-D48C8', 'sample-arista-7050cx3-dualtor-minigraph.xml', 'buffers.json.j2', 'buffer-arista7050cx3-dualtor.json'),
@@ -578,6 +578,9 @@ class TestJ2Files(TestCase):
             )
             self.run_script(argument)
             assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
+
+    def test_buffers_edgezone_aggregator_render_template(self):
+        self._test_buffers_render_template('arista', 'x86_64-arista_7060_cx32s', 'Arista-7060CX-32S-D48C8', 'sample-arista-7060-t0-minigraph.xml', 'buffers.json.j2', 'buffer-arista7060-t0.json')
 
     def tearDown(self):
         os.environ["CFGGEN_UNIT_TESTING"] = ""
