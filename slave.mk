@@ -454,6 +454,8 @@ include Makefile.cache
 ifeq ($(SONIC_USE_DOCKER_BUILDKIT),y)
 $(warning "Using SONIC_USE_DOCKER_BUILDKIT will produce larger installable SONiC image because of a docker bug (more details: https://github.com/moby/moby/issues/38903)")
 export DOCKER_BUILDKIT=1
+else
+export DOCKER_BUILDKIT=0
 endif
 
 
