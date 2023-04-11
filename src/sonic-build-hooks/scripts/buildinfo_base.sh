@@ -382,6 +382,9 @@ update_version_file()
 update_version_files()
 {
     local version_names="versions-deb versions-py2 versions-py3"
+    if [ "$MIRROR_SNAPSHOT" == y ]; then
+        version_names="versions-py2 versions-py3"
+    fi
     for version_name in $version_names; do
         update_version_file $version_name
     done
