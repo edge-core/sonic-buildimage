@@ -29,9 +29,9 @@ declare -r SPC3_ASIC="spc3"
 declare -r UNKN_ASIC="unknown"
 
 declare -rA FW_FILE_MAP=( \
-    [$SPC1_ASIC]="/etc/mlnx/fw-SPC.mfa" \
-    [$SPC2_ASIC]="/etc/mlnx/fw-SPC2.mfa" \
-    [$SPC3_ASIC]="/etc/mlnx/fw-SPC3.mfa" \
+    [$SPC1_ASIC]="fw-SPC.mfa" \
+    [$SPC2_ASIC]="fw-SPC2.mfa" \
+    [$SPC3_ASIC]="fw-SPC3.mfa" \
 )
 declare -rA FW_REQUIRED_MAP=( \
     [$SPC1_ASIC]="{{ MLNX_SPC_FW_VERSION }}" \
@@ -205,15 +205,15 @@ function RunCmd() {
 }
 
 function UpgradeASICFW() {
-    local -r _FS_MOUNTPOINT="$1"
+    local -r _FW_BIN_PATH="$1"
 
     local -r _ASIC_TYPE="$(GetAsicType)"
     if [[ "${_ASIC_TYPE}" = "${UNKN_ASIC}" ]]; then
         ExitFailure "failed to detect ASIC type"
     fi
 
-    if [ ! -z "${_FS_MOUNTPOINT}" ]; then
-        local -r _FW_FILE="${_FS_MOUNTPOINT}/${FW_FILE_MAP[$_ASIC_TYPE]}"
+    if [ ! -z "${_FW_BIN_PATH}" ]; then
+        local -r _FW_FILE="${_FW_BIN_PATH}/${FW_FILE_MAP[$_ASIC_TYPE]}"
 
         if [ ! -f "${_FW_FILE}" ]; then
             ExitFailure "no such file: ${_FW_FILE}"
@@ -225,7 +225,7 @@ function UpgradeASICFW() {
         local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
         local -r _FW_AVAILABLE="$(echo ${_FW_INFO} | cut -f3 -d' ')"
     else
-        local -r _FW_FILE="${FW_FILE_MAP[$_ASIC_TYPE]}"
+        local -r _FW_FILE="/etc/mlnx/${FW_FILE_MAP[$_ASIC_TYPE]}"
 
         RunCmd "${QUERY_CMD} -L ${QUERY_FILE}" &>/dev/null
 
@@ -332,15 +332,27 @@ function UpgradeFWFromImage() {
         ExitSuccess "firmware is up to date"
     fi
 
-    FS_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
-    FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
+    # /host/image-<version>/platform/fw is now the new location for FW binaries.
+    # Prefere this path and if it does not exist use squashfs as a fallback.
+    local -r _PLATFORM_FW_BIN_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/platform/fw/"
 
-    RunCmd "mkdir -p ${FS_MOUNTPOINT}"
-    RunCmd "mount -t squashfs ${FS_PATH} ${FS_MOUNTPOINT}"
+    if [[ -d "${_PLATFORM_FW_BIN_PATH}" ]]; then
+        LogInfo "Using FW binaries from ${_PLATFORM_FW_BIN_PATH}"
 
+        UpgradeASICFW "${_PLATFORM_FW_BIN_PATH}/asic"
+        UpgradeCPLDFW "${_PLATFORM_FW_BIN_PATH}/cpld/${ONIE_MACHINE#mlnx_}_cpld.tar.gz"
+    else
+        FS_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
+        FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
 
-    UpgradeASICFW "${FS_MOUNTPOINT}${FW_FILE}"
-    UpgradeCPLDFW "${FS_MOUNTPOINT}/etc/mlnx/cpld/${ONIE_MACHINE#mlnx_}_cpld.tar.gz"
+        LogInfo "Using FW binaries from ${FS_MOUNTPOINT}"
+
+        RunCmd "mkdir -p ${FS_MOUNTPOINT}"
+        RunCmd "mount -t squashfs ${FS_PATH} ${FS_MOUNTPOINT}"
+
+        UpgradeASICFW "${FS_MOUNTPOINT}/etc/mlnx/${FW_FILE}"
+        UpgradeCPLDFW "${FS_MOUNTPOINT}/etc/mlnx/cpld/${ONIE_MACHINE#mlnx_}_cpld.tar.gz"
+    fi
 }
 
 function Cleanup() {
