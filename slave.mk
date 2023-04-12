@@ -89,6 +89,7 @@ export BLDENV
 export BUILD_WORKDIR
 export GZ_COMPRESS_PROGRAM
 export MIRROR_SNAPSHOT
+export SONIC_OS_VERSION
 
 ###############################################################################
 ## Utility rules
