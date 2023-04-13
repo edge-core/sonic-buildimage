@@ -247,7 +247,7 @@ class Thermal(PddfThermal):
             A float number, the maximum recorded temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        if self.min_temperature is None:
+        if self.max_temperature is None:
             self.get_temperature()
 
         return self.max_temperature
