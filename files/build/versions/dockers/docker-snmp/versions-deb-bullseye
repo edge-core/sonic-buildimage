@@ -54,7 +54,7 @@ libsnmp40==5.9+dfsg-4+deb11u1
 libsnmp40-dbgsym==5.9+dfsg-4+deb11u1
 libsource-highlight-common==3.1.9-3
 libsource-highlight4v5==3.1.9-3+b1
-libswsscommon-dbg==1.0.0
+libswsscommon-dbgsym==1.0.0
 libtirpc-dev==1.3.1-1+deb11u1
 libtsan0==10.2.1-6
 libubsan1==10.2.1-6

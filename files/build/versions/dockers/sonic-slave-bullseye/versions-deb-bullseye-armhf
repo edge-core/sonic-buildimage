@@ -51,5 +51,4 @@ sassc==3.6.1+20201027-1
 texlive-extra-utils==2020.20210202-3
 texlive-font-utils==2020.20210202-3
 texlive-luatex==2020.20210202-3
-tzdata==2021a-1+deb11u9
 yui-compressor==2.4.8-2.1
