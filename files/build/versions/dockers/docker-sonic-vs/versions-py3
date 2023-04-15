@@ -15,13 +15,13 @@ jsonpatch==1.32
 jsonpointer==2.3
 m2crypto==0.38.0
 netifaces==0.10.9
-packaging==23.0
+packaging==23.1
 pexpect==4.8.0
 prefixed==0.7.0
 prettyprinter==0.18.0
 ptyprocess==0.7.0
 pycairo==1.23.0
-pygments==2.14.0
+pygments==2.15.0
 pygobject==3.44.1
 pyparsing==3.0.9
 pyroute2==0.5.14
