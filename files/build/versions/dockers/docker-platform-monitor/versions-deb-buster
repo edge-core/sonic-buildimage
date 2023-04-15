@@ -136,6 +136,6 @@ sx-gen-utils-dev==1.mlnx.4.5.2318
 sxd-libs==1.mlnx.4.5.2318
 sxd-libs-dev==1.mlnx.4.5.2318
 ucf==3.0038+nmu1
-udev==241-7~deb10u8
+udev==241-7~deb10u9
 vim==2:8.1.0875-5+deb10u4
 vim-runtime==2:8.1.0875-5+deb10u4

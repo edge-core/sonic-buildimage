@@ -139,9 +139,9 @@ libnl-genl-3-200==3.4.0-1
 libnl-nf-3-200==3.4.0-1
 libnl-route-3-200==3.4.0-1
 libnpth0==1.6-1
-libnss-systemd==241-7~deb10u8
+libnss-systemd==241-7~deb10u9
 libopts25==1:5.18.12-4
-libpam-systemd==241-7~deb10u8
+libpam-systemd==241-7~deb10u9
 libpcap0.8==1.8.1-6+deb10u1
 libpcre2-16-0==10.32-5+deb10u1
 libpcre2-8-0==10.32-5+deb10u1
@@ -185,7 +185,7 @@ libthrift-0.11.0==0.11.0-4
 libtinfo6==6.1+20181013-2+deb10u3
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
-libunbound8==1.9.0-2+deb10u2
+libunbound8==1.9.0-2+deb10u3
 libutempter0==1.1.6-3
 libuv1==1.24.1-1+deb10u1
 libwrap0==7.6.q-28
@@ -247,8 +247,8 @@ rsyslog==8.1901.0-1+deb10u2
 sensible-utils==0.0.12
 shared-mime-info==1.10-1
 sntp==1:4.2.8p12+dfsg-4
-systemd==241-7~deb10u8
-systemd-sysv==241-7~deb10u8
+systemd==241-7~deb10u9
+systemd-sysv==241-7~deb10u9
 tacacs+==4.0.4.27a-3
 tcpdump==4.9.3-1~deb10u2
 telnet==0.17-41.2
