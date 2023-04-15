@@ -85,7 +85,6 @@ libthai-data==0.1.28-2
 libthai0==0.1.28-2
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
-libudev1==241-7~deb10u9
 libunwind8==1.2.1-10~deb10u1
 libx11-6==2:1.6.7-1+deb10u2
 libx11-data==2:1.6.7-1+deb10u2
