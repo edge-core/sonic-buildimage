@@ -31,7 +31,7 @@ iface lo inet loopback
 {% block mgmt_interface %}
 
 # The management network interface
-{% if (ZTP_DHCP_DISABLED is not defined) and (ZTP is defined) and (ZTP['mode'] is defined and ZTP['mode']['profile'] == 'active') %}
+{% if (ZTP_DHCP_DISABLED is not defined) and (ZTP is defined) and (ZTP['mode'] is defined) %}
 auto eth0
 
 
