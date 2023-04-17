@@ -37,7 +37,7 @@ netifaces==0.11.0
 pathtools==0.1.2
 pddf-platform==1.0
 pexpect==4.8.0
-pip==23.0.1
+pip==23.1
 prefixed==0.7.0
 prettyprinter==0.18.0
 protobuf==3.20.3
