@@ -95,7 +95,7 @@ docbook-utils==0.6.14-3.4
 docbook-xml==4.5-9
 docker-ce==5:20.10.14~3-0~debian-bullseye
 docker-ce-cli==5:20.10.14~3-0~debian-bullseye
-docker-ce-rootless-extras==5:23.0.3-1~debian.11~bullseye
+docker-ce-rootless-extras==5:23.0.4-1~debian.11~bullseye
 docker-scan-plugin==0.23.0~debian-bullseye
 docutils-common==0.16+dfsg-4
 dosfstools==4.2-1
@@ -433,9 +433,8 @@ libcunit1==2.1-3-dfsg-2.3
 libcunit1-dev==2.1-3-dfsg-2.3
 libcups2==2.3.3op2-3+deb11u2
 libcurl3-gnutls==7.74.0-1.3+deb11u7
-libcurl3-nss==7.74.0-1.3+deb11u7
 libcurl4==7.74.0-1.3+deb11u7
-libcurl4-nss-dev==7.74.0-1.3+deb11u7
+libcurl4-openssl-dev==7.74.0-1.3+deb11u7
 libdaemon-dev==0.14-7.1
 libdaemon0==0.14-7.1
 libdata-dpath-perl==0.58-1
