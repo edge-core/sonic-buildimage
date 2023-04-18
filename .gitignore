@@ -93,3 +93,6 @@ htmlcov/
 .vscode/
 .idea/
 
+# Debian mirror Sources
+sources.list.*
+!sources.list*.j2

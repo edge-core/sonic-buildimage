@@ -15,39 +15,7 @@ MAINTAINER gulv@microsoft.com
 
 COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
 
-## TODO: Re-add in any necessary mirror URLs here as they become available
-RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian bullseye-backports main" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
-
-{%- if CONFIGURED_ARCH == "armhf" %}
-RUN echo "deb [arch=armhf] http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
-        echo "deb-src [arch=armhf] http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=armhf] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://security.debian.org bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=armhf] http://security.debian.org bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo 'deb [arch=armhf] http://ftp.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
-{%- elif CONFIGURED_ARCH == "arm64" %}
-RUN echo "deb [arch=arm64] http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
-        echo "deb-src [arch=arm64] http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=arm64] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://security.debian.org bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src [arch=arm64] http://security.debian.org bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list && \
-        echo 'deb [arch=arm64] http://ftp.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
-{%- endif %}
+COPY ["sources.list.{{ CONFIGURED_ARCH }}", "/etc/apt/sources.list"]
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive

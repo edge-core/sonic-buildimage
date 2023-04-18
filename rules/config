@@ -204,6 +204,9 @@ TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,htt
 #   docker: docker base images
 SONIC_VERSION_CONTROL_COMPONENTS ?= none
 
+# MIRROR_SNAPSHOT - support mirror snapshot flag
+MIRROR_SNAPSHOT ?= n
+
 # SONiC docker registry
 #
 # Set the env variable ENABLE_DOCKER_BASE_PULL = y to enable pulling sonic-slave docker from registry
