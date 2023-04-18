@@ -253,3 +253,6 @@ ENABLE_FIPS ?= n
 
 # SONIC_SLAVE_DOCKER_DRIVER - set the sonic slave docker storage driver
 SONIC_SLAVE_DOCKER_DRIVER ?= vfs
+
+# SONIC_OS_VERSION - sonic os version
+SONIC_OS_VERSION ?= 11
