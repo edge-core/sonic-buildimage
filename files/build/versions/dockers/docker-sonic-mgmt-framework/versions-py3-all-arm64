@@ -1,0 +1,2 @@
+grpcio==1.54.0
+importlib-metadata==6.5.0

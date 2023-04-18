@@ -22,6 +22,7 @@ https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
 https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
+https://github.com/aristanetworks/sonic-firmware/raw/0468f6c23a7219dfee6dd2819013e9f1e940c95d/phy/phy-credo_1.0_amd64.deb==6997e4ec0d064c735248c3c8f9e70349
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210423_sai_1.8.1_deb10.deb==8504769d9b05e551c54916b686db5978
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210423_sai_1.8.1_deb10.deb==4416c8fc77a0deb11ee0c9623cc93a93
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
@@ -43,6 +44,11 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.debian.tar.xz==ad957e90207d0669beb2109e4e325def
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.dsc==2443e4dffbdb020e7ab4f947a7904912
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
+https://sonicstorage.blob.core.windows.net/packages/20190307/bcmcmd?sv=2015-04-05&sr=b&sig=sUdbU7oVbh5exbXXHVL5TDFBTWDDBASHeJ8Cp0B0TIc%3D&se=2038-05-06T22%3A34%3A19Z&sp=r==b8aefc751bdf93218716bca6797460ff
+https://sonicstorage.blob.core.windows.net/packages/20190307/dsserve?sv=2015-04-05&sr=b&sig=lk7BH3DtW%2F5ehc0Rkqfga%2BUCABI0UzQmDamBsZH9K6w%3D&se=2038-05-06T22%3A34%3A45Z&sp=r==f9d4b815ebb9be9f755dedca8a51170d
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm-dev_5.0.0.12_amd64.deb?sv=2020-10-02&st=2022-02-25T17%3A43%3A43Z&se=2032-02-26T17%3A43%3A00Z&sr=b&sp=r&sig=hI0rLF2o%2BIuqlegLcbC%2FFAOsP3VmTcemA2tGt0dig%2Fo%3D==1422270af4914311f5a546ed81e32423
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_5.0.0.12_amd64.deb?sv=2020-10-02&st=2022-02-25T17%3A46%3A38Z&se=2032-02-26T17%3A46%3A00Z&sr=b&sp=r&sig=GbeB32uiGwsO%2BY1XQayd1%2BjUhf64MU%2BCHKUYXkRaniQ%3D==9b19e74513c42c333b6819a58525bb6c
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_dnx_5.0.0.12_amd64.deb?sv=2020-10-02&st=2022-02-25T17%3A47%3A45Z&se=2032-02-26T17%3A47%3A00Z&sr=b&sp=r&sig=ZzmBbHh5x1h5hWepSZsjBeaTpcxgdoPrqTZCd9i6DfE%3D==bfd290a0bb09967fc5143011ee33cf60
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_arm64.deb?st=2020-03-27T02%3A28%3A38Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=rrHMkLi29aI8yH6s52ILCY8VcEbNFrzYT2DmC5RwOgs%3D==9bcc989e6ed168717f67c07e79177d4a
