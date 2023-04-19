@@ -3,7 +3,7 @@ https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==6b7d50c433d129d4c6fd95bdf56070fa
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
+https://deb.nodesource.com/setup_14.x==6c6544a971533fb0e3c6ef55b15e0c54
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==abe26a71ce14950f94d858c317da94d1
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==2b326ca77b64a5cf7df04e80b4fdbca0
