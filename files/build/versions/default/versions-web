@@ -11,6 +11,9 @@ http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1-1.debia
 http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1.orig.tar.gz==16c0ae9902ae57be4a603a6ab1e86c53
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg-4.debian.tar.xz==bec40e0bda23a893e76843579c68d901
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==71044a49f4ab09c9bc10ed9862d22939
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0-6.debian.tar.xz==4c0d6cab366b4fdb0372299ecc8a219a
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0-6.dsc==278cfe25d286d1840ee366b557ed6ab0
+http://deb.debian.org/debian/pool/main/t/thrift//thrift_0.13.0.orig.tar.gz==38a27d391a2b03214b444cb13d5664f1
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
@@ -20,8 +23,9 @@ https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2d
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==6c6544a971533fb0e3c6ef55b15e0c54
+https://deb.nodesource.com/setup_14.x==1c9de9348c0acd5f2ee422a6d0c333b3
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
+https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220221_sai.1.7.1_deb10.deb==65de37f7834823ba69ab5e55acc5c5f4
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220221_sai.1.7.1_deb10.deb==75df8156b85467b501dc67f1914d6ed7
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
@@ -72,6 +76,7 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.debian.tar.xz==ad957e90207d0669beb2109e4e325def
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.dsc==2443e4dffbdb020e7ab4f947a7904912
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
+https://sonicstorage.blob.core.windows.net/packages/20190307/bcmcmd?sv=2015-04-05&sr=b&sig=sUdbU7oVbh5exbXXHVL5TDFBTWDDBASHeJ8Cp0B0TIc%3D&se=2038-05-06T22%3A34%3A19Z&sp=r==b8aefc751bdf93218716bca6797460ff
 https://sonicstorage.blob.core.windows.net/packages/20190307/dsserve?sv=2015-04-05&sr=b&sig=lk7BH3DtW%2F5ehc0Rkqfga%2BUCABI0UzQmDamBsZH9K6w%3D&se=2038-05-06T22%3A34%3A45Z&sp=r==f9d4b815ebb9be9f755dedca8a51170d
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
@@ -93,6 +98,8 @@ https://sonicstorage.blob.core.windows.net/packages/redis/redis-server_6.0.6-1~b
 https://sonicstorage.blob.core.windows.net/packages/redis/redis-tools_6.0.6-1_bpo10+1_arm64.deb?sv=2015-04-05&sr=b&sig=GbkJV2wWln3hoz27zKi5erdk3NDKrAFrQriA97bcRCY%3D&se=2030-10-24T04%3A22%3A21Z&sp=r==282b4766cc9ac7d8bb70622bd69d9f5c
 https://sonicstorage.blob.core.windows.net/packages/redis/redis-tools_6.0.6-1_bpo10+1_armhf.deb?sv=2015-04-05&sr=b&sig=67vHAMxsl%2BS3X1KsqhdYhakJkGdg5FKSPgU8kUiw4as%3D&se=2030-10-24T04%3A22%3A40Z&sp=r==62f287117afab6caaec564232ebbb5de
 https://sonicstorage.blob.core.windows.net/packages/redis/redis-tools_6.0.6-1~bpo10+1_amd64.deb?sv=2015-04-05&sr=b&sig=73zbmjkf3pi%2Bn0R8Hy7CWT2EUvOAyzM5aLYJWCLySGM%3D&se=2030-09-06T19%3A44%3A59Z&sp=r==2d58c3c3358290c04d5e0ba70f297f18
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_4.3_202012/4.3.7.1-7/libsaibcm-dev_4.3.7.1-7_amd64.deb==ec7a1c729dca33d18a71ac8a15f5ef0b
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_4.3_202012/4.3.7.1-7/libsaibcm_4.3.7.1-7_amd64.deb==29314badd4324537d6be08acfff59d02
 https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz==856d248e3ea8a287d13e5f6afd086282
 https://storage.googleapis.com/golang/go1.14.2.linux-arm64.tar.gz==e5f79b403701e00f20d13f0ea561b064
 https://storage.googleapis.com/golang/go1.14.2.linux-armv6l.tar.gz==04467414e783b18de4278e9f24baf4be

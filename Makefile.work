@@ -135,12 +135,13 @@ SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 # Generate the version control build info
 $(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
     TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
+    MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) \
     scripts/generate_buildinfo_config.sh)
 
 # Generate the slave Dockerfile, and prepare build info for it
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
-$(shell BUILD_SLAVE=y DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
+$(shell BUILD_SLAVE=y DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
 
 # Add the versions in the tag, if the version change, need to rebuild the slave
 SLAVE_BASE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* src/sonic-build-hooks/hooks/* | sha1sum | awk '{print substr($$1,0,11);}')
@@ -280,13 +281,20 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
                            SONIC_DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
                            SLAVE_DIR=$(SLAVE_DIR) \
+                           MIRROR_URLS=$(MIRROR_URLS) \
+                           MIRROR_SECURITY_URLS=$(MIRROR_SECURITY_URLS) \
+                           MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 
 .DEFAULT_GOAL :=  all
 
-%::
+export MIRROR_URLS
+export MIRROR_SECURITY_URLS
+export SONIC_VERSION_CONTROL_COMPONENTS
+
+%:: | sonic-build-hooks
 ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 	@$(DOCKER_MULTIARCH_CHECK)
 ifneq ($(BLDENV), )
@@ -296,8 +304,6 @@ endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
 
-	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
 	      $(DOCKER_BASE_PULL) && \
@@ -322,6 +328,8 @@ endif
 sonic-build-hooks:
 	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
 	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
+	@[ "$(MULTIARCH_QEMU_ENVIRON)" == y ] && scripts/build_mirror_config.sh $(SLAVE_DIR) amd64 $(BLDENV)
+	@scripts/build_mirror_config.sh $(SLAVE_DIR) $(CONFIGURED_ARCH) $(BLDENV)
 
 sonic-slave-base-build : sonic-build-hooks
 	@$(OVERLAY_MODULE_CHECK)

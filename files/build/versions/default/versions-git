@@ -1,4 +1,4 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==9e36ef60d0b3b3da1d79cf388275697281d27f21
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==0d6cb8fa70c61b13dd2341c220fafdd1db2c30fe
 https://github.com/aristanetworks/swi-tools.git==b5f087e4774168bf536360d43c9c509c8f14ad9f
 https://github.com/CESNET/libyang.git==9a4e5b2ce30b9696116d6e654ee55caab5aafed8
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b

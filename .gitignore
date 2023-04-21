@@ -77,3 +77,7 @@ files/build/tmp
 dockers/**/buildinfo
 platform/**/buildinfo
 sonic-slave*/**/buildinfo
+
+# Debian mirror Sources
+sources.list.*
+!sources.list*.j2
