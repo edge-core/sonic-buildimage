@@ -51,6 +51,7 @@ python3-yang==1.0.73
 sonic-dhcp6relay==1.0.0-0
 sonic-dhcpmon==1.0.0-0
 sonic-eventd==1.0.0-0
+sonic-linkmgrd==1.0.0-1
 sonic-mgmt-common==1.0.0
 sonic-mgmt-common-codegen==1.0.0
 sonic-platform-pddf==1.1
