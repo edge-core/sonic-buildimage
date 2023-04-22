@@ -4,6 +4,8 @@ libnl-genl-3-200==3.5.0-1
 libnl-genl-3-dev==3.5.0-1
 libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
+libsai==1.11.0-1
+libsai-dev==1.11.0-1
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0
@@ -23,6 +25,7 @@ libthrift0==0.14.1
 libyang==1.0.73
 libyang-cpp==1.0.73
 libyang-dev==1.0.73
+libyang2==2.0.112-6
 python-swsscommon==1.0.0
 python-thrift==0.11.0-4
 python3-swsscommon==1.0.0

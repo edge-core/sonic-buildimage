@@ -3,7 +3,7 @@ https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==6b7d50c433d129d4c6fd95bdf56070fa
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==6c6544a971533fb0e3c6ef55b15e0c54
+https://deb.nodesource.com/setup_14.x==1c9de9348c0acd5f2ee422a6d0c333b3
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==abe26a71ce14950f94d858c317da94d1
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==2b326ca77b64a5cf7df04e80b4fdbca0
@@ -18,3 +18,6 @@ https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/arm64/golang
 https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz==856d248e3ea8a287d13e5f6afd086282
 https://storage.googleapis.com/golang/go1.14.2.linux-arm64.tar.gz==e5f79b403701e00f20d13f0ea561b064
 https://storage.googleapis.com/golang/go1.14.2.linux-armv6l.tar.gz==04467414e783b18de4278e9f24baf4be
+https://storage.googleapis.com/golang/go1.15.15.linux-amd64.tar.gz==b75227438c6129b5013da053b3aa3f38
+https://storage.googleapis.com/golang/go1.15.15.linux-arm64.tar.gz==6d721146a9195592d92a80cf27d475f9
+https://storage.googleapis.com/golang/go1.15.15.linux-armv6l.tar.gz==23d140bbeedc978b954de1a199a22bdb
