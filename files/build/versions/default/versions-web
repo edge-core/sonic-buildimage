@@ -20,7 +20,7 @@ https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2d
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
+https://deb.nodesource.com/setup_14.x==1c9de9348c0acd5f2ee422a6d0c333b3
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/0468f6c23a7219dfee6dd2819013e9f1e940c95d/phy/phy-credo_1.0_amd64.deb==6997e4ec0d064c735248c3c8f9e70349
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210423_sai_1.8.1_deb10.deb==8504769d9b05e551c54916b686db5978
