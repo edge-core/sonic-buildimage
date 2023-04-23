@@ -32,7 +32,7 @@ https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_14.x/dists/bullseye/Release==6b7d50c433d129d4c6fd95bdf56070fa
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
-https://deb.nodesource.com/setup_14.x==7e3b27b12367cbc79d788cd43bbc917c
+https://deb.nodesource.com/setup_14.x==1c9de9348c0acd5f2ee422a6d0c333b3
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/e89a1696954fd381e1e95edf208cffc97caf15d4/phy/phy-credo_1.0_amd64.deb==fc197598098d030526c08d55cdd3910f
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8

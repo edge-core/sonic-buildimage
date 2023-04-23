@@ -1,3 +1,4 @@
+async-timeout==4.0.2
 azure-common==1.1.28
 azure-nspkg==3.0.2
 azure-storage==0.36.0
@@ -14,7 +15,7 @@ dbus-python==1.2.16
 docker==5.0.3
 docker-image-py==0.1.12
 enlighten==1.11.2
-filelock==3.11.0
+filelock==3.12.0
 grpcio==1.39.0
 grpcio-tools==1.39.0
 idna==3.4
@@ -47,13 +48,13 @@ pyangbind==0.8.1
 pycairo==1.23.0
 pycparser==2.21
 pycurl==7.43.0.6
-pygments==2.15.0
+pygments==2.15.1
 pygobject==3.44.1
 pyroute2==0.5.19
 python-apt==2.2.1
 python-dateutil==2.8.2
 pyyaml==5.4.1
-redis==3.5.3
+redis==4.5.4
 regex==2023.3.23
 requests==2.28.2
 scapy==2.4.4
