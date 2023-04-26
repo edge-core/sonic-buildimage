@@ -33,7 +33,6 @@ parameters:
     - barefoot
     - centec
     - generic
-    - innovium
     - mellanox
     - nephos
     - centec-arm64
