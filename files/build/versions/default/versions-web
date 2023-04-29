@@ -31,9 +31,6 @@ https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220221_s
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.6.3-1_arm64.deb==4121f09fbc5319cd488b832d72287f93
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
-https://github.com/Innovium/SONiC/raw/master/debian/202012/ipd.deb==d1d6f741f3846f0725bd6f507d84164b
-https://github.com/Innovium/SONiC/raw/master/debian/202012/isai.deb==6c152660b57784a974b82d05c18cf51e
-https://github.com/Innovium/SONiC/raw/master/debian/202012/saihdr.deb==f6f1e7c4359ac921b2e26375d2c34382
 https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.7.1-9_armhf.deb==b21b91609632e813443ccb00bf2d7c61
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.3196/fw-SPC-rel-13_2010_3196-EVB.mfa==3188bdd7b67e8f7f910b043a30605b2d
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.3196/fw-SPC2-rel-29_2010_3196-EVB.mfa==8ca33224c84c249c028ae605f0d32f00

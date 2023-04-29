@@ -58,7 +58,7 @@ cpp==4:8.3.0-1
 cpp-8==8.3.0-6
 cppcheck==1.86-1
 cron==3.0pl1-134+deb10u1
-curl==7.64.0-4+deb10u5
+curl==7.64.0-4+deb10u6
 dbus==1.12.24-0+deb10u1
 dbus-user-session==1.12.24-0+deb10u1
 dconf-gsettings-backend==0.30.1-2
@@ -398,9 +398,9 @@ libcrystalhd3==1:0.0~git20110715.fdd2f19-13
 libcups2==2.2.10-6+deb10u6
 libcupsfilters1==1.21.6-5
 libcupsimage2==2.2.10-6+deb10u6
-libcurl3-gnutls==7.64.0-4+deb10u5
-libcurl4==7.64.0-4+deb10u5
-libcurl4-openssl-dev==7.64.0-4+deb10u5
+libcurl3-gnutls==7.64.0-4+deb10u6
+libcurl4==7.64.0-4+deb10u6
+libcurl4-openssl-dev==7.64.0-4+deb10u6
 libdaemon-dev==0.14-7
 libdaemon0==0.14-7
 libdata-dump-perl==1.23-1
