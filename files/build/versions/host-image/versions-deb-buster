@@ -24,7 +24,7 @@ dbus==1.12.24-0+deb10u1
 device-tree-compiler==1.4.7-4
 dh-python==3.20190308
 dirmngr==2.2.12-1+deb10u2
-distro-info-data==0.41+deb10u6
+distro-info-data==0.41+deb10u7
 dmidecode==3.2-1
 dmsetup==2:1.02.155-3
 docker-ce==5:18.09.8~3-0~debian-buster
@@ -282,7 +282,7 @@ libyang-cpp==1.0.73
 libzstd1==1.4.4+dfsg-3~bpo10+1
 linux-base==4.6
 linux-image-4.19.0-12-2-amd64-unsigned==4.19.152-1
-linux-libc-dev==4.19.269-1
+linux-libc-dev==4.19.282-1
 locales==2.28-10+deb10u2
 logrotate==3.14.0-4
 lsb-base==10.2019051400
