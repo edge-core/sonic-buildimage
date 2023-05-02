@@ -36,7 +36,9 @@ class TestCaclmgrdChassisMidplane(TestCase):
 
         self.caclmgrd.ControlPlaneAclManager.get_namespace_mgmt_ip = mock.MagicMock()
         self.caclmgrd.ControlPlaneAclManager.get_namespace_mgmt_ipv6 = mock.MagicMock()
-        self.caclmgrd.ControlPlaneAclManager.check_chassis_midplane_interface_exist = mock.MagicMock(return_value=True)
+        self.caclmgrd.ControlPlaneAclManager.get_chassis_midplane_interface_ip = mock.MagicMock(return_value="1.0.0.33")
         caclmgrd_daemon = self.caclmgrd.ControlPlaneAclManager("caclmgrd")
         ret = caclmgrd_daemon.generate_allow_internal_chasis_midplane_traffic('')
         self.assertListEqual(test_data["return"], ret)
+        ret = caclmgrd_daemon.generate_allow_internal_chasis_midplane_traffic('asic0')
+        self.assertListEqual([], ret)

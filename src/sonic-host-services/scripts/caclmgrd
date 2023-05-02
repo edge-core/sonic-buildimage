@@ -102,7 +102,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         },
         "EXTERNAL_CLIENT": {
             "ip_protocols": ["tcp"],
-            "multi_asic_ns_to_host_fwd":True
+            "multi_asic_ns_to_host_fwd":False
         },
         "ANY": {
             "ip_protocols": ["any"],
@@ -275,14 +275,23 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
         return block_ip2me_cmds
 
-    def check_chassis_midplane_interface_exist(self):
-        return self.run_commands(["ip link show" + " | grep -w 'eth1-midplane'" ], ignore_error=True)
+    def get_chassis_midplane_interface_ip(self):
+
+        chassis_midplane_ip_command = "ip -4 -o addr show " + "eth1-midplane" +\
+                                 " | awk '{print $4}' | cut -d'/' -f1 | head -1"
+        return self.run_commands([chassis_midplane_ip_command])
+
 
     def generate_allow_internal_chasis_midplane_traffic(self, namespace):
-        if not namespace and self.check_chassis_midplane_interface_exist():
-            return ["iptables -A INPUT -i eth1-midplane -j ACCEPT"]
-        else:
-            return []
+        allow_internal_chassis_midplane_traffic = []
+        if not namespace:
+            chassis_midplane_ip = self.get_chassis_midplane_interface_ip()
+            if not chassis_midplane_ip:
+                return allow_internal_chassis_midplane_traffic
+            allow_internal_chassis_midplane_traffic.append("iptables -A INPUT -s {} -d {} -j ACCEPT".format(chassis_midplane_ip, chassis_midplane_ip))
+            allow_internal_chassis_midplane_traffic.append("iptables -A INPUT -i eth1-midplane -j ACCEPT")
+
+        return allow_internal_chassis_midplane_traffic
 
     def generate_allow_internal_docker_ip_traffic_commands(self, namespace):
         allow_internal_docker_ip_cmds = []
