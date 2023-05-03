@@ -164,7 +164,7 @@ libxext6==2:1.3.3-1+b2
 libxrender-dev==1:0.9.10-1
 libxrender1==1:0.9.10-1
 libyang1==1.0.184-2
-linux-libc-dev==4.19.269-1
+linux-libc-dev==4.19.282-1
 logrotate==3.14.0-4
 make==4.2.1-1.2
 ndisc6==1.0.4-1
