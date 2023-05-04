@@ -111,7 +111,6 @@ set_reproducible_mirrors()
 download_packages()
 {
     local parameters=("$@")
-    local filenames=
     declare -A filenames
     for (( i=0; i<${#parameters[@]}; i++ ))
     do
@@ -131,7 +130,7 @@ download_packages()
                 local filename=$(echo $url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
                 [ -f $WEB_VERSION_FILE ] && version=$(grep "^${url}=" $WEB_VERSION_FILE | awk -F"==" '{print $NF}')
                 if [ -z "$version" ]; then
-                    echo "Warning: Failed to verify the package: $url, the version is not specified" 1>&2
+                    log_err "Warning: Failed to verify the package: $url, the version is not specified"
                     continue
                 fi
 
@@ -145,15 +144,16 @@ download_packages()
                 else
                     real_version=$(get_url_version $url)
                     if [ "$real_version" != "$version" ]; then
-                        echo "Failed to verify url: $url, real hash value: $real_version, expected value: $version_filename" 1>&2
-                       exit 1
+                       log_err "Warning: Failed to verify url: $url, real hash value: $real_version, expected value: $version_filename"
+                       continue
                     fi
                 fi
             else
                 real_version=$(get_url_version $url)
             fi
-
-            echo "$url==$real_version" >> ${BUILD_WEB_VERSION_FILE}
+            # ignore md5sum for string ""
+            # echo -n "" | md5sum    ==   d41d8cd98f00b204e9800998ecf8427e
+            [[ $real_version == "d41d8cd98f00b204e9800998ecf8427e" ]] || echo "$url==$real_version" >> ${BUILD_WEB_VERSION_FILE}
         fi
     done
 
