@@ -48,8 +48,8 @@ view   systemonly  included   .1.3.6.1.2.1.25.1
 {% if SNMP_COMMUNITY is defined %}
 {% for community in SNMP_COMMUNITY %}
 {% if SNMP_COMMUNITY[community]['TYPE'] == 'RO' %}
-rocommunity {{ community }}
-rocommunity6 {{ community }}
+rocommunity {{ community|replace(" ", "\\ ") }}
+rocommunity6 {{ community|replace(" ", "\\ ") }}
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -57,8 +57,8 @@ rocommunity6 {{ community }}
 {% if SNMP_COMMUNITY is defined %}
 {% for community in SNMP_COMMUNITY %}
 {% if SNMP_COMMUNITY[community]['TYPE'] == 'RW' %}
-rwcommunity {{ community }}
-rwcommunity6 {{ community }}
+rwcommunity {{ community|replace(" ", "\\ ") }}
+rwcommunity6 {{ community|replace(" ", "\\ ") }}
 {% endif %}
 {% endfor %}
 {% endif %}
