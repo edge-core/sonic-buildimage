@@ -27,7 +27,8 @@ Table of Contents
          * [Device neighbor metada](#device-neighbor-metada)
          * [DHCP_RELAY](#dhcp_relay)
          * [DSCP_TO_TC_MAP](#dscp_to_tc_map)  
-         * [FLEX_COUNTER_TABLE](#flex_counter_table)  
+         * [FLEX_COUNTER_TABLE](#flex_counter_table) 
+         * [IPv6 Link-local] (#ipv6-link-local) 
          * [KDUMP](#kdump)  
          * [Kubernetes Master](#kubernetes-master)  
          * [L2 Neighbors](#l2-neighbors)  
@@ -948,6 +949,27 @@ instance is supported in SONiC.
 	}
 }
 
+```
+
+### IPv6 Link-local
+```
+{
+    "INTERFACE": {
+        "Ethernet8": {
+            "ipv6_use_link_local_only": "disable"
+        }
+    },
+    "PORTCHANNEL_INTERFACE": {
+        "PortChannel01": {
+            "ipv6_use_link_local_only": "enable"
+        }
+    },
+    "VLAN_INTERFACE": {
+        "Vlan1000": {
+            "ipv6_use_link_local_only": "enable"
+        }
+    }
+}
 ```
 
 ### KDUMP
