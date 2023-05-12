@@ -224,7 +224,7 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install thrift
 # Install system-health Python 3 package
 SYSTEM_HEALTH_PY3_WHEEL_NAME=$(basename {{system_health_py3_wheel_path}})
 sudo cp {{system_health_py3_wheel_path}} $FILESYSTEM_ROOT/$SYSTEM_HEALTH_PY3_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SYSTEM_HEALTH_PY3_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SYSTEM_HEALTH_PY3_WHEEL_NAME docker==6.1.1
 sudo rm -rf $FILESYSTEM_ROOT/$SYSTEM_HEALTH_PY3_WHEEL_NAME
 
 # Install prerequisites needed for installing the Python m2crypto package, used by sonic-utilities
