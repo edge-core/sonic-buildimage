@@ -250,10 +250,11 @@ class TestMultiNpuCfgGen(TestCase):
     def test_frontend_asic_device_neigh_metadata(self):
         argument = "-m {} -p {} -n asic0 --var-json \"DEVICE_NEIGHBOR_METADATA\"".format(self.sample_graph, self.port_config[0])
         output = json.loads(self.run_script(argument))
+        print(output)
         self.assertDictEqual(output, \
-            {'01T2': {'lo_addr': None, 'mgmt_addr': '89.139.132.40', 'hwsku': 'VM', 'type': 'SpineRouter'},
-            'ASIC3': {'lo_addr': '0.0.0.0/0', 'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'type': 'Asic'},
-            'ASIC2': {'lo_addr': '0.0.0.0/0', 'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'type': 'Asic'}})
+            {'01T2': {'mgmt_addr': '89.139.132.40', 'hwsku': 'VM', 'type': 'SpineRouter'},
+            'ASIC3': {'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'lo_addr': '0.0.0.0/0', 'type': 'Asic', 'mgmt_addr_v6': '::/0'},
+            'ASIC2': {'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'lo_addr': '0.0.0.0/0', 'type': 'Asic', 'mgmt_addr_v6': '::/0'}})
 
     def test_backend_asic_device_neigh(self):
         argument = "-m {} -p {} -n asic3 --var-json \"DEVICE_NEIGHBOR\"".format(self.sample_graph, self.port_config[3])
@@ -267,9 +268,10 @@ class TestMultiNpuCfgGen(TestCase):
     def test_backend_device_neigh_metadata(self):
         argument = "-m {} -p {} -n asic3 --var-json \"DEVICE_NEIGHBOR_METADATA\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
+        print(output)
         self.assertDictEqual(output, \
-            {'ASIC1': {'lo_addr': '0.0.0.0/0', 'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'type': 'Asic'},
-            'ASIC0': {'lo_addr': '0.0.0.0/0', 'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'type': 'Asic'}})
+            {'ASIC1': {'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'lo_addr': '0.0.0.0/0', 'type': 'Asic', 'mgmt_addr_v6': '::/0'},
+             'ASIC0': {'lo_addr_v6': '::/0', 'mgmt_addr': '0.0.0.0/0', 'hwsku': 'multi-npu-asic', 'lo_addr': '0.0.0.0/0', 'type': 'Asic', 'mgmt_addr_v6': '::/0'}})
 
     def test_frontend_bgp_neighbor(self):
         argument = "-m {} -p {} -n asic0 --var-json \"BGP_NEIGHBOR\"".format(self.sample_graph, self.port_config[0])

@@ -203,39 +203,40 @@ class TestCfgGenCaseInsensitive(TestCase):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DEVICE_NEIGHBOR_METADATA"'
 
         expected_table = {
-            'switch-01t1': { 
-                'lo_addr': '10.1.0.186/32',
-                'mgmt_addr': '10.7.0.196/26',
-                'hwsku': 'Force10-S6000',
-                'type': 'LeafRouter',
-                'deployment_id': '2'
-            },
             'switch2-t0': {
-                'hwsku': 'Force10-S6000',
                 'lo_addr': '25.1.1.10/32',
                 'mgmt_addr': '10.7.0.196/26',
+                'hwsku': 'Force10-S6000',
                 'type': 'ToRRouter'
             },
-            'server1': {
-                'hwsku': 'server-sku',
-                'lo_addr': '10.10.10.1/32',
-                'lo_addr_v6': 'fe80::0001/80',
-                'mgmt_addr': '10.0.0.1/32',
-                'type': 'Server'
-            },
             'server2': {
-                'hwsku': 'server-sku',
-                'lo_addr': '10.10.10.2/32',
                 'lo_addr_v6': 'fe80::0002/128',
+                'lo_addr': '10.10.10.2/32',
                 'mgmt_addr': '10.0.0.2/32',
+                'hwsku': 'server-sku',
                 'type': 'Server'
             },
+            'server1': {
+                'lo_addr_v6': 'fe80::0001/80',
+                'lo_addr': '10.10.10.1/32',
+                'mgmt_addr': '10.0.0.1/32',
+                'hwsku': 'server-sku',
+                'type': 'Server'
+            },
+            'switch-01t1': { 
+                'lo_addr': '10.1.0.186/32',
+                'deployment_id': '2',
+                'hwsku': 'Force10-S6000',
+                'type': 'LeafRouter',
+                'mgmt_addr': '10.7.0.196/26' 
+            },  
             'server1-SC': {
-                'hwsku': 'smartcable-sku',
-                'lo_addr': '0.0.0.0/0',
                 'lo_addr_v6': '::/0',
                 'mgmt_addr': '0.0.0.0/0',
-                'type': 'SmartCable'
+                'hwsku': 'smartcable-sku',
+                'lo_addr': '0.0.0.0/0',
+                'type': 'SmartCable',
+                'mgmt_addr_v6': '::/0',
             }
         }
         output = self.run_script(argument)
