@@ -16,7 +16,6 @@ libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
 libnl-route-3-200==3.5.0-1
 libnl-route-3-dev==3.5.0-1
-libsaibcm==5.0.0.12
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0
@@ -36,7 +35,6 @@ libthrift-dev==0.11.0-4
 libyang==1.0.73
 libyang-cpp==1.0.73
 libyang-dev==1.0.73
-libyang1==1.0.184-2
 linux-headers-4.19.0-12-2-amd64==4.19.152-1
 linux-headers-4.19.0-12-2-common==4.19.152-1
 lldpd==1.0.4-1

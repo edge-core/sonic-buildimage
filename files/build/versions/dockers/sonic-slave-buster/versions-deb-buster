@@ -50,7 +50,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.20-1
+containerd.io==1.6.21-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -264,9 +264,9 @@ libaudio2==1.9.4-6
 libaudit-dev==1:2.8.4-3
 libaugeas0==1.11.0-3
 libauthen-sasl-perl==2.1600-1
-libavahi-client3==0.7-4+deb10u1
-libavahi-common-data==0.7-4+deb10u1
-libavahi-common3==0.7-4+deb10u1
+libavahi-client3==0.7-4+deb10u2
+libavahi-common-data==0.7-4+deb10u2
+libavahi-common3==0.7-4+deb10u2
 libavalon-framework-java==4.2.0-10
 libavc1394-0==0.5.4-5
 libavcodec58==7:4.1.10-0+deb10u1
@@ -1315,9 +1315,9 @@ libzzip-0-13==0.13.62-3.2+deb10u1
 licensecheck==3.0.31-3
 lintian==2.15.0
 linux-compiler-gcc-8-x86==4.19.282-1
-linux-headers-4.19.0-23-amd64==4.19.269-1
-linux-headers-4.19.0-23-common==4.19.269-1
-linux-headers-amd64==4.19+105+deb10u18
+linux-headers-4.19.0-24-amd64==4.19.282-1
+linux-headers-4.19.0-24-common==4.19.282-1
+linux-headers-amd64==4.19+105+deb10u19
 linux-kbuild-4.19==4.19.282-1
 linux-libc-dev==4.19.282-1
 linuxdoc-tools==0.9.73-2
