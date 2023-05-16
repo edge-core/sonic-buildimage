@@ -4,11 +4,11 @@ MAINTAINER gulv@microsoft.com
 
 COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
 
-RUN echo "deb http://debian-archive.trafficmanager.net/debian/ stretch main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src http://debian-archive.trafficmanager.net/debian/ stretch main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb http://debian-archive.trafficmanager.net/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb-src http://debian-archive.trafficmanager.net/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb http://debian-archive.trafficmanager.net/debian stretch-backports main" >> /etc/apt/sources.list
+RUN echo "deb http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ stretch main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ stretch main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src http://packages.trafficmanager.net/snapshot/debian-security/20230101T000243Z stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/ stretch-backports main" >> /etc/apt/sources.list
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
