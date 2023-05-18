@@ -8,7 +8,7 @@ DERIVED_TARGETS = libip4tc0_$(IPTABLES_VERSION_FULL)_amd64.deb \
 		  libiptc0_$(IPTABLES_VERSION_FULL)_amd64.deb \
 		  libxtables12_$(IPTABLES_VERSION_FULL)_amd64.deb
 
-IPTABLES_URL = http://deb.debian.org/debian/pool/main/i/iptables
+IPTABLES_URL = http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/pool/main/i/iptables
 
 DSC_FILE = iptables_$(IPTABLES_VERSION_FULL).dsc
 ORIG_FILE = iptables_$(IPTABLES_VERSION).orig.tar.bz2

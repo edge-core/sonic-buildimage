@@ -15,9 +15,9 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	mkdir redis_build
 	pushd redis_build
 
-	wget -O redis_$(REDIS_VERSION).orig.tar.gz -N "http://http.debian.net/debian/pool/main/r/redis/redis_$(REDIS_VERSION).orig.tar.gz"
-	wget -O redis_$(REDIS_VERSION_FULL).dsc -N "http://http.debian.net/debian/pool/main/r/redis/redis_$(REDIS_VERSION_FULL).dsc"
-	wget -O redis_$(REDIS_VERSION_FULL).debian.tar.xz -N "http://http.debian.net/debian/pool/main/r/redis/redis_$(REDIS_VERSION_FULL).debian.tar.xz"
+	wget -O redis_$(REDIS_VERSION).orig.tar.gz -N "http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/pool/main/r/redis/redis_$(REDIS_VERSION).orig.tar.gz"
+	wget -O redis_$(REDIS_VERSION_FULL).dsc -N "http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/pool/main/r/redis/redis_$(REDIS_VERSION_FULL).dsc"
+	wget -O redis_$(REDIS_VERSION_FULL).debian.tar.xz -N "http://packages.trafficmanager.net/snapshot/debian/20230101T000234Z/pool/main/r/redis/redis_$(REDIS_VERSION_FULL).debian.tar.xz"
 	dpkg-source -x redis_$(REDIS_VERSION_FULL).dsc
 
 	pushd redis-$(REDIS_VERSION)
