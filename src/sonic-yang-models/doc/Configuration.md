@@ -822,7 +822,8 @@ instance is supported in SONiC.
         "bgp_asn": "65100",
         "deployment_id": "1",
         "type": "ToRRouter",
-        "buffer_model": "traditional"
+        "buffer_model": "traditional",
+        "rack_mgmt_map": "dummy_value"
     }
   }
 }

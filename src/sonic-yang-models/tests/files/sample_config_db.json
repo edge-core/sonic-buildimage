@@ -315,7 +315,8 @@
                 "switch_type": "voq",
                 "max_cores": "8",
                 "sub_role": "FrontEnd",
-                "dhcp_server": "disabled"
+                "dhcp_server": "disabled",
+                "rack_mgmt_map": "dummy_value"
             }
         },
         "VLAN": {
