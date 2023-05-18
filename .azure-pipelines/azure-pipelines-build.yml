@@ -87,8 +87,7 @@ jobs:
             PLATFORM_ARCH: armhf
 
         - name: marvell-arm64
-          ${{ if not(parameters.qemuOrCrossBuild) }}:
-            pool: sonicbld-arm64
+          pool: sonicbld-arm64
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
