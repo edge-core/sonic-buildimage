@@ -1,4 +1,4 @@
 bitarray==1.5.3
 lxml==4.6.3
-requests==2.29.0
-urllib3==1.26.15
+requests==2.30.0
+urllib3==2.0.2

@@ -18,7 +18,7 @@ bzip2==1.0.8-4
 ca-certificates==20210119
 cgroup-tools==0.41-11
 conntrack==1:1.4.6-2
-containerd.io==1.6.20-1
+containerd.io==1.6.21-1
 cpio==2.13+dfsg-4
 cpp==4:10.2.1-1
 cpp-10==10.2.1-6
@@ -295,7 +295,7 @@ libyang==1.0.73
 libyang-cpp==1.0.73
 linux-base==4.6
 linux-image-5.10.0-8-2-amd64-unsigned==5.10.46-4
-linux-libc-dev==5.10.178-3
+linux-libc-dev==5.10.179-1
 locales==2.31-13+deb11u6
 logrotate==3.18.0-2+deb11u1
 lsb-release==11.1.0
@@ -313,7 +313,7 @@ ndisc6==1.0.4-2
 net-tools==1.60+git20181103.0eebece-1
 netbase==6.3
 netfilter-persistent==1.0.15
-ntp==1:4.2.8p15+dfsg-1+deb10u2
+ntp==1:4.2.8p15+dfsg-1
 ntpstat==0.0.0.1-2+b1
 opennsl-modules==6.1.0.3
 openssh-client==1:8.4p1-5+deb11u1
