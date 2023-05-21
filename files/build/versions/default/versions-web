@@ -10,8 +10,8 @@ http://deb.debian.org/debian/pool/main/i/iproute2/iproute2_5.10.0.orig.tar.xz==f
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2-4.debian.tar.xz==c27e499611c48ba307792518d29cdcc7
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2-4.dsc==d9572a9f48c88293341681601a7b18c5
 http://deb.debian.org/debian/pool/main/i/iptables/iptables_1.8.2.orig.tar.bz2==944558e88ddcc3b9b0d9550070fa3599
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.debian.tar.xz==8c3640097a1b4cc59e927badbd45b3f0
-http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u1.dsc==1af0a028a9655235ec3372332f94a19c
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u2.debian.tar.xz==126081bf0da3c1e5ca722edeb5a3aed1
+http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1-2.3+deb11u2.dsc==c35e75da314bce54f53b2e0847c6bc9b
 http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_4.4.1.orig.tar.gz==dbcba5108f659278200218ac0847ce3f
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.debian.tar.xz==8eab143a53c71c03695ebc78e4b5ed36
 http://deb.debian.org/debian/pool/main/l/lm-sensors/lm-sensors_3.6.0-7.dsc==983d68fb43001bb2fc94862bc4bc2e2b
@@ -44,7 +44,7 @@ https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/ad
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.9.1-0_arm64.deb==c354c766cc763a5af621a88637b9e126
 https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58fbc11625336846cea7420
-https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.10.2-3_armhf.deb==13728edb8ddb2cede3244d031580a468
+https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.10.2-4_armhf.deb==e11d749b36531486044e47292a809662
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC-rel-13_2010_4204-EVB.mfa==c511454113db7cbf01a5bc898250cf8d
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC2-rel-29_2010_4204-EVB.mfa==eb004feb6008dc7f109e42d36f372fc6
 https://github.com/Mellanox/Spectrum-SDK-Drivers-SONiC-Bins/releases/download/fw-2010.4204/fw-SPC3-rel-30_2010_4204-EVB.mfa==9099a37a1efb22b6dce535ad2e1528d4

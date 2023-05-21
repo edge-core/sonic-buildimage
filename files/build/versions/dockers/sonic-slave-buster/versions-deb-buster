@@ -50,7 +50,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.20-1
+containerd.io==1.6.21-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -270,9 +270,9 @@ libaugeas0==1.11.0-3
 libauparse-dev==1:2.8.4-3
 libauparse0==1:2.8.4-3
 libauthen-sasl-perl==2.1600-1
-libavahi-client3==0.7-4+deb10u1
-libavahi-common-data==0.7-4+deb10u1
-libavahi-common3==0.7-4+deb10u1
+libavahi-client3==0.7-4+deb10u2
+libavahi-common-data==0.7-4+deb10u2
+libavahi-common3==0.7-4+deb10u2
 libavalon-framework-java==4.2.0-10
 libavc1394-0==0.5.4-5
 libavcodec58==7:4.1.10-0+deb10u1
@@ -721,7 +721,7 @@ libkadm5srv-mit11==1.17-3+deb10u5
 libkdb5-9==1.17-3+deb10u5
 libkeyutils1==1.6-6
 libkmod2==26-1
-libkpathsea6==2018.20181218.49446-1
+libkpathsea6==2018.20181218.49446-1+deb10u1
 libkrb5-3==1.17-3+deb10u5
 libkrb5-dev==1.17-3+deb10u5
 libkrb5support0==1.17-3+deb10u5
@@ -957,7 +957,7 @@ libproxy1v5==0.4.15-5+deb10u1
 libpsl5==0.20.2-2
 libpsm-infinipath1==3.3+20.604758e7-6
 libpsm2-2==11.2.78-1
-libptexenc1==2018.20181218.49446-1
+libptexenc1==2018.20181218.49446-1+deb10u1
 libpthread-stubs0-dev==0.4-1
 libpulse0==12.2-4+deb10u1
 libpython-all-dev==2.7.16-1
@@ -1110,7 +1110,7 @@ libsurefire-java==2.22.1-1
 libswitch-perl==2.17-2
 libswresample3==7:4.1.10-0+deb10u1
 libswscale5==7:4.1.10-0+deb10u1
-libsynctex2==2018.20181218.49446-1
+libsynctex2==2018.20181218.49446-1+deb10u1
 libsys-hostname-long-perl==1.5-1
 libsystemd-dev==241-7~deb10u9
 libtag1v5==1.11.1+dfsg.1-0.3+deb10u1
@@ -1125,9 +1125,9 @@ libtemplate-perl==2.27-1+b1
 libterm-readkey-perl==2.38-1
 libtest-fatal-perl==0.014-1
 libtest-refcount-perl==0.08-3
-libtexlua52==2018.20181218.49446-1
-libtexlua53==2018.20181218.49446-1
-libtexluajit2==2018.20181218.49446-1
+libtexlua52==2018.20181218.49446-1+deb10u1
+libtexlua53==2018.20181218.49446-1+deb10u1
+libtexluajit2==2018.20181218.49446-1+deb10u1
 libtext-charwidth-perl==0.04-7.1+b1
 libtext-glob-perl==0.10-1
 libtext-iconv-perl==1.7-5+b7
@@ -1350,9 +1350,9 @@ libzzip-0-13==0.13.62-3.2+deb10u1
 licensecheck==3.0.31-3
 lintian==2.15.0
 linux-compiler-gcc-8-x86==4.19.282-1
-linux-headers-4.19.0-23-amd64==4.19.269-1
-linux-headers-4.19.0-23-common==4.19.269-1
-linux-headers-amd64==4.19+105+deb10u18
+linux-headers-4.19.0-24-amd64==4.19.282-1
+linux-headers-4.19.0-24-common==4.19.282-1
+linux-headers-amd64==4.19+105+deb10u19
 linux-kbuild-4.19==4.19.282-1
 linux-libc-dev==4.19.282-1
 linuxdoc-tools==0.9.73-2
@@ -1514,7 +1514,7 @@ python-idna==2.6-1
 python-imagesize==1.0.0-1
 python-incremental==16.10.1-3
 python-ipaddr==2.2.0-2
-python-ipaddress==1.0.17-1
+python-ipaddress==1.0.17-1+deb10u1
 python-isort==4.3.4+ds1-1.1
 python-jinja2==2.10-2
 python-keyring==17.1.1-1
@@ -1717,7 +1717,7 @@ tex-gyre==20180621-3
 texi2html==1.82+dfsg1-5
 texinfo==6.5.0.dfsg.1-4+b1
 texlive-base==2018.20190227-2
-texlive-binaries==2018.20181218.49446-1
+texlive-binaries==2018.20181218.49446-1+deb10u1
 texlive-fonts-recommended==2018.20190227-2
 texlive-formats-extra==2018.20190227-2
 texlive-generic-recommended==2018.20190227-2
