@@ -90,7 +90,7 @@ libcdt5==2.40.1-6+deb10u1
 libcgraph6==2.40.1-6+deb10u1
 libcryptsetup12==2:2.1.0-5+deb10u2
 libcups2==2.2.10-6+deb10u6
-libcupsfilters1==1.21.6-5
+libcupsfilters1==1.21.6-5+deb10u1
 libcupsimage2==2.2.10-6+deb10u6
 libcurl3-gnutls==7.64.0-4+deb10u6
 libcurl4==7.64.0-4+deb10u6
