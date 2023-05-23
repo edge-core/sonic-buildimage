@@ -68,7 +68,6 @@ jobs:
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
-            BUILD_OPTIONS: ${{ parameters.buildOptions }} SONIC_VERSION_CONTROL_COMPONENTS=
         - name: generic
           variables:
             dbg_image: yes
@@ -82,7 +81,6 @@ jobs:
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
-            BUILD_OPTIONS: ${{ parameters.buildOptions }} SONIC_VERSION_CONTROL_COMPONENTS=
         - name: mellanox
           variables:
             dbg_image: yes
