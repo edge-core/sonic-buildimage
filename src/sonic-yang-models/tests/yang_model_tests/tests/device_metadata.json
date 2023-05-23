@@ -125,6 +125,13 @@
     },
     "DEVICE_METADATA_ADVERTISE_LO_PREFIX_AS_128": {
         "desc": "Verifying advertising lo prefix as /128."
+    },
+    "DEVICE_METADATA_VALID_RACK_MGMT_MAP": {
+        "desc": "Verifying rack_mgmt_map configuration."
+    },
+    "DEVICE_METADATA_INVALID_RACK_MGMT_MAP": {
+        "desc": "Verifying invalid rack_mgmt_map configuration.",
+        "eStr": "Invalid length for the rack mgmt map."
     }
 
 }
