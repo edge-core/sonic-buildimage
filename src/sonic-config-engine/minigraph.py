@@ -48,7 +48,7 @@ BACKEND_ASIC_SUB_ROLE = 'BackEnd'
 
 dualtor_cable_types = ["active-active", "active-standby"]
 
-# Default Virtual Network Index (VNI) 
+# Default Virtual Network Index (VNI)
 vni_default = 8000
 
 # Defination of custom acl table types
@@ -475,7 +475,7 @@ def parse_dpg(dpg, hname):
     tunnelintfs_qos_remap_config = defaultdict(dict)
 
     for child in dpg:
-        """ 
+        """
             In Multi-NPU platforms the acl intfs are defined only for the host not for individual asic.
             There is just one aclintf node in the minigraph
             Get the aclintfs node first.
@@ -499,7 +499,7 @@ def parse_dpg(dpg, hname):
             if vni_element.text.isdigit():
                 vni = int(vni_element.text)
             else:
-                print("VNI must be an integer (use default VNI %d instead)" % vni_default, file=sys.stderr) 
+                print("VNI must be an integer (use default VNI %d instead)" % vni_default, file=sys.stderr)
 
         ipintfs = child.find(str(QName(ns, "IPInterfaces")))
         intfs = {}
@@ -553,7 +553,7 @@ def parse_dpg(dpg, hname):
         pc_intfs = []
         pcs = {}
         pc_members = {}
-        intfs_inpc = [] # List to hold all the LAG member interfaces 
+        intfs_inpc = [] # List to hold all the LAG member interfaces
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
@@ -787,7 +787,7 @@ def parse_dpg(dpg, hname):
                 else:
                     is_bmc_data = True
                     acl_table_types['BMCDATA'] = acl_table_type_defination['BMCDATA']
-            # if acl is classified as mirror (erpsan) or acl interface 
+            # if acl is classified as mirror (erpsan) or acl interface
             # are binded then do not classify as Control plane.
             # For multi-asic platforms it's possible there is no
             # interface are binded to everflow in host namespace.
@@ -838,9 +838,9 @@ def parse_dpg(dpg, hname):
 
         mg_tunnels = child.find(str(QName(ns, "TunnelInterfaces")))
         if mg_tunnels is not None:
-            table_key_to_mg_key_map = {"encap_ecn_mode": "EcnEncapsulationMode", 
-                                       "ecn_mode": "EcnDecapsulationMode", 
-                                       "dscp_mode": "DifferentiatedServicesCodePointMode", 
+            table_key_to_mg_key_map = {"encap_ecn_mode": "EcnEncapsulationMode",
+                                       "ecn_mode": "EcnDecapsulationMode",
+                                       "dscp_mode": "DifferentiatedServicesCodePointMode",
                                        "ttl_mode": "TtlMode"}
 
             tunnel_qos_remap_table_key_to_mg_key_map = {
@@ -860,7 +860,7 @@ def parse_dpg(dpg, hname):
                     # If the minigraph has the key, add the corresponding config DB key to the table
                     if mg_key in mg_tunnel.attrib:
                         tunnelintfs[tunnel_type][tunnel_name][table_key] = mg_tunnel.attrib[mg_key]
-                
+
                 tunnelintfs_qos_remap_config[tunnel_type][tunnel_name] = {
                     "tunnel_type": mg_tunnel.attrib["Type"].upper(),
                 }
@@ -1209,12 +1209,12 @@ def parse_deviceinfo(meta, hwsku):
 
     return port_speeds, port_descriptions, sys_ports
 
-# Function to check if IP address is present in the key. 
+# Function to check if IP address is present in the key.
 # If it is present, then the key would be a tuple.
 def is_ip_prefix_in_key(key):
     return (isinstance(key, tuple))
 
-# Special parsing for spine chassis frontend 
+# Special parsing for spine chassis frontend
 def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_members, devices):
     chassis_vnet ='VnetFE'
     chassis_vxlan_tunnel = 'TunnelInt'
@@ -1239,29 +1239,29 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
 
     # For each IP interface
     for intf in phyport_intfs:
-        # A IP interface may have multiple entries. 
+        # A IP interface may have multiple entries.
         # For example, "Ethernet0": {}", "Ethernet0|192.168.1.1": {}"
         # We only care about the one without IP information
         if is_ip_prefix_in_key(intf) == True:
-            continue 
-            
+            continue
+
         neighbor_router = results['DEVICE_NEIGHBOR'][intf]['name']
-            
-        # If the neighbor router is an external router 
+
+        # If the neighbor router is an external router
         if devices[neighbor_router]['type'] != chassis_backend_role:
             # Enslave the interface to a Vnet
             phyport_intfs[intf] = {'vnet_name': chassis_vnet}
-           
+
     # For each port channel IP interface
     for pc_intf in pc_intfs:
-        # A port channel IP interface may have multiple entries. 
+        # A port channel IP interface may have multiple entries.
         # For example, "Portchannel0": {}", "Portchannel0|192.168.1.1": {}"
         # We only care about the one without IP information
         if is_ip_prefix_in_key(pc_intf) == True:
-            continue 
+            continue
 
-        intf_name = None 
-        # Get a physical interface that belongs to this port channel         
+        intf_name = None
+        # Get a physical interface that belongs to this port channel
         for pc_member in pc_members:
             if pc_member[0] == pc_intf:
                 intf_name = pc_member[1]
@@ -1274,10 +1274,10 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
         # Get the neighbor router of this port channel interface
         neighbor_router = results['DEVICE_NEIGHBOR'][intf_name]['name']
 
-        # If the neighbor router is an external router 
+        # If the neighbor router is an external router
         if devices[neighbor_router]['type'] != chassis_backend_role:
             # Enslave the port channel interface to a Vnet
-            pc_intfs[pc_intf] = {'vnet_name': chassis_vnet}        
+            pc_intfs[pc_intf] = {'vnet_name': chassis_vnet}
 
 ###############################################################################
 #
@@ -1306,10 +1306,10 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, pc_members, sub_ro
         return filter_acl_table_for_backend(acls, vlan_members)
 
     filter_acls = {}
-    
+
     # If the asic role is BackEnd no ACL Table (Ctrl/Data/Everflow) is binded.
     # This will be applicable in Multi-NPU Platforms.
-    
+
     if sub_role == BACKEND_ASIC_SUB_ROLE:
         return filter_acls
 
@@ -1317,7 +1317,7 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, pc_members, sub_ro
 
     # List of Backplane ports
     backplane_port_list = [v for k,v in port_alias_map.items() if v.startswith(backplane_prefix())]
-   
+
     # Get the front panel port channel.
     for port_channel_intf in port_channels:
         backend_port_channel = any(lag_member[1] in backplane_port_list \
@@ -1349,12 +1349,12 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, pc_members, sub_ro
             if port in port_channels and port not in front_port_channel_intf:
                 continue
             front_panel_ports.append(port)
-        
+
         # Filters out inactive front-panel ports from the binding list for mirror
         # ACL tables. We define an "active" port as one that is a member of a
         # front pannel port channel or one that is connected to a neighboring device via front panel port.
         active_ports = [port for port in front_panel_ports if port in neighbors.keys() or port in front_port_channel_intf]
-        
+
         if not active_ports:
             print('Warning: mirror table {} in ACL_TABLE does not have any ports bound to it'.format(acl_table), file=sys.stderr)
 
@@ -1421,7 +1421,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     filename -- minigraph file name
     platform -- device platform
     port_config_file -- port config file name
-    asic_name -- asic name; to parse multi-asic device minigraph to 
+    asic_name -- asic name; to parse multi-asic device minigraph to
     generate asic specific configuration.
      """
 
@@ -1501,7 +1501,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             docker_routing_config_mode = child.text
 
     (ports, alias_map, alias_asic_map) = get_port_config(hwsku=hwsku, platform=platform, port_config_file=port_config_file, asic_name=asic_name, hwsku_config_file=hwsku_config_file)
-    
+
     port_names_map.update(ports)
     port_alias_map.update(alias_map)
     port_alias_asic_map.update(alias_asic_map)
@@ -1592,7 +1592,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             print("Warning: more than one peer switch was found. Only the first will be parsed: {}".format(results['PEER_SWITCH'].keys()[0]))
 
         results['DEVICE_METADATA']['localhost']['peer_switch'] = list(results['PEER_SWITCH'].keys())[0]
-    
+
     # Enable tunnel_qos_remap if downstream_redundancy_types(T1) or redundancy_type(T0) = Gemini/Libra
     enable_tunnel_qos_map = False
     if platform and 'kvm' in platform:
@@ -1607,8 +1607,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     if len(system_defaults) > 0:
         results['SYSTEM_DEFAULTS'] = system_defaults
-    
-    # for this hostname, if sub_role is defined, add sub_role in 
+
+    # for this hostname, if sub_role is defined, add sub_role in
     # device_metadata
     if sub_role is not None:
         current_device['sub_role'] = sub_role
@@ -1743,7 +1743,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         port_default_speed =  port_speeds_default.get(port_name, None)
         port_png_speed = port_speed_png[port_name]
 
-        # when the port speed is changes from 400g to 100g/40g 
+        # when the port speed is changes from 400g to 100g/40g
         # update the port lanes, use the first 4 lanes of the 400G port to support 100G/40G port
         if port_default_speed == '400000' and (port_png_speed == '100000' or port_png_speed == '40000'):
             port_lanes =  ports[port_name].get('lanes', '').split(',')
