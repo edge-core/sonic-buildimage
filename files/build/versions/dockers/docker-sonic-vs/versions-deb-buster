@@ -121,10 +121,10 @@ libpython-dev==2.7.16-1
 libpython-stdlib==2.7.16-1
 libpython2-dev==2.7.16-1
 libpython2-stdlib==2.7.16-1
-libpython2.7==2.7.16-2+deb10u1
-libpython2.7-dev==2.7.16-2+deb10u1
-libpython2.7-minimal==2.7.16-2+deb10u1
-libpython2.7-stdlib==2.7.16-2+deb10u1
+libpython2.7==2.7.16-2+deb10u2
+libpython2.7-dev==2.7.16-2+deb10u2
+libpython2.7-minimal==2.7.16-2+deb10u2
+libpython2.7-stdlib==2.7.16-2+deb10u2
 libpython3-dev==3.7.3-1
 libpython3.7-dev==3.7.3-2+deb10u4
 libqt5core5a==5.11.3+dfsg1-1+deb10u5
@@ -189,9 +189,9 @@ python-swsscommon==1.0.0
 python2==2.7.16-1
 python2-dev==2.7.16-1
 python2-minimal==2.7.16-1
-python2.7==2.7.16-2+deb10u1
-python2.7-dev==2.7.16-2+deb10u1
-python2.7-minimal==2.7.16-2+deb10u1
+python2.7==2.7.16-2+deb10u2
+python2.7-dev==2.7.16-2+deb10u2
+python2.7-minimal==2.7.16-2+deb10u2
 python3-dev==3.7.3-1
 python3-mako==1.0.7+ds1-1+deb10u1
 python3-markdown==3.0.1-3
