@@ -21,10 +21,10 @@ libpython-dev==2.7.16-1
 libpython-stdlib==2.7.16-1
 libpython2-dev==2.7.16-1
 libpython2-stdlib==2.7.16-1
-libpython2.7==2.7.16-2+deb10u1
-libpython2.7-dev==2.7.16-2+deb10u1
-libpython2.7-minimal==2.7.16-2+deb10u1
-libpython2.7-stdlib==2.7.16-2+deb10u1
+libpython2.7==2.7.16-2+deb10u2
+libpython2.7-dev==2.7.16-2+deb10u2
+libpython2.7-minimal==2.7.16-2+deb10u2
+libpython2.7-stdlib==2.7.16-2+deb10u2
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
 libsairedis==1.0.0
@@ -47,9 +47,9 @@ python-setuptools==40.8.0-1
 python2==2.7.16-1
 python2-dev==2.7.16-1
 python2-minimal==2.7.16-1
-python2.7==2.7.16-2+deb10u1
-python2.7-dev==2.7.16-2+deb10u1
-python2.7-minimal==2.7.16-2+deb10u1
+python2.7==2.7.16-2+deb10u2
+python2.7-dev==2.7.16-2+deb10u2
+python2.7-minimal==2.7.16-2+deb10u2
 sshpass==1.06-1
 strace==4.26-0.2
 sx-acl-helper==1.mlnx.4.5.2318
