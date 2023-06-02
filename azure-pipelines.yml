@@ -132,41 +132,10 @@ stages:
         testResultsFiles: '**/tr.xml'
         testRunTitle: vstest
 
-  - job: t0_part1
-    pool: sonictest
-    displayName: "kvmtest-t0-part1"
-    timeoutInMinutes: 300
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
-    continueOnError: false
-    steps:
-    - template: .azure-pipelines/run-test-template.yml
-      parameters:
-        dut: vlab-01
-        tbname: vms-kvm-t0
-        ptf_name: ptf_vms6-1
-        tbtype: t0
-        section: part-1
-
-  - job: t0_part2
-    pool: sonictest
-    displayName: "kvmtest-t0-part2"
-    timeoutInMinutes: 300
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
-    continueOnError: false
-    steps:
-    - template: .azure-pipelines/run-test-template.yml
-      parameters:
-        dut: vlab-01
-        tbname: vms-kvm-t0
-        ptf_name: ptf_vms6-1
-        tbtype: t0
-        section: part-2
-
-  - job: t0_testbedv2
+  - job: t0_elastictest
     pool: ubuntu-20.04
-    displayName: "kvmtest-t0 by TestbedV2"
+    displayName: "kvmtest-t0 by Elastictest"
     timeoutInMinutes: 240
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-scheduler-template.yml
@@ -176,11 +145,10 @@ stages:
         MAX_WORKER: $(T0_INSTANCE_NUM)
         MGMT_BRANCH: 202012
 
-  - job: t0_2vlans_testbedv2
+  - job: t0_2vlans_elastictest
     pool: ubuntu-20.04
-    displayName: "kvmtest-t0-2vlans by TestbedV2"
+    displayName: "kvmtest-t0-2vlans by Elastictest"
     timeoutInMinutes: 240
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-scheduler-template.yml
@@ -192,25 +160,10 @@ stages:
         DEPLOY_MG_EXTRA_PARAMS: "-e vlan_config=two_vlan_a"
         MGMT_BRANCH: 202012
 
-  - job: t1_lag_classic
-    pool: sonictest-t1-lag
-    displayName: "kvmtest-t1-lag classic"
-    timeoutInMinutes: 400
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_CLASSICAL_TEST, 'YES'))
-    continueOnError: false
-    steps:
-    - template: .azure-pipelines/run-test-template.yml
-      parameters:
-        dut: vlab-03
-        tbname: vms-kvm-t1-lag
-        ptf_name: ptf_vms6-2
-        tbtype: t1-lag
-
-  - job: t1_lag_testbedv2
+  - job: t1_lag_elastictest
     pool: ubuntu-20.04
-    displayName: "kvmtest-t1-lag by TestbedV2"
+    displayName: "kvmtest-t1-lag by Elastictest"
     timeoutInMinutes: 240
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
     - template: .azure-pipelines/run-test-scheduler-template.yml
@@ -220,11 +173,10 @@ stages:
         MAX_WORKER: $(T1_LAG_INSTANCE_NUM)
         MGMT_BRANCH: 202012
 
-  - job: dualtor_testbedv2
+  - job: dualtor_elastictest
     pool: ubuntu-20.04
-    displayName: "kvmtest-dualtor-t0 by TestbedV2"
+    displayName: "kvmtest-dualtor-t0 by Elastictest"
     timeoutInMinutes: 240
-    condition: and(succeeded(), eq(variables.BUILD_IMG_RUN_TESTBEDV2_TEST, 'YES'))
     continueOnError: false
     steps:
       - template: .azure-pipelines/run-test-scheduler-template.yml
