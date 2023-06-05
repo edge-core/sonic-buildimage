@@ -280,19 +280,37 @@ download_packages()
 
 run_pip_command()
 {
-    parameters=("$@")
+    declare -a parameters=("$@")
+    PIP_CACHE_PATH=${PKG_CACHE_PATH}/pip
+    PKG_CACHE_OPTION="--cache-dir=${PIP_CACHE_PATH}"
 
-    if [ ! -x "$REAL_COMMAND" ] && [ " $1" == "freeze" ]; then
+	if [[ ! -e ${PIP_CACHE_PATH} ]]; then
+		${SUDO} mkdir -p ${PIP_CACHE_PATH}
+		${SUDO} chmod 777 ${PIP_CACHE_PATH}
+	fi
+
+    if [ ! -x "$REAL_COMMAND" ] && [ "$1" == "freeze" ]; then
         return 1
     fi
 
-    if [ "$ENABLE_VERSION_CONTROL_PY" != "y" ]; then
+    if [[ "$SKIP_BUILD_HOOK" == y || "$ENABLE_VERSION_CONTROL_PY" != "y" ]]; then
+		if [ ! -z "$(get_version_cache_option)" ]; then
+			FLOCK ${PIP_CACHE_PATH}
+			$REAL_COMMAND ${PKG_CACHE_OPTION} "$@"
+			local result=$?
+			chmod -f -R 777 ${PIP_CACHE_PATH}
+ 			touch ${PIP_CACHE_PATH}
+			FUNLOCK ${PIP_CACHE_PATH}
+			return ${result}
+		fi
         $REAL_COMMAND "$@"
         return $?
     fi
 
+
     local found=n
     local install=n
+    local count=0
     local pip_version_file=$PIP_VERSION_FILE
     local tmp_version_file=$(mktemp)
     [ -f "$pip_version_file" ] && cp -f $pip_version_file $tmp_version_file
@@ -301,6 +319,7 @@ run_pip_command()
         ([ "$para" == "-c" ] || [ "$para" == "--constraint" ]) && found=y
         if [ "$para" == "install" ]; then
             install=y
+            parameters[${count}]=install 
         elif [[ "$para" == *.whl ]]; then
             package_name=$(echo $para | cut -d- -f1 | tr _ .)
             $SUDO sed "/^${package_name}==/d" -i $tmp_version_file
@@ -309,6 +328,7 @@ run_pip_command()
             package_name=$(echo $para | cut -d= -f1)
             $SUDO sed "/^${package_name}==/d" -i $tmp_version_file
         fi
+        (( count++ ))
     done
 
     if [ "$found" == "n" ] && [ "$install" == "y" ]; then
@@ -316,13 +336,22 @@ run_pip_command()
         parameters+=("${tmp_version_file}")
     fi
 
-    $REAL_COMMAND "${parameters[@]}"
-    local result=$?
-    if [ "$result" != 0 ]; then
-        echo "Failed to run the command with constraint, try to install with the original command" 1>&2
-        $REAL_COMMAND "$@"
-        result=$?
-    fi
+    if [ ! -z "$(get_version_cache_option)" ]; then
+        FLOCK ${PIP_CACHE_PATH}
+        $REAL_COMMAND ${PKG_CACHE_OPTION} "${parameters[@]}"
+        local result=$?
+        chmod -f -R 777 ${PIP_CACHE_PATH}
+        touch ${PIP_CACHE_PATH}
+        FUNLOCK ${PIP_CACHE_PATH}
+    else
+        $REAL_COMMAND "${parameters[@]}"
+		local result=$?
+		if [ "$result" != 0 ]; then
+			echo "Failed to run the command with constraint, try to install with the original command" 1>&2
+			$REAL_COMMAND "$@"
+			result=$?
+		fi
+	fi
     rm $tmp_version_file
     return $result
 }
@@ -348,7 +377,7 @@ check_apt_install()
 # Print warning message if a debian package version not specified when debian version control enabled.
 check_apt_version()
 {
-    VERSION_FILE="/usr/local/share/buildinfo/versions/versions-deb"
+    VERSION_FILE="${VERSION_PATH}/versions-deb"
     local install=$(check_apt_install "$@")
     if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ] && [ "$install" == "y" ]; then
         for para in "$@"
