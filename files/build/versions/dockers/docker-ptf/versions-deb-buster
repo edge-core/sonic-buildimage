@@ -89,9 +89,9 @@ libcc1-0==8.3.0-6
 libcdt5==2.40.1-6+deb10u1
 libcgraph6==2.40.1-6+deb10u1
 libcryptsetup12==2:2.1.0-5+deb10u2
-libcups2==2.2.10-6+deb10u6
+libcups2==2.2.10-6+deb10u7
 libcupsfilters1==1.21.6-5+deb10u1
-libcupsimage2==2.2.10-6+deb10u6
+libcupsimage2==2.2.10-6+deb10u7
 libcurl3-gnutls==7.64.0-4+deb10u6
 libcurl4==7.64.0-4+deb10u6
 libdaemon0==0.14-7
@@ -192,7 +192,7 @@ libjsoncpp1==1.7.4-3
 libk5crypto3==1.17-3+deb10u5
 libkeyutils1==1.6-6
 libkmod2==26-1
-libkpathsea6==2018.20181218.49446-1+deb10u1
+libkpathsea6==2018.20181218.49446-1+deb10u2
 libkrb5-3==1.17-3+deb10u5
 libkrb5support0==1.17-3+deb10u5
 libksba8==1.3.5-2+deb10u2
@@ -254,7 +254,7 @@ libpopt0==1.16-12
 libpotrace0==1.15-1
 libprocps7==2:3.3.15-2
 libpsl5==0.20.2-2
-libptexenc1==2018.20181218.49446-1+deb10u1
+libptexenc1==2018.20181218.49446-1+deb10u2
 libpython-dev==2.7.16-1
 libpython-stdlib==2.7.16-1
 libpython2-dev==2.7.16-1
@@ -288,7 +288,7 @@ libssh2-1==1.8.0-2.1
 libssl-dev==1.1.1n-0+deb10u4
 libssl1.1==1.1.1n-0+deb10u4
 libstdc++-8-dev==8.3.0-6
-libsynctex2==2018.20181218.49446-1+deb10u1
+libsynctex2==2018.20181218.49446-1+deb10u2
 libsystemd0==241-7~deb10u9
 libtacacs+1==4.0.4.27a-3
 libtasn1-6==4.13-3+deb10u1
@@ -297,9 +297,9 @@ libteam-utils==1.28-1
 libteam5==1.28-1
 libteamdctl0==1.28-1
 libteckit0==2.5.8+ds2-5
-libtexlua52==2018.20181218.49446-1+deb10u1
-libtexlua53==2018.20181218.49446-1+deb10u1
-libtexluajit2==2018.20181218.49446-1+deb10u1
+libtexlua52==2018.20181218.49446-1+deb10u2
+libtexlua53==2018.20181218.49446-1+deb10u2
+libtexluajit2==2018.20181218.49446-1+deb10u2
 libtext-iconv-perl==1.7-5+b7
 libthai-data==0.1.28-2
 libthai0==0.1.28-2
@@ -317,9 +317,9 @@ libunbound8==1.9.0-2+deb10u3
 liburi-perl==1.76-1
 libutempter0==1.1.6-3
 libuv1==1.24.1-1+deb10u1
-libwebp6==0.6.1-2+deb10u1
-libwebpdemux2==0.6.1-2+deb10u1
-libwebpmux3==0.6.1-2+deb10u1
+libwebp6==0.6.1-2+deb10u2
+libwebpdemux2==0.6.1-2+deb10u2
+libwebpmux3==0.6.1-2+deb10u2
 libwoff1==1.0.2-1
 libwrap0==7.6.q-28
 libwww-perl==6.36-2
@@ -478,7 +478,7 @@ tcpdump==4.9.3-1~deb10u2
 telnet==0.17-41.2
 tex-common==6.11
 texlive-base==2018.20190227-2
-texlive-binaries==2018.20181218.49446-1+deb10u1
+texlive-binaries==2018.20181218.49446-1+deb10u2
 texlive-latex-base==2018.20190227-2
 tk8.6-blt2.5==2.5.3+dfsg-4
 tmux==2.8-3+deb10u1

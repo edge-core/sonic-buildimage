@@ -1104,7 +1104,8 @@ libsratom-0-0==0.6.8-1
 libsrt1.4-gnutls==1.4.2-1.3
 libssh-gcrypt-4==0.9.7-0+deb11u1
 libssh2-1==1.9.0-2
-libssl-dev==1.1.1n-0+deb11u4
+libssl-dev==1.1.1n-0+deb11u5
+libssl1.1==1.1.1n-0+deb11u5
 libstdc++-10-dev==10.2.1-6
 libstemmer0d==2.1.0-1
 libstrictures-perl==2.000006-1
@@ -1425,7 +1426,7 @@ opensp==1.5.2-13+b2
 openssh-client==1:8.4p1-5+deb11u1
 openssh-server==1:8.4p1-5+deb11u1
 openssh-sftp-server==1:8.4p1-5+deb11u1
-openssl==1.1.1n-0+deb11u4
+openssl==1.1.1n-0+deb11u5
 ovmf==2020.11-2+deb11u1
 packagekit==1.2.2-2
 packagekit-tools==1.2.2-2
