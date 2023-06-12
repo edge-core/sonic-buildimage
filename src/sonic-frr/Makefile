@@ -10,7 +10,7 @@ STG_BRANCH = stg_temp.$(SUFFIX)
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Build the package
 	pushd ./frr
-	git checkout -b $(FRR_BRANCH) origin/$(FRR_BRANCH)
+	git checkout -b $(FRR_BRANCH) origin/$(FRR_BRANCH) || git checkout $(FRR_BRANCH)
 	stg branch --create $(STG_BRANCH) $(FRR_TAG)
 	stg import -s ../patch/series
 	tools/tarsource.sh -V -e '-sonic'
