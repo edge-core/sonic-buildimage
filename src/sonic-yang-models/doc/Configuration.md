@@ -37,8 +37,10 @@ Table of Contents
          * [Management port](#management-port)  
          * [Management VRF](#management-vrf)  
          * [MAP_PFC_PRIORITY_TO_QUEUE](#map_pfc_priority_to_queue)  
+         * [MUX_CABLE](#muxcable)  
          * [NTP Global Configuration](#ntp-global-configuration)  
          * [NTP and SYSLOG servers](#ntp-and-syslog-servers)  
+         * [Peer Switch](#peer-switch)
          * [Policer](#policer)   
          * [Port](#port)   
          * [Port Channel](#port-channel)  
@@ -1129,6 +1131,24 @@ instead of data network.
   }
 }
 ```
+### MUX_CABLE
+
+The **MUX_CABLE** table is used for dualtor interface configuration. The `cable_type` and `soc_ipv4` objects are optional. 
+
+```
+{
+    "MUX_CABLE": {
+        "Ethernet4": {
+            "cable_type": "active-active",
+            "server_ipv4": "192.168.0.2/32",
+            "server_ipv6": "fc02:1000::30/128",
+            "soc_ipv4": "192.168.0.3/32",
+            "state": "auto"
+        }
+    }
+}
+```
+
 ### NTP Global Configuration
 
 These configuration options are used to modify the way that
