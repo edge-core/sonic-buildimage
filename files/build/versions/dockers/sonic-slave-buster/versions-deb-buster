@@ -274,10 +274,10 @@ libavahi-common-data==0.7-4+deb10u2
 libavahi-common3==0.7-4+deb10u2
 libavalon-framework-java==4.2.0-10
 libavc1394-0==0.5.4-5
-libavcodec58==7:4.1.10-0+deb10u1
-libavfilter7==7:4.1.10-0+deb10u1
-libavformat58==7:4.1.10-0+deb10u1
-libavutil56==7:4.1.10-0+deb10u1
+libavcodec58==7:4.1.11-0+deb10u1
+libavfilter7==7:4.1.11-0+deb10u1
+libavformat58==7:4.1.11-0+deb10u1
+libavutil56==7:4.1.11-0+deb10u1
 libb-hooks-endofscope-perl==0.24-1
 libb-hooks-op-check-perl==0.22-1+b1
 libbabeltrace-dev==1.5.6-2+deb10u1
@@ -940,7 +940,7 @@ libpolkit-agent-1-0==0.105-25+deb10u1
 libpolkit-backend-1-0==0.105-25+deb10u1
 libpolkit-gobject-1-0==0.105-25+deb10u1
 libpopt0==1.16-12
-libpostproc55==7:4.1.10-0+deb10u1
+libpostproc55==7:4.1.11-0+deb10u1
 libpotrace0==1.15-1
 libprocps7==2:3.3.15-2
 libprotobuf-c1==1.3.1-1+b1
@@ -1103,8 +1103,8 @@ libsubunit-dev==1.3.0-1
 libsubunit0==1.3.0-1
 libsurefire-java==2.22.1-1
 libswitch-perl==2.17-2
-libswresample3==7:4.1.10-0+deb10u1
-libswscale5==7:4.1.10-0+deb10u1
+libswresample3==7:4.1.11-0+deb10u1
+libswscale5==7:4.1.11-0+deb10u1
 libsynctex2==2018.20181218.49446-1+deb10u2
 libsys-hostname-long-perl==1.5-1
 libsystemd-dev==241-7~deb10u9
