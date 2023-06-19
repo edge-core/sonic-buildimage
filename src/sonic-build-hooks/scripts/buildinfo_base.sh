@@ -71,7 +71,7 @@ check_if_url_exist()
 set_reproducible_mirrors()
 {
     # Remove the charater # in front of the line if matched
-    local expression="s/^#\(.*$REPR_MIRROR_URL_PATTERN\)/\1/"
+    local expression="s/^#\s*\(.*$REPR_MIRROR_URL_PATTERN\)/\1/"
     # Add the character # in front of the line, if not match the URL pattern condition
     local expression2="/^#*deb.*$REPR_MIRROR_URL_PATTERN/! s/^#*deb/#&/"
     local expression3="\$a#SET_REPR_MIRRORS"
@@ -79,7 +79,7 @@ set_reproducible_mirrors()
         # Add the charater # in front of the line if match
         expression="s/^deb.*$REPR_MIRROR_URL_PATTERN/#\0/"
         # Remove the character # in front of the line, if not match the URL pattern condition
-        expression2="/^#*deb.*$REPR_MIRROR_URL_PATTERN/! s/^#(#*deb)/\1/"
+        expression2="/^#*deb.*$REPR_MIRROR_URL_PATTERN/! s/^#\s*(#*deb)/\1/"
         expression3="/#SET_REPR_MIRRORS/d"
     fi
 
