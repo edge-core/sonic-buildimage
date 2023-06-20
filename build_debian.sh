@@ -246,7 +246,10 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     mcelog                  \
     ndisc6                  \
     python-pip              \
-    ipmitool
+    ipmitool                \
+    lsof                    \
+    sysstat                 \
+    smartmontools           \
 
 ## Set /etc/shadow permissions to -rw-------.
 sudo LANG=c chroot $FILESYSTEM_ROOT chmod 600 /etc/shadow
