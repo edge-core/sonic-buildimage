@@ -54,7 +54,7 @@ class Component(ComponentBase):
 
     def get_register_value(self, register):
         # Retrieves the cpld register value
-        cmd = "echo {1} > {0}; cat {0}".format(GETREG_PATH, register)
+        cmd = "flock {0} -c 'echo {1} > {0}; cat {0}'".format(GETREG_PATH, register)
         p = subprocess.Popen(
             cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         raw_data, err = p.communicate()

@@ -77,7 +77,7 @@ class APIHelper():
         return True
 
     def get_cpld_reg_value(self, getreg_path, register):
-        cmd = "echo {1} > {0}; cat {0}".format(getreg_path, register)
+        cmd = "flock {0} -c 'echo {1} > {0}; cat {0}'".format(getreg_path, register)
         status, result = self.run_command(cmd)
         return result if status else None
 
