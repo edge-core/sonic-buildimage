@@ -405,7 +405,13 @@ class Sysmonitor(ProcessTaskBase):
             #then it should be removed from STATE_DB & set
             if event in self.dnsrvs_name:
                 self.dnsrvs_name.remove(event)
-            
+
+            if len(self.dnsrvs_name) == 0:
+                astate = "UP"
+            else:
+                astate = "DOWN"
+            self.publish_system_status(astate)
+
             srv_name,last = event.split('.')
             # stop on service maybe propagated to timers and in that case,
             # the state_db entry for the service should not be deleted
