@@ -31,6 +31,8 @@ class TestJ2Files(TestCase):
         self.dell9332_t1_minigraph = os.path.join(self.test_dir, 'sample-dell-9332-t1-minigraph.xml')
         self.radv_test_minigraph = os.path.join(self.test_dir, 'radv-test-sample-graph.xml')
         self.no_ip_helper_minigraph = os.path.join(self.test_dir, 't0-sample-no-ip-helper-graph.xml')
+        self.nokia_ixr7250e_36x100g_t2_minigraph = os.path.join(self.test_dir, 'sample-nokia-ixr7250e-36x100g-t2-minigraph.xml')
+        self.nokia_ixr7250e_36x400g_t2_minigraph = os.path.join(self.test_dir, 'sample-nokia-ixr7250e-36x400g-t2-minigraph.xml')
         self.output_file = os.path.join(self.test_dir, 'output')
         self.nokia_ixr7250e_36x100g_t2_minigraph = os.path.join(self.test_dir, 'sample-nokia-ixr7250e-36x100g-t2-minigraph.xml')
         self.nokia_ixr7250e_36x400g_t2_minigraph = os.path.join(self.test_dir, 'sample-nokia-ixr7250e-36x400g-t2-minigraph.xml')
