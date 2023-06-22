@@ -72,7 +72,7 @@ https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz==6f56ef28c93cee644e8c4aa
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.debian.tar.xz==9d0cbd5f463f461c840c95f62a64d61b
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.dsc==be44c5a9fc12fb567a486f54b842dd9e
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1.orig.tar.xz==6ddb13b6111f601db08fc7c72afa0263
-https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py==628956b660575965429cec84b1778816
+https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py==963c345c75fe5c5bdedc05ed98a5fd1f
 https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.5/swagger-codegen-cli-2.4.5.jar==219f1453ff22482d9e080effbfa7fa81
 https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.debian.tar.xz==9813a002af43da3a5be05f3d31e85328
 https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_5.10.140-1.dsc==84ab224b073f97978802d9f998248fcc
