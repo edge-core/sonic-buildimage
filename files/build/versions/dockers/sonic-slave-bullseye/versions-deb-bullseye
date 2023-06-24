@@ -1190,11 +1190,11 @@ libwrap0==7.6.q-31
 libwrap0-dev==7.6.q-31
 libwww-perl==6.52-1
 libwww-robotrules-perl==6.02-1
-libx11-6==2:1.7.2-1
-libx11-data==2:1.7.2-1
-libx11-dev==2:1.7.2-1
+libx11-6==2:1.7.2-1+deb11u1
+libx11-data==2:1.7.2-1+deb11u1
+libx11-dev==2:1.7.2-1+deb11u1
 libx11-protocol-perl==0.56-7.1
-libx11-xcb1==2:1.7.2-1
+libx11-xcb1==2:1.7.2-1+deb11u1
 libx264-160==2:0.160.3011+gitcde9a93-2.1
 libx265-192==3.4-2
 libx32asan6==10.2.1-6

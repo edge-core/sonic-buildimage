@@ -86,7 +86,7 @@ libevent-pthreads-2.1-6==2.1.8-stable-4
 libexpat1==2.2.6-2+deb10u6
 libexpat1-dev==2.2.6-2+deb10u6
 libfakeroot==1.23-1
-libfastjson4==0.99.8-2
+libfastjson4==0.99.8-2+deb10u1
 libffi-dev==3.2.1-9
 libfile-fcntllock-perl==0.22-3+b5
 libgcc-8-dev==8.3.0-6
