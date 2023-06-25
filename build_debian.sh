@@ -111,7 +111,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount
 [ -d $TRUSTED_GPG_DIR ] && [ ! -z "$(ls $TRUSTED_GPG_DIR)" ] && sudo cp $TRUSTED_GPG_DIR/* ${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
-scripts/build_mirror_config.sh files/apt $CONFIGURED_ARCH $IMAGE_DISTRO 
+scripts/build_mirror_config.sh files/apt $CONFIGURED_ARCH $IMAGE_DISTRO
 sudo cp files/apt/sources.list.$CONFIGURED_ARCH $FILESYSTEM_ROOT/etc/apt/sources.list
 sudo cp files/apt/apt.conf.d/{81norecommends,apt-{clean,gzip-indexes,no-languages},no-check-valid-until,apt-multiple-retries} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 
@@ -294,7 +294,7 @@ then
     ## Install Kubernetes master
     echo '[INFO] Install kubernetes master'
     install_kubernetes ${MASTER_KUBERNETES_VERSION}
-    
+
     sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -fsSL \
         https://packages.microsoft.com/keys/microsoft.asc | \
         sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
@@ -309,7 +309,7 @@ then
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove gnupg
     sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/cri-dockerd.deb -fsSL \
         https://github.com/Mirantis/cri-dockerd/releases/download/v${MASTER_CRI_DOCKERD}/cri-dockerd_${MASTER_CRI_DOCKERD}.3-0.debian-${IMAGE_DISTRO}_amd64.deb
-    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install -f /tmp/cri-dockerd.deb 
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install -f /tmp/cri-dockerd.deb
     sudo LANG=C chroot $FILESYSTEM_ROOT rm -f /tmp/cri-dockerd.deb
 else
     echo '[INFO] Skipping Install kubernetes master'
@@ -447,6 +447,14 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     systemd \
     systemd-sysv \
     ntp
+
+# Workaround for issue: The udev rule may fail to be executed because the
+#                       daemon-reload command is executed in parallel
+# Github issue: https://github.com/systemd/systemd/issues/24668
+# Github PR: https://github.com/systemd/systemd/pull/24673
+# This workaround should be removed after a upstream already contains the fixes
+sudo patch $FILESYSTEM_ROOT/lib/systemd/system/systemd-udevd.service \
+    files/image_config/systemd/systemd-udevd/fix-udev-rule-may-fail-if-daemon-reload-command-runs.patch
 
 if [[ $TARGET_BOOTLOADER == grub ]]; then
     if [[ $CONFIGURED_ARCH == amd64 ]]; then
@@ -635,10 +643,10 @@ then
 fi
 
 # #################
-#   secure boot 
+#   secure boot
 # #################
 if [[ $SECURE_UPGRADE_MODE == 'dev' || $SECURE_UPGRADE_MODE == "prod" && $SONIC_ENABLE_SECUREBOOT_SIGNATURE != 'y' ]]; then
-    # note: SONIC_ENABLE_SECUREBOOT_SIGNATURE is a feature that signing just kernel, 
+    # note: SONIC_ENABLE_SECUREBOOT_SIGNATURE is a feature that signing just kernel,
     # SECURE_UPGRADE_MODE is signing all the boot component including kernel.
     # its required to do not enable both features together to avoid conflicts.
     echo "Secure Boot support build stage: Starting .."
@@ -647,14 +655,14 @@ if [[ $SECURE_UPGRADE_MODE == 'dev' || $SECURE_UPGRADE_MODE == "prod" && $SONIC_
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
         shim-unsigned \
         grub-efi
-    
+
     if [ ! -f $SECURE_UPGRADE_SIGNING_CERT ]; then
         echo "Error: SONiC SECURE_UPGRADE_SIGNING_CERT=$SECURE_UPGRADE_SIGNING_CERT key missing"
         exit 1
     fi
 
     if [[ $SECURE_UPGRADE_MODE == 'dev' ]]; then
-        # development signing & verification 
+        # development signing & verification
 
         if [ ! -f $SECURE_UPGRADE_DEV_SIGNING_KEY ]; then
             echo "Error: SONiC SECURE_UPGRADE_DEV_SIGNING_KEY=$SECURE_UPGRADE_DEV_SIGNING_KEY key missing"
