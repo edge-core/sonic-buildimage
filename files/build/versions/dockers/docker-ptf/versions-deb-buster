@@ -69,9 +69,9 @@ libasan5==8.3.0-6
 libassuan0==2.5.2-1
 libatomic1==8.3.0-6
 libauthen-sasl-perl==2.1600-1
-libavahi-client3==0.7-4+deb10u2
-libavahi-common-data==0.7-4+deb10u2
-libavahi-common3==0.7-4+deb10u2
+libavahi-client3==0.7-4+deb10u3
+libavahi-common-data==0.7-4+deb10u3
+libavahi-common3==0.7-4+deb10u3
 libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libblas3==3.8.0-2
@@ -118,7 +118,7 @@ libevent-pthreads-2.1-6==2.1.8-stable-4
 libexpat1==2.2.6-2+deb10u6
 libexpat1-dev==2.2.6-2+deb10u6
 libfakeroot==1.23-1
-libfastjson4==0.99.8-2
+libfastjson4==0.99.8-2+deb10u1
 libffi-dev==3.2.1-9
 libfile-basedir-perl==0.08-1
 libfile-desktopentry-perl==0.22-1
@@ -324,10 +324,10 @@ libwoff1==1.0.2-1
 libwrap0==7.6.q-28
 libwww-perl==6.36-2
 libwww-robotrules-perl==6.02-1
-libx11-6==2:1.6.7-1+deb10u2
-libx11-data==2:1.6.7-1+deb10u2
+libx11-6==2:1.6.7-1+deb10u3
+libx11-data==2:1.6.7-1+deb10u3
 libx11-protocol-perl==0.56-7
-libx11-xcb1==2:1.6.7-1+deb10u2
+libx11-xcb1==2:1.6.7-1+deb10u3
 libxau6==1:1.0.8-1+b2
 libxaw7==2:1.0.13-1+b2
 libxcb-dri2-0==1.13.1-2
