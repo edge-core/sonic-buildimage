@@ -27,6 +27,9 @@ class MockConfigDb(object):
     def connect(self, wait_for_init=True, retry_on=True):
         pass
 
+    def close(self, db_name):
+        pass
+
     def get(self, db_id, key, field):
         return MockConfigDb.CONFIG_DB[key][field]
 
