@@ -579,7 +579,6 @@ start() {
 {%- endif -%}
 {%- if docker_container_name == "bgp" %}
         -v /etc/sonic/frr/$DEV:/etc/frr:rw \
-        -v /usr/share/sonic/scripts:/usr/share/sonic/scripts:ro \
 {%- endif %}
 {%- if docker_container_name == "database" %}
         $DB_OPT \
