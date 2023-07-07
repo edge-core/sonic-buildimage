@@ -27,7 +27,7 @@ libgcc-8-dev==8.3.0-6
 libglib2.0-0==2.58.3-2+deb10u4
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
-libhiredis0.14-dbgsym==0.14.0-3~bpo9+1
+libhiredis0.14-dbgsym==0.14.1-1
 libicu63==63.1-6+deb10u3
 libipt2==2.0-2
 libisl19==0.20-2
@@ -38,7 +38,7 @@ libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
 libpopt0==1.16-12
 libpython3-dev==3.7.3-1
-libpython3.7-dev==3.7.3-2+deb10u4
+libpython3.7-dev==3.7.3-2+deb10u5
 libquadmath0==8.3.0-6
 libstdc++-8-dev==8.3.0-6
 libswsscommon-dbgsym==1.0.0
@@ -49,7 +49,7 @@ libxml2==2.9.4+dfsg1-7+deb10u6
 linux-libc-dev==4.19.282-1
 openssh-client==1:7.9p1-10+deb10u2
 python3-dev==3.7.3-1
-python3.7-dev==3.7.3-2+deb10u4
+python3.7-dev==3.7.3-2+deb10u5
 sonic-mgmt-common==1.0.0
 sonic-mgmt-framework==1.0-01
 sonic-mgmt-framework-dbg==1.0-01

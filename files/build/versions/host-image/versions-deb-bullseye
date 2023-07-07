@@ -170,7 +170,7 @@ libgpm2==1.20.7-8
 libgrpc++1==1.30.2-3
 libgrpc10==1.30.2-3
 libhavege2==1.9.14-1
-libhiredis0.14==0.14.0-3~bpo9+1
+libhiredis0.14==0.14.1-1
 libi2c0==4.2-1+b1
 libice-dev==2:1.0.10-1
 libice6==2:1.0.10-1
