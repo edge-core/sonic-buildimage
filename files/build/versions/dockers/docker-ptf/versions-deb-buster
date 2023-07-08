@@ -18,6 +18,7 @@ cpp-8==8.3.0-6
 cron==3.0pl1-134+deb10u1
 curl==7.64.0-4+deb10u6
 dbus==1.12.24-0+deb10u1
+debian-archive-keyring==2019.1+deb10u2
 dh-python==3.20190308
 dirmngr==2.2.12-1+deb10u2
 dmsetup==2:1.02.155-3
