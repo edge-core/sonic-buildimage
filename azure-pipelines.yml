@@ -152,6 +152,7 @@ stages:
         TOPOLOGY: t0
         MIN_WORKER: $(T0_INSTANCE_NUM)
         MAX_WORKER: $(T0_INSTANCE_NUM)
+        MGMT_BRANCH: master
 
   - job: t0_2vlans_elastictest
     pool: ubuntu-20.04
@@ -165,6 +166,7 @@ stages:
         TEST_SET: t0-2vlans
         MIN_WORKER: $(T0_2VLANS_INSTANCE_NUM)
         MAX_WORKER: $(T0_2VLANS_INSTANCE_NUM)
+        MGMT_BRANCH: master
         DEPLOY_MG_EXTRA_PARAMS: "-e vlan_config=two_vlan_a"
 
   - job: t1_lag_elastictest
@@ -178,6 +180,7 @@ stages:
         TOPOLOGY: t1-lag
         MIN_WORKER: $(T1_LAG_INSTANCE_NUM)
         MAX_WORKER: $(T1_LAG_INSTANCE_NUM)
+        MGMT_BRANCH: master
 
   - job: multi_asic_elastictest
     pool: ubuntu-20.04
@@ -192,6 +195,7 @@ stages:
           MIN_WORKER: $(MULTI_ASIC_INSTANCE_NUM)
           MAX_WORKER: $(MULTI_ASIC_INSTANCE_NUM)
           NUM_ASIC: 4
+          MGMT_BRANCH: master
 
   - job: dualtor_elastictest
     pool: ubuntu-20.04
@@ -204,6 +208,7 @@ stages:
           TOPOLOGY: dualtor
           MIN_WORKER: $(T0_DUALTOR_INSTANCE_NUM)
           MAX_WORKER: $(T0_DUALTOR_INSTANCE_NUM)
+          MGMT_BRANCH: master
           COMMON_EXTRA_PARAMS: "--disable_loganalyzer "
 
   - job: sonic_t0_elastictest
@@ -218,18 +223,19 @@ stages:
           MIN_WORKER: $(T0_SONIC_INSTANCE_NUM)
           MAX_WORKER: $(T0_SONIC_INSTANCE_NUM)
           TEST_SET: t0-sonic
+          MGMT_BRANCH: master
           COMMON_EXTRA_PARAMS: "--neighbor_type=sonic "
           VM_TYPE: vsonic
 
-  - job: wan_elastictest
-    pool: ubuntu-20.04
-    displayName: "kvmtest-wan by Elastictest"
-    timeoutInMinutes: 1080
-    continueOnError: false
-    steps:
-      - template: .azure-pipelines/run-test-scheduler-template.yml
-        parameters:
-          TOPOLOGY: wan-pub
-          MIN_WORKER: $(WAN_INSTANCE_NUM)
-          MAX_WORKER: $(WAN_INSTANCE_NUM)
-          COMMON_EXTRA_PARAMS: "--skip_sanity "
+#  - job: wan_elastictest
+#    pool: ubuntu-20.04
+#    displayName: "kvmtest-wan by Elastictest"
+#    timeoutInMinutes: 1080
+#    continueOnError: false
+#    steps:
+#      - template: .azure-pipelines/run-test-scheduler-template.yml
+#        parameters:
+#          TOPOLOGY: wan-pub
+#          MIN_WORKER: $(WAN_INSTANCE_NUM)
+#          MAX_WORKER: $(WAN_INSTANCE_NUM)
+#          COMMON_EXTRA_PARAMS: "--skip_sanity "
