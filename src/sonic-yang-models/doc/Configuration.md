@@ -79,6 +79,7 @@ Table of Contents
          * [LOGGER](#logger)
          * [WRED_PROFILE](#wred_profile)
          * [PASSWORD_HARDENING](#password_hardening)
+         * [SSH_SERVER](#ssh_server)  
          * [SYSTEM_DEFAULTS table](#systemdefaults-table)
          * [RADIUS](#radius)
          * [Static DNS](#static-dns)
@@ -2318,6 +2319,25 @@ There are 4 classes
         "special_class": "true"
     }
   }
+}
+```
+
+### SSH_SERVER
+
+In this table, we allow configuring ssh server global settings. This will feature includes 3 configurations:
+
+-   authentication_retries - number of login attepmts 1-100
+-   login_timeout - Timeout in seconds for login session for user to connect 1-600
+-   ports - Ssh port numbers - string of port numbers seperated by ','
+```
+{
+    "SSH_SERVER": {
+        "POLICIES":{
+            "authentication_retries": "6",
+            "login_timeout": "120",
+            "ports": "22"
+        }
+    }
 }
 ```
 
