@@ -80,6 +80,18 @@ def obfuscate(data):
     else:
         return data
 
+def get_pid(procname):
+    for dirname in os.listdir('/proc'):
+        if dirname == 'curproc':
+            continue
+        try:
+            with open('/proc/{}/cmdline'.format(dirname), mode='r') as fd:
+                content = fd.read()
+        except Exception as ex:
+            continue
+        if procname in content:
+            return dirname
+    return ""
 
 def run_cmd(cmd, log_err = True):
     try:
@@ -235,6 +247,18 @@ class AaaCfg(object):
 
         syslog.syslog(syslog.LOG_INFO, "file size check pass: {} size is ({}) bytes".format(filename, size))
 
+    def notify_audisp_tacplus_reload_config(self):
+        pid = get_pid("/sbin/audisp-tacplus")
+        syslog.syslog(syslog.LOG_INFO, "Found audisp-tacplus PID: {}".format(pid))
+        if pid == "":
+            return
+
+        # audisp-tacplus will reload TACACS+ config when receive SIGHUP
+        try:
+            os.kill(int(pid), signal.SIGHUP)
+        except Exception as ex:
+            syslog.syslog(syslog.LOG_WARNING, "Send SIGHUP to audisp-tacplus failed with exception: {}".format(ex))
+
     def modify_single_file(self, filename, operations=None):
         if operations:
             cmd = "sed -e {0} {1} > {1}.new; mv -f {1} {1}.old; mv -f {1}.new {1}".format(' -e '.join(operations), filename)
@@ -318,6 +342,9 @@ class AaaCfg(object):
                                         tacacs_authorization=tacacs_authorization_conf)
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
+
+        # Notify auditd plugin to reload tacacs config.
+        self.notify_audisp_tacplus_reload_config()
 
 class KdumpCfg(object):
     def __init__(self, CfgDb):

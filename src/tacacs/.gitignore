@@ -1,5 +1,8 @@
 *
 !.gitignore
+audisp/*
+!audisp/Makefile
+!audisp/*.patch
 nsm/*
 !nsm/Makefile
 !nsm/*.patch

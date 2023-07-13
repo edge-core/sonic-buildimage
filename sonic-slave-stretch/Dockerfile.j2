@@ -259,7 +259,10 @@ RUN apt-get update && apt-get install -y \
         libxml2-utils \
         xsltproc \
         python-lxml \
-        libexpat1-dev
+        libexpat1-dev \
+# For audisp-tacplus
+        libauparse-dev \
+        auditd
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
