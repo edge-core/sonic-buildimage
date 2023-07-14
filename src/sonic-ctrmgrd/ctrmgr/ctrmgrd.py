@@ -151,6 +151,7 @@ def is_systemd_active(feat):
 def restart_systemd_service(server, feat, owner):
     log_debug("Restart service {} to owner:{}".format(feat, owner))
     if not UNIT_TESTING:
+        subprocess.call(["systemctl", "reset-failed", str(feat)])
         status = subprocess.call(["systemctl", "restart", str(feat)])
     else:
         server.mod_db_entry(STATE_DB_NAME,
@@ -551,6 +552,7 @@ class FeatureTransitionHandler:
 
         self.st_data[key] = _update_entry(dflt_st_feat, data)
         remote_state = self.st_data[key][ST_FEAT_REMOTE_STATE]
+        current_owner = self.st_data[key][ST_FEAT_OWNER]
 
         if (remote_state == REMOTE_RUNNING) and (old_remote_state != remote_state):
             # Tag latest
@@ -563,6 +565,13 @@ class FeatureTransitionHandler:
 
             log_debug("try to tag latest label after {} seconds @{}".format(
                     remote_ctr_config[TAG_IMAGE_LATEST], start_time))
+        
+        # This is for going back to local without waiting the systemd restart time
+        # when k8s is down, can't deploy containers to worker and need to go back to local
+        # if current owner is already local, we don't do restart
+        if (current_owner != OWNER_LOCAL) and (remote_state == REMOTE_NONE) and (old_remote_state == REMOTE_STOPPED):
+            restart_systemd_service(self.server, key, OWNER_LOCAL)
+            return
 
         if (not init):
             if (old_remote_state == remote_state):
