@@ -786,6 +786,9 @@ sudo cp files/image_config/resolv-config/resolv.conf.head $FILESYSTEM_ROOT/etc/r
 
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -comp zstd -b 1M -e boot -e var/lib/docker -e $PLATFORM_DIR
 
+## Reduce /boot permission
+sudo chmod -R go-wx $FILESYSTEM_ROOT/boot
+
 # Ensure admin gid is 1000
 gid_user=$(sudo LANG=C chroot $FILESYSTEM_ROOT id -g $USERNAME) || gid_user="none"
 if [ "${gid_user}" != "1000" ]; then
