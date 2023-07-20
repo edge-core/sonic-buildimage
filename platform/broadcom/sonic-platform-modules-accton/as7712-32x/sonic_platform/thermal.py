@@ -15,28 +15,52 @@ HIGH_CRIT_THRESHOLD = DeviceThreshold.HIGH_CRIT_THRESHOLD
 LOW_CRIT_THRESHOLD = DeviceThreshold.LOW_CRIT_THRESHOLD
 
 DEFAULT_THRESHOLD = {
-    'Temp sensor 1' : {
+    'MB_RearLeft_temp(0x48)' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'Temp sensor 2' : {
+    'MB_FrontMiddle_temp(0x49)' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'Temp sensor 3' : {
+    'MB_MiddleLeft_temp(0x4A)' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'Temp sensor 4' : {
+    'CB_temp(0x4B)' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
+        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
+    },
+    'CPU_Core_0_temp' : {
+        HIGH_THRESHOLD : '98.0',
+        LOW_THRESHOLD : NOT_AVAILABLE,
+        HIGH_CRIT_THRESHOLD : '98.0',
+        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
+    },
+    'CPU_Core_1_temp' : {
+        HIGH_THRESHOLD : '98.0',
+        LOW_THRESHOLD : NOT_AVAILABLE,
+        HIGH_CRIT_THRESHOLD : '98.0',
+        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
+    },
+    'CPU_Core_2_temp' : {
+        HIGH_THRESHOLD : '98.0',
+        LOW_THRESHOLD : NOT_AVAILABLE,
+        HIGH_CRIT_THRESHOLD : '98.0',
+        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
+    },
+    'CPU_Core_3_temp' : {
+        HIGH_THRESHOLD : '98.0',
+        LOW_THRESHOLD : NOT_AVAILABLE,
+        HIGH_CRIT_THRESHOLD : '98.0',
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
     'PSU-1 temp sensor 1' : {
@@ -70,6 +94,11 @@ class Thermal(PddfThermal):
         if self.is_psu_thermal:
             return "PSU-{0} temp sensor 1".format(self.thermals_psu_index)
         else:
+            if 'dev_attr' in self.thermal_obj.keys():
+                if 'display_name' in self.thermal_obj['dev_attr']:
+                    return str(self.thermal_obj['dev_attr']['display_name'])
+
+            # In case of errors
             return "Temp sensor {0}".format(self.thermal_index)
 
     def get_status(self):
@@ -119,7 +148,7 @@ class Thermal(PddfThermal):
         if default_value != NOT_AVAILABLE:
             return float(default_value)
 
-        raise NotImplementedError
+        return super().get_high_threshold()
 
     def set_low_threshold(self, temperature):
         try:
@@ -179,7 +208,7 @@ class Thermal(PddfThermal):
         if default_value != NOT_AVAILABLE:
             return float(default_value)
 
-        raise NotImplementedError
+        return super().get_high_critical_threshold()
 
     def set_low_critical_threshold(self, temperature):
         try:

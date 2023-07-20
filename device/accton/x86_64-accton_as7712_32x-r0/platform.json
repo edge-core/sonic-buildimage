@@ -360,7 +360,7 @@
         ],
         "thermals": [
             {
-                "name": "Temp sensor 1",
+                "name": "MB_RearLeft_temp(0x48)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -368,7 +368,7 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 2",
+                "name": "MB_FrontMiddle_temp(0x49)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -376,7 +376,7 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 3",
+                "name": "MB_MiddleLeft_temp(0x4A)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -384,12 +384,44 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 4",
+                "name": "CB_temp(0x4B)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
                 "high-crit-threshold": false
+            },
+            {
+                "name": "CPU_Core_0_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_1_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_2_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_3_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
             }
         ],
         "sfps": [
