@@ -53,6 +53,11 @@ RUN pip3 install thrift==0.13.0
 RUN pip2 install libpci
 RUN pip3 install libpci
 
+# The option --no-build-isolation can be removed when upgrading PyYAML to 6.0.1
+# The the PyYAML for python3 has already installed in the base image docker-config-engine
+RUN pip2 install wheel==0.37.1
+RUN pip2 install PyYAML==5.4.1 --no-build-isolation
+
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_platform_monitor_debs.split(' '), "/debs/") }}
