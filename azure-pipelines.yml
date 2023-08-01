@@ -56,8 +56,6 @@ stages:
 
 - stage: Build
   pool: sonicbld
-  variables:
-    INSTALL_DEBUG_TOOLS: y
   dependsOn: []
   jobs:
   - template: .azure-pipelines/azure-pipelines-build.yml
@@ -68,6 +66,10 @@ stages:
         variables:
           swi_image: yes
       - name: mellanox
+        variables:
+          dbg_image: yes
+          docker_syncd_rpc_image: yes
+          platform_rpc: mlnx
       - name: marvell-arm64
         pool: sonicbld-arm64
         variables:
