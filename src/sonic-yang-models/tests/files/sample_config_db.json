@@ -1840,6 +1840,9 @@
             },
             "MUXLOGGER": {
                 "log_verbosity": "debug"
+            },
+            "SERVICE_MGMT": {
+                "kill_radv": "False"
             }
         },
 
