@@ -60,7 +60,11 @@ elif [ "$IMAGE_TYPE" = "raw" ]; then
     ## Run the installer 
     ## The 'build' install mode of the installer is used to generate this dump.
     sudo chmod a+x $OUTPUT_ONIE_IMAGE
-    sudo ./$OUTPUT_ONIE_IMAGE
+    sudo ./$OUTPUT_ONIE_IMAGE || {
+        ## Failure during 'build' install mode of the installer results in an incomplete raw image.
+        ## Delete the incomplete raw image.
+        sudo rm -f $OUTPUT_RAW_IMAGE
+    }
 
     [ -r $OUTPUT_RAW_IMAGE ] || {
         echo "Error : $OUTPUT_RAW_IMAGE not generated!"
