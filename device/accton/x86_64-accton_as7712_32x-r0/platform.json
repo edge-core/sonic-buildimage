@@ -4,7 +4,7 @@
         "thermal_manager":false,
         "status_led": {
             "controllable": true,
-            "colors": ["STATUS_LED_COLOR_GREEN", "STATUS_LED_COLOR_RED", "STATUS_LED_COLOR_OFF"]
+            "colors": ["green", "red", "off"]
         },
         "components": [
             {

@@ -555,12 +555,12 @@
 	"LOC_LED":
 	{
 			"dev_info": { "device_type":"LED", "device_name":"LOC_LED"},
-                        "dev_attr": { "index":"0"},
+                        "dev_attr": { "index":"0", "flag":"rw"},
                         "i2c" : {
                         "attr_list":
                         [
-                                        {"attr_name":"STATUS_LED_COLOR_BLUE",  "bits" : "7", "descr" : "", "value" : "0x0", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
-                                        {"attr_name":"STATUS_LED_COLOR_OFF",  "bits" : "7", "descr" : "", "value" : "0x1", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"}
+                                        {"attr_name":"blue",  "bits" : "7", "descr" : "", "value" : "0x0", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
+                                        {"attr_name":"off",  "bits" : "7", "descr" : "", "value" : "0x1", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"}
                         ]
                         }
 	},
@@ -568,13 +568,13 @@
 	"DIAG_LED":
 	{
 			"dev_info": { "device_type":"LED", "device_name":"DIAG_LED"},
-                        "dev_attr": { "index":"0"},
+                        "dev_attr": { "index":"0", "flag":"rw"},
                         "i2c" : {
                         "attr_list":
                         [
-                                        {"attr_name":"STATUS_LED_COLOR_GREEN",  "bits" : "1:0", "descr" : "", "value" : "0x2", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
-                                        {"attr_name":"STATUS_LED_COLOR_RED",  "bits" : "1:0", "descr" : "", "value" : "0x1", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
-                                        {"attr_name":"STATUS_LED_COLOR_OFF",  "bits" : "1:0", "descr" : "", "value" : "0x3", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"}
+                                        {"attr_name":"green",  "bits" : "1:0", "descr" : "", "value" : "0x2", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
+                                        {"attr_name":"red",  "bits" : "1:0", "descr" : "", "value" : "0x1", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"},
+                                        {"attr_name":"off",  "bits" : "1:0", "descr" : "", "value" : "0x3", "swpld_addr" : "0x60", "swpld_addr_offset" : "0x41"}
                         ]
                         }
 
