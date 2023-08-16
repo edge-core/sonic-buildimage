@@ -34,7 +34,7 @@ https://deb.nodesource.com/node_14.x/dists/bullseye/Release==6b7d50c433d129d4c6f
 https://deb.nodesource.com/node_14.x/dists/buster/Release==42875141604382f0abb4d047f645dfe1
 https://deb.nodesource.com/setup_14.x==472c9614e7c6dd029f205890ed356a22
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
-https://github.com/aristanetworks/sonic-firmware/raw/e89a1696954fd381e1e95edf208cffc97caf15d4/phy/phy-credo_1.0_amd64.deb==fc197598098d030526c08d55cdd3910f
+https://github.com/aristanetworks/sonic-firmware/raw/446f30ccd8626f904d89d5798da7294948e090a6/phy/phy-credo_1.0_amd64.deb==6c3d6c32477615cbe049b9161ce15bd5
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
 https://github.com/bazelbuild/bazelisk/releases/download/v1.13.0/bazelisk-linux-amd64==1227b24db77557d552701f6add122edc
