@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" version="2022-09-23-1.1" profile="SAI" dsig="md5">
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" version="2023-05-05-1.04" profile="SAI" dsig="md5">
   <SAIplt:SAI xmlns:SAIplt="urn:marvell:SAI:yang">
     <SAIplt:typedefs>
       <SAIplt:typedef>
@@ -15,6 +15,33 @@
         <SAIplt:description>Interface number</SAIplt:description>
         <SAIplt:min>0</SAIplt:min>
         <SAIplt:max>1023</SAIplt:max>
+      </SAIplt:typedef>
+      <SAIplt:typedef>
+        <SAIplt:name>logDest-type</SAIplt:name>
+        <SAIplt:type>enumeration</SAIplt:type>
+        <SAIplt:description>Logging Feature Options</SAIplt:description>
+        <SAIplt:enum>
+          <SAIplt:name>SAI_LOG_SYSLOG</SAIplt:name>
+          <SAIplt:description>SYSLOG               {Syslog service should be running to use this option}</SAIplt:description>
+          <SAIplt:value>0</SAIplt:value>
+        </SAIplt:enum>
+        <SAIplt:enum>
+          <SAIplt:name>SAI_LOG_CONSOLE</SAIplt:name>
+          <SAIplt:description>CONSOLE</SAIplt:description>
+          <SAIplt:value>1</SAIplt:value>
+        </SAIplt:enum>
+        <SAIplt:enum>
+          <SAIplt:name>SAI_LOG_FILE</SAIplt:name>
+          <SAIplt:description>FILE                       {Warning !!! Use with caution. Can cause disk full issues}</SAIplt:description>
+          <SAIplt:value>2</SAIplt:value>
+        </SAIplt:enum>
+      </SAIplt:typedef>
+      <SAIplt:typedef>
+        <SAIplt:name>log-dest-file-path-type</SAIplt:name>
+        <SAIplt:type>string</SAIplt:type>
+        <SAIplt:description>A string with path to file for logging feature</SAIplt:description>
+        <SAIplt:min>2</SAIplt:min>
+        <SAIplt:max>30</SAIplt:max>
       </SAIplt:typedef>
     </SAIplt:typedefs>
     <SAIplt:ASK-BOARD-Profile-Name SAIplt:type="string">ASK-Board-M0-48x1G-4x10G.xml</SAIplt:ASK-BOARD-Profile-Name>
@@ -292,11 +319,15 @@
       <SAIplt:max_ipv6_tunnel SAIplt:type="uint32">8</SAIplt:max_ipv6_tunnel>
       <SAIplt:max_tti SAIplt:type="uint32">1024</SAIplt:max_tti>
       <SAIplt:wred_size SAIplt:type="uint32">0</SAIplt:wred_size>
+      <SAIplt:max_nat SAIplt:type="uint32">0</SAIplt:max_nat>
     </SAIplt:Scaling>
     <SAIplt:Counters>
       <SAIplt:cnc-base-list>
         <SAIplt:counter-base SAIplt:type="uint32">4096</SAIplt:counter-base>
       </SAIplt:cnc-base-list>
     </SAIplt:Counters>
+    <SAIplt:Logging>
+      <SAIplt:log_dest SAIplt:type="logDest-type">SAI_LOG_SYSLOG</SAIplt:log_dest>
+    </SAIplt:Logging>
   </SAIplt:SAI>
 </data>
