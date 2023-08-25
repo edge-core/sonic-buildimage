@@ -29,3 +29,15 @@ else
         cp $HWSKU_DIR/sai.profile /etc/sai.d/sai.profile
     fi
 fi
+
+# If the Python 3 sonic-platform package is not installed, try to install it
+python3 -c "import sonic_platform" > /dev/null 2>&1 || pip3 show sonic-platform > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    SONIC_PLATFORM_WHEEL="/usr/share/sonic/platform/sonic_platform-1.0-py3-none-any.whl"
+
+    if [ -e ${SONIC_PLATFORM_WHEEL} ]; then
+       pip3 install ${SONIC_PLATFORM_WHEEL}
+    fi
+fi
+
+python3 /usr/bin/read-skey.py

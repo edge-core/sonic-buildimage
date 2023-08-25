@@ -19,6 +19,29 @@ debs/
 # Install locally-built Debian packages and implicitly install their dependencies
 {{ install_debian_packages(docker_syncd_brcm_debs.split(' ')) }}
 
+
+# Install dependencies used by some plugins
+RUN pip3 install --no-cache-dir \
+        hiredis
+
+{% if docker_syncd_brcm_whls.strip() -%}
+# Copy locally-built Python wheel dependencies
+COPY \
+{% for whl in docker_syncd_brcm_whls.split(' ') -%}
+python-wheels/{{ whl }}{{' '}}
+{%- endfor -%}
+/python-wheels/
+
+# Install locally-built Python wheel dependencies
+
+RUN pip3  install \
+
+
+{% for whl in docker_syncd_brcm_whls.split(' ') -%}
+/python-wheels/{{ whl }}{{' '}}
+{%- endfor %}
+{% endif %}
+
 ## TODO: add kmod into Depends
 RUN apt-get install -yf kmod
 
@@ -31,6 +54,7 @@ RUN chmod +x /usr/bin/dsserve /usr/bin/bcmcmd
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor/"]
+COPY ["read-skey.py", "/usr/bin/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
