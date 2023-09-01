@@ -42,7 +42,7 @@ class FanUtil(object):
     FAN_NODE_NUM_OF_MAP = 2
     FAN_NODE_FAULT_IDX_OF_MAP = 1    
     FAN_NODE_DIR_IDX_OF_MAP = 2
-    
+
     BASE_VAL_PATH = '/sys/bus/i2c/devices/3-0063/{0}'
     FAN_DUTY_PATH = '/sys/bus/i2c/devices/3-0063/fan_duty_cycle_percentage'
 
@@ -54,12 +54,7 @@ class FanUtil(object):
         key2 = fan node index (interger) starting from 1
         value = path to fan device file (string) """
     _fan_to_device_path_mapping = {}
-    
-#fan1_direction
-#fan1_fault
-#fan1_present
 
- #(FAN_NUM_2_IDX, FAN_NODE_DUTY_IDX_OF_MAP): 'fan2_duty_cycle_percentage',
     _fan_to_device_node_mapping = {
            (FAN_NUM_1_IDX, FAN_NODE_FAULT_IDX_OF_MAP): 'fan1_fault',           
            (FAN_NUM_1_IDX, FAN_NODE_DIR_IDX_OF_MAP): 'fan1_direction',           
@@ -174,14 +169,10 @@ class FanUtil(object):
     def get_fan_fault(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_FAULT_IDX_OF_MAP)
 
-    #def get_fan_speed(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FAN_NODE_SPEED_IDX_OF_MAP)
-
     def get_fan_dir(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_DIR_IDX_OF_MAP)
 
     def get_fan_duty_cycle(self):
-        #duty_path = self.FAN_DUTY_PATH
         try:
             val_file = open(self.FAN_DUTY_PATH)
         except IOError as e:
@@ -203,9 +194,6 @@ class FanUtil(object):
         fan_file.close()
         return True
 
-    #def get_fanr_fault(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FANR_NODE_FAULT_IDX_OF_MAP)
-
     def get_fanr_speed(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FANR_NODE_SPEED_IDX_OF_MAP)
 
@@ -217,10 +205,6 @@ class FanUtil(object):
         if self.get_fan_fault(fan_num) is not None and self.get_fan_fault(fan_num) > 0:
             logging.debug('GET. FAN fault. fan_num, %d', fan_num)
             return False
-
-        #if self.get_fanr_fault(fan_num) is not None and self.get_fanr_fault(fan_num) > 0:
-        #    logging.debug('GET. FANR fault. fan_num, %d', fan_num)
-        #   return False
 
         return True
 
