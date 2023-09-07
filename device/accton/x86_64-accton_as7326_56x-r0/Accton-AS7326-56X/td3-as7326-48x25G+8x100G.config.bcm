@@ -42,6 +42,7 @@ riot_overlay_l3_intf_mem_size=4096
 riot_overlay_l3_egress_mem_size=32768
 riot_overlay_ecmp_resilient_hash_size=16384
 flow_init_mode=1
+host_as_route_disable=1
 
 dport_map_port_1=6
 dport_map_port_2=2
