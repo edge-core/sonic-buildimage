@@ -151,15 +151,7 @@ elif [ "$IMAGE_TYPE" = "raw" ]; then
         exit 1
     }
 
-    $GZ_COMPRESS_PROGRAM $OUTPUT_RAW_IMAGE
-
-    [ -r $OUTPUT_RAW_IMAGE.gz ] || {
-        echo "Error : $GZ_COMPRESS_PROGRAM $OUTPUT_RAW_IMAGE failed!"
-        exit 1
-    }
-
-    mv $OUTPUT_RAW_IMAGE.gz $OUTPUT_RAW_IMAGE
-    echo "The compressed raw image is in $OUTPUT_RAW_IMAGE"
+    echo "The raw image is in $OUTPUT_RAW_IMAGE"
 
 elif [ "$IMAGE_TYPE" = "kvm" ]; then
 
