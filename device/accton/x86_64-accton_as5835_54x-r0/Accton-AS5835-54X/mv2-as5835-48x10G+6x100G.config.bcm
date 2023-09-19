@@ -43,9 +43,10 @@ l3_alpm_ipv6_128b_bkt_rsvd=1
 
 flow_init_mode=1
 riot_enable=1
-riot_overlay_l3_intf_mem_size=512
-riot_overlay_l3_egress_mem_size=4096
+riot_overlay_l3_intf_mem_size=4096
+riot_overlay_l3_egress_mem_size=8192
 l3_ecmp_levels=2
+riot_overlay_ecmp_resilient_hash_size=16384
 use_all_splithorizon_groups=1
 host_as_route_disable=1
 sai_tunnel_support=1
