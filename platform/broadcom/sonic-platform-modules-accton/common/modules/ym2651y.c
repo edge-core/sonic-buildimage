@@ -34,6 +34,8 @@
 #include <linux/kthread.h>
 #include <linux/delay.h>
 #include "accton_psu_defs.h"
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <linux/string.h>
 
 #define MAX_FAN_DUTY_CYCLE 100
 #define ACCESS_INTERVAL_MAX 120
@@ -510,7 +512,11 @@ static ssize_t show_ascii(struct device *dev, struct device_attribute *da,
     case PSU_FAN_DIRECTION: /* psu_fan_dir */
         if (data->chip==YPEB1200AM)
         {
+            #ifdef __STDC_LIB_EXT1__
+            memcpy_s(data->reg_val.fan_dir, 3, "F2B", 3);
+            #else
             memcpy(data->reg_val.fan_dir, "F2B", 3);
+            #endif
             data->reg_val.fan_dir[3]='\0';
         }
         ptr = data->reg_val.fan_dir;
@@ -960,9 +966,17 @@ static int ym2651y_update_thread(void *arg)
         mutex_lock(&data->update_lock);
         data->valid = 1;
         if (valid) {
+            #ifdef __STDC_LIB_EXT1__
+            memcpy_s(&data->reg_val, sizeof(reg_val), &reg_val, sizeof(reg_val));
+            #else
             memcpy(&data->reg_val, &reg_val, sizeof(reg_val));
+            #endif
         } else {
+            #ifdef __STDC_LIB_EXT1__
+            memset_s(&data->reg_val, sizeof(reg_val), 0, sizeof(reg_val));
+            #else
             memset(&data->reg_val, 0, sizeof(reg_val));
+            #endif
 
             /* PMBus STATUS_WORD(0x79): psu_power_on, low byte bit 6, 0=>ON, 1=>OFF */
             data->reg_val.status_word |= 0x40;
