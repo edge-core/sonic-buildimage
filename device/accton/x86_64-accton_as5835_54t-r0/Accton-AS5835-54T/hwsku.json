@@ -289,27 +289,33 @@
         },
 
         "Ethernet48": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         },
 
         "Ethernet52": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         },
 
         "Ethernet56": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         },
 
         "Ethernet60": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         },
 
         "Ethernet64": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         },
 
         "Ethernet68": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[40G]",
+            "autoneg": "off"
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+    "chassis": {
+        "5835-54T-O-AC-F": {
+            "component": {
+                "CPLD1": { },
+                "CPLD2": { },
+                "CPLD3": { },
+                "BIOS": { }
+            }
+        }
+    }
+}
