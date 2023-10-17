@@ -148,7 +148,7 @@ led 3 prog \
  84 57 80 18 71 EB 67 84 67 98 57 67 84 67 84 57 \
  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-led auto on
+#led auto on
 led 0 start
 led 1 start
 led 2 start
