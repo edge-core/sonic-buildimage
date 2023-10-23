@@ -311,3 +311,7 @@ GZ_COMPRESS_PROGRAM ?= gzip
 
 # SONIC_OS_VERSION - sonic os version
 SONIC_OS_VERSION ?= 11
+
+# PIP timeout for http connection
+PIP_HTTP_TIMEOUT ?= 60
+
