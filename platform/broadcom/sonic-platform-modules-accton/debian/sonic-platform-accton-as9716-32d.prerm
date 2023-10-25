@@ -1,7 +1,5 @@
 # Disable pddf-platform-init, monitor, monitor-fan, monitor-psu
 
-systemctl stop as9716-platform-custom-init.service
-systemctl disable as9716-platform-custom-init.service
 systemctl stop pddf-platform-init.service
 systemctl disable pddf-platform-init.service
 systemctl stop as9716-32d-pddf-platform-monitor.service
