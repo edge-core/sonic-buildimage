@@ -1450,6 +1450,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export include_mux="$(INCLUDE_MUX)"
 	export include_bootchart="$(INCLUDE_BOOTCHART)"
 	export enable_bootchart="$(ENABLE_BOOTCHART)"
+	mkdir -p files/image_config/nftables
+	j2 files/build_templates/nftables.conf.j2 > files/image_config/nftables/nftables.conf
 	$(foreach docker, $($*_DOCKERS),\
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"
