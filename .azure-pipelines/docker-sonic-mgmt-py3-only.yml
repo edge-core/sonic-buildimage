@@ -56,7 +56,7 @@ stages:
         containerRegistry: ${{ parameters.registry_conn }}
         repository: docker-sonic-mgmt
         command: push
-        tags: latest
+        tags: py3only
     - publish:  $(Build.ArtifactStagingDirectory)
       artifact: 'docker-sonic-mgmt'
       displayName: "Archive docker image sonic-mgmt"
