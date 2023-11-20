@@ -17,6 +17,11 @@
 # HISTORY:
 #    mm/dd/yyyy (A.D.)#
 #    04/23/2021: Michael_Shih create for as9726_32d thermal plan
+#    11/23/2023: Roger
+#                1. Sync the log buffer to the disk before 
+#                   powering off the DUT.
+#                2. Change the decision of FAN direction
+#                3. Enhance test data
 # ------------------------------------------------------------------
 
 try:
@@ -221,6 +226,14 @@ class switch(object):
 #Transceiver >=77
 
 def power_off_dut():
+    # Sync log buffer to disk
+    cmd_str = ["sync"]
+    status, output = getstatusoutput_noshell(cmd_str)
+    cmd_str = ["/sbin/fstrim", "-av"]
+    status, output = getstatusoutput_noshell(cmd_str)
+    time.sleep(3)
+
+    # Power off dut
     cmd_str = ["i2cset", "-y", "-f", "19", "0x60", "0x60", "0x10"]
     (status, output) = getstatusoutput_noshell(cmd_str)
     return (status == 0)
@@ -285,7 +298,7 @@ fan_fail=0
 count_check=0
 
 test_temp = 0
-test_temp_list = [0, 0, 0, 0, 0, 0, 0]
+test_temp_list = [0] * (7 + 16) # 7 Thermal, 16 ZR/ZR+ Thermal
 temp_test_data=0
 test_temp_revert=0
 
@@ -319,7 +332,7 @@ class device_monitor(object):
         if log_level == logging.DEBUG:
             console = logging.StreamHandler()
             console.setLevel(log_level)
-            formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+            formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
             console.setFormatter(formatter)
             logging.getLogger('').addHandler(console)
 
@@ -452,14 +465,24 @@ class device_monitor(object):
             count_check=0
 
         thermal = self.thermal
-        fan_dir=fan.get_fan_dir(1)
+        f2b_dir = 0
+        b2f_dir = 0
+        for i in range (fan.FAN_NUM_1_IDX, fan.FAN_NUM_ON_MAIN_BROAD+1):
+            if fan.get_fan_present(i)==0:
+                continue
+            b2f_dir += fan.get_fan_dir(i) == 1
+            f2b_dir += fan.get_fan_dir(i) == 0
+        logging.debug("b2f_dir={} f2b_dir={}".format(b2f_dir, f2b_dir))
+        fan_dir = int(b2f_dir >= f2b_dir)
 
         if fan_dir==1:   # AFI
             fan_thermal_spec = afi_thermal_spec
             fan_policy=fan_policy_b2f
+            logging.debug("fan_policy = fan_policy_b2f")
         elif fan_dir==0: # AFO
             fan_thermal_spec = afo_thermal_spec
             fan_policy=fan_policy_f2b
+            logging.debug("fan_policy = fan_policy_f2b")
         else:
             logging.debug( "NULL case")
 
@@ -483,8 +506,12 @@ class device_monitor(object):
             logging.debug("Maximum avaliable port : %d", TRANSCEIVER_NUM_MAX)
             logging.debug(thermal_val)
         else:
-            for i in range(THERMAL_NUM_MAX):
+            for i in range(thermal.THERMAL_NUM_MAX):
                 thermal_val.append((TYPE_SENSOR, None, test_temp_list[i] + temp_test_data))
+            for port_num in monitor_port:
+                sfp = platform_chassis.get_sfp(port_num)
+                thermal_val.append((TYPE_TRANSCEIVER, sfp, test_temp_list[i + 1] + temp_test_data))
+                i = i + 1
             logging.debug(thermal_val)
             fan_fail=0
 
@@ -668,11 +695,11 @@ def main(argv):
                 log_file = arg
 
         if sys.argv[1]== '-t':
-            if len(sys.argv)!=9:
-                print("temp test, need input 7 temp")
+            if len(sys.argv)!=(2 + 7 + 16): # 7 Thermal, 16 ZR/ZR+ Thermal
+                print("temp test, need input %d temp" % (7 + 16))
                 return 0
             i=0
-            for x in range(2, 9):
+            for x in range(2, (2 + 7 + 16)): # 7 Thermal, 16 ZR/ZR+ Thermal
                test_temp_list[i]= int(sys.argv[x])*1000
                i=i+1
             test_temp = 1
