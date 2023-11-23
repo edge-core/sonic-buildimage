@@ -25,6 +25,7 @@ techsupport_table_output="""\
 AUTO_TECHSUPPORT
 Description: AUTO_TECHSUPPORT part of config_db.json
 
+key - GLOBAL
 +-------------------------+----------------------------------------------------+-------------+-----------+-------------+
 | Field                   | Description                                        | Mandatory   | Default   | Reference   |
 +=========================+====================================================+=============+===========+=============+
@@ -62,6 +63,7 @@ techsupport_table_field_output="""\
 AUTO_TECHSUPPORT
 Description: AUTO_TECHSUPPORT part of config_db.json
 
+key - GLOBAL
 +---------+--------------------------------------------------+-------------+-----------+-------------+
 | Field   | Description                                      | Mandatory   | Default   | Reference   |
 +=========+==================================================+=============+===========+=============+
@@ -118,6 +120,25 @@ key - ACL_TABLE_NAME:RULE_NAME
 
 """
 
+snmp_table_output="""\
+
+SNMP
+
+key - CONTACT
++---------+----------------------+-------------+-----------+-------------+
+| Field   | Description          | Mandatory   | Default   | Reference   |
++=========+======================+=============+===========+=============+
+| Contact | SNMP System Contact. |             |           |             |
++---------+----------------------+-------------+-----------+-------------+
+key - LOCATION
++----------+-----------------------+-------------+-----------+-------------+
+| Field    | Description           | Mandatory   | Default   | Reference   |
++==========+=======================+=============+===========+=============+
+| Location | SNMP System Location. |             |           |             |
++----------+-----------------------+-------------+-----------+-------------+
+
+"""
+
 class TestCfgHelp(TestCase):
 
     def setUp(self):
@@ -167,3 +188,8 @@ class TestCfgHelp(TestCase):
         argument = ['-t', 'ACL_RULE', '-f', 'ICMP_TYPE']
         output = self.run_script(argument)
         self.assertEqual(output, acl_rule_table_field_output)
+
+    def test_nested_container(self):
+        argument = ['-t', 'SNMP']
+        output = self.run_script(argument)
+        self.assertEqual(output, snmp_table_output)
