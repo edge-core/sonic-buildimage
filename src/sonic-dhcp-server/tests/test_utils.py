@@ -1,8 +1,10 @@
 import dhcp_server.common.utils as utils
 import ipaddress
+import psutil
 import pytest
 from swsscommon import swsscommon
-from unittest.mock import patch, call
+from common_utils import MockProc
+from unittest.mock import patch, call, PropertyMock
 
 interval_test_data = {
     "ordered_with_overlap": {
@@ -137,3 +139,8 @@ def convert_ip_address_intervals(intervals):
 def test_validate_ttr_type(test_data):
     res = utils.validate_str_type(test_data[0], test_data[1])
     assert res == test_data[2]
+
+
+def test_get_target_process_cmds():
+    with patch.object(psutil, "process_iter", return_value=[MockProc("dhcrelay", 1), MockProc("dhcpmon", 2)], new_callable=PropertyMock):
+        res = utils.get_target_process_cmds("dhcrelay")

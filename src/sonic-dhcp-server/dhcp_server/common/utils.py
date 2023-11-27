@@ -1,4 +1,5 @@
 import ipaddress
+import psutil
 import string
 from swsscommon import swsscommon
 
@@ -147,3 +148,18 @@ def _parse_table_to_dict(table):
                 new_entry[field] = value.split(",")
         ret[key] = new_entry
     return ret
+
+
+def get_target_process_cmds(process_name):
+    """
+    Get running process cmds
+    Args:
+        process_name: name of process
+    Returns:
+        List of cmds list
+    """
+    res = []
+    for proc in psutil.process_iter():
+        if proc.name() == process_name:
+            res.append(proc.cmdline())
+    return res

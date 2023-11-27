@@ -12,6 +12,7 @@ DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS = "DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS"
 VLAN = "VLAN"
 VLAN_MEMBER = "VLAN_MEMBER"
 VLAN_INTERFACE = "VLAN_INTERFACE"
+FEATURE = "FEATURE"
 
 
 class ConfigDbEventChecker(object):
@@ -343,6 +344,60 @@ class VlanMemberTableEventChecker(ConfigDbEventChecker):
         return False
 
 
+class DhcpServerFeatureStateChecker(ConfigDbEventChecker):
+    """
+    This event checker interested in dhcp_server feature state change in FEATURE table
+    """
+    table_name = FEATURE
+
+    def __init__(self, sel, db):
+        self.table_name = FEATURE
+        ConfigDbEventChecker.__init__(self, sel, db)
+
+    def _get_parameter(self, db_snapshot):
+        return ConfigDbEventChecker.get_parameter_by_name(db_snapshot, "dhcp_server_feature_enabled")
+
+    def _process_check(self, key, op, entry, dhcp_server_feature_enabled):
+        if key != "dhcp_server":
+            return False
+        if op == "DEL":
+            return dhcp_server_feature_enabled
+        for field, value in entry:
+            if field != "state":
+                continue
+            return value == "enabled" and not dhcp_server_feature_enabled or \
+                value == "disabled" and dhcp_server_feature_enabled
+        return False
+
+
+def _enable_monitor_checkers(checker_names, checker_dict):
+    """
+    Enable checkers
+    Args:
+        checker_names: set of tables checker to be enable
+        checker_dict: check_dict in monitor
+    """
+    for checker in checker_names:
+        if checker not in checker_dict:
+            syslog.syslog(syslog.LOG_ERR, "Cannot find checker for {} in checker_dict".format(checker))
+            continue
+        checker_dict[checker].enable()
+
+
+def _disable_monitor_checkers(checker_names, checker_dict):
+    """
+    Disable checkers
+    Args:
+        checker_names: set contains name of tables need to be disable
+        checker_dict: check_dict in monitor
+    """
+    for checker in checker_names:
+        if checker not in checker_dict:
+            syslog.syslog(syslog.LOG_ERR, "Cannot find checker for {} in checker_dict".format(checker))
+            continue
+        checker_dict[checker].disable()
+
+
 class DhcpRelaydDbMonitor(object):
     checker_dict = {}
 
@@ -354,17 +409,21 @@ class DhcpRelaydDbMonitor(object):
         for checker in checkers:
             self.checker_dict[checker.get_class_name()] = checker
 
-    def enable_checker(self, checker_names):
+    def enable_checkers(self, checker_names):
         """
         Enable checkers
         Args:
             checker_names: set of tables checker to be enable
         """
-        for table in checker_names:
-            if table not in self.checker_dict:
-                syslog.syslog(syslog.LOG_ERR, "Cannot find checker for {} in checker_dict".format(table))
-                continue
-            self.checker_dict[table].enable()
+        _enable_monitor_checkers(checker_names, self.checker_dict)
+
+    def disable_checkers(self, checker_names):
+        """
+        Disable checkers
+        Args:
+            checker_names: set contains name of tables need to be disable
+        """
+        _disable_monitor_checkers(checker_names, self.checker_dict)
 
     def check_db_update(self, db_snapshot):
         """
@@ -376,10 +435,13 @@ class DhcpRelaydDbMonitor(object):
         """
         state, _ = self.sel.select(self.select_timeout)
         if state == swsscommon.Select.TIMEOUT or state != swsscommon.Select.OBJECT:
-            return (False, False, False)
-        return (self.checker_dict["DhcpServerTableIntfEnablementEventChecker"].check_update_event(db_snapshot),
-                self.checker_dict["VlanTableEventChecker"].check_update_event(db_snapshot),
-                self.checker_dict["VlanIntfTableEventChecker"].check_update_event(db_snapshot))
+            return {}
+        check_res = {}
+        for name, checker in self.checker_dict.items():
+            if not checker.is_enabled():
+                continue
+            check_res[name] = checker.check_update_event(db_snapshot)
+        return check_res
 
 
 class DhcpServdDbMonitor(object):
@@ -399,11 +461,7 @@ class DhcpServdDbMonitor(object):
         Args:
             checker_names: set contains name of tables need to be disable
         """
-        for table in checker_names:
-            if table not in self.checker_dict:
-                syslog.syslog(syslog.LOG_ERR, "Cannot find checker for {} in checker_dict".format(table))
-                continue
-            self.checker_dict[table].disable()
+        _disable_monitor_checkers(checker_names, self.checker_dict)
 
     def enable_checkers(self, checker_names):
         """
@@ -411,11 +469,7 @@ class DhcpServdDbMonitor(object):
         Args:
             checker_names: set contains name of tables need to be enable
         """
-        for table in checker_names:
-            if table not in self.checker_dict:
-                syslog.syslog(syslog.LOG_ERR, "Cannot find checker for {} in checker_dict".format(table))
-                continue
-            self.checker_dict[table].enable()
+        _enable_monitor_checkers(checker_names, self.checker_dict)
 
     def check_db_update(self, db_snapshot):
         """

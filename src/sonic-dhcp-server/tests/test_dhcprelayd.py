@@ -3,21 +3,32 @@ import pytest
 import subprocess
 import sys
 import time
-from common_utils import mock_get_config_db_table, MockProc, MockPopen
+from common_utils import mock_get_config_db_table, MockProc, MockPopen, MockSubprocessRes, mock_exit_func
 from dhcp_server.common.utils import DhcpDbConnector
-from dhcp_server.common.dhcp_db_monitor import ConfigDbEventChecker
+from dhcp_server.common.dhcp_db_monitor import ConfigDbEventChecker, DhcpRelaydDbMonitor
 from dhcp_server.dhcprelayd.dhcprelayd import DhcpRelayd, KILLED_OLD, NOT_KILLED, NOT_FOUND_PROC
 from swsscommon import swsscommon
-from unittest.mock import patch, call
+from unittest.mock import patch, call, ANY, PropertyMock
 
 
-def test_start(mock_swsscommon_dbconnector_init):
-    with patch.object(DhcpRelayd, "refresh_dhcrelay", return_value=None) as mock_refresh, \
-         patch.object(ConfigDbEventChecker, "enable"):
+@pytest.mark.parametrize("dhcp_server_enabled", [True, False])
+def test_start(mock_swsscommon_dbconnector_init, dhcp_server_enabled):
+    with patch.object(DhcpRelayd, "_get_dhcp_relay_config") as mock_get_config, \
+         patch.object(DhcpRelayd, "_is_dhcp_server_enabled", return_value=dhcp_server_enabled) as mock_enabled, \
+         patch.object(DhcpRelayd, "_execute_supervisor_dhcp_relay_process") as mock_execute, \
+         patch.object(DhcpRelaydDbMonitor, "enable_checkers") as mock_enable_checkers, \
+         patch.object(time, "sleep"):
         dhcp_db_connector = DhcpDbConnector()
-        dhcprelayd = DhcpRelayd(dhcp_db_connector, None)
+        dhcprelayd = DhcpRelayd(dhcp_db_connector, DhcpRelaydDbMonitor)
         dhcprelayd.start()
-        mock_refresh.assert_called_once_with()
+        mock_get_config.assert_called_once_with()
+        mock_enabled.assert_called_once_with()
+        if dhcp_server_enabled:
+            mock_execute.assert_called_once_with("stop")
+            mock_enable_checkers.assert_called_once_with([ANY, ANY, ANY])
+        else:
+            mock_execute.assert_not_called()
+            mock_enable_checkers.assert_not_called()
 
 
 def test_refresh_dhcrelay(mock_swsscommon_dbconnector_init):
@@ -131,3 +142,93 @@ def test_get_dhcp_server_ip(mock_swsscommon_dbconnector_init, mock_swsscommon_ta
         else:
             mock_exit.assert_called_once_with(1)
             mock_sleep.assert_has_calls([call(10) for _ in range(10)])
+
+
+tested_feature_table = [
+    {
+        "dhcp_server": {
+            "delayed": "True"
+        }
+    },
+    {
+        "dhcp_server": {
+            "state": "enabled"
+        }
+    },
+    {
+        "dhcp_server": {
+            "state": "disabled"
+        }
+    },
+    {}
+]
+
+
+@pytest.mark.parametrize("feature_table", tested_feature_table)
+def test_is_dhcp_server_enabled(mock_swsscommon_dbconnector_init, mock_swsscommon_table_init, feature_table):
+    with patch.object(DhcpDbConnector, "get_config_db_table", return_value=feature_table):
+        dhcp_db_connector = DhcpDbConnector()
+        dhcprelayd = DhcpRelayd(dhcp_db_connector, None)
+        res = dhcprelayd._is_dhcp_server_enabled()
+        if "dhcp_server" in feature_table and "state" in feature_table["dhcp_server"] and \
+           feature_table["dhcp_server"]["state"] == "enabled":
+            assert res
+        else:
+            assert not res
+
+
+@pytest.mark.parametrize("op", ["stop", "start", "starts"])
+@pytest.mark.parametrize("return_code", [0, -1])
+def test_execute_supervisor_dhcp_relay_process(mock_swsscommon_dbconnector_init, mock_swsscommon_table_init, op,
+                                               return_code):
+    with patch.object(sys, "exit", side_effect=mock_exit_func) as mock_exit, \
+         patch.object(subprocess, "run", return_value=MockSubprocessRes(return_code)) as mock_run, \
+         patch.object(DhcpRelayd, "dhcp_relay_supervisor_config", return_value={"dhcpmon-Vlan1000": ""},
+                      new_callable=PropertyMock):
+        dhcp_db_connector = DhcpDbConnector()
+        dhcprelayd = DhcpRelayd(dhcp_db_connector, None)
+        try:
+            dhcprelayd._execute_supervisor_dhcp_relay_process(op)
+        except SystemExit:
+            mock_exit.assert_called_once_with(1)
+            assert op == "starts" or return_code != 0
+        else:
+            mock_run.assert_called_once_with(["supervisorctl", op, "dhcpmon-Vlan1000"], check=True)
+
+
+@pytest.mark.parametrize("target_cmds", [[["/usr/bin/dhcrelay"]], [["/usr/bin/dhcpmon"]]])
+def test_check_dhcp_relay_process(mock_swsscommon_dbconnector_init, mock_swsscommon_table_init, target_cmds):
+    exp_config = {"isc-dhcpv4-relay-Vlan1000": ["/usr/bin/dhcrelay"]}
+    with patch("dhcp_server.dhcprelayd.dhcprelayd.get_target_process_cmds", return_value=target_cmds), \
+         patch.object(DhcpRelayd, "dhcp_relay_supervisor_config",
+                      return_value=exp_config, new_callable=PropertyMock), \
+         patch.object(sys, "exit", mock_exit_func):
+        dhcp_db_connector = DhcpDbConnector()
+        dhcprelayd = DhcpRelayd(dhcp_db_connector, None)
+        exp_cmds = [value for key, value in exp_config.items() if "isc-dhcpv4-relay" in key]
+        exp_cmds.sort()
+        try:
+            dhcprelayd._check_dhcp_relay_processes()
+        except SystemExit:
+            assert exp_cmds != target_cmds
+        else:
+            assert exp_cmds == target_cmds
+
+
+def test_get_dhcp_relay_config(mock_swsscommon_dbconnector_init, mock_swsscommon_table_init):
+    with patch.object(DhcpRelayd, "supervisord_conf_path", return_value="tests/test_data/supervisor.conf",
+                      new_callable=PropertyMock):
+        dhcp_db_connector = DhcpDbConnector()
+        dhcprelayd = DhcpRelayd(dhcp_db_connector, None)
+        res = dhcprelayd._get_dhcp_relay_config()
+        assert res == {
+            "isc-dhcpv4-relay-Vlan1000": [
+                "/usr/sbin/dhcrelay", "-d", "-m", "discard", "-a", "%h:%p", "%P", "--name-alias-map-file",
+                "/tmp/port-name-alias-map.txt", "-id", "Vlan1000", "-iu", "PortChannel101", "-iu", "PortChannel102",
+                "-iu", "PortChannel103", "-iu", "PortChannel104", "192.0.0.1", "192.0.0.2", "192.0.0.3", "192.0.0.4"
+            ],
+            "dhcpmon:dhcpmon-Vlan1000": [
+                "/usr/sbin/dhcpmon", "-id", "Vlan1000", "-iu", "PortChannel101", "-iu", "PortChannel102", "-iu",
+                "PortChannel103", "-iu", "PortChannel104", "-im", "eth0"
+            ]
+        }

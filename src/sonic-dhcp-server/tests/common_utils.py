@@ -108,3 +108,8 @@ def get_subscribe_table_tested_data(test_name):
             data["table"][i][2] = tuple(data["table"][i][2])
             data["table"][i] = tuple(data["table"][i])
     return tested_data
+
+
+class MockSubprocessRes(object):
+    def __init__(self, returncode):
+        self.returncode = returncode

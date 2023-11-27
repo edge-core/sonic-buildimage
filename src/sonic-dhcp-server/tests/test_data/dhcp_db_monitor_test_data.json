@@ -242,5 +242,52 @@
             ],
             "exp_res": false
         }
+    ],
+    "test_feature_update": [
+        {
+            "table": [
+                ["dhcp_server", "SET", [["state", "disabled"]]]
+            ],
+            "exp_res": {
+                "pre_enabled": true,
+                "pre_disabled": false
+            }
+        },
+        {
+            "table": [
+                ["dhcp_server", "SET", [["state", "enabled"]]]
+            ],
+            "exp_res": {
+                "pre_enabled": false,
+                "pre_disabled": true
+            }
+        },
+        {
+            "table": [
+                ["dhcp_server", "SET", [["states", "enabled"]]]
+            ],
+            "exp_res": {
+                "pre_enabled": false,
+                "pre_disabled": false
+            }
+        },
+        {
+            "table": [
+                ["dhcp_server", "DEL", [[]]]
+            ],
+            "exp_res": {
+                "pre_enabled": true,
+                "pre_disabled": false
+            }
+        },
+        {
+            "table": [
+                ["dhcp_relay", "SET", [["state", "disabled"]]]
+            ],
+            "exp_res": {
+                "pre_enabled": false,
+                "pre_disabled": false
+            }
+        }
     ]
 }
