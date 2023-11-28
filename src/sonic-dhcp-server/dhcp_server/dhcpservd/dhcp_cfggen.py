@@ -251,15 +251,17 @@ class DhcpServCfgGenerator(object):
         ranges = {}
         for range in list(range_ipv4.keys()):
             curr_range = range_ipv4.get(range, {}).get("range", {})
-            if len(curr_range) != 2:
-                syslog.syslog(syslog.LOG_WARNING, f"Length of {curr_range} != 2")
+            list_length = len(curr_range)
+            if list_length == 0 or list_length > 2:
+                syslog.syslog(syslog.LOG_WARNING, f"Length of {curr_range} is {list_length}, which is invalid!")
                 continue
-            address_1 = ipaddress.ip_address(curr_range[0])
-            address_2 = ipaddress.ip_address(curr_range[1])
+            address_start = ipaddress.ip_address(curr_range[0])
+            address_end = ipaddress.ip_address(curr_range[1] if list_length == 2 else curr_range[0])
             # To make sure order of range is correct
-            range_start = address_1 if address_1 < address_2 else address_2
-            range_end = address_2 if address_1 < address_2 else address_1
-            ranges[range] = [range_start, range_end]
+            if address_start > address_end:
+                syslog.syslog(syslog.LOG_WARNING, f"Start of {curr_range} is greater than end, skip it")
+                continue
+            ranges[range] = [address_start, address_end]
 
         return ranges
 

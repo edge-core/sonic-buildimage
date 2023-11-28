@@ -140,7 +140,7 @@ expected_dhcp_config_without_port_config = {
     }
 }
 expected_parsed_range = {
-    "range2": [ipaddress.IPv4Address("192.168.0.3"), ipaddress.IPv4Address("192.168.0.6")],
+    "range4": [ipaddress.IPv4Address("192.168.0.1"), ipaddress.IPv4Address("192.168.0.1")],
     "range3": [ipaddress.IPv4Address("192.168.0.10"), ipaddress.IPv4Address("192.168.0.10")],
     "range1": [ipaddress.IPv4Address("192.168.0.2"), ipaddress.IPv4Address("192.168.0.5")],
     "range0": [ipaddress.IPv4Address("192.168.8.2"), ipaddress.IPv4Address("192.168.8.3")]
@@ -164,7 +164,7 @@ expected_vlan_ipv4_interface = {
 expected_parsed_port = {
     "Vlan1000": {
         "192.168.0.1/21": {
-            "etp8": [["192.168.0.2", "192.168.0.6"], ["192.168.0.10", "192.168.0.10"]],
+            "etp8": [["192.168.0.2", "192.168.0.5"], ["192.168.0.10", "192.168.0.10"]],
             "etp7": [["192.168.0.7", "192.168.0.7"]]
         }
     }
@@ -318,7 +318,7 @@ def test_parse_port(test_config_db, mock_swsscommon_dbconnector_init, mock_get_r
     parsed_port, used_ranges = dhcp_cfg_generator._parse_port(ipv4_port, tested_vlan_interfaces, vlan_members,
                                                               tested_ranges)
     assert parsed_port == (expected_parsed_port if test_config_db == "mock_config_db.json" else {})
-    assert used_ranges == ({"range2", "range1", "range0", "range3"}
+    assert used_ranges == ({"range1", "range0", "range3"}
                            if test_config_db == "mock_config_db.json" else set())
 
 
