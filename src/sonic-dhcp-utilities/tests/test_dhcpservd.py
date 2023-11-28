@@ -4,10 +4,10 @@ import signal
 import sys
 import time
 from common_utils import MockProc
-from dhcp_server.common.utils import DhcpDbConnector
-from dhcp_server.common.dhcp_db_monitor import DhcpServdDbMonitor
-from dhcp_server.dhcpservd.dhcp_cfggen import DhcpServCfgGenerator
-from dhcp_server.dhcpservd.dhcpservd import DhcpServd
+from dhcp_utilities.common.utils import DhcpDbConnector
+from dhcp_utilities.common.dhcp_db_monitor import DhcpServdDbMonitor
+from dhcp_utilities.dhcpservd.dhcp_cfggen import DhcpServCfgGenerator
+from dhcp_utilities.dhcpservd.dhcpservd import DhcpServd
 from swsscommon import swsscommon
 from unittest.mock import patch, call, MagicMock, PropertyMock
 
@@ -21,9 +21,9 @@ PORT_MODE_CHECKER = ["DhcpServerTableCfgChangeEventChecker", "DhcpPortTableEvent
 @pytest.mark.parametrize("enabled_checker", [None, set(PORT_MODE_CHECKER)])
 def test_dump_dhcp4_config(mock_swsscommon_dbconnector_init, enabled_checker):
     new_enabled_checker = set(["VlanTableEventChecker"])
-    with patch("dhcp_server.dhcpservd.dhcp_cfggen.DhcpServCfgGenerator.generate",
+    with patch("dhcp_utilities.dhcpservd.dhcp_cfggen.DhcpServCfgGenerator.generate",
                return_value=("dummy_config", set(), set(), set(), new_enabled_checker)) as mock_generate, \
-         patch("dhcp_server.dhcpservd.dhcpservd.DhcpServd._notify_kea_dhcp4_proc",
+         patch("dhcp_utilities.dhcpservd.dhcpservd.DhcpServd._notify_kea_dhcp4_proc",
                MagicMock()) as mock_notify_kea_dhcp4_proc, \
          patch.object(DhcpServd, "dhcp_servd_monitor", return_value=DhcpServdDbMonitor,
                       new_callable=PropertyMock), \

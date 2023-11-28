@@ -5,7 +5,7 @@ import os
 import syslog
 
 from jinja2 import Environment, FileSystemLoader
-from dhcp_server.common.utils import merge_intervals, validate_str_type
+from dhcp_utilities.common.utils import merge_intervals, validate_str_type
 
 PORT_MAP_PATH = "/tmp/port-name-alias-map.txt"
 UNICODE_TYPE = str

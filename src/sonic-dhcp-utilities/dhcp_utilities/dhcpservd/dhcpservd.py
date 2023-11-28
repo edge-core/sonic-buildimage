@@ -6,8 +6,8 @@ import sys
 import syslog
 from .dhcp_cfggen import DhcpServCfgGenerator
 from .dhcp_lease import LeaseManager
-from dhcp_server.common.utils import DhcpDbConnector
-from dhcp_server.common.dhcp_db_monitor import DhcpServdDbMonitor, DhcpServerTableCfgChangeEventChecker, \
+from dhcp_utilities.common.utils import DhcpDbConnector
+from dhcp_utilities.common.dhcp_db_monitor import DhcpServdDbMonitor, DhcpServerTableCfgChangeEventChecker, \
     DhcpOptionTableEventChecker, DhcpRangeTableEventChecker, DhcpPortTableEventChecker, VlanIntfTableEventChecker, \
     VlanMemberTableEventChecker, VlanTableEventChecker
 from swsscommon import swsscommon

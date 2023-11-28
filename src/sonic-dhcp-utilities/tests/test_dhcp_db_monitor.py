@@ -2,11 +2,11 @@ import pytest
 import sys
 from common_utils import MockSubscribeTable, get_subscribe_table_tested_data, \
     PORT_MODE_CHECKER, mock_exit_func
-from dhcp_server.common.dhcp_db_monitor import DhcpRelaydDbMonitor, DhcpServdDbMonitor, ConfigDbEventChecker, \
+from dhcp_utilities.common.dhcp_db_monitor import DhcpRelaydDbMonitor, DhcpServdDbMonitor, ConfigDbEventChecker, \
     DhcpServerTableIntfEnablementEventChecker, DhcpServerTableCfgChangeEventChecker, \
     DhcpPortTableEventChecker, DhcpRangeTableEventChecker, DhcpOptionTableEventChecker, \
     VlanTableEventChecker, VlanMemberTableEventChecker, VlanIntfTableEventChecker, DhcpServerFeatureStateChecker
-from dhcp_server.common.utils import DhcpDbConnector
+from dhcp_utilities.common.utils import DhcpDbConnector
 from swsscommon import swsscommon
 from unittest.mock import patch, ANY, PropertyMock, MagicMock
 

@@ -3,8 +3,8 @@ import ipaddress
 import json
 import pytest
 from common_utils import MockConfigDb, mock_get_config_db_table, PORT_MODE_CHECKER
-from dhcp_server.common.utils import DhcpDbConnector
-from dhcp_server.dhcpservd.dhcp_cfggen import DhcpServCfgGenerator
+from dhcp_utilities.common.utils import DhcpDbConnector
+from dhcp_utilities.dhcpservd.dhcp_cfggen import DhcpServCfgGenerator
 from unittest.mock import patch
 
 expected_dhcp_config = {

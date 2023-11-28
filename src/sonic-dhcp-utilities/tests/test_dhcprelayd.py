@@ -4,9 +4,9 @@ import subprocess
 import sys
 import time
 from common_utils import mock_get_config_db_table, MockProc, MockPopen, MockSubprocessRes, mock_exit_func
-from dhcp_server.common.utils import DhcpDbConnector
-from dhcp_server.common.dhcp_db_monitor import ConfigDbEventChecker, DhcpRelaydDbMonitor
-from dhcp_server.dhcprelayd.dhcprelayd import DhcpRelayd, KILLED_OLD, NOT_KILLED, NOT_FOUND_PROC
+from dhcp_utilities.common.utils import DhcpDbConnector
+from dhcp_utilities.common.dhcp_db_monitor import ConfigDbEventChecker, DhcpRelaydDbMonitor
+from dhcp_utilities.dhcprelayd.dhcprelayd import DhcpRelayd, KILLED_OLD, NOT_KILLED, NOT_FOUND_PROC
 from swsscommon import swsscommon
 from unittest.mock import patch, call, ANY, PropertyMock
 
@@ -49,7 +49,7 @@ def test_start_dhcrelay_process(mock_swsscommon_dbconnector_init, new_dhcp_inter
     with patch.object(DhcpRelayd, "_kill_exist_relay_releated_process", return_value=kill_res), \
          patch.object(subprocess, "Popen", return_value=MockPopen(999)) as mock_popen, \
          patch.object(time, "sleep"), \
-         patch("dhcp_server.dhcprelayd.dhcprelayd.terminate_proc", return_value=None) as mock_terminate, \
+         patch("dhcp_utilities.dhcprelayd.dhcprelayd.terminate_proc", return_value=None) as mock_terminate, \
          patch.object(psutil.Process, "__init__", return_value=None), \
          patch.object(psutil.Process, "status", return_value=proc_status), \
          patch.object(sys, "exit") as mock_exit, \
@@ -82,7 +82,7 @@ def test_start_dhcpmon_process(mock_swsscommon_dbconnector_init, new_dhcp_interf
     with patch.object(DhcpRelayd, "_kill_exist_relay_releated_process", return_value=kill_res), \
          patch.object(subprocess, "Popen", return_value=MockPopen(999)) as mock_popen, \
          patch.object(time, "sleep"), \
-         patch("dhcp_server.dhcprelayd.dhcprelayd.terminate_proc", return_value=None) as mock_terminate, \
+         patch("dhcp_utilities.dhcprelayd.dhcprelayd.terminate_proc", return_value=None) as mock_terminate, \
          patch.object(psutil.Process, "__init__", return_value=None), \
          patch.object(psutil.Process, "status", return_value=proc_status), \
          patch.object(ConfigDbEventChecker, "enable"):
@@ -199,7 +199,7 @@ def test_execute_supervisor_dhcp_relay_process(mock_swsscommon_dbconnector_init,
 @pytest.mark.parametrize("target_cmds", [[["/usr/bin/dhcrelay"]], [["/usr/bin/dhcpmon"]]])
 def test_check_dhcp_relay_process(mock_swsscommon_dbconnector_init, mock_swsscommon_table_init, target_cmds):
     exp_config = {"isc-dhcpv4-relay-Vlan1000": ["/usr/bin/dhcrelay"]}
-    with patch("dhcp_server.dhcprelayd.dhcprelayd.get_target_process_cmds", return_value=target_cmds), \
+    with patch("dhcp_utilities.dhcprelayd.dhcprelayd.get_target_process_cmds", return_value=target_cmds), \
          patch.object(DhcpRelayd, "dhcp_relay_supervisor_config",
                       return_value=exp_config, new_callable=PropertyMock), \
          patch.object(sys, "exit", mock_exit_func):

@@ -10,9 +10,9 @@ test_deps = [
 ]
 
 setup(
-    name="sonic-dhcp-server",
+    name="sonic-dhcp-utilities",
     install_requires=dependencies,
-    description="Module of SONiC built-in dhcp_server",
+    description="Module of SONiC built-in dhcp_utilities",
     version="1.0",
     url="https://github.com/Azure/sonic-buildimage",
     tests_require=test_deps,
@@ -23,14 +23,14 @@ setup(
         "wheel",
     ],
     packages=[
-        "dhcp_server.common",
-        "dhcp_server.dhcpservd",
-        "dhcp_server.dhcprelayd"
+        "dhcp_utilities.common",
+        "dhcp_utilities.dhcpservd",
+        "dhcp_utilities.dhcprelayd"
     ],
     entry_points={
         "console_scripts": [
-            "dhcprelayd = dhcp_server.dhcprelayd.dhcprelayd:main",
-            "dhcpservd = dhcp_server.dhcpservd.dhcpservd:main"
+            "dhcprelayd = dhcp_utilities.dhcprelayd.dhcprelayd:main",
+            "dhcpservd = dhcp_utilities.dhcpservd.dhcpservd:main"
         ]
     },
     classifiers=[
@@ -43,6 +43,6 @@ setup(
         "Programming Language :: Python :: 3.8"
     ],
     package_data={
-        "dhcp_server.dhcpservd": ["dhcp_option.csv"]
+        "dhcp_utilities.dhcpservd": ["dhcp_option.csv"]
     }
 )

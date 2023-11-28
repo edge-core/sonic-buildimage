@@ -8,8 +8,8 @@ import sys
 import syslog
 import time
 from swsscommon import swsscommon
-from dhcp_server.common.utils import DhcpDbConnector, terminate_proc, get_target_process_cmds
-from dhcp_server.common.dhcp_db_monitor import DhcpRelaydDbMonitor, DhcpServerTableIntfEnablementEventChecker, \
+from dhcp_utilities.common.utils import DhcpDbConnector, terminate_proc, get_target_process_cmds
+from dhcp_utilities.common.dhcp_db_monitor import DhcpRelaydDbMonitor, DhcpServerTableIntfEnablementEventChecker, \
      VlanTableEventChecker, VlanIntfTableEventChecker, DhcpServerFeatureStateChecker
 
 REDIS_SOCK_PATH = "/var/run/redis/redis.sock"

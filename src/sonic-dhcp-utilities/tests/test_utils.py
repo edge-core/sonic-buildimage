@@ -1,4 +1,4 @@
-import dhcp_server.common.utils as utils
+import dhcp_utilities.common.utils as utils
 import ipaddress
 import psutil
 import pytest
