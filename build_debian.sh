@@ -475,6 +475,10 @@ fi
 ## Disable kexec supported reboot which was installed by default
 sudo sed -i 's/LOAD_KEXEC=true/LOAD_KEXEC=false/' $FILESYSTEM_ROOT/etc/default/kexec
 
+# Ensure that 'logrotate-config.service' is set as a dependency to start before 'logrotate.service'.
+sudo mkdir $FILESYSTEM_ROOT/etc/systemd/system/logrotate.service.d
+sudo cp files/image_config/logrotate/logrotateOverride.conf $FILESYSTEM_ROOT/etc/systemd/system/logrotate.service.d/logrotateOverride.conf
+
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
 sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
