@@ -37,3 +37,9 @@ echo "Disabling NTP long jump for reboot type ${reboot_type} ..."
 modify_ntp_default "s/NTPD_OPTS='-g'/NTPD_OPTS='-x'/"
 
 systemctl --no-block restart ntp
+
+# Sync system time to RTC every hour
+cat << EOF > /etc/cron.d/sync_rtc
+0 */1 * * * root /sbin/hwclock -w > /dev/null 2>&1
+EOF
+
