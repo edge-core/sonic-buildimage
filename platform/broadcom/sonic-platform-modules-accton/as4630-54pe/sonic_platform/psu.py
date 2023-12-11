@@ -110,3 +110,22 @@ class Psu(PddfPsu):
             return 0.0
 
         return super().get_power()
+
+    def get_maximum_supplied_power(self):
+        """
+        Retrieves current energy supplied by PSU
+
+        Returns:
+            A float number, the power in watts,
+            e.g. 302.6
+        """
+        device = "PSU{}".format(self.psu_index)
+        output = self.pddf_obj.get_attr_name_output(device, "psu_p_out_max")
+        if not output:
+            return 0.0
+
+        p_out = output['status']
+
+        # power is returned in micro watts
+        return float(p_out)/1000
+
