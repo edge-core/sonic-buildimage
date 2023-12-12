@@ -17,7 +17,7 @@ except ImportError as e:
 NUM_FAN_TRAY = 3
 NUM_FAN = 2
 NUM_PSU = 2
-NUM_THERMAL = 8
+NUM_THERMAL = 4
 NUM_QSFP = 6
 PORT_START = 49
 PORT_END = 54
@@ -26,7 +26,6 @@ HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
 PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
 REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
-HOST_CHK_CMD = "which systemctl > /dev/null 2>&1"
 SYSLED_FNODE = "/sys/class/leds/diag/brightness"
 SYSLED_MODES = {
     "0" : "STATUS_LED_COLOR_OFF",
@@ -88,6 +87,7 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_COMPONENT):
             component = Component(index)
             self._component_list.append(component)
+
 
     def get_name(self):
         """

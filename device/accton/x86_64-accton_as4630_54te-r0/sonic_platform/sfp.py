@@ -88,7 +88,7 @@ class Sfp(SfpOptoeBase):
         Returns:
             A Boolean, True if reset enabled, False if disabled
         """
-        if self.port_num < 53: #Copper port and sfp ports aren't supported.
+        if self.port_num < 53: # non-QSFP ports don't support it.
             return False
 
         reset_path="{}{}{}".format(CPLD_I2C_PATH , "module_reset_" , str(self.port_num))
@@ -97,7 +97,7 @@ class Sfp(SfpOptoeBase):
         if val is not None:
             return int(val, 10) == 1
         else:
-            return False # CPLD port doesn't support this feature
+            return False
 
     def get_rx_los(self):
         """
@@ -213,7 +213,7 @@ class Sfp(SfpOptoeBase):
             A boolean, True if successful, False if not
         """
         # Check for invalid port_num
-        if self.port_num < 49: #Copper port, no sysfs
+        if self.port_num < 53: # non-QSFP ports don't support it.
             return False
 
         reset_path = "{}{}{}".format(CPLD_I2C_PATH, 'module_reset_', self.port_num)
