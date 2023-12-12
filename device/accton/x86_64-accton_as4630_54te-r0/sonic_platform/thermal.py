@@ -46,49 +46,25 @@ HIGH_CRIT_THRESHOLD = DeviceThreshold.HIGH_CRIT_THRESHOLD
 LOW_CRIT_THRESHOLD = DeviceThreshold.LOW_CRIT_THRESHOLD
 
 DEFAULT_THRESHOLD = {
-    'MB_temp(0x48)' : {
+    'Temp sensor 1' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'CB_temp(0x4B)' : {
+    'Temp sensor 2' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'FB_temp(0x4A)' : {
+    'Temp sensor 3' : {
         HIGH_THRESHOLD : '80.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : NOT_AVAILABLE,
         LOW_CRIT_THRESHOLD : NOT_AVAILABLE
     },
-    'CPU_Package_temp' : {
-        HIGH_THRESHOLD : '71.0',
-        LOW_THRESHOLD : NOT_AVAILABLE,
-        HIGH_CRIT_THRESHOLD : '91.0',
-        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
-    },
-    'CPU_Core_0_temp' : {
-        HIGH_THRESHOLD : '71.0',
-        LOW_THRESHOLD : NOT_AVAILABLE,
-        HIGH_CRIT_THRESHOLD : '91.0',
-        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
-    },
-    'CPU_Core_1_temp' : {
-        HIGH_THRESHOLD : '71.0',
-        LOW_THRESHOLD : NOT_AVAILABLE,
-        HIGH_CRIT_THRESHOLD : '91.0',
-        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
-    },
-    'CPU_Core_2_temp' : {
-        HIGH_THRESHOLD : '71.0',
-        LOW_THRESHOLD : NOT_AVAILABLE,
-        HIGH_CRIT_THRESHOLD : '91.0',
-        LOW_CRIT_THRESHOLD : NOT_AVAILABLE
-    },
-    'CPU_Core_3_temp' : {
+    'Temp sensor 4' : {
         HIGH_THRESHOLD : '71.0',
         LOW_THRESHOLD : NOT_AVAILABLE,
         HIGH_CRIT_THRESHOLD : '91.0',
@@ -132,14 +108,10 @@ class Thermal(ThermalBase):
             psu_i2c_addr = PSU_CPLD_I2C_MAPPING[psu_index]["addr"]
             self.cpld_path = PSU_I2C_PATH.format(psu_i2c_bus, psu_i2c_addr)
         # Add thermal name
-        self.THERMAL_NAME_LIST.append("MB_temp(0x48)")
-        self.THERMAL_NAME_LIST.append("CB_temp(0x4B)")
-        self.THERMAL_NAME_LIST.append("FB_temp(0x4A)")
-        self.THERMAL_NAME_LIST.append("CPU_Package_temp")
-        self.THERMAL_NAME_LIST.append("CPU_Core_0_temp")
-        self.THERMAL_NAME_LIST.append("CPU_Core_1_temp")
-        self.THERMAL_NAME_LIST.append("CPU_Core_2_temp")
-        self.THERMAL_NAME_LIST.append("CPU_Core_3_temp")
+        self.THERMAL_NAME_LIST.append("Temp sensor 1")
+        self.THERMAL_NAME_LIST.append("Temp sensor 2")
+        self.THERMAL_NAME_LIST.append("Temp sensor 3")
+        self.THERMAL_NAME_LIST.append("Temp sensor 4")
         self.PSU_THERMAL_NAME_LIST.append("PSU-1 temp sensor 1")
         self.PSU_THERMAL_NAME_LIST.append("PSU-2 temp sensor 1")
 
@@ -150,24 +122,20 @@ class Thermal(ThermalBase):
 
         # Set hwmon path
         i2c_path = {
-            0: {"hwmon_path":"14-0048/hwmon/hwmon*/", "ss_index":1},
-            1: {"hwmon_path":"24-004b/hwmon/hwmon*/", "ss_index":1},
-            2: {"hwmon_path":"25-004a/hwmon/hwmon*/", "ss_index":1},
-            3: {"hwmon_path":"coretemp.0/hwmon/hwmon*/", "ss_index":1},
-            4: {"hwmon_path":"coretemp.0/hwmon/hwmon*/", "ss_index":4},
-            5: {"hwmon_path":"coretemp.0/hwmon/hwmon*/", "ss_index":8},
-            6: {"hwmon_path":"coretemp.0/hwmon/hwmon*/", "ss_index":10},
-            7: {"hwmon_path":"coretemp.0/hwmon/hwmon*/", "ss_index":14}
+            0: "14-0048/hwmon/hwmon*/",
+            1: "24-004b/hwmon/hwmon*/",
+            2: "25-004a/hwmon/hwmon*/",
+            3: "coretemp.0/hwmon/hwmon*/"
         }.get(self.index, None)
 
         self.is_cpu = False
-        if self.index in range(3,8):
+        if self.index == 3:
             self.is_cpu = True
-            self.hwmon_path = "{}/{}".format(self.CPU_SYSFS_PATH, i2c_path["hwmon_path"])
+            self.hwmon_path = "{}/{}".format(self.CPU_SYSFS_PATH, i2c_path)
         else:
-            self.hwmon_path = "{}/{}".format(self.SYSFS_PATH, i2c_path["hwmon_path"])
+            self.hwmon_path = "{}/{}".format(self.SYSFS_PATH, i2c_path)
         self.ss_key = self.THERMAL_NAME_LIST[self.index]
-        self.ss_index = i2c_path["ss_index"]
+        self.ss_index = 1
 
     def __read_txt_file(self, file_path):
         for filename in glob.glob(file_path):

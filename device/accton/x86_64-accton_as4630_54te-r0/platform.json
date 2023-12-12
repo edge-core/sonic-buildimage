@@ -152,7 +152,7 @@
         ],
         "thermals": [
             {
-                "name": "MB_temp(0x48)",
+                "name": "Temp sensor 1",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -160,7 +160,7 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "CB_temp(0x4B)",
+                "name": "Temp sensor 2",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -168,7 +168,7 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "FB_temp(0x4A)",
+                "name": "Temp sensor 3",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
@@ -176,39 +176,7 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "CPU_Package_temp",
-                "controllable": false,
-                "low-threshold": false,
-                "high-threshold": true,
-                "low-crit-threshold": false,
-                "high-crit-threshold": true
-            },
-            {
-                "name": "CPU_Core_0_temp",
-                "controllable": false,
-                "low-threshold": false,
-                "high-threshold": true,
-                "low-crit-threshold": false,
-                "high-crit-threshold": true
-            },
-            {
-                "name": "CPU_Core_1_temp",
-                "controllable": false,
-                "low-threshold": false,
-                "high-threshold": true,
-                "low-crit-threshold": false,
-                "high-crit-threshold": true
-            },
-            {
-                "name": "CPU_Core_2_temp",
-                "controllable": false,
-                "low-threshold": false,
-                "high-threshold": true,
-                "low-crit-threshold": false,
-                "high-crit-threshold": true
-            },
-            {
-                "name": "CPU_Core_3_temp",
+                "name": "Temp sensor 4",
                 "controllable": false,
                 "low-threshold": false,
                 "high-threshold": true,
