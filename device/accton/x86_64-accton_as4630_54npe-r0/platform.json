@@ -1,6 +1,11 @@
 {
     "chassis": {
         "name": "4630-54NPE",
+        "thermal_manager":false,
+        "status_led": {
+            "controllable": true,
+            "colors": ["STATUS_LED_COLOR_GREEN", "STATUS_LED_COLOR_GREEN_BLINK", "STATUS_LED_COLOR_AMBER", "STATUS_LED_COLOR_OFF"]
+        },
         "components": [
             {
                 "name": "CPLD1"
@@ -14,40 +19,91 @@
         ],
         "fans": [
             {
-                "name": "FAN-1"
+                "name": "FAN-1",
+                "speed": {
+                    "controllable": true,
+                    "minimum": 7
+                },
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-2"
+                "name": "FAN-2",
+                "speed": {
+                    "controllable": true,
+                    "minimum": 7
+                },
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-3"
+                "name": "FAN-3",
+                "speed": {
+                    "controllable": true,
+                    "minimum": 7
+                },
+                "status_led": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 1,
                 "fans": [
                     {
-                        "name": "FAN-1"
+                        "name": "FAN-1",
+                        "speed": {
+                            "controllable": true,
+                            "minimum": 7
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray2",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 1,
                 "fans": [
                     {
-                        "name": "FAN-2"
+                        "name": "FAN-2",
+                        "speed": {
+                            "controllable": true,
+                            "minimum": 7
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray3",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 1,
                 "fans": [
                     {
-                        "name": "FAN-3"
+                        "name": "FAN-3",
+                        "speed": {
+                            "controllable": true,
+                            "minimum": 7
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
@@ -55,6 +111,10 @@
         "psus": [
             {
                 "name": "PSU-1",
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["STATUS_LED_COLOR_GREEN", "STATUS_LED_COLOR_AMBER", "STATUS_LED_COLOR_OFF"]
+                },
                 "fans": [
                     {
                         "name": "PSU-1 FAN-1"
@@ -62,12 +122,19 @@
                 ],
                 "thermals": [
                     {
-                        "name": "PSU-1 temp sensor 1"
+                        "name": "PSU-1 temp sensor 1",
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false
                     }
                 ]
             },
             {
                 "name": "PSU-2",
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["STATUS_LED_COLOR_GREEN", "STATUS_LED_COLOR_AMBER", "STATUS_LED_COLOR_OFF"]
+                },
                 "fans": [
                     {
                         "name": "PSU-2 FAN-1"
@@ -75,20 +142,46 @@
                 ],
                 "thermals": [
                     {
-                        "name": "PSU-2 temp sensor 1"
+                        "name": "PSU-2 temp sensor 1",
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false
                     }
                 ]
             }
         ],
         "thermals": [
             {
-                "name": "Temp sensor 1"
+                "name": "Temp sensor 1",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 2"
+                "name": "Temp sensor 2",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 3"
+                "name": "Temp sensor 3",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
+            },
+            {
+                "name": "Temp sensor 4",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
             }
         ],
         "sfps": [
