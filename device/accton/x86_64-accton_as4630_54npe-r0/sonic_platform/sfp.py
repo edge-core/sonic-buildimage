@@ -163,7 +163,7 @@ class Sfp(SfpOptoeBase):
             A Boolean, True if tx_disable is enabled, False if disabled
         """
         if self.port_num < 49: #Copper port, no sysfs
-            return False
+            return [False]
 
         if self.port_num < 53:
             tx_disable = False
@@ -171,9 +171,12 @@ class Sfp(SfpOptoeBase):
             tx_path = "{}{}{}".format(CPLD_I2C_PATH, '/module_tx_disable_', self.port_num)
             tx_disable = self._api_helper.read_txt_file(tx_path)
             if tx_disable is not None:
-                return tx_disable
+                if tx_disable == '1':
+                    return [True]
+                else:
+                    return [False]
             else:
-                return False
+                return [False]
 
         else:
             api = self.get_xcvr_api()
