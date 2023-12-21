@@ -983,6 +983,11 @@ static int ym2651y_update_thread(void *arg)
 
             /* PMBus STATUS_WORD(0x79): psu_power_good, high byte bit 3, 0=>OK, 1=>FAIL */
             data->reg_val.status_word |= 0x800;
+
+            /* psu_power_good = failed, modified to return 1023 degree for python used. */
+            data->reg_val.temp_input[0] = 0x3ff;
+            data->reg_val.temp_input[1] = 0x3ff;
+            data->reg_val.temp_input[2] = 0x3ff;
         }
         mutex_unlock(&data->update_lock);
 
