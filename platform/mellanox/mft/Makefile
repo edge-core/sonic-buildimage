@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2021 NVIDIA CORPORATION & AFFILIATES.
+# Copyright (c) 2016-2023 NVIDIA CORPORATION & AFFILIATES.
 # Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,8 @@ DERIVED_TARGETS = $(MOD_DEB) mft-oem_$(MFT_VERSION)-$(MFT_REVISION)_$(CONFIGURED
 DKMS_BMDEB = /var/lib/dkms/kernel-mft-dkms/$(MFT_VERSION)/bmdeb
 DKMS_TMP := $(shell mktemp -u -d -t dkms.XXXXXXXXXX)
 
+MFT_TMP := $(shell mktemp -u -d -t mft.XXXXXXXXXX)
+
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf $(MFT_NAME)
 	wget -O $(MFT_TGZ) $(MFT_TGZ_URL)
@@ -74,6 +76,19 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	rm -rf $(DKMS_TMP)
+
+	# w/a: disable bash autocompletion
+	mkdir -p $(MFT_TMP)/DEBIAN
+
+	dpkg -e $(MFT_NAME)/DEBS/$(MAIN_TARGET) $(MFT_TMP)/DEBIAN
+	dpkg -x $(MFT_NAME)/DEBS/$(MAIN_TARGET) $(MFT_TMP)
+
+	rm -rf $(MFT_TMP)/etc/bash_completion.d
+	sed -i '/bash_completion.d/d' $(MFT_TMP)/DEBIAN/conffiles
+
+	dpkg -b $(MFT_TMP) $(MFT_NAME)/DEBS/$(MAIN_TARGET)
+
+	rm -rf $(MFT_TMP)
 
 	# fix timestamp because we do not actually build tools, only kernel
 	touch $(MFT_NAME)/DEBS/*.deb
