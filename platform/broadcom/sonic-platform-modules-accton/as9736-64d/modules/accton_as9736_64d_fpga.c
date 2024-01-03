@@ -1089,12 +1089,11 @@ static const struct attribute_group fpga_eeprom_group = {
 
 static char *show_date_time(void)
 {
-    char buffer[DATETIME_LEN+1]={0};
     struct timespec64 tv;
     struct tm tm_val;
 
 #ifdef __STDC_LIB_EXT1__
-    memset_s(g_datetime, sizeof(buffer), 0, DATETIME_LEN);
+    memset_s(g_datetime, DATETIME_LEN, 0, DATETIME_LEN);
 #else
     memset(g_datetime, 0, DATETIME_LEN);
 #endif
