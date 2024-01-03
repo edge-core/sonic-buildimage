@@ -1092,11 +1092,7 @@ static char *show_date_time(void)
     struct timespec64 tv;
     struct tm tm_val;
 
-#ifdef __STDC_LIB_EXT1__
-    memset_s(g_datetime, DATETIME_LEN, 0, DATETIME_LEN);
-#else
-    memset(g_datetime, 0, DATETIME_LEN);
-#endif
+    memset_s(g_datetime, 0, DATETIME_LEN);
 
     ktime_get_real_ts64(&tv);
     time64_to_tm(tv.tv_sec, 0, &tm_val);

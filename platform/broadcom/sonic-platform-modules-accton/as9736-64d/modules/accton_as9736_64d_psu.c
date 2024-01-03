@@ -276,16 +276,9 @@ static struct as9736_64d_psu_data *as9736_64d_psu_update_device(struct device *d
         }
 
         /* Read model name */
-#ifdef __STDC_LIB_EXT1__
-        memset_s(data->model_name, sizeof(data->model_name), 0, sizeof(data->model_name));
-#else
-        memset(data->model_name, 0, sizeof(data->model_name));
-#endif
-#ifdef __STDC_LIB_EXT1__
-        memset_s(data->serial_number, sizeof(data->serial_number), 0, sizeof(data->serial_number));
-#else
-        memset(data->serial_number, 0, sizeof(data->serial_number));
-#endif
+        memset_s(data->model_name, 0, sizeof(data->model_name));
+        memset_s(data->serial_number, 0, sizeof(data->serial_number));
+
         power_good = (data->status_pwr_good >> (1-data->index) & 0x1);
        
         if (power_good) {
