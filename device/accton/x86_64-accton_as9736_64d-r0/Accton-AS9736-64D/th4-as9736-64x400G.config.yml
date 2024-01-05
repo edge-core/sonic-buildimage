@@ -16,6 +16,10 @@ bcm_device:
       vlan_default_port: 3
       l3_alpm_template: 1
       port_allow_tpid_disable: 1
+      riot_overlay_l3_intf_mem_size: 4096
+      riot_overlay_l3_egress_mem_size: 8192
+      l3_ecmp_member_first_lkup_mem_size: 8192
+      l3_intf_vlan_split_egress: 1
 ...
 ---
 bcm_device:
