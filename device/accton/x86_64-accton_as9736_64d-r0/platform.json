@@ -34,34 +34,61 @@
         ],
         "fans": [
             {
-                "name": "FAN-1F"
+                "name": "FAN-1F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-1R"
+                "name": "FAN-1R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-2F"
+                "name": "FAN-2F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-2R"
+                "name": "FAN-2R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-3F"
+                "name": "FAN-3F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-3R"
+                "name": "FAN-3R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-4F"
+                "name": "FAN-4F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-4R"
+                "name": "FAN-4R",
+                "status_led": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-1F"
@@ -74,6 +101,9 @@
             {
                 "name": "FanTray2",
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-2F"
@@ -86,6 +116,9 @@
             {
                 "name": "FanTray3",
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-3F"
@@ -98,6 +131,9 @@
             {
                 "name": "FanTray4",
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-4F"
