@@ -771,6 +771,13 @@ class SFP(NvidiaSFPCommon):
         Returns:
             bool: True if the limited bytes is hit
         """
+        try:
+            if self.is_sw_control():
+                return False
+        except Exception as e:
+            logger.log_notice(f'Module is under initialization, cannot write module EEPROM - {e}')
+            return True
+
         eeprom_path = self._get_eeprom_path()
         limited_data = limited_eeprom.get(self._get_sfp_type_str(eeprom_path))
         if not limited_data:

@@ -162,8 +162,13 @@ class TestSfp:
 
     @mock.patch('sonic_platform.sfp.SFP._get_eeprom_path', mock.MagicMock(return_value = None))
     @mock.patch('sonic_platform.sfp.SFP._get_sfp_type_str')
-    def test_is_write_protected(self, mock_get_type_str):
+    @mock.patch('sonic_platform.sfp.SFP.is_sw_control')
+    def test_is_write_protected(self, mock_sw_control, mock_get_type_str):
         sfp = SFP(0)
+        mock_sw_control.return_value = True
+        assert not sfp._is_write_protected(page=0, page_offset=26, num_bytes=1)
+
+        mock_sw_control.return_value = False
         mock_get_type_str.return_value = 'cmis'
         assert sfp._is_write_protected(page=0, page_offset=26, num_bytes=1)
         assert not sfp._is_write_protected(page=0, page_offset=27, num_bytes=1)
