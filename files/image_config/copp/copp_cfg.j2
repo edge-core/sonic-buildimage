@@ -43,6 +43,30 @@
 {% endif %}
 		    "red_action":"drop"
 	    },
+{% if asic_type in ["broadcom"] %}
+        "queue4_group6": {
+            "trap_action":"trap",
+            "trap_priority":"5",
+            "queue": "4",
+            "meter_type":"packets",
+            "mode":"sr_tcm",
+            "cir":"600",
+            "cbs":"600",
+            "red_action":"drop"
+        },
+{% endif %}
+{% if DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS4630-54PE", "Accton-AS4630-54NPE", "Accton-AS4630-54TE", "Accton-AS5835-54X", "Accton-AS5835-54T", "Accton-AS7326-56X", "Accton-AS7726-32X", "Accton-AS9726-32D", "Accton-AS9726-32D-100G"] %}
+        "queue4_group7": {
+            "trap_action":"copy",
+            "trap_priority":"5",
+            "queue": "4",
+            "meter_type":"packets",
+            "mode":"sr_tcm",
+            "cir":"600",
+            "cbs":"600",
+            "red_action":"drop"
+        },
+{% endif %}
 	    "queue1_group1": {
 		    "trap_action":"trap",
 		    "trap_priority":"1",
@@ -122,5 +146,21 @@
 		    "trap_group": "queue2_group1",
 		    "trap_ids": "sample_packet"
 	    }
+{% if asic_type in ["broadcom"] %}
+        ,
+        "evpn": {
+            "trap_ids": "arp_suppression,nd_suppression",
+            "trap_group": "queue4_group6",
+            "always_enabled": "true"
+        }
+{% endif %}
+{% if DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS4630-54PE", "Accton-AS4630-54NPE", "Accton-AS4630-54TE", "Accton-AS5835-54X", "Accton-AS5835-54T", "Accton-AS7326-56X", "Accton-AS7726-32X", "Accton-AS9726-32D", "Accton-AS9726-32D-100G"] %}
+        ,
+        "vxlan_arp": {
+            "trap_ids": "vxlan_arp",
+            "trap_group": "queue4_group7",
+            "always_enabled": "true"
+        }
+{% endif %}
     }
 }
