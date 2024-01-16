@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES.
+# Copyright (c) 2019-2024 NVIDIA CORPORATION & AFFILIATES.
 # Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -216,7 +216,10 @@ class PsuFan(MlnxFan):
         """
         try:
             # Get PSU fan target speed according to current system cooling level
-            cooling_level = utils.read_int_from_file('/run/hw-management/thermal/cooling_cur_state', log_func=None)
+            pwm = utils.read_int_from_file('/run/hw-management/thermal/pwm1', log_func=None)
+            if pwm >= PWM_MAX:
+                pwm = PWM_MAX - 1
+            cooling_level = int(pwm / PWM_MAX * 10)
             return int(self.PSU_FAN_SPEED[cooling_level], 16)
         except Exception:
             return self.get_speed()

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES.
+# Copyright (c) 2019-2024 NVIDIA CORPORATION & AFFILIATES.
 # Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,8 +67,8 @@ THERMAL_NAMING_RULE = {
     "psu thermals":
     {
         "name": "PSU-{} Temp",
-        "temperature": "psu{}_temp",
-        "high_threshold": "psu{}_temp_max",
+        "temperature": "psu{}_temp1",
+        "high_threshold": "psu{}_temp1_max",
         "type": "indexable"
     },
     "chassis thermals": [
@@ -109,8 +109,8 @@ THERMAL_NAMING_RULE = {
         {
             "name": "Gearbox {} Temp",
             "temperature": "gearbox{}_temp_input",
-            "high_threshold": "mlxsw-gearbox{}/temp_trip_hot",
-            "high_critical_threshold": "mlxsw-gearbox{}/temp_trip_crit",
+            "high_threshold": "gearbox{}_temp_emergency",
+            "high_critical_threshold": "gearbox{}_temp_trip_crit",
             "type": "indexable"
         },
         {
@@ -139,8 +139,8 @@ THERMAL_NAMING_RULE = {
     'linecard thermals': {
         "name": "Gearbox {} Temp",
         "temperature": "gearbox{}_temp_input",
-        "high_threshold": "mlxsw-gearbox{}/temp_trip_hot",
-        "high_critical_threshold": "mlxsw-gearbox{}/temp_trip_crit",
+        "high_threshold": "gearbox{}_temp_emergency",
+        "high_critical_threshold": "gearbox{}_temp_trip_crit",
         "type": "indexable"
     }
 }
