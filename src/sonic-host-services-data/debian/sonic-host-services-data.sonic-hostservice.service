@@ -12,5 +12,5 @@ RestartSec=10
 TimeoutStopSec=3
 
 [Install]
-WantedBy=mgmt-framework.service telemetry.service
+WantedBy=mgmt-framework.service telemetry.service gnmi.service
 
