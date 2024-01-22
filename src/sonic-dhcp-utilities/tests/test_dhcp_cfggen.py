@@ -267,10 +267,11 @@ tested_options_data = [
 
 
 def test_parse_port_alias(mock_swsscommon_dbconnector_init, mock_get_render_template):
-    dhcp_db_connector = DhcpDbConnector()
-    dhcp_cfg_generator = DhcpServCfgGenerator(dhcp_db_connector,
-                                              port_map_path="tests/test_data/port-name-alias-map.txt")
-    assert dhcp_cfg_generator.port_alias_map == {"Ethernet24": "etp7", "Ethernet28": "etp8"}
+    with patch.object(DhcpDbConnector, "get_config_db_table", side_effect=mock_get_config_db_table):
+        dhcp_db_connector = DhcpDbConnector()
+        dhcp_cfg_generator = DhcpServCfgGenerator(dhcp_db_connector)
+        assert dhcp_cfg_generator.port_alias_map == {"Ethernet0": "etp1", "Ethernet1": "etp2",
+                                                     "PortChannel101": "PortChannel101"}
 
 
 @pytest.mark.parametrize("is_success", [True, False])
