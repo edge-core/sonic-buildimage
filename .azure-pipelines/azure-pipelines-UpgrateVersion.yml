@@ -33,7 +33,6 @@ parameters:
   type: object
   default:
   - vs
-  - barefoot
   - broadcom
   - centec
   - centec-arm64
