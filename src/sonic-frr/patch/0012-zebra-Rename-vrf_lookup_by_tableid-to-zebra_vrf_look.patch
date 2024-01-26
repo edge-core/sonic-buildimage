@@ -1,4 +1,4 @@
-From 2b9c7592a9857ddccc77b9d3f178e0c5bd5f19ed Mon Sep 17 00:00:00 2001
+From 6a3ae11c9b1480966b22d4f9b67a40b76d96aa15 Mon Sep 17 00:00:00 2001
 From: Donald Sharp <sharpd@nvidia.com>
 Date: Wed, 26 Apr 2023 23:25:27 -0400
 Subject: [PATCH] zebra: Rename vrf_lookup_by_tableid to zebra_vrf_lookup..
@@ -9,12 +9,19 @@ we need zebra specific data to find this vrf_id and as such
 it does not belong in vrf.c
 
 Signed-off-by: Donald Sharp <sharpd@nvidia.com>
+---
+ zebra/if_netlink.c |  3 ++-
+ zebra/rt_netlink.c | 31 ++-----------------------------
+ zebra/rt_netlink.h |  1 -
+ zebra/zebra_vrf.c  | 27 +++++++++++++++++++++++++++
+ zebra/zebra_vrf.h  |  1 +
+ 5 files changed, 32 insertions(+), 31 deletions(-)
 
 diff --git a/zebra/if_netlink.c b/zebra/if_netlink.c
-index 81347b550a..4599121261 100644
+index cd200d821d7a..cea47b4c30af 100644
 --- a/zebra/if_netlink.c
 +++ b/zebra/if_netlink.c
-@@ -342,7 +342,8 @@ static void netlink_vrf_change(struct nlmsghdr *h, struct rtattr *tb,
+@@ -325,7 +325,8 @@ static void netlink_vrf_change(struct nlmsghdr *h, struct rtattr *tb,
  		if (!vrf_lookup_by_id((vrf_id_t)ifi->ifi_index)) {
  			vrf_id_t exist_id;
  
@@ -25,10 +32,10 @@ index 81347b550a..4599121261 100644
  				vrf = vrf_lookup_by_id(exist_id);
  
 diff --git a/zebra/rt_netlink.c b/zebra/rt_netlink.c
-index 587045eac2..6b9b047858 100644
+index de01ced411ef..0f542ab80756 100644
 --- a/zebra/rt_netlink.c
 +++ b/zebra/rt_netlink.c
-@@ -379,33 +379,6 @@ static inline int proto2zebra(int proto, int family, bool is_nexthop)
+@@ -380,33 +380,6 @@ static inline int proto2zebra(int proto, int family, bool is_nexthop)
  	return proto;
  }
  
@@ -59,19 +66,19 @@ index 587045eac2..6b9b047858 100644
 -	return VRF_DEFAULT;
 -}
 -
- static uint32_t table_lookup_by_vrf(vrf_id_t vrf_id, ns_id_t ns_id)
- {
- 	struct vrf *vrf;
-@@ -814,7 +787,7 @@ int netlink_route_change_read_unicast_internal(struct nlmsghdr *h,
- 			table = rtm->rtm_table;
+ /**
+  * @parse_encap_mpls() - Parses encapsulated mpls attributes
+  * @tb:         Pointer to rtattr to look for nested items in.
+@@ -790,7 +763,7 @@ int netlink_route_change_read_unicast_internal(struct nlmsghdr *h,
+ 		table = rtm->rtm_table;
  
- 		/* Map to VRF */
--		vrf_id = vrf_lookup_by_table(table, ns_id);
-+		vrf_id = zebra_vrf_lookup_by_table(table, ns_id);
- 	} else {
- 		/* With FPM, rtm_table contains vrf id, see netlink_route_multipath_msg_encode */
- 		if (tb[RTA_TABLE])
-@@ -1114,7 +1087,7 @@ static int netlink_route_change_read_multicast(struct nlmsghdr *h,
+ 	/* Map to VRF */
+-	vrf_id = vrf_lookup_by_table(table, ns_id);
++	vrf_id = zebra_vrf_lookup_by_table(table, ns_id);
+ 	if (vrf_id == VRF_DEFAULT) {
+ 		if (!is_zebra_valid_kernel_table(table)
+ 		    && !is_zebra_main_routing_table(table))
+@@ -1079,7 +1052,7 @@ static int netlink_route_change_read_multicast(struct nlmsghdr *h,
  	else
  		table = rtm->rtm_table;
  
@@ -81,10 +88,10 @@ index 587045eac2..6b9b047858 100644
  	if (tb[RTA_IIF])
  		iif = *(int *)RTA_DATA(tb[RTA_IIF]);
 diff --git a/zebra/rt_netlink.h b/zebra/rt_netlink.h
-index 8506367ae4..364aac0f6b 100644
+index 3ca59ce676f3..d9d0ee76249a 100644
 --- a/zebra/rt_netlink.h
 +++ b/zebra/rt_netlink.h
-@@ -102,7 +102,6 @@ extern int netlink_macfdb_read_specific_mac(struct zebra_ns *zns,
+@@ -90,7 +90,6 @@ extern int netlink_macfdb_read_specific_mac(struct zebra_ns *zns,
  					    uint16_t vid);
  extern int netlink_neigh_read_specific_ip(const struct ipaddr *ip,
  					  struct interface *vlan_if);
@@ -93,10 +100,10 @@ index 8506367ae4..364aac0f6b 100644
  struct nl_batch;
  extern enum netlink_msg_status
 diff --git a/zebra/zebra_vrf.c b/zebra/zebra_vrf.c
-index be5e91495f..c59cb7c0a7 100644
+index 3365cdcdbaa8..74b9d106cdc3 100644
 --- a/zebra/zebra_vrf.c
 +++ b/zebra/zebra_vrf.c
-@@ -389,6 +389,33 @@ struct zebra_vrf *zebra_vrf_alloc(struct vrf *vrf)
+@@ -376,6 +376,33 @@ struct zebra_vrf *zebra_vrf_alloc(struct vrf *vrf)
  	return zvrf;
  }
  
@@ -131,10 +138,10 @@ index be5e91495f..c59cb7c0a7 100644
  struct zebra_vrf *zebra_vrf_lookup_by_id(vrf_id_t vrf_id)
  {
 diff --git a/zebra/zebra_vrf.h b/zebra/zebra_vrf.h
-index 02e3c197c9..937e7fb144 100644
+index b23b7282610b..aef83cd8f172 100644
 --- a/zebra/zebra_vrf.h
 +++ b/zebra/zebra_vrf.h
-@@ -252,6 +252,7 @@ extern struct route_table *zebra_vrf_get_table_with_table_id(afi_t afi,
+@@ -237,6 +237,7 @@ extern struct route_table *zebra_vrf_get_table_with_table_id(afi_t afi,
  extern void zebra_vrf_update_all(struct zserv *client);
  extern struct zebra_vrf *zebra_vrf_lookup_by_id(vrf_id_t vrf_id);
  extern struct zebra_vrf *zebra_vrf_lookup_by_name(const char *);
@@ -142,6 +149,3 @@ index 02e3c197c9..937e7fb144 100644
  extern struct zebra_vrf *zebra_vrf_alloc(struct vrf *vrf);
  extern struct route_table *zebra_vrf_table(afi_t, safi_t, vrf_id_t);
  
--- 
-2.17.1
-
