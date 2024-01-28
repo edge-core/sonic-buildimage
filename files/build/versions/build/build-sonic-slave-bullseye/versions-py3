@@ -29,7 +29,6 @@ python-arptable==0.0.2
 semantic-version==2.10.0
 systemd-python==235
 tabulate==0.8.2
-thrift==0.14.1
 toposort==1.6
 wcwidth==0.2.6
 websocket-client==1.6.3
