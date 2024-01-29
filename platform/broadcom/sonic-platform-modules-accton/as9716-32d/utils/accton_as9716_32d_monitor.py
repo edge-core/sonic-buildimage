@@ -25,7 +25,7 @@ try:
     import logging
     import logging.config
     import logging.handlers
-    import time  # this is only being used as part of the example
+    import time
     from as9716_32d.fanutil import FanUtil
     from as9716_32d.thermalutil import ThermalUtil
 except ImportError as e:
@@ -289,7 +289,7 @@ class device_monitor(object):
             console.setFormatter(formatter)
             logging.getLogger('').addHandler(console)
 
-        sys_handler = handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        sys_handler = logging.handlers.SysLogHandler(address = '/dev/log')
         sys_handler.setLevel(logging.WARNING)       
         logging.getLogger('').addHandler(sys_handler)
         #logging.debug('SET. logfile:%s / loglevel:%d', log_file, log_level)
@@ -313,8 +313,7 @@ class device_monitor(object):
         LEVEL_FAN_INIT=0
         LEVEL_FAN_MIN=1
         LEVEL_FAN_MID=2       
-        LEVEL_FAN_MAX=3
-        LEVEL_FAN_DEF=LEVEL_FAN_MAX
+        LEVEL_FAN_MAX=3 #LEVEL_FAN_DEF
         LEVEL_FAN_YELLOW_ALARM=4
         LEVEL_FAN_RED_ALARM=5
         LEVEL_FAN_SHUTDOWN=6
@@ -360,7 +359,6 @@ class device_monitor(object):
             count_check=0
         
         thermal = ThermalUtil()
-        fan_dir=1
         fan_dir=fan.get_fan_dir(1)
        
         if fan_dir==1: # AFI
@@ -405,8 +403,9 @@ class device_monitor(object):
                         max_to_mid=max_to_mid+1
         
             if max_to_mid==thermal.THERMAL_NUM_MAX and  fan_policy_state==LEVEL_FAN_MAX:
-                current_state=LEVEL_FAN_MID
-                logging.debug("current_state=LEVEL_FAN_MID")
+                if fan_fail==0:
+                    current_state=LEVEL_FAN_MID
+                    logging.debug("current_state=LEVEL_FAN_MID")
         else: #AFO
             psu_full_load=check_psu_loading()
             for i in range (0, thermal.THERMAL_NUM_MAX):
@@ -418,10 +417,10 @@ class device_monitor(object):
                         if psu_full_load!=True and thermal_val[i] <= fan_thermal_spec["mid_to_min_temp"][i]:
                             mid_to_min=mid_to_min+1
                 elif ori_state==LEVEL_FAN_MIN:
-                    if psu_full_load==True:
+                    if psu_full_load==True and fan_fail==0:
                         current_state=LEVEL_FAN_MID
                         logging.debug("psu_full_load, set current_state=LEVEL_FAN_MID")
-                    if thermal_val[i] >= fan_thermal_spec["min_to_mid_temp"][i]:
+                    if thermal_val[i] >= fan_thermal_spec["min_to_mid_temp"][i] and fan_fail==0:
                         current_state=LEVEL_FAN_MID            
                     
                 else:
@@ -447,14 +446,15 @@ class device_monitor(object):
                             power_off_dut()
                         
             if max_to_mid==thermal.THERMAL_NUM_MAX and ori_state==LEVEL_FAN_MAX:
-                current_state=LEVEL_FAN_MID
+                if fan_fail==0:
+                    current_state=LEVEL_FAN_MID
+                    logging.debug("current_state=LEVEL_FAN_MID")
                 if fan_policy_alarm!=0:
                     logging.warning('Alarm for temperature high is cleared')
                     fan_policy_alarm=0
                     send_yellow_alarm=0
                     send_red_alarm=0
                     test_temp_revert=0
-                logging.debug("current_state=LEVEL_FAN_MID")
             
             if mid_to_min==thermal.THERMAL_NUM_MAX and ori_state==LEVEL_FAN_MID:
                 if psu_full_load==0:
@@ -468,6 +468,16 @@ class device_monitor(object):
                 logging.debug('fan_%d fail, set duty_cycle to 100',i)                
                 if test_temp==0:
                     fan_fail=1
+                    #1.When insert/remove fan, fan speed/log still according to thermal policy. 
+                    #2.If thermal policy state is bigger than LEVEL_FAN_MAX:
+                    #  Do not change back to LEVEL_FAN_MAX, beacuse still need to deal with LOG or shutdown case.
+                    #3.If thermal policy state is smaller than LEVEL_FAN_MAX, set state=MAX.
+                    # When remove and insert back fan test, policy check temp and set to correct fan_speed.
+                    #
+                    
+                    if current_state < LEVEL_FAN_MAX:
+                        current_state=LEVEL_FAN_MAX
+                        logging.debug('fan_%d fail, current_state=LEVEL_FAN_MAX', i)   
                     fan.set_fan_duty_cycle(new_duty_cycle)
                     break
             else:
