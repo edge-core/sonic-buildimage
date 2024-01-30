@@ -31,21 +31,21 @@ module sonic-telemetry {
 
                 leaf ca_crt {
                     type string {
-                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).cer';
+                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).cer|';
                     }
                     description "Local path for ca_crt.";
                 }
 
                 leaf server_crt {
                     type string {
-                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).cer';
+                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).cer|';
                     }
                     description "Local path for server_crt.";
                 }
 
                 leaf server_key {
                     type string {
-                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).key';
+                        pattern '(/[a-zA-Z0-9_-]+)*/([a-zA-Z0-9_-]+).key|';
                     }
                     description "Local path for server_key.";
                 }
