@@ -18,6 +18,7 @@
 #    mm/dd/yyyy (A.D.)#
 #    07/12/2022: Michael_Shih create for as9736_64d thermal plan
 #    12/12/2023: Add detect temp of xcvr, and implement shutdown function.
+#    23/01/2024: Sync the log buffer to the disk before powering off the DUT.
 # ------------------------------------------------------------------
 
 try:
@@ -198,6 +199,15 @@ def stop_syncd_service():
     if status:
         logging.warning("Mask syncd.service failed")
         return False
+
+    return (status == 0)
+
+def sync_log_buffer_to_disk():
+    cmd_str=["sync"]
+    (status, output) = getstatusoutput_noshell(cmd_str)
+    cmd_str=["/sbin/fstrim", "-av"]
+    (status, output) = getstatusoutput_noshell(cmd_str)
+    time.sleep(3)
 
     return (status == 0)
 
@@ -516,6 +526,7 @@ class device_monitor(object):
                     send_cpu_shutdown_warning = 1
                     stop_syncd_service()
                     logging.critical("CPU sensor for temperature high is detected, shutdown DUT.")
+                    sync_log_buffer_to_disk()
                     shutdown_except_cpu()
                     return True
 
