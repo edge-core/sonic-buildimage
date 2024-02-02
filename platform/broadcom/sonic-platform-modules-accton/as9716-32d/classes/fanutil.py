@@ -45,20 +45,12 @@ class FanUtil(object):
     BASE_VAL_PATH = '/sys/bus/i2c/devices/17-0066/{0}'
     FAN_DUTY_PATH = '/sys/bus/i2c/devices/17-0066/fan_duty_cycle_percentage'
 
-    #logfile = ''
-    #loglevel = logging.INFO
-
     """ Dictionary where
         key1 = fan id index (integer) starting from 1
         key2 = fan node index (interger) starting from 1
         value = path to fan device file (string) """
     _fan_device_path_mapping = {}
     
-#fan1_direction
-#fan1_fault
-#fan1_present
-
- #(FAN_NUM_2_IDX, FAN_NODE_DUTY_IDX_OF_MAP): 'fan2_duty_cycle_percentage',
     _fan_device_node_mapping = {
            (FAN_NUM_1_IDX, FAN_NODE_FAULT_IDX_OF_MAP): 'fan1_fault',           
            (FAN_NUM_1_IDX, FAN_NODE_DIR_IDX_OF_MAP): 'fan1_direction',           
@@ -106,7 +98,7 @@ class FanUtil(object):
             return None
 
         try:
-		    val_file.close()
+           val_file.close()
         except:
             logging.debug('GET. unable to close file. device_path:%s', device_path)
             return None
@@ -137,7 +129,7 @@ class FanUtil(object):
         val_file.write(content)
 
         try:
-		    val_file.close()
+            val_file.close()
         except:
             logging.debug('GET. unable to close file. device_path:%s', device_path)
             return None
@@ -184,7 +176,7 @@ class FanUtil(object):
         try:
             val_file = open(self.FAN_DUTY_PATH)
         except IOError as e:
-            print("Error: unable to open file: %s" % str(e))          
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = val_file.readline().rstrip()
@@ -196,7 +188,7 @@ class FanUtil(object):
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
-            print("Error: unable to open file: %s" % str(e))          
+            print("Error: unable to open file: %s" % str(e))
             return False
         
         fan_file.write(str(val))
