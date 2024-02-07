@@ -46,7 +46,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -171,7 +171,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -230,7 +230,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -248,14 +248,14 @@
             }
         }
     },
-    "DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS_TYPE_VALID_VALUE_TEXT": {
+    "DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS_TYPE_VALID_VALUE_STRING": {
         "sonic-dhcp-server-ipv4:sonic-dhcp-server-ipv4": {
             "sonic-dhcp-server-ipv4:DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS": {
                 "DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS_LIST": [
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -325,7 +325,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "texts",
+                        "type": "text",
                         "value": "dummy_value"
                     }
                 ]
@@ -448,7 +448,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -529,7 +529,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -610,7 +610,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -691,7 +691,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -772,7 +772,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -814,7 +814,7 @@
                 "DHCP_SERVER_IPV4_CUSTOMIZED_OPTIONS_LIST": [
                     {
                         "name": "option60",
-                        "type": "text",
+                        "type": "string",
                         "value": "dummy_value"
                     }
                 ]
@@ -828,7 +828,7 @@
                     {
                         "name": "option60",
                         "id": 60,
-                        "type": "text"
+                        "type": "string"
                     }
                 ]
             }
