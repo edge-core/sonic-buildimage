@@ -1,0 +1,17 @@
+[Unit]
+Description=Accton AS4630-54NPEM Platform Monitoring service
+Before=pmon.service system-health.service
+After=sysinit.target
+DefaultDependencies=no
+
+[Service]
+ExecStartPre=/usr/local/bin/accton_as4630_54npem_util.py install
+ExecStart=/usr/local/bin/accton_as4630_54npem_monitor.py
+KillSignal=SIGKILL
+SuccessExitStatus=SIGKILL
+
+# Resource Limitations
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target
