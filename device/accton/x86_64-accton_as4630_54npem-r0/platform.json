@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "4630-54NPEM",
+        "name": "AS4630-54NPEM",
         "thermal_manager":false,
         "status_led": {
             "controllable": true,
