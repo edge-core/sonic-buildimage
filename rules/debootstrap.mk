@@ -1,6 +1,6 @@
 # debootstrap package
 
-DEBOOTSTRAP_VERSION = 1.0.123+deb11u1
+DEBOOTSTRAP_VERSION = 1.0.123+deb11u2
 
 export DEBOOTSTRAP_VERSION
 
