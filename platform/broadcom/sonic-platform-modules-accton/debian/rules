@@ -70,11 +70,15 @@ binary-indep:
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} $(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} usr/local/bin; \
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} lib/systemd/system; \
-                dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} etc/udev/rules.d; \
+		if [ -d $(MOD_SRC_DIR)/$${mod}/$(UDEV_DIR) ]; then \
+		     dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} etc/udev/rules.d; \
+		fi; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
-                cp $(MOD_SRC_DIR)/$${mod}/$(UDEV_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/etc/udev/rules.d/; \
+		if [ -f $(MOD_SRC_DIR)/$${mod}/$(UDEV_DIR)/* ]; then \
+                     cp $(MOD_SRC_DIR)/$${mod}/$(UDEV_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/etc/udev/rules.d/; \
+		fi; \
 		$(PYTHON3) $${mod}/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
 	done)
 	# Resuming debhelper scripts
