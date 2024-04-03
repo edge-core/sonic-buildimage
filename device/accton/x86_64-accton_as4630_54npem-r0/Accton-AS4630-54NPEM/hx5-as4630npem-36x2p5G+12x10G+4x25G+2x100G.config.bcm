@@ -8,7 +8,7 @@ ptp_ts_pll_fref=50000000
 ptp_bs_fref_0=50000000
 ptp_bs_fref_1=50000000
 
-#oversubscribe_mode=2
+oversubscribe_mode=2
 pbmp_oversubscribe=0x0
 
 pbmp_xport_xe=0x7FFFFFFFFFFFFFFE
@@ -29,7 +29,7 @@ ifp_inports_support_enable=1
 #3x PM4x10Q (3 * 16 = 48 physical ports)
 #Doesn't support oversubscribe in Q mode
 #MCQ0
-port_gmii_mode_1=2 #Q mode
+port_gmii_mode_1=2 #Q mode 
 
 #riot vxlan
 #dport_map_direct=1
