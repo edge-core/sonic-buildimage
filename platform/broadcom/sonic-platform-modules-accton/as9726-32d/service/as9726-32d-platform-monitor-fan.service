@@ -1,7 +1,8 @@
 [Unit]
 Description=Accton AS9726_32D Platform Monitoring FAN service
 Before=pmon.service
-After=as9726-32d-platform-monitor.service
+After=as9726-32d-platform-init.service
+Requires=as9726-32d-platform-init.service
 DefaultDependencies=no
 
 [Service]
