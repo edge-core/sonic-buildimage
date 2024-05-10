@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Stop as9736-64d-platform-init.service"
+systemctl stop as9736-64d-platform-init.service
+

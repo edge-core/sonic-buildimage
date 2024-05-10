@@ -1,7 +1,8 @@
 [Unit]
 Description=Accton AS9736_64D Platform Monitoring PSU service
 Before=pmon.service
-After=as9736-64d-platform-monitor.service
+After=as9736-64d-platform-init.service
+Requires=as9736-64d-platform-init.service
 DefaultDependencies=no
 
 [Service]
