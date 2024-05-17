@@ -28,7 +28,7 @@
                 "name": "FAN-1F",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -38,7 +38,7 @@
                 "name": "FAN-1R",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -48,7 +48,7 @@
                 "name": "FAN-2F",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -58,7 +58,7 @@
                 "name": "FAN-2R",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -68,7 +68,7 @@
                 "name": "FAN-3F",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -78,7 +78,7 @@
                 "name": "FAN-3R",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -88,7 +88,7 @@
                 "name": "FAN-4F",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -98,7 +98,7 @@
                 "name": "FAN-4R",
                 "speed": {
                     "controllable": true,
-                    "minimum": 7
+                    "minimum": 27
                 },
                 "status_led": {
                     "controllable": false
@@ -117,7 +117,7 @@
                         "name": "FAN-1F",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -127,7 +127,7 @@
                         "name": "FAN-1R",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -146,7 +146,7 @@
                         "name": "FAN-2F",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -156,7 +156,7 @@
                         "name": "FAN-2R",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -175,7 +175,7 @@
                         "name": "FAN-3F",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -185,7 +185,7 @@
                         "name": "FAN-3R",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -204,7 +204,7 @@
                         "name": "FAN-4F",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
@@ -214,7 +214,7 @@
                         "name": "FAN-4R",
                         "speed": {
                             "controllable": true,
-                            "minimum": 7
+                            "minimum": 27
                         },
                         "status_led": {
                             "controllable": false
