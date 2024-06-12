@@ -12,6 +12,7 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from .helper import APIHelper
     from .event import SfpEvent
+    from sonic_py_common.general import getstatusoutput_noshell
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -40,6 +41,17 @@ class Chassis(ChassisBase):
         self.is_host = self._api_helper.is_host()
 
         self.config_data = {}
+
+        self.CPU_RESET_REASON = {
+            0x80 : [self.REBOOT_CAUSE_THERMAL_OVERLOAD_ASIC,"EC_DIMM CRITICAL RESET"] ,
+            0x40 : [self.REBOOT_CAUSE_WATCHDOG, "CPU WDT RESET" ],
+            0x20 : [self.REBOOT_CAUSE_HARDWARE_OTHER, "CPU COLD RESET"],
+            0x10 : [self.REBOOT_CAUSE_NON_HARDWARE, "CPU WARM RESET"],
+            0x8  : [self.REBOOT_CAUSE_HARDWARE_OTHER, "RESET_BUTTON RESET"],
+            0x4  : [self.REBOOT_CAUSE_HARDWARE_OTHER, "POWER_BUTTON RESET"],
+            0x2  : [self.REBOOT_CAUSE_WATCHDOG, "EC WDT RESET"],
+            0x1  : [self.REBOOT_CAUSE_HARDWARE_OTHER, "POWER_ON RESET"]
+        }
 
         self.__initialize_fan()
         self.__initialize_psu()
@@ -179,9 +191,24 @@ class Chassis(ChassisBase):
         if sw_reboot_cause != "Unknown":
             reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
             description = sw_reboot_cause
-        elif prev_reboot_cause_path != "Unknown":
+        elif prev_sw_reboot_cause != "Unknown":
             reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
             description = prev_sw_reboot_cause
+        else: # Try to get reboot cause from BMC
+            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
+            description = 'Unknown'
+            try:
+                err, res = getstatusoutput_noshell(['ipmitool', 'raw', '0x34', '0x22', '0x21', '0x30'])
+                if err != 0 or res is None:
+                    return (reboot_cause, description)
+
+                code = int(res.strip(), 16)
+                for (key, value) in self.CPU_RESET_REASON.items():
+                    if code & key:
+                        reboot_cause = value[0]
+                        description = value[1]
+            except Exception:
+                pass
 
         return (reboot_cause, description)
 
