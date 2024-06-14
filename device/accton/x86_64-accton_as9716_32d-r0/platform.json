@@ -425,7 +425,39 @@
                 "high-crit-threshold": false
             },
             {
-                "name": "coretemp-isa-0000",
+                "name": "CPU_Package_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_0_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_1_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_2_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_3_temp",
                 "controllable": false,
                 "low-threshold": false,
                 "high-threshold": true,
