@@ -1,6 +1,10 @@
 {
     "chassis": {
         "name": "9726-32D",
+        "status_led": {
+            "controllable": false
+        },
+	"thermal_manager":false,
         "components": [
             {
                 "name": "CPLD1"
@@ -23,112 +27,202 @@
         ],
         "fans": [
             {
-                "name": "FAN-1F"
+                "name": "FAN-1F",
+                "status_led": {
+                    "controllable": false
+		}
             },
             {
-                "name": "FAN-1R"
+                "name": "FAN-1R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-2F"
+                "name": "FAN-2F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-2R"
+                "name": "FAN-2R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-3F"
+                "name": "FAN-3F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-3R"
+                "name": "FAN-3R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-4F"
+                "name": "FAN-4F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-4R"
+                "name": "FAN-4R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-5F"
+                "name": "FAN-5F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-5R"
+                "name": "FAN-5R",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-6F"
+                "name": "FAN-6F",
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FAN-6R"
+                "name": "FAN-6R",
+                "status_led": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
-                "num_fans" : 2,
-                "fans": [
+                "status_led": {
+		    "controllable": false
+                },
+		"num_fans" : 2,
+		"fans": [
                     {
-                        "name": "FAN-1F"
+                        "name": "FAN-1F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-1R"
+                        "name": "FAN-1R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray2",
-                "num_fans" : 2,
+                "status_led": {
+	             "controllable": false
+                },
+		"num_fans" : 2,
                 "fans": [
                     {
-                        "name": "FAN-2F"
+                        "name": "FAN-2F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-2R"
+                        "name": "FAN-2R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray3",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "FAN-3F"
+                        "name": "FAN-3F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-3R"
+                        "name": "FAN-3R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray4",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "FAN-4F"
+                        "name": "FAN-4F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-4R"
+                        "name": "FAN-4R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray5",
+                "status_led": {
+		    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "FAN-5F"
+                        "name": "FAN-5F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-5R"
+                        "name": "FAN-5R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray6",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "FAN-6F"
+                        "name": "FAN-6F",
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FAN-6R"
+                        "name": "FAN-6R",
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
@@ -140,7 +234,19 @@
                     {
                         "name": "PSU-1 FAN-1"
                     }
-                ]
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU-1 temp sensor 1",
+                        "controllable": false,
+                        "low-threshold": false,
+                        "high-threshold": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false
+                    }
+                ],
+                "temperature": true,
+                "temperature_high_threshold": true
             },
             {
                 "name": "PSU-2",
@@ -148,27 +254,109 @@
                     {
                         "name": "PSU-2 FAN-1"
                     }
-                ]
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU-2 temp sensor 1",
+                        "controllable": false,
+                        "low-threshold": false,
+                        "high-threshold": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false
+                    }
+                ],
+                "temperature": true,
+                "temperature_high_threshold": true
             }
         ],
         "thermals": [
             {
-                "name": "Temp sensor 1"
+                "name": "MB_FrontMiddle_temp(0x48)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 2"
+                "name": "MB_RightCenter_temp(0x49)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 3"
+                "name": "MB_LeftCenter_temp(0x4A)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 4"
+                "name": "CB_temp(0x4B)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 5"
+                "name": "OCXO_temp(0x4C)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
             },
             {
-                "name": "Temp sensor 6"
+                "name": "MB_RearRight_temp(0x4F)",
+                "controllable": true,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false
+            },
+            {
+                "name": "CPU_Package_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_0_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_1_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_2_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
+            },
+            {
+                "name": "CPU_Core_3_temp",
+                "controllable": false,
+                "low-threshold": false,
+                "high-threshold": true,
+                "low-crit-threshold": false,
+                "high-crit-threshold": true
             }
         ],
         "sfps": [
