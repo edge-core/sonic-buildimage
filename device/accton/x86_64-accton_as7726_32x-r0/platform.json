@@ -1,10 +1,10 @@
 {
     "chassis": {
         "name": "7726-32X",
-        "thermal_manager":false,
+        "thermal_manager": false,
         "status_led": {
             "controllable": true,
-            "colors": ["green", "red", "off"]
+            "colors": ["STATUS_LED_COLOR_GREEN", "STATUS_LED_COLOR_RED", "STATUS_LED_COLOR_OFF"]
         },
         "components": [
             {
@@ -155,6 +155,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-1F",
@@ -184,6 +187,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-2F",
@@ -213,6 +219,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-3F",
@@ -242,6 +251,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-4F",
@@ -271,6 +283,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-5F",
@@ -300,6 +315,9 @@
                     "controllable": false
                 },
                 "num_fans" : 2,
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
                         "name": "FAN-6F",
