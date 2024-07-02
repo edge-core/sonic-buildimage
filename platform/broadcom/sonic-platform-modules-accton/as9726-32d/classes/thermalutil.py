@@ -70,7 +70,7 @@ class ThermalUtil(object):
                 logging.debug('GET. content is NULL. device_path:%s', device_path)
                 return None
             try:
-		        val_file.close()
+                val_file.close()
             except BaseException:
                 logging.debug('GET. unable to close file. device_path:%s', device_path)
                 return None
