@@ -28,6 +28,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -35,6 +38,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -42,6 +48,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -49,6 +58,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -56,6 +68,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -63,6 +78,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -70,6 +88,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -77,6 +98,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -84,6 +108,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -91,6 +118,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -98,6 +128,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             },
             {
@@ -105,12 +138,18 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 32
+                },
+                "status_led": {
+                    "controllable": false
                 }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -118,6 +157,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -125,12 +167,18 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
             },
             {
                 "name": "FanTray2",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -138,6 +186,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -145,12 +196,18 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
             },
             {
                 "name": "FanTray3",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -158,6 +215,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -165,12 +225,18 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
             },
             {
                 "name": "FanTray4",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -178,6 +244,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -185,12 +254,18 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
             },
             {
                 "name": "FanTray5",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -198,6 +273,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -205,12 +283,18 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
             },
             {
                 "name": "FanTray6",
+                "status_led": {
+                    "controllable": false
+                },
                 "num_fans" : 2,
                 "fans": [
                     {
@@ -218,6 +302,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     },
                     {
@@ -225,6 +312,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 32
+                        },
+                        "status_led": {
+                            "controllable": false
                         }
                     }
                 ]
