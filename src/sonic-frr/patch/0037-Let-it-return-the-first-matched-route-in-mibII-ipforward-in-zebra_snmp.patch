@@ -1,0 +1,34 @@
+From 051dfd446e5b96e426de185edf634261bd93ad2f Mon Sep 17 00:00:00 2001
+From: mulin_huang <mulin_huang@edge-core.com>
+Date: Thu, 4 Jul 2024 02:35:43 +0000
+Subject: [PATCH] Let it return the first matched route in mibII/ipforward in zebra_snmp
+
+---
+ zebra/zebra_snmp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/zebra/zebra_snmp.c b/zebra/zebra_snmp.c
+index 6fe24dfa5..18012b90e 100644
+--- a/zebra/zebra_snmp.c
++++ b/zebra/zebra_snmp.c
+@@ -385,14 +385,16 @@ static void get_fwtable_route_node(struct variable *v, oid objid[],
+ 	}
+
+ 	/* Search next best entry */
+-
++	bool flag_break = false;
+ 	for (np2 = route_top(table); np2; np2 = route_next(np2)) {
+
+ 		/* Check destination first */
+ 		if (in_addr_cmp(&np2->p.u.prefix, (uint8_t *)&dest) > 0)
+ 			RNODE_FOREACH_RE (np2, re2) {
+ 				check_replace(np2, re2, np, re);
++				flag_break = true;
+ 			}
++		if (flag_break) break;
+
+ 		if (in_addr_cmp(&np2->p.u.prefix, (uint8_t *)&dest)
+ 		    == 0) { /* have to look at each re individually */
+--
+2.17.1
+
