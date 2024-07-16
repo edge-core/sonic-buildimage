@@ -1,6 +1,7 @@
 {
     "chassis": {
         "name": "4625-54T",
+        "thermal_manager": false,
         "components": [
             {
                 "name": "MB_CPLD"
