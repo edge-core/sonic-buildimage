@@ -30,6 +30,9 @@ bcm_device:
       l3_alpm_template: 1
       vlan_default_port: 3
       max_vp_lags: 894
+      vlan_flooding_l2mc_num_reserved: 0
+      sai_tunnel_support: 0
+      bcm_tunnel_term_compatible_mode: 1
 ...
 ---
 bcm_device:
