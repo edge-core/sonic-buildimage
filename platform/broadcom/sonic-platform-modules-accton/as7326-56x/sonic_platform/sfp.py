@@ -196,3 +196,25 @@ class Sfp(PddfSfp):
         except NotImplementedError:
             pass
         return self.__get_error_description()
+
+    def get_reset_status(self):
+        """
+        Retrieves the reset status of SFP
+
+        Returns:
+            A Boolean, True if reset enabled, False if disabled
+        """
+        if self.sfp_type == "QSFP28":
+            return super().get_reset_status()
+        return False
+
+    def reset(self):
+        """
+        Reset SFP and return all user module settings to their default srate.
+
+        Returns:
+            A boolean, True if successful, False if not
+        """
+        if self.sfp_type == "QSFP28":
+            return super().reset()
+        return False
