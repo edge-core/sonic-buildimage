@@ -102,7 +102,7 @@ module sonic-events-swss {
             }
 
             leaf used_cnt {
-                type uint8;
+                type uint64;
             }
 
             leaf free_cnt {
