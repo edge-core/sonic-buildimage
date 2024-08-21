@@ -95,18 +95,6 @@
   name: 'USB controller: Intel Corporation 8 Series/C220 Series Chipset Family USB
     xHCI (rev 05)'
 - bus: '00'
-  dev: '16'
-  fn: '0'
-  id: 8c3a
-  name: 'Communication controller: Intel Corporation 8 Series/C220 Series Chipset
-    Family MEI Controller #1 (rev 04)'
-- bus: '00'
-  dev: '16'
-  fn: '1'
-  id: 8c3b
-  name: 'Communication controller: Intel Corporation 8 Series/C220 Series Chipset
-    Family MEI Controller #2 (rev 04)'
-- bus: '00'
   dev: 1c
   fn: '0'
   id: 8c10
