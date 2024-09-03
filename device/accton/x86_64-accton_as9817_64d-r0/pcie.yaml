@@ -2,17 +2,17 @@
   dev: '00'
   fn: '0'
   id: 09a2
-  name: 'System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a2 (rev 04)'
 - bus: '00'
   dev: '00'
   fn: '1'
   id: 09a4
-  name: 'System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a4 (rev 04)'
 - bus: '00'
   dev: '00'
   fn: '2'
   id: 09a3
-  name: 'System peripheral: Intel Corporation Ice Lake RAS (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a3 (rev 04)'
 - bus: '00'
   dev: '00'
   fn: '3'
@@ -22,63 +22,63 @@
   dev: '00'
   fn: '4'
   id: 0998
-  name: 'Host bridge: Intel Corporation Ice Lake IEH'
+  name: 'Host bridge: Intel Corporation Device 0998'
 - bus: '00'
   dev: '01'
   fn: '0'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '1'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '2'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '3'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '4'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '5'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '6'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '01'
   fn: '7'
   id: '0b00'
-  name: 'System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]'
+  name: 'System peripheral: Intel Corporation Device 0b00'
 - bus: '00'
   dev: '02'
   fn: '0'
   id: 09a6
-  name: 'System peripheral: Intel Corporation Ice Lake MSM'
+  name: 'System peripheral: Intel Corporation Device 09a6'
 - bus: '00'
   dev: '02'
   fn: '1'
   id: 09a7
-  name: 'System peripheral: Intel Corporation Ice Lake PMON MSM'
+  name: 'System peripheral: Intel Corporation Device 09a7'
 - bus: '00'
   dev: '02'
   fn: '4'
   id: '3456'
-  name: 'Non-Essential Instrumentation [1300]: Intel Corporation Ice Lake NorthPeak
-    (rev 01)'
+  name: 'Non-Essential Instrumentation [1300]: Intel Corporation Device 3456 (rev
+    01)'
 - bus: '00'
   dev: '06'
   fn: '0'
@@ -153,7 +153,7 @@
   dev: 1d
   fn: '0'
   id: 0998
-  name: 'Host bridge: Intel Corporation Ice Lake IEH'
+  name: 'Host bridge: Intel Corporation Device 0998'
 - bus: '00'
   dev: 1e
   fn: '0'
@@ -173,7 +173,7 @@
   dev: 1f
   fn: '5'
   id: 18e0
-  name: 'Serial bus controller: Intel Corporation Device 18e0 (rev 11)'
+  name: 'Serial bus controller [0c80]: Intel Corporation Device 18e0 (rev 11)'
 - bus: '00'
   dev: 1f
   fn: '7'
@@ -184,7 +184,7 @@
   dev: '00'
   fn: '0'
   id: 18ee
-  name: 'Co-processor: Intel Corporation 200xx Series QAT (rev 11)'
+  name: 'Co-processor: Intel Corporation Device 18ee (rev 11)'
 - bus: '02'
   dev: '00'
   fn: '0'
@@ -217,17 +217,17 @@
   dev: '00'
   fn: '0'
   id: 09a2
-  name: 'System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a2 (rev 04)'
 - bus: '14'
   dev: '00'
   fn: '1'
   id: 09a4
-  name: 'System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a4 (rev 04)'
 - bus: '14'
   dev: '00'
   fn: '2'
   id: 09a3
-  name: 'System peripheral: Intel Corporation Ice Lake RAS (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a3 (rev 04)'
 - bus: '14'
   dev: '00'
   fn: '3'
@@ -237,44 +237,43 @@
   dev: '00'
   fn: '4'
   id: 0998
-  name: 'Host bridge: Intel Corporation Ice Lake IEH'
+  name: 'Host bridge: Intel Corporation Device 0998'
 - bus: '14'
   dev: '02'
   fn: '0'
   id: 347a
   name: 'PCI bridge: Intel Corporation Device 347a (rev 06)'
 - bus: '14'
-  dev: '03'
+  dev: '04'
   fn: '0'
-  id: 347b
-  name: 'PCI bridge: Intel Corporation Device 347b (rev 06)'
+  id: 347c
+  name: 'PCI bridge: Intel Corporation Device 347c (rev 06)'
 - bus: '15'
   dev: '00'
   fn: '0'
   id: f900
-  name: 'Ethernet controller: Broadcom Inc. and subsidiaries BCM78900 Switch ASIC
-    [Tomahawk5] (rev 11)'
+  name: 'Ethernet controller: Broadcom Inc. and subsidiaries Device f900 (rev 11)'
 - bus: '16'
   dev: '00'
   fn: '0'
-  id: '5013'
-  name: 'Non-Volatile memory controller: Phison Electronics Corporation PS5013 E13
-    NVMe Controller (rev 01)'
+  id: '5018'
+  name: 'Non-Volatile memory controller: Phison Electronics Corporation Device 5018
+    (rev 01)'
 - bus: f3
   dev: '00'
   fn: '0'
   id: 09a2
-  name: 'System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a2 (rev 04)'
 - bus: f3
   dev: '00'
   fn: '1'
   id: 09a4
-  name: 'System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a4 (rev 04)'
 - bus: f3
   dev: '00'
   fn: '2'
   id: 09a3
-  name: 'System peripheral: Intel Corporation Ice Lake RAS (rev 04)'
+  name: 'System peripheral: Intel Corporation Device 09a3 (rev 04)'
 - bus: f3
   dev: '00'
   fn: '3'
@@ -284,7 +283,7 @@
   dev: '00'
   fn: '4'
   id: 0998
-  name: 'Host bridge: Intel Corporation Ice Lake IEH'
+  name: 'Host bridge: Intel Corporation Device 0998'
 - bus: f3
   dev: '04'
   fn: '0'
@@ -329,7 +328,7 @@
   dev: '00'
   fn: '3'
   id: 0998
-  name: 'Host bridge: Intel Corporation Ice Lake IEH'
+  name: 'Host bridge: Intel Corporation Device 0998'
 - bus: fe
   dev: '00'
   fn: '5'
