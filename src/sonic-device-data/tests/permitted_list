@@ -326,6 +326,7 @@ port_gmii_mode
 phy_force_firmware_load
 phy_pcs_repeater
 l3_alpm_hit_skip
+cfg_device_name
 sai_verify_incoming_chksum
 phy_an_lt_msft
 phy_unlos_msft
@@ -337,6 +338,7 @@ cmic_dma_abort_in_cold_boot
 hybrid_pfc_deadlock_enable
 sai_pfc_dlr_init_capability
 core_clock_to_pm_clock_factor
+multi_hash_recurse_depth_vlan
 appl_param_nof_ports_per_modid
 sai_fdb_entry_l2_discard_src_enable
 svi_my_station_optimization
