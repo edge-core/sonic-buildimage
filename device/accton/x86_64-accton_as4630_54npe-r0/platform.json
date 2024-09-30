@@ -120,7 +120,13 @@
                 },
                 "fans": [
                     {
-                        "name": "PSU-1 FAN-1"
+                        "name": "PSU-1 FAN-1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ],
                 "thermals": [
@@ -140,7 +146,13 @@
                 },
                 "fans": [
                     {
-                        "name": "PSU-2 FAN-1"
+                        "name": "PSU-2 FAN-1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ],
                 "thermals": [
