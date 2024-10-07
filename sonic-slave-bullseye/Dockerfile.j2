@@ -518,6 +518,9 @@ RUN pip3 install pytest-runner==5.2
 RUN pip3 install nose==1.3.7
 RUN pip3 install mockredispy==2.9.3
 
+# For procdockerstatsd_test.py
+RUN pip3 install psutil==5.9.0
+
 # Fix CVE-2021-23437, need to build and install libjpeg-dev for armhf for pillow 9.4.0
 {%- if CONFIGURED_ARCH == "armhf" %}
 RUN TMP_DIR=$(mktemp -d) && \
