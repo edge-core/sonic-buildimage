@@ -41,6 +41,9 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54pe-r0/Ac
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54pe-r0/Accton-AS4630-54PE/hx5-as4630-48x1G+4x25G+2x100G.bcm
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54te-r0/Accton-AS4630-54TE/hx5-as4630-48x1G+4x25G+2x100G_ec.bcm \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54te-r0/Accton-AS4630-54TE/hx5-as4630-48x1G+4x25G+2x100G.bcm
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54te-r0/media_settings_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54te-r0/media_settings.json
+
 
 ##update files for as5835
 
