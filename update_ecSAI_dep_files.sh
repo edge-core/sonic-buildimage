@@ -65,8 +65,11 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/Acc
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/Accton-AS9716-32D-100G/th3-as9716-32x100G.config.bcm
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/Accton-AS9716-32D/th3-as9716-32x400G_ec.config.bcm \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/Accton-AS9716-32D/th3-as9716-32x400G.config.bcm
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/media_settings_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/media_settings.json
+rm -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9716_32d-r0/Accton-AS9716-32D-100G/media_settings.json
 
 ## rebuild sonic-device-data
 rm -f $SONIC_BASE/sonic-buildimage/target/debs/bullseye/sonic-device-data_1.0-1_all.deb
 
-set -e 
+set -e
