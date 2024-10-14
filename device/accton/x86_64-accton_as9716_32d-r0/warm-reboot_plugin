@@ -1,3 +1,7 @@
 #!/bin/bash
 
+echo "Stop i2c-health.service"
+
+systemctl stop i2c-health.service
+
 systemctl stop as9716-32d-platform-init.service
