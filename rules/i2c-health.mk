@@ -1,0 +1,10 @@
+# i2c health Python wheel
+
+I2C_HEALTH = i2c_health-1.0-py3-none-any.whl
+$(I2C_HEALTH)_SRC_PATH = $(SRC_PATH)/i2c-health
+$(I2C_HEALTH)_PYTHON_VERSION = 3
+$(I2C_HEALTH)_DEPENDS = $(SONIC_PY_COMMON_PY3) $(SONIC_CONFIG_ENGINE_PY3)
+$(I2C_HEALTH)_DEBS_DEPENDS = $(LIBSWSSCOMMON) $(PYTHON3_SWSSCOMMON)
+SONIC_PYTHON_WHEELS += $(I2C_HEALTH)
+
+export i2c_health_py3_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(I2C_HEALTH))"

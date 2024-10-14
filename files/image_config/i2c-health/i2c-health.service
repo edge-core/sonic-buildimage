@@ -1,0 +1,12 @@
+[Unit]
+Description=SONiC I2C Health Service
+Requires=database.service
+After=database.service pmon.service
+
+[Service]
+ExecStart=/usr/local/bin/i2chealthd
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
