@@ -586,6 +586,12 @@
             },
             {
                 "name": "Ethernet504"
+            },
+            {
+                "name": "Ethernet512"
+            },
+            {
+                "name": "Ethernet513"
             }
         ]
     },
@@ -1419,6 +1425,22 @@
                 "1x100G[40G](4)": ["Eth64(Port64)"],
                 "2x50G(4)": ["Eth64/1(Port64)", "Eth64/2(Port64)"],
                 "4x25G[10G](4)": ["Eth64/1(Port64)", "Eth64/2(Port64)", "Eth64/3(Port64)", "Eth64/4(Port64)"]
+            }
+        },
+
+        "Ethernet512": {
+            "index": "65",
+            "lanes": "514",
+            "breakout_modes": {
+                "1x10G[1G]": ["Eth65(Port65)"]
+            }
+        },
+
+        "Ethernet513": {
+            "index": "66",
+            "lanes": "516",
+            "breakout_modes": {
+                "1x10G[1G]": ["Eth66(Port66)"]
             }
         }
     }
