@@ -107,3 +107,15 @@ class Psu(PddfPsu):
             return 0.0
 
         return super().get_power()
+
+    def get_name(self):
+        return "PSU-{}".format(self.psu_index)
+
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the device
+
+        Returns:
+            string: Revision value of device
+        """
+        return 'N/A'
