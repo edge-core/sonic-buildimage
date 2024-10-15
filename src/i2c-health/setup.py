@@ -18,6 +18,7 @@ setup(
     maintainer_email='mark_hsieh@edge-core.com',
     install_requires=dependencies,
     packages=[
+        'i2c_health_mgr',
         'tests'
     ],
     scripts=[
