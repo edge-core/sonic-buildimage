@@ -1,11 +1,13 @@
-import sonic_platform.platform
+import logging
 
 class I2CPlatformAPI:
-
-
     def __init__(self):
-        self.platform = sonic_platform.platform.Platform()
-        self.chassis = self.platform.get_chassis()
+        self.chassis = None
+        try:
+            import sonic_platform.platform
+            self.chassis = sonic_platform.platform.Platform().get_chassis()
+        except Exception as e:
+            logging.warning("Failed to load chassis due to {}".format(repr(e)))
 
 
     def get_all_i2c_region_list(self):
@@ -38,5 +40,16 @@ class I2CPlatformAPI:
 
 
     def set_i2c_faulty_device(self, bus, device_addr, faulty):
-        pass
+        """
+        bus: I2C bus id
+        device_addr: I2C device address
+        device_enabled: True if this is a faulty device else False
+        """
+        if self.chassis is not None:
+            try:
+                return self.chassis.set_i2c_faulty_device(bus, device_addr, faulty)
+            except:
+                return None
+
+        return None
 
