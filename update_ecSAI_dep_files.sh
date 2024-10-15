@@ -51,10 +51,14 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/pla
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/platform.json
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/th4-as9736-64x400G_ec.config.yml \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/th4-as9736-64x400G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/hwsku_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/hwsku.json
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/port_config_ec.ini \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D/port_config.ini
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/th4-as9736-64x100G_ec.config.yml \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/th4-as9736-64x100G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/hwsku_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/hwsku.json
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/port_config_ec.ini \
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9736_64d-r0/Accton-AS9736-64D-100G/port_config.ini
 
