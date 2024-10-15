@@ -1,0 +1,75 @@
+{
+    "77-1-76-1": [
+      {
+        "name": "FAN-1F",
+        "region": "1-76-1",
+        "bus": "17",
+        "device_addr": "0x66",
+        "register_addr": "0x0"
+      },
+      {
+        "name": "FAN-1R",
+        "region": "1-76-1",
+        "bus": "17",
+        "device_addr": "0x66",
+        "register_addr": "0x0"
+      },
+      {
+        "name": "FAN-2F",
+        "region": "1-76-1",
+        "bus": "17",
+        "device_addr": "0x66",
+        "register_addr": "0x0"
+      },
+      {
+        "name": "FAN-2R",
+        "region": "1-76-1",
+        "bus": "17",
+        "device_addr": "0x66",
+        "register_addr": "0x0"
+      }
+    ],
+    "77-1-72-1": [
+      {
+        "name": "PSU-1",
+        "region": "1-72-1",
+        "bus": "9",
+        "device_addr": "0x58",
+        "register_addr": "0x0"
+      },
+      {
+        "name": "PSU-1",
+        "region": "1-72-1",
+        "bus": "9",
+        "device_addr": "0x50",
+        "register_addr": "0x0"
+      }
+    ],
+    "77-2-72-1": [
+      {
+        "name": "Ethernet0",
+        "region": "2-72-1",
+        "bus": "25",
+        "device_addr": "0x50",
+        "register_addr": "0x0"
+      }
+    ],
+    "2-72-2": [
+      {
+        "name": "Ethernet8",
+        "region": "2-72-2",
+        "bus": "26",
+        "device_addr": "0x50",
+        "register_addr": "0x0"
+      }
+    ],
+    "2-72-3": [
+      {
+        "name": "Ethernet16",
+        "region": "2-72-3",
+        "bus": "27",
+        "device_addr": "0x50",
+        "register_addr": "0x0"
+      }
+    ]
+}
