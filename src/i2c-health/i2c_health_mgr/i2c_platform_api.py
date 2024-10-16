@@ -19,6 +19,14 @@ class I2CPlatformAPI:
 
         return None
 
+    def get_i2c_representative_dev_list(self):
+        if self.chassis is not None:
+            try:
+                return self.chassis.representative_devices_get()
+            except:
+                return None
+
+        return None
 
     def get_i2c_daemons(self):
         if self.chassis is not None:
