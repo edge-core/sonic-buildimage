@@ -7,7 +7,7 @@ class I2CBusChecker:
         self.logger = logger
         self.i2c_platform_api = i2c_platform_api
         self.i2c_dev_list = self.i2c_platform_api.get_i2c_representative_dev_list()
-        self.i2c_representative_list = _wrapper_representative_devices_list()
+        self.i2c_representative_list = self._wrapper_representative_devices_list()
 
     def _wrapper_representative_devices_list(self):
         representative_list = []
@@ -57,7 +57,7 @@ class I2CBusChecker:
                     if return_code == 0:
                         self.logger.log_info('{}: I2C get successful on attempt {}/{}.'.format(device, attempt, retry_count))
                         all_failed = False  # At least one device succeeded
-                        return all_failed 
+                        return all_failed
                     else:
                         print(f"{device}: I2C get failed, Return Code: {return_code}")
                         self.logger.log_warning('{}: I2C get failed on attempt {}/{}.'.format(device, attempt, retry_count))
