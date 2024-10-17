@@ -1,13 +1,11 @@
-from i2c_platform_api import I2CPlatformAPI
 from i2c_device_entity import I2CDeviceEntity
 import subprocess
-import logging
 
 
 class I2CBusChecker:
-    def __init__(self, logger):
+    def __init__(self, logger, i2c_platform_api):
         self.logger = logger
-        self.i2c_platform_api = I2CPlatformAPI()
+        self.i2c_platform_api = i2c_platform_api
         self.i2c_dev_list = self.i2c_platform_api.get_i2c_representative_dev_list()
         self.i2c_representative_list = _wrapper_representative_devices_list()
 
@@ -24,7 +22,7 @@ class I2CBusChecker:
                     )
                 )
         except:
-            self.logger.error("Init representative devices list error.")
+            self.logger.log_error("Init representative devices list error.")
             pass
         return representative_list
     
@@ -46,7 +44,7 @@ class I2CBusChecker:
             device_addr = device.get_device_addr()
             register_addr = device.get_register_addr()
             cmd = ['sudo', 'i2cget', '-f', '-y', str(bus), device_addr, register_addr]
-            self.logger.info('I2C cmd {}'.format(cmd))
+            self.logger.log_info('I2C cmd {}'.format(cmd))
 
             attempt = 0
 
@@ -57,16 +55,16 @@ class I2CBusChecker:
                     return_code = result.returncode
 
                     if return_code == 0:
-                        self.logger.info('{}: I2C get successful on attempt {}/{}.'.format(device, attempt, retry_count))
+                        self.logger.log_info('{}: I2C get successful on attempt {}/{}.'.format(device, attempt, retry_count))
                         all_failed = False  # At least one device succeeded
                         return all_failed 
                     else:
                         print(f"{device}: I2C get failed, Return Code: {return_code}")
-                        self.logger.warning('{}: I2C get failed on attempt {}/{}.'.format(device, attempt, retry_count))
+                        self.logger.log_warning('{}: I2C get failed on attempt {}/{}.'.format(device, attempt, retry_count))
 
                 except Exception as e:
-                    self.logger.warning('{}: Error I2C get on attempt {}/{}.'.format(device, attempt, retry_count))
+                    self.logger.log_warning('{}: Error I2C get on attempt {}/{}.'.format(device, attempt, retry_count))
 
         if all_failed:
-            self.logger.warning('I2C bus lock!')
+            self.logger.log_error('I2C bus lock!')
         return all_failed

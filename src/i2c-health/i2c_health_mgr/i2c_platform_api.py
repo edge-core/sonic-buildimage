@@ -1,13 +1,12 @@
-import logging
 
 class I2CPlatformAPI:
-    def __init__(self):
+    def __init__(self, logger):
         self.chassis = None
         try:
             import sonic_platform.platform
             self.chassis = sonic_platform.platform.Platform().get_chassis()
         except Exception as e:
-            logging.warning("Failed to load chassis due to {}".format(repr(e)))
+            logger.log_error("Failed to load chassis due to {}".format(repr(e)))
 
 
     def get_all_i2c_region_list(self):
