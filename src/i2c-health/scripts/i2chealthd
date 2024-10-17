@@ -5,7 +5,7 @@
     I2C health monitor daemon for SONiC
 """
 
-from i2c_health_mgr.i2c_health_mgr import I2CHealthMgr
+from i2c_health_mgr.i2c_health_manager import I2CHealthManager
 from sonic_py_common import daemon_base, device_info
 import threading
 import signal
@@ -47,7 +47,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
         self.log_notice("Starting up...")
 
         try:
-            i2c_mgr = I2CHealthMgr()
+            i2c_mgr = I2CHealthManager()
             # Polling i2c devices task
             while True:
                 # Do the I2C BUS check here
