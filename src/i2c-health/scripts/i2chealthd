@@ -57,15 +57,18 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                 if i2c_mgr.is_bus_lock() is False:
                     continue
 
-                i2c_mgr.stop_i2c_daemons()
+                if i2c_mgr.stop_i2c_services() is False:
+                    continue
 
-                i2c_mgr.reset_mux()
+                if i2c_mgr.reset_all_mux() is False:
+                    continue
+
+                if i2c_mgr.set_all_fans_full_speed() is False:
+                    continue
 
                 i2c_mgr.scan_faulty_devices()
 
-                i2c_mgr.start_i2c_daemons()
-
-
+                i2c_mgr.start_i2c_services()
 
                 self.log_notice("Wait Event timeout, do I2C check...")
 

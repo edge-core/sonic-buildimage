@@ -28,10 +28,10 @@ class I2CPlatformAPI:
 
         return None
 
-    def get_i2c_daemons(self):
+    def get_i2c_platform_service_list(self):
         if self.chassis is not None:
             try:
-                return self.chassis.get_i2c_daemons()
+                return self.chassis.get_platform_service_list()
             except:
                 return None
 
@@ -40,11 +40,22 @@ class I2CPlatformAPI:
 
     def reset_all_mux(self):
         if self.chassis is not None:
-            self.chassis.reset_i2c_mux()
+            try:
+                return self.chassis.reset_i2c_mux()
+            except:
+                return False
+
+        return False
 
 
     def set_all_fans_full_speed(self):
-        pass
+        if self.chassis is not None:
+            try:
+                return self.chassis.set_all_fan_full_speed()
+            except:
+                return False
+
+        return False
 
 
     def set_i2c_faulty_device(self, bus, device_addr, faulty):
@@ -60,4 +71,3 @@ class I2CPlatformAPI:
                 return None
 
         return None
-
