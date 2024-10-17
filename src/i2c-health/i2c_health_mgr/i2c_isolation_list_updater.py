@@ -4,7 +4,8 @@ from i2c_health_mgr import i2c_device_entity
 I2C_ISOLATION_LIST_TABLE = 'I2C_ISOLATION_LIST|{}|{}'
 
 class I2CIsolationListUpdater():
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger=logger
         self.state_db = SonicV2Connector(use_unix_socket_path=True, host='127.0.0.1')
         self.state_db.connect(self.state_db.STATE_DB)
 
@@ -17,7 +18,7 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.set(self.state_db.STATE_DB, table_key, 'device_name', entity.get_name())
             except:
-                pass
+                logger.log_error('Failed to add {}({}:{}) into the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
 
     def remove_device_from_isolation_list(self, region_id, i2c_device_entity_list):
         """
@@ -28,4 +29,4 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.delete(self.state_db.STATE_DB, table_key)
             except:
-                pass
+                logger.log_error('Failed to remove {}({}:{}) from the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))

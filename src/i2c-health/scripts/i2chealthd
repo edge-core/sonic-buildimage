@@ -47,7 +47,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
         self.log_notice("Starting up...")
 
         try:
-            i2c_mgr = I2CHealthManager()
+            i2c_mgr = I2CHealthManager(self)
             # Polling i2c devices task
             while True:
                 # Do the I2C BUS check here
