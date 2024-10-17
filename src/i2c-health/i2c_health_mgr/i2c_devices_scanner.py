@@ -57,7 +57,7 @@ class I2CDevicesScanner():
                 )
         return region_list_dict
 
-    def i2c_device_checker(self, entity):
+    def i2c_faulty_device_checker(self, entity):
         """
         Check whether the given I2C entity is a faulty device. If the bus becoms lock after
         accessing the entity, the entity is a faulty device.
@@ -86,7 +86,7 @@ class I2CDevicesScanner():
 
         if _wrapper_i2c_bus_lock_status() == True:
             is_faulty_device = True
-            _wrapper_reset_i2c_mux() # reset i2c mux devices to recover the bus lock status
+            self.platform_api_wrapper.reset_all_mux() # reset i2c mux devices to recover the bus lock status
 
         return is_faulty_device
 
