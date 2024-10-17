@@ -29,7 +29,7 @@ class I2CHealthManager:
     def __init__(self):
         self.plat_api = i2c_platform_api.I2CPlatformAPI()
         self.i2c_bus_checker = I2CBusChecker()
-        self.i2c_devices_checker = I2CDevicesScanner()
+        self.i2c_devices_checker = I2CDevicesScanner(self.i2c_bus_checker)
         self.i2c_plat_services = self.plat_api.get_i2c_platform_service_list()
         self.i2c_pmon_services = I2C_PMON_SERVICE_LIST
 
