@@ -2,6 +2,7 @@ from swsscommon import swsscommon
 from sonic_py_common import daemon_base, multi_asic
 from i2c_device_entity import I2CDeviceEntity
 from i2c_isolation_list_updater import I2CIsolationListUpdater
+from i2c_bus_checker import I2CBusChecker
 import i2c_platform_api
 import subprocess
 import logging
@@ -11,12 +12,6 @@ SELECT_TIMEOUT_MSECS = 1000
 MAX_I2C_CHECK_COUNT = 3
 
 
-def _wrapper_i2c_bus_lock_status():
-    """
-    TODO: Call the real function here.
-    """
-    return False
-
 def execute_os_cmd(cmd):
     try:
         ret = subprocess.check_output(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -25,17 +20,18 @@ def execute_os_cmd(cmd):
         # I2C function timeout return non-zero value, trigger CalledProcessError
         return False
 
-class I2CDevicesScanner():
+class I2CDevicesScanner:
     """
     1. Allocate faulty I2C devices and record them to the isolation list
     2. Release the I2C devices from isolation list when they are removed
     """
-    def __init__(self):
+    def __init__(self, i2c_bus_checker):
         self.platform_api_wrapper = i2c_platform_api.I2CPlatformAPI()
         self.updater = I2CIsolationListUpdater()
 
         self.device_locked_list_dict = {}
         self.i2c_region_list_dict = self.get_all_i2c_region_list()
+        self.i2c_bus_checker = i2c_bus_checker
         return
 
     def get_all_i2c_region_list(self):
@@ -84,7 +80,7 @@ class I2CDevicesScanner():
             if ret == True:
               break
 
-        if _wrapper_i2c_bus_lock_status() == True:
+        if self.i2c_bus_checker.is_bus_lock():
             is_faulty_device = True
             self.platform_api_wrapper.reset_all_mux() # reset i2c mux devices to recover the bus lock status
 
