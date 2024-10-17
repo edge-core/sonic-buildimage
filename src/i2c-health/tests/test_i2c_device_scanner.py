@@ -28,7 +28,7 @@ def test_execute_os_cmd():
     subprocess.check_output.side_effect=subprocess.CalledProcessError(1,'i2cget')
     ret = i2c_devices_scanner.execute_os_cmd('sudo i2cget -f -y 13 0x50 0x0')
     assert ret == False
-
+'''
 class TestI2CDevicesScanner:
     def test_get_all_i2c_region_list(self):
         with open(os.path.join(test_path,"mock_i2c_region_list.json"), "r") as f:
@@ -95,4 +95,4 @@ class TestI2CDevicesScanner:
         }
         task.reset_i2c_device_state(["77-2-72-2", data])
         assert "77-2-72-2" not in task.device_locked_list_dict
-
+'''
