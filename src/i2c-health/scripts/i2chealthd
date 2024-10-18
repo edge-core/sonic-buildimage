@@ -20,7 +20,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
 
     def __init__(self):
         """
-        A daemon that run as a service to perform i2c health checker with an interval.
+        A daemon that runs as a service to periodically perform I2C health checks.
         """
 
         daemon_base.DaemonBase.__init__(self, SYSLOG_IDENTIFIER)
@@ -33,7 +33,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
 
     def deinit(self):
         """
-        Destructor. Remove all entries in DB
+        Destructor.
         :return:
         """
 
@@ -50,7 +50,6 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
             i2c_mgr = I2CHealthManager(self)
             # Polling i2c devices task
             while True:
-                # Do the I2C BUS check here
                 if self.stop_event.wait(self.interval):
                     break
 
