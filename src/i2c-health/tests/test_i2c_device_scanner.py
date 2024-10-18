@@ -18,6 +18,9 @@ sys.path.insert(0, util_path)
 
 import i2c_devices_scanner
 import i2c_device_entity
+import i2c_isolation_list_updater
+
+i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
 
 @patch('subprocess.check_output', MagicMock())
 def test_execute_os_cmd():
@@ -28,15 +31,19 @@ def test_execute_os_cmd():
     subprocess.check_output.side_effect=subprocess.CalledProcessError(1,'i2cget')
     ret = i2c_devices_scanner.execute_os_cmd('sudo i2cget -f -y 13 0x50 0x0')
     assert ret == False
-'''
+
+
 class TestI2CDevicesScanner:
     def test_get_all_i2c_region_list(self):
         with open(os.path.join(test_path,"mock_i2c_region_list.json"), "r") as f:
             mock_i2c_region_list = json.load(f)
-        task = i2c_devices_scanner.I2CDevicesScanner()
+        logger = MagicMock()
+        i2c_bus_checker = MagicMock()
+        i2c_platform_api = MagicMock()
+        i2c_platform_api.get_all_i2c_region_list = MagicMock(return_value=mock_i2c_region_list)
+        task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
-        task.platform_api_wrapper.get_all_i2c_region_list = MagicMock(return_value=mock_i2c_region_list)
         parsed_list = task.get_all_i2c_region_list()
         assert len(parsed_list) == 5
         for region_id in parsed_list:
@@ -47,7 +54,10 @@ class TestI2CDevicesScanner:
                 assert pdata.get_register_addr() == mdata["register_addr"]
 
     def test_i2c_faulty_devices_scan(self):
-        task = i2c_devices_scanner.I2CDevicesScanner()
+        logger = MagicMock()
+        i2c_bus_checker = MagicMock()
+        i2c_platform_api = MagicMock()
+        task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
         task.i2c_region_list_dict = {
@@ -55,37 +65,46 @@ class TestI2CDevicesScanner:
         }
 
         # No I2C device is locked
-        task.i2c_device_checker = MagicMock(return_value=True)
+        task.i2c_faulty_device_checker = MagicMock(return_value=False)
         task.i2c_faulty_devices_scan()
         assert task.device_locked_list_dict == {}
 
         # Ethernet8 triggering I2C bus locked
-        task.i2c_device_checker = MagicMock(return_value=False)
+        task.i2c_faulty_device_checker = MagicMock(return_value=True)
         task.i2c_faulty_devices_scan()
         assert len(task.device_locked_list_dict) == 1
         assert list(task.device_locked_list_dict.keys())[0] == '77-2-72-2'
         assert list(task.device_locked_list_dict.values())[0].get_name() == 'Ethernet8'
 
-    def test_i2c_device_checker(self):
-        task = i2c_devices_scanner.I2CDevicesScanner()
+    def test_i2c_faulty_device_checker(self):
+        logger = MagicMock()
+        i2c_bus_checker = MagicMock()
+        i2c_platform_api = MagicMock()
+        task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
         entity = i2c_device_entity.I2CDeviceEntity("Ethernet8", "26", "0x50", "0x0")
 
-        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [True, True, True])
-        ret = task.i2c_device_checker(entity)
-        assert ret == True
-
-        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [False, False, False])
-        ret = task.i2c_device_checker(entity)
+        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [True])
+        task.i2c_bus_checker.is_bus_lock = MagicMock(return_value=False)
+        ret = task.i2c_faulty_device_checker(entity)
         assert ret == False
 
-        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [False, True, True])
-        ret = task.i2c_device_checker(entity)
+        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [False, False, True])
+        task.i2c_bus_checker.is_bus_lock = MagicMock(return_value=False)
+        ret = task.i2c_faulty_device_checker(entity)
+        assert ret == False
+
+        i2c_devices_scanner.execute_os_cmd = MagicMock(side_effect = [False, False, False])
+        task.i2c_bus_checker.is_bus_lock = MagicMock(return_value=True)
+        ret = task.i2c_faulty_device_checker(entity)
         assert ret == True
 
     def test_reset_i2c_device_state(self):
-        task = i2c_devices_scanner.I2CDevicesScanner()
+        logger = MagicMock()
+        i2c_bus_checker = MagicMock()
+        i2c_platform_api = MagicMock()
+        task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
 
@@ -95,4 +114,3 @@ class TestI2CDevicesScanner:
         }
         task.reset_i2c_device_state(["77-2-72-2", data])
         assert "77-2-72-2" not in task.device_locked_list_dict
-'''

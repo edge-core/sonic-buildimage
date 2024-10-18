@@ -1,7 +1,7 @@
 from swsscommon import swsscommon
 from sonic_py_common import daemon_base, multi_asic
 from i2c_device_entity import I2CDeviceEntity
-from i2c_isolation_list_updater import I2CIsolationListUpdater
+import i2c_isolation_list_updater
 import subprocess
 
 
@@ -25,7 +25,7 @@ class I2CDevicesScanner:
     def __init__(self, logger, i2c_bus_checker, i2c_platform_api):
         self.logger = logger
         self.platform_api_wrapper = i2c_platform_api
-        self.updater = I2CIsolationListUpdater(logger)
+        self.updater = i2c_isolation_list_updater.I2CIsolationListUpdater(logger)
 
         self.device_locked_list_dict = {}
         self.i2c_region_list_dict = self.get_all_i2c_region_list()
@@ -163,17 +163,17 @@ class I2CDevicesScanner:
         device_addr = device[1].get_device_addr()
         i2c_address_path = device[1].get_i2c_address_path()
 
-        logger.log_info('[I2CHEALTH-001] Detect the removal of the device {}({}:{})'.format(name, i2c_region, i2c_address_path))
+        self.logger.log_info('[I2CHEALTH-001] Detect the removal of the device {}({}:{})'.format(name, i2c_region, i2c_address_path))
         del self.device_locked_list_dict[i2c_region]
         self.remove_i2c_region_from_isolation_list(i2c_region)
         self.platform_api_wrapper.set_i2c_faulty_device(bus, device_addr, False)
-        logger.log_info("[I2CHEALTH-004] Remove {}({}:{}) from the isolation list.".format(name, i2c_region, i2c_address_path))
+        self.logger.log_info("[I2CHEALTH-004] Remove {}({}:{}) from the isolation list.".format(name, i2c_region, i2c_address_path))
 
     def i2c_faulty_devices_scan(self):
         """
         Allocating which I2C device caused the I2C bus locked
         """
-        logger.log_info("[I2CHEALTH-008] Start scanning for i2c faulty devices.")
+        self.logger.log_info("[I2CHEALTH-008] Start scanning for i2c faulty devices.")
         for i2c_region, i2c_devices in self.i2c_region_list_dict.items():
             if i2c_region in self.device_locked_list_dict:
                 # skip checking the i2c region because it is known locked i2c region.
@@ -185,8 +185,8 @@ class I2CDevicesScanner:
                     self.insert_i2c_region_to_isolation_list(i2c_region)
                     self.device_locked_list_dict.setdefault(i2c_region, i2c_dev)
                     self.platform_api_wrapper.set_i2c_faulty_device(i2c_dev.get_bus(), i2c_dev.get_device_addr(), True)
-                    logger.log_info("[I2CHEALTH-003] Isolate i2c devices: {}({}:{})".format(i2c_dev.get_name(), i2c_region, i2c_dev.get_i2c_address_path()))
+                    self.logger.log_info("[I2CHEALTH-003] Isolate i2c devices: {}({}:{})".format(i2c_dev.get_name(), i2c_region, i2c_dev.get_i2c_address_path()))
                     break
 
-        logger.log_info("[I2CHEALTH-009] Finish scanning for i2c faulty devices.The isolation list is updated.")
+        self.logger.log_info("[I2CHEALTH-009] Finish scanning for i2c faulty devices.The isolation list is updated.")
         return
