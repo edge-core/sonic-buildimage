@@ -6,14 +6,15 @@ import i2c_platform_api
 I2C_PMON_SERVICE_LIST = [
             'pmon:psud',
             'pmon:xcvrd',
-            'pmon:xcvrd',
+            'syseepromd',
+            'thermalctld',
             'sensord'
         ]
 
 # Stop I2C Services CMDs
 STOP_PLAT_SERVICE = 'sudo systemctl stop'
-STOP_PMON_SENSORD = 'docker exec pmon service sensord stop'
 STOP_PMON_SERVICE = 'docker exec pmon supervisorctl stop'
+STOP_PMON_SENSORD = 'docker exec pmon service sensord stop'
 
 # Start I2C Services CMDs
 START_PLAT_SERVICE = 'sudo systemctl start'
@@ -40,47 +41,59 @@ class I2CHealthManager:
 
 
     def stop_i2c_services(self):
-        # Step1: Stop PMON I2C services
-        for service in self.i2c_pmon_services:
-            if service != 'sensord':
-                cmd = STOP_PMON_SERVICE.format(service)
-            else:
-                cmd = STOP_PMON_SENSORD
+        """
+        Stops all I2C-related services on the system.
 
-            ret = execute_os_cmd(cmd)
-            if ret is False:
+        This function performs the following steps:
+        1. Stops the PMON I2C services, with the exception of the 'sensord' service, which is handled separately.
+        2. Stops the Host platform I2C services.
+
+        If any service fails to stop, the function immediately returns False.
+        Returns True if all services are successfully stopped.
+
+        Returns:
+            bool: True if all services are stopped successfully, False otherwise.
+        """
+
+        for service in self.i2c_pmon_services:
+            cmd = STOP_PMON_SENSORD if service == 'sensord' else STOP_PMON_SERVICE.format(service)
+
+            if not execute_os_cmd(cmd):
                 return False
 
-        # Step2: Stop Host platform I2C services
+
         for service in self.i2c_plat_services:
             cmd = STOP_PLAT_SERVICE.format(service)
 
-            ret = execute_os_cmd(cmd)
-
-            if ret is False:
+            if not execute_os_cmd(cmd):
                 return False
 
         return True
 
     def start_i2c_services(self):
-        # Step1: Start Host platform I2C services
+        """
+        Starts all I2C-related services on the system.
+
+        This function performs the following steps:
+        1. Starts the Host platform I2C services.
+        2. Starts the PMON I2C services, with the 'sensord' service handled separately.
+
+        If any service fails to start, the function immediately returns False.
+        Returns True if all services are successfully started.
+
+        Returns:
+            bool: True if all services are started successfully, False otherwise.
+        """
+
         for service in self.i2c_plat_services:
             cmd = START_PLAT_SERVICE.format(service)
-            ret = execute_os_cmd(cmd)
-
-            if ret is False:
+            if not execute_os_cmd(cmd):
                 return False
 
 
-        # Step2: Star PMON I2C services
         for service in self.i2c_pmon_services:
-            if service != 'sensord':
-                cmd = START_PMON_SERVICE.format(service)
-            else:
-                cmd = START_PMON_SENSORD
-
-            ret = execute_os_cmd(cmd)
-            if ret is False:
+            cmd = START_PMON_SENSORD if service == 'sensord' else START_PMON_SERVICE.format(service)
+            if not execute_os_cmd(cmd):
                 return False
 
         return True
@@ -95,4 +108,3 @@ class I2CHealthManager:
 
     def scan_faulty_devices(self):
         self.i2c_devices_checker.i2c_faulty_devices_scan()
-
