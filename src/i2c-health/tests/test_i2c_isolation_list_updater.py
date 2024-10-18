@@ -21,7 +21,8 @@ class TestI2CBusHelper(unittest.TestCase):
         self.mock_connector = patcher.start()
 
         self.mock_dbconnector = mock.Mock()
-        self.i2c_isolation_list_updater = I2CIsolationListUpdater()
+        mock_logger = mock.Mock()
+        self.i2c_isolation_list_updater = I2CIsolationListUpdater(logger=mock_logger)
 
     def test_add_and_remove_single_device(self):
         mock_single_device = [I2CDeviceEntity("PSU_1", "1", "0x50", "0x00")]
