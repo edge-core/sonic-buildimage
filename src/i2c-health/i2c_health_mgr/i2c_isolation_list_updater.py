@@ -18,7 +18,7 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.set(self.state_db.STATE_DB, table_key, 'device_name', entity.get_name())
             except:
-                logger.log_error('Failed to add {}({}:{}) into the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+                self.logger.log_error('Failed to add {}({}:{}) into the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
 
     def remove_device_from_isolation_list(self, region_id, i2c_device_entity_list):
         """
@@ -29,4 +29,4 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.delete(self.state_db.STATE_DB, table_key)
             except:
-                logger.log_error('Failed to remove {}({}:{}) from the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+                self.logger.log_error('Failed to remove {}({}:{}) from the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
