@@ -472,10 +472,6 @@ def do_install():
 
     do_sonic_platform_install()
 
-    status, output = log_os_system("systemctl start i2c-health.service", True)
-    if status:
-        print(output)
-
     return
 
 def do_uninstall():
