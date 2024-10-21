@@ -2,6 +2,7 @@ from swsscommon import swsscommon
 from sonic_py_common import daemon_base, multi_asic
 from i2c_health_mgr.i2c_device_entity import I2CDeviceEntity
 from i2c_health_mgr import i2c_isolation_list_updater
+from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 import subprocess
 
 
@@ -90,7 +91,12 @@ class I2CDevicesScanner:
         Params:
         : i2c_region: I2C region ID
         """
+        msg = get_i2c_health_msg(3)# 003: device name, region id, device addr.
+        for entity in self.i2c_region_list_dict[i2c_region]:
+            self.logger.log_notice(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+
         self.updater.add_device_into_isolation_list(i2c_region, self.i2c_region_list_dict[i2c_region])
+
 
     def remove_i2c_region_from_isolation_list(self, i2c_region):
         """
@@ -98,6 +104,9 @@ class I2CDevicesScanner:
         Params:
         : i2c_region: I2C region ID
         """
+        msg = get_i2c_health_msg(4)# 004: device name, region id, device addr.
+        for entity in self.i2c_region_list_dict[i2c_region]:
+            self.logger.log_notice(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
         self.updater.remove_device_from_isolation_list(i2c_region, self.i2c_region_list_dict[i2c_region])
 
     def subscribe_device_removal_event(self):

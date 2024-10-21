@@ -1,4 +1,5 @@
 from i2c_health_mgr.i2c_device_entity import I2CDeviceEntity
+from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 import subprocess
 
 
@@ -64,6 +65,4 @@ class I2CBusChecker:
                 except Exception as e:
                     self.logger.log_warning('{}: Error I2C get on attempt {}/{}.'.format(device, attempt, retry_count))
 
-        if all_failed:
-            self.logger.log_error('I2C bus lock!')
         return all_failed
