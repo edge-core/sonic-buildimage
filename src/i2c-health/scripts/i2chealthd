@@ -65,6 +65,8 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                 if i2c_mgr.set_all_fans_full_speed() is False:
                     continue
 
+                i2c_mgr.handle_device_removal_event(self.stop_event)
+
                 i2c_mgr.scan_faulty_devices()
 
                 i2c_mgr.start_i2c_services()

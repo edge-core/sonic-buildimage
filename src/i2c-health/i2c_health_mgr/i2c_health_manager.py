@@ -33,7 +33,8 @@ class I2CHealthManager:
         self.i2c_devices_checker = I2CDevicesScanner(logger, self.i2c_bus_checker, self.plat_api)
         self.i2c_plat_services = self.plat_api.get_i2c_platform_service_list()
         self.i2c_pmon_services = I2C_PMON_SERVICE_LIST
-        self.logger=logger
+        self.logger = logger
+        self.sel, self.context = self.i2c_devices_checker.subscribe_device_removal_event()
 
 
     def is_bus_lock(self):
@@ -69,6 +70,7 @@ class I2CHealthManager:
                 return False
 
         return True
+
 
     def start_i2c_services(self):
         """
@@ -106,5 +108,11 @@ class I2CHealthManager:
     def set_all_fans_full_speed(self):
         return self.plat_api.set_all_fans_full_speed()
 
+
     def scan_faulty_devices(self):
         self.i2c_devices_checker.i2c_faulty_devices_scan()
+
+
+    def handle_device_removal_event(stop_event):
+        self.i2c_devices_checker.handle_device_removal_event(self.sel, self.context, stop_event)
+
