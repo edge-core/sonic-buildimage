@@ -113,6 +113,6 @@ class I2CHealthManager:
         self.i2c_devices_checker.i2c_faulty_devices_scan()
 
 
-    def handle_device_removal_event(stop_event):
+    def handle_device_removal_event(self, stop_event):
         self.i2c_devices_checker.handle_device_removal_event(self.sel, self.context, stop_event)
 
