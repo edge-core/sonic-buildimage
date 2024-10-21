@@ -1,8 +1,7 @@
+import os
 import pytest
 import unittest
 import sys
-from i2c_health_mgr.i2c_isolation_list_updater import I2CIsolationListUpdater
-from i2c_health_mgr.i2c_device_entity import I2CDeviceEntity
 
 # TODO: Remove this if/else block once we no longer support Python 2
 if sys.version_info.major == 3:
@@ -12,11 +11,20 @@ else:
     # https://pypi.python.org/pypi/mock
     import mock
 
+test_path = os.path.dirname(os.path.abspath(__file__))
+modules_path = os.path.dirname(test_path)
+util_path = os.path.join(modules_path, "i2c_health_mgr")
+sys.path.insert(0, modules_path)
+sys.path.insert(0, util_path)
+
+from i2c_isolation_list_updater import I2CIsolationListUpdater
+from i2c_device_entity import I2CDeviceEntity
+
 from .mock_swsscommon import SonicV2Connector
 
-class TestI2CBusHelper(unittest.TestCase):
+class TestI2CIsolationListUpdater(unittest.TestCase):
     def setUp(self):
-        patcher = mock.patch("i2c_health_mgr.i2c_isolation_list_updater.SonicV2Connector", new=SonicV2Connector)
+        patcher = mock.patch("i2c_isolation_list_updater.SonicV2Connector", new=SonicV2Connector)
         self.addCleanup(patcher.stop)
         self.mock_connector = patcher.start()
 
