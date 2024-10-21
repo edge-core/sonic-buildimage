@@ -6,6 +6,7 @@
 """
 
 from i2c_health_mgr.i2c_health_manager import I2CHealthManager
+from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 from sonic_py_common import daemon_base, device_info
 import threading
 import signal
@@ -55,21 +56,47 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
 
                 if i2c_mgr.is_bus_lock() is False:
                     continue
+                else:
+                    msg = get_i2c_health_msg(1)
+                    self.log_error(msg)
 
                 if i2c_mgr.stop_i2c_services() is False:
+                    msg = get_i2c_health_msg(11)
+                    self.log_error(msg)
                     continue
+                else:
+                    msg = get_i2c_health_msg(7)
+                    self.log_notice(msg)
 
+                msg = get_i2c_health_msg(5)
+                self.log_notice(msg)
                 if i2c_mgr.reset_all_mux() is False:
+                    msg = get_i2c_health_msg(12)
+                    self.log_error(msg)
                     continue
+                else:
+                    msg = get_i2c_health_msg(2)
+                    self.log_notice(msg)
 
                 if i2c_mgr.set_all_fans_full_speed() is False:
-                    continue
+                    msg = get_i2c_health_msg(13)
+                    self.log_error(msg)
+                else:
+                    msg = get_i2c_health_msg(6)
+                    self.log_notice(msg)
 
                 i2c_mgr.handle_device_removal_event(self.stop_event)
 
+                msg = get_i2c_health_msg(8)
+                self.log_notice(msg)
                 i2c_mgr.scan_faulty_devices()
+                msg = get_i2c_health_msg(9)
+                self.log_notice(msg)
 
+                msg = get_i2c_health_msg(10)
+                self.log_notice(msg)
                 i2c_mgr.start_i2c_services()
+
 
                 self.log_notice("Wait Event timeout, do I2C check...")
 
