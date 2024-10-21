@@ -1,4 +1,4 @@
-from i2c_device_entity import I2CDeviceEntity
+from i2c_health_mgr.i2c_device_entity import I2CDeviceEntity
 import subprocess
 
 
@@ -25,7 +25,7 @@ class I2CBusChecker:
             self.logger.log_error("Init representative devices list error.")
             pass
         return representative_list
-    
+
     def i2c_representative_list_get(self):
         ''' The list data is like:
             [
@@ -59,7 +59,6 @@ class I2CBusChecker:
                         all_failed = False  # At least one device succeeded
                         return all_failed
                     else:
-                        print(f"{device}: I2C get failed, Return Code: {return_code}")
                         self.logger.log_warning('{}: I2C get failed on attempt {}/{}.'.format(device, attempt, retry_count))
 
                 except Exception as e:

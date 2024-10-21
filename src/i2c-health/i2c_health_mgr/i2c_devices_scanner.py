@@ -1,7 +1,7 @@
 from swsscommon import swsscommon
 from sonic_py_common import daemon_base, multi_asic
-from i2c_device_entity import I2CDeviceEntity
-import i2c_isolation_list_updater
+from i2c_health_mgr.i2c_device_entity import I2CDeviceEntity
+from i2c_health_mgr import i2c_isolation_list_updater
 import subprocess
 
 
@@ -57,7 +57,7 @@ class I2CDevicesScanner:
         accessing the entity, the entity is a faulty device.
         Params:
         : entity: I2C device entity
-        Return: 
+        Return:
         : True if the given entity is a faulty device
         """
         is_faulty_device = False
