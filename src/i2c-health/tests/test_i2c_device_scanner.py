@@ -20,8 +20,6 @@ import i2c_devices_scanner
 import i2c_device_entity
 import i2c_isolation_list_updater
 
-i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
-
 @patch('subprocess.check_output', MagicMock())
 def test_execute_os_cmd():
     subprocess.check_output.return_value=1
@@ -41,6 +39,7 @@ class TestI2CDevicesScanner:
         i2c_bus_checker = MagicMock()
         i2c_platform_api = MagicMock()
         i2c_platform_api.get_all_i2c_region_list = MagicMock(return_value=mock_i2c_region_list)
+        i2c_devices_scanner.i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
         task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
@@ -57,6 +56,7 @@ class TestI2CDevicesScanner:
         logger = MagicMock()
         i2c_bus_checker = MagicMock()
         i2c_platform_api = MagicMock()
+        i2c_devices_scanner.i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
         task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
@@ -80,6 +80,7 @@ class TestI2CDevicesScanner:
         logger = MagicMock()
         i2c_bus_checker = MagicMock()
         i2c_platform_api = MagicMock()
+        i2c_devices_scanner.i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
         task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()
@@ -104,6 +105,7 @@ class TestI2CDevicesScanner:
         logger = MagicMock()
         i2c_bus_checker = MagicMock()
         i2c_platform_api = MagicMock()
+        i2c_devices_scanner.i2c_isolation_list_updater.I2CIsolationListUpdater = MagicMock()
         task = i2c_devices_scanner.I2CDevicesScanner(logger, i2c_bus_checker, i2c_platform_api)
         task.insert_i2c_region_from_isolation_list = MagicMock()
         task.remove_i2c_region_from_isolation_list = MagicMock()

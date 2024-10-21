@@ -1,7 +1,7 @@
 from i2c_health_mgr.i2c_bus_checker import I2CBusChecker
 from i2c_health_mgr.i2c_devices_scanner import I2CDevicesScanner, execute_os_cmd
 
-import i2c_platform_api
+import i2c_health_mgr.i2c_platform_api as i2c_platform_api
 
 I2C_PMON_SERVICE_LIST = [
             'pmon:psud',
