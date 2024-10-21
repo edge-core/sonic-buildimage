@@ -12,13 +12,13 @@ I2C_PMON_SERVICE_LIST = [
         ]
 
 # Stop I2C Services CMDs
-STOP_PLAT_SERVICE = 'sudo systemctl stop'
-STOP_PMON_SERVICE = 'docker exec pmon supervisorctl stop'
+STOP_PLAT_SERVICE = 'sudo systemctl stop {}'
+STOP_PMON_SERVICE = 'docker exec pmon supervisorctl stop {}'
 STOP_PMON_SENSORD = 'docker exec pmon service sensord stop'
 
 # Start I2C Services CMDs
-START_PLAT_SERVICE = 'sudo systemctl start'
-START_PMON_SERVICE = 'docker exec pmon supervisorctl start'
+START_PLAT_SERVICE = 'sudo systemctl start {}'
+START_PMON_SERVICE = 'docker exec pmon supervisorctl start {}'
 START_PMON_SENSORD = 'docker exec pmon service sensord start'
 
 
