@@ -54,6 +54,8 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                 if self.stop_event.wait(self.interval):
                     break
 
+                i2c_mgr.handle_device_removal_event(self.stop_event)
+
                 if i2c_mgr.is_bus_lock() is False:
                     continue
                 else:
@@ -84,8 +86,6 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                 else:
                     msg = get_i2c_health_msg(6)
                     self.log_notice(msg)
-
-                i2c_mgr.handle_device_removal_event(self.stop_event)
 
                 msg = get_i2c_health_msg(8)
                 self.log_notice(msg)

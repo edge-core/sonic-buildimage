@@ -91,9 +91,9 @@ class I2CDevicesScanner:
         Params:
         : i2c_region: I2C region ID
         """
-        msg = get_i2c_health_msg(3)# 003: device name, region id, device addr.
+        msg = get_i2c_health_msg(3) # 003: device name, region id, device addr.
         for entity in self.i2c_region_list_dict[i2c_region]:
-            self.logger.log_notice(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+            self.logger.log_notice(msg.format(entity.get_name(), i2c_region, entity.get_i2c_address_path()))
 
         self.updater.add_device_into_isolation_list(i2c_region, self.i2c_region_list_dict[i2c_region])
 
@@ -104,9 +104,10 @@ class I2CDevicesScanner:
         Params:
         : i2c_region: I2C region ID
         """
-        msg = get_i2c_health_msg(4)# 004: device name, region id, device addr.
+        msg = get_i2c_health_msg(4) # 004: device name, region id, device addr.
         for entity in self.i2c_region_list_dict[i2c_region]:
-            self.logger.log_notice(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+            self.logger.log_notice(msg.format(entity.get_name(), i2c_region, entity.get_i2c_address_path()))
+
         self.updater.remove_device_from_isolation_list(i2c_region, self.i2c_region_list_dict[i2c_region])
 
     def subscribe_device_removal_event(self):
@@ -114,7 +115,7 @@ class I2CDevicesScanner:
         Subscribe to STATE_DB to get state tables changes
         """
         db_list = ['STATE_DB']
-        device_tbl_map = ['TRANSCEIVER_INFO', "PSU_INFO", "FAN_INFO"]
+        device_tbl_map = ['TRANSCEIVER_STATUS', "PSU_INFO", "FAN_INFO"]
 
         sel = swsscommon.Select()
         asic_context = {}
@@ -133,7 +134,7 @@ class I2CDevicesScanner:
 
     def handle_device_removal_event(self, sel, asic_context, stop_event):
         """
-        Select device removal events, notify the observers upon a device removal in STATE_DB
+        Select device removal events, notify the observers upon a device removed in STATE_DB
         """
         device_locked_list = {v.get_name():[k,v] for k, v in self.device_locked_list_dict.items()}
         if not stop_event.is_set():
@@ -151,16 +152,15 @@ class I2CDevicesScanner:
                         break
                     fvp = dict(fvp) if fvp is not None else {}
                     if op == swsscommon.SET_COMMAND:
-                        if device_tbl.table_name in ['PSU_INFO', 'FAN_INFO']:
-                            if key in device_locked_list:
+                        if key in device_locked_list:
+                            if device_tbl.table_name in ['PSU_INFO', 'FAN_INFO']:
                                 if fvp["presence"].lower() == "false":
                                     if key not in reset_devices:
                                         reset_devices.append(key)
-                    elif op == swsscommon.DEL_COMMAND:
-                        if device_tbl.table_name == 'TRANSCEIVER_INFO':
-                            if key in device_locked_list:
-                                if key not in reset_devices:
-                                    reset_devices.append(key)
+                            elif device_tbl.table_name == 'TRANSCEIVER_STATUS':
+                                if fvp["status"] == "0": # SFP_REMOVE
+                                    if key not in reset_devices:
+                                        reset_devices.append(key)
 
                 for key in reset_devices:
                     self.reset_i2c_device_state(device_locked_list[key])
@@ -172,17 +172,14 @@ class I2CDevicesScanner:
         device_addr = device[1].get_device_addr()
         i2c_address_path = device[1].get_i2c_address_path()
 
-        self.logger.log_notice('[I2CHEALTH-001] Detect the removal of the device {}({}:{})'.format(name, i2c_region, i2c_address_path))
         del self.device_locked_list_dict[i2c_region]
         self.remove_i2c_region_from_isolation_list(i2c_region)
         self.platform_api_wrapper.set_i2c_faulty_device(bus, device_addr, False)
-        self.logger.log_notice("[I2CHEALTH-004] Remove {}({}:{}) from the isolation list.".format(name, i2c_region, i2c_address_path))
 
     def i2c_faulty_devices_scan(self):
         """
         Allocating which I2C device caused the I2C bus locked
         """
-        self.logger.log_notice("[I2CHEALTH-008] Start scanning for i2c faulty devices.")
         for i2c_region, i2c_devices in self.i2c_region_list_dict.items():
             if i2c_region in self.device_locked_list_dict:
                 # skip checking the i2c region because it is known locked i2c region.
@@ -194,8 +191,5 @@ class I2CDevicesScanner:
                     self.insert_i2c_region_to_isolation_list(i2c_region)
                     self.device_locked_list_dict.setdefault(i2c_region, i2c_dev)
                     self.platform_api_wrapper.set_i2c_faulty_device(i2c_dev.get_bus(), i2c_dev.get_device_addr(), True)
-                    self.logger.log_notice("[I2CHEALTH-003] Isolate i2c devices: {}({}:{})".format(i2c_dev.get_name(), i2c_region, i2c_dev.get_i2c_address_path()))
                     break
-
-        self.logger.log_notice("[I2CHEALTH-009] Finish scanning for i2c faulty devices.The isolation list is updated.")
         return
