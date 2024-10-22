@@ -1,0 +1,10 @@
+[Unit]
+Description=SONiC I2C Health Service Launcher
+After=pmon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/launch_i2c_service
+
+[Install]
+WantedBy=multi-user.target

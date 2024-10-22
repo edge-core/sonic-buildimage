@@ -23,6 +23,7 @@ setup(
     ],
     scripts=[
         'scripts/i2chealthd',
+        'scripts/launch_i2c_service',
     ],
     setup_requires=[
         'pytest-runner'

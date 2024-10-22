@@ -453,9 +453,12 @@ sudo LANG=C cp $IMAGE_CONFIGS/system-health/system-health.service $FILESYSTEM_RO
 echo "system-health.service" | sudo tee -a $GENERATED_SERVICE_FILE
 
 # Copy i2c-health files
+sudo LANG=C cp $IMAGE_CONFIGS/i2c-health/i2c-health-launcher.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 sudo LANG=C cp $IMAGE_CONFIGS/i2c-health/i2c-health.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-# Disable i2c-health service by default. It will be started on the supported platform via
-# accton_[platform_name]_util.
+# Enable i2c-health-launcher service by default. This service will auto-started by default. It will
+# start i2c-health.service on the supported platform.
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable i2c-health-launcher.service
+# Disable i2c-health service by default. It will only be started on the supported platform.
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable i2c-health.service
 echo "i2c-health.service" | sudo tee -a $GENERATED_SERVICE_FILE
 
