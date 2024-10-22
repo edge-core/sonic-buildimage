@@ -14,27 +14,27 @@ class I2CPlatformAPI:
             try:
                 return self.chassis.get_all_i2c_region_list()
             except:
-                return None
+                return {}
 
-        return None
+        return {}
 
     def get_i2c_representative_dev_list(self):
         if self.chassis is not None:
             try:
                 return self.chassis.representative_devices_get()
             except:
-                return None
+                return []
 
-        return None
+        return []
 
     def get_i2c_platform_service_list(self):
         if self.chassis is not None:
             try:
                 return self.chassis.get_platform_service_list()
             except:
-                return None
+                return []
 
-        return None
+        return []
 
 
     def reset_all_mux(self):
@@ -67,6 +67,6 @@ class I2CPlatformAPI:
             try:
                 return self.chassis.set_i2c_faulty_device(bus, device_addr, faulty)
             except:
-                return None
+                return False
 
-        return None
+        return False
