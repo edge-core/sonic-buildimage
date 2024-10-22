@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+
+import sys
+import subprocess
+import syslog
+from sonic_py_common import device_info
+
+
+SUPPORT_PLATFORM = [
+    'x86_64-accton_as9716_32d-r0'
+]
+
+
+def is_platform_support():
+    platform = device_info.get_platform()
+
+    return True if platform in SUPPORT_PLATFORM else False, platform
+
+
+def start_i2c_health_service():
+    service = 'i2c-health'
+    try:
+        result = subprocess.run(['sudo', 'systemctl', 'start', service], check=True, text=True, capture_output=True)
+
+        syslog.syslog(syslog.LOG_NOTICE, f"Service {service} started successfully")
+        return 0
+
+    except subprocess.CalledProcessError as e:
+
+        syslog.syslog(syslog.LOG_ERR, f"Failed to start service {service}.")
+        syslog.syslog(syslog.LOG_ERR, f"Error: {e.stderr}")
+        return 1
+
+
+if __name__ == '__main__':
+
+    syslog.syslog(syslog.LOG_NOTICE, f"Starting i2c-health-launcher service")
+
+    is_supported, platform = is_platform_support()
+
+    if is_supported:
+        syslog.syslog(syslog.LOG_NOTICE, f"The i2c-health service is supported on Platform {platform}")
+        sys.exit(start_i2c_health_service())
+    else:
+        syslog.syslog(syslog.LOG_NOTICE, f"The i2c-health service is not supported on Platform {platform}")
+
+    syslog.syslog(syslog.LOG_NOTICE, f"Stopping i2c-health-launcher service")
+    sys.exit(0)

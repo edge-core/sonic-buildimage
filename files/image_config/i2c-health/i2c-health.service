@@ -7,6 +7,3 @@ After=database.service pmon.service
 ExecStart=/usr/local/bin/i2chealthd
 Restart=always
 
-[Install]
-WantedBy=multi-user.target
-
