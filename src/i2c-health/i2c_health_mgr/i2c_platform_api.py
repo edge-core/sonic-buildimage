@@ -61,7 +61,7 @@ class I2CPlatformAPI:
         """
         bus: I2C bus id
         device_addr: I2C device address
-        device_enabled: True if this is a faulty device else False
+        faulty: True if this is a faulty device else False
         """
         if self.chassis is not None:
             try:
