@@ -1,5 +1,6 @@
 from i2c_health_mgr.i2c_bus_checker import I2CBusChecker
 from i2c_health_mgr.i2c_devices_scanner import I2CDevicesScanner, execute_os_cmd
+from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 
 import i2c_health_mgr.i2c_platform_api as i2c_platform_api
 
@@ -59,14 +60,22 @@ class I2CHealthManager:
         for service in self.i2c_pmon_services:
             cmd = STOP_PMON_SENSORD if service == 'sensord' else STOP_PMON_SERVICE.format(service)
 
+            msg = get_i2c_health_msg(19) # 019: cmd to stop i2c daemon service
+            self.logger.log_notice(msg.format(cmd))
             if not execute_os_cmd(cmd):
+                msg = get_i2c_health_msg(20) # 020: cmd to stop i2c daemon service
+                self.logger.log_error(msg.format(cmd))
                 return False
 
 
         for service in self.i2c_plat_services:
             cmd = STOP_PLAT_SERVICE.format(service)
 
+            msg = get_i2c_health_msg(19) # 019: cmd to stop i2c daemon service
+            self.logger.log_notice(msg.format(cmd))
             if not execute_os_cmd(cmd):
+                msg = get_i2c_health_msg(20) # 020: cmd to stop i2c daemon service
+                self.logger.log_error(msg.format(cmd))
                 return False
 
         return True
@@ -89,13 +98,21 @@ class I2CHealthManager:
 
         for service in self.i2c_plat_services:
             cmd = START_PLAT_SERVICE.format(service)
+            msg = get_i2c_health_msg(21) # 021: cmd to start i2c daemon service
+            self.logger.log_notice(msg.format(cmd))
             if not execute_os_cmd(cmd):
+                msg = get_i2c_health_msg(22) # 022: cmd to start i2c daemon service
+                self.logger.log_error(msg.format(cmd))
                 return False
 
 
         for service in self.i2c_pmon_services:
             cmd = START_PMON_SENSORD if service == 'sensord' else START_PMON_SERVICE.format(service)
+            msg = get_i2c_health_msg(21) # 021: cmd to start i2c daemon service
+            self.logger.log_notice(msg.format(cmd))
             if not execute_os_cmd(cmd):
+                msg = get_i2c_health_msg(22) # 022: cmd to start i2c daemon service
+                self.logger.log_error(msg.format(cmd))
                 return False
 
         return True

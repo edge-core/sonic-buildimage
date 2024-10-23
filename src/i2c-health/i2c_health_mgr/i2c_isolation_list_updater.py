@@ -1,5 +1,6 @@
 from swsscommon.swsscommon import SonicV2Connector
 from i2c_health_mgr import i2c_device_entity
+from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 
 I2C_ISOLATION_LIST_TABLE = 'I2C_ISOLATION_LIST|{}|{}'
 
@@ -18,7 +19,8 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.set(self.state_db.STATE_DB, table_key, 'device_name', entity.get_name())
             except:
-                self.logger.log_error('Failed to add {}({}:{}) into the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+                msg = get_i2c_health_msg(23)
+                self.logger.log_error(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
 
     def remove_device_from_isolation_list(self, region_id, i2c_device_entity_list):
         """
@@ -29,4 +31,5 @@ class I2CIsolationListUpdater():
                 table_key = I2C_ISOLATION_LIST_TABLE.format(region_id, entity.get_i2c_address_path())
                 self.state_db.delete(self.state_db.STATE_DB, table_key)
             except:
-                self.logger.log_error('Failed to remove {}({}:{}) from the isolation list'.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
+                msg = get_i2c_health_msg(24)
+                self.logger.log_error(msg.format(entity.get_name(), region_id, entity.get_i2c_address_path()))
