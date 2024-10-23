@@ -23,7 +23,8 @@ class I2CBusChecker:
                     )
                 )
         except:
-            self.logger.log_error("Init representative devices list error.")
+            msg = get_i2c_health_msg(14)
+            self.logger.log_warning(msg)
             pass
         return representative_list
 
@@ -45,7 +46,8 @@ class I2CBusChecker:
             device_addr = device.get_device_addr()
             register_addr = device.get_register_addr()
             cmd = ['sudo', 'i2cget', '-f', '-y', str(bus), device_addr, register_addr]
-            self.logger.log_info('I2C cmd {}'.format(cmd))
+            msg = get_i2c_health_msg(15)
+            self.logger.log_info(msg.format(" ".join(cmd)))
 
             attempt = 0
 
@@ -56,13 +58,16 @@ class I2CBusChecker:
                     return_code = result.returncode
 
                     if return_code == 0:
-                        self.logger.log_info('{}: I2C get successful on attempt {}/{}.'.format(device, attempt, retry_count))
+                        msg = get_i2c_health_msg(16)
+                        self.logger.log_debug(msg.format(device, attempt, retry_count))
                         all_failed = False  # At least one device succeeded
                         return all_failed
                     else:
-                        self.logger.log_warning('{}: I2C get failed on attempt {}/{}.'.format(device, attempt, retry_count))
+                        msg = get_i2c_health_msg(17)
+                        self.logger.log_notice(msg.format(device, attempt, retry_count))
 
                 except Exception as e:
-                    self.logger.log_warning('{}: Error I2C get on attempt {}/{}.'.format(device, attempt, retry_count))
+                    msg = get_i2c_health_msg(18)
+                    self.logger.log_warning(msg.format(device, attempt, retry_count))
 
         return all_failed
