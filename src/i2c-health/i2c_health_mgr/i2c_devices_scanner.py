@@ -25,7 +25,7 @@ class I2CDevicesScanner:
     """
     def __init__(self, logger, i2c_bus_checker, i2c_platform_api):
         self.logger = logger
-        self.platform_api_wrapper = i2c_platform_api
+        self.platform_api = i2c_platform_api
         self.updater = i2c_isolation_list_updater.I2CIsolationListUpdater(logger)
 
         self.device_locked_list_dict = {}
@@ -34,7 +34,7 @@ class I2CDevicesScanner:
         return
 
     def get_all_i2c_region_list(self):
-        rdict = self.platform_api_wrapper.get_all_i2c_region_list()
+        rdict = self.platform_api.get_all_i2c_region_list()
         if rdict == None:
             return {}
 
@@ -68,20 +68,20 @@ class I2CDevicesScanner:
         cmd = "sudo i2cget -f -y {} {} {}".format(bus, device_addr, register_addr)
 
         """
-        Issue the command to access the device in the isolated region. Will retry at most
-        MAX_I2C_CHECK_COUNT times to do the best effort to reach the region.
-        As long as the command is executed successfully, it is confirmed that the region
-        is reached and then we can check whether the bus becomes locked to know whether
-        the faulty device exists.
+        Issue the command to access the device in the isolated region.
+        To make the best effort to reach the region, retry at most MAX_I2C_CHECK_COUNT times.
+        As long as the command is executed successfully, it is confirmed that the region is reached.
+        Otherwise, the device may be a faulty device, or the device is absent.
+        We can check whether the bus becomes locked to determine whether the faulty device exists.
         """
         for _ in range(MAX_I2C_CHECK_COUNT):
             ret = execute_os_cmd(cmd)
             if ret == True:
               break
 
-        if self.i2c_bus_checker.is_bus_lock():
+        if ret == False and self.i2c_bus_checker.is_bus_lock():
             is_faulty_device = True
-            self.platform_api_wrapper.reset_all_mux() # reset i2c mux devices to recover the bus lock status
+            self.platform_api.reset_all_mux() # reset i2c mux devices to recover the bus lock status
 
         return is_faulty_device
 
@@ -174,7 +174,7 @@ class I2CDevicesScanner:
 
         del self.device_locked_list_dict[i2c_region]
         self.remove_i2c_region_from_isolation_list(i2c_region)
-        self.platform_api_wrapper.set_i2c_faulty_device(bus, device_addr, False)
+        self.platform_api.set_i2c_faulty_device(bus, device_addr, False)
 
     def i2c_faulty_devices_scan(self):
         """
@@ -190,6 +190,6 @@ class I2CDevicesScanner:
                     # The i2c device causes the i2c bus locked. Record it to isolation list
                     self.insert_i2c_region_to_isolation_list(i2c_region)
                     self.device_locked_list_dict.setdefault(i2c_region, i2c_dev)
-                    self.platform_api_wrapper.set_i2c_faulty_device(i2c_dev.get_bus(), i2c_dev.get_device_addr(), True)
+                    self.platform_api.set_i2c_faulty_device(i2c_dev.get_bus(), i2c_dev.get_device_addr(), True)
                     break
         return
