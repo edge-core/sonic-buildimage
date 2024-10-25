@@ -9,7 +9,7 @@ i2c_health_msg_list = [
     "I2c bus lock is recovered.", # 002(NOTICE)
     "Isolate i2c device: {} ({}:{}).", # 003(NOTICE): device name, region id, device addr. Example: "[I2CHEALTH-003] Isolate i2c devices: Ethernet1(77-2-72-1:25-0050)."
     "Remove {}({}:{}) from the isolation list.", # 004(NOTICE): device name, region id, device addr. Example: "Remove Ethernet1(77-2-72-1:25-0050) from the isolation list."
-    "Reset all i2x mux devices to recover i2c bus lock.", # 005(NOTICE)
+    "Reset all i2c mux devices to recover i2c bus lock.", # 005(NOTICE)
     "Set all of the fans to full speed.", # 006(NOTICE)
     "Stop all i2c daemons.", # 007(NOTICE)
     "Start scanning for i2c faulty devices.", # 008(NOTICE)
