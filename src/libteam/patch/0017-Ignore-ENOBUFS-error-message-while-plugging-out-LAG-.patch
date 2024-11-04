@@ -1,0 +1,33 @@
+From 0cefbec49f37eef2e3d294d3d55c5de0f80b1a84 Mon Sep 17 00:00:00 2001
+From: ecsonic <ecsonic@edge-core.com>
+Date: Fri, 22 Oct 2021 06:41:30 +0000
+Subject: [PATCH] Ignore ENOBUFS error message while plugging out LAG member.
+
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index e00d18d..fa9a53c 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -1371,8 +1371,17 @@ static int lacp_port_link_update(struct lacp_port *lacp_port)
+ 			err = lacp_port_set_state(lacp_port, PORT_STATE_EXPIRED);
+ 		else
+ 			err = lacp_port_set_state(lacp_port, PORT_STATE_DISABLED);
+-		if (err)
+-			return err;
++                if (err)
++                {
++                    if (!linkup && err == -ENOBUFS)
++                    {
++                        lacp_port->__link_last.up = linkup;
++                        lacp_port->__link_last.speed = speed;
++                        lacp_port->__link_last.duplex = duplex;
++                    }
++
++                    return err;
++                }
+ 	}
+ 	lacp_port->__link_last.up = linkup;
+ 	lacp_port->__link_last.speed = speed;
+-- 
+2.17.1
+
