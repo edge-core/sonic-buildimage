@@ -1,0 +1,60 @@
+From 17d747210ff7ecdffa8fd1b7fd97502cb7e39097 Mon Sep 17 00:00:00 2001
+From: tim_tseng <tim_tseng@edge-core.com>
+Date: Fri, 8 Nov 2024 01:21:58 +0000
+Subject: [PATCH] Use poll function instead of select funciton
+
+---
+ libteamdctl/cli_usock.c | 26 ++++++++++----------------
+ 1 file changed, 10 insertions(+), 16 deletions(-)
+
+diff --git a/libteamdctl/cli_usock.c b/libteamdctl/cli_usock.c
+index d3fbdba..27f6b1f 100644
+--- a/libteamdctl/cli_usock.c
++++ b/libteamdctl/cli_usock.c
+@@ -24,6 +24,7 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <unistd.h>
++#include <poll.h>
+ #include <teamdctl.h>
+ #include "teamdctl_private.h"
+ #include "../teamd/teamd_usock_common.h"
+@@ -79,26 +80,19 @@ static int cli_usock_send(int sock, char *msg)
+ 	return 0;
+ }
+ 
+-#define WAIT_SEC (TEAMDCTL_REPLY_TIMEOUT / 1000)
+-#define WAIT_USEC (TEAMDCTL_REPLY_TIMEOUT % 1000 * 1000)
+-
+ static int cli_usock_wait_recv(int sock)
+ {
+-	fd_set rfds;
+-	int fdmax;
+-	int ret;
+-	struct timeval tv;
++	struct pollfd fds[1];
+ 
+-	tv.tv_sec = WAIT_SEC;
+-	tv.tv_usec = WAIT_USEC;
+-	FD_ZERO(&rfds);
+-	FD_SET(sock, &rfds);
+-	fdmax = sock + 1;
+-	ret = select(fdmax, &rfds, NULL, NULL, &tv);
+-	if (ret == -1)
++	fds[0].fd = sock;
++	fds[0].events = POLLIN;
++	fds[0].revents = 0;
++	int ret = poll(fds, 1, TEAMDCTL_REPLY_TIMEOUT);
++
++	if (ret == 0)
++ 		return -ETIMEDOUT;
++	else if (ret < 0)
+ 		return -errno;
+-	if (!FD_ISSET(sock, &rfds))
+-		return -ETIMEDOUT;
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
+

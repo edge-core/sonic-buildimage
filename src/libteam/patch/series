@@ -15,3 +15,8 @@
 0015-add-support-for-custom-retry.patch
 0016-block-retry-count-changes.patch
 0017-Ignore-ENOBUFS-error-message-while-plugging-out-LAG-.patch
+0018-Add-tx-rx-lacpdu-detailed-log-with-interface-info.patch
+0019-Use-poll-function-instead-of-select-funciton.patch
+0020-Add-debug-log-for-port-task-handler.patch
+0021-Revert-teamd-Disregard-current-state-when-considerin.patch
+0022-Check-link-up-state-before-change-lacp-port-state.patch

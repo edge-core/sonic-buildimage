@@ -1,0 +1,151 @@
+From 57ea19566dcfda916ae3a8ebce4f569ca82ed462 Mon Sep 17 00:00:00 2001
+From: tim_tseng <tim_tseng@edge-core.com>
+Date: Thu, 7 Nov 2024 10:39:40 +0000
+Subject: [PATCH] Add tx/rx lacpdu detailed log with interface info
+
+---
+ teamd/teamd_runner_lacp.c | 78 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 56 insertions(+), 22 deletions(-)
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index 41d07f4..9144639 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -1456,7 +1456,10 @@ static int lacpdu_send(struct lacp_port *lacp_port)
+ 
+ 	admin_state = team_get_ifinfo_admin_state(lacp_port->ctx->ifinfo);
+ 	if (!admin_state)
++	{
++		teamd_log_info("admin state down");
+ 		return 0;
++	}
+ 
+ 	err = teamd_getsockname_hwaddr(lacp_port->sock, &ll_my, 0);
+ 	if (err)
+@@ -1468,8 +1471,12 @@ static int lacpdu_send(struct lacp_port *lacp_port)
+ 
+ 	hwaddr = team_get_ifinfo_orig_hwaddr(lacp_port->tdport->team_ifinfo);
+ 	hwaddr_len = team_get_ifinfo_orig_hwaddr_len(lacp_port->tdport->team_ifinfo);
+-	if (hwaddr_len != ETH_ALEN)
+-		return 0;
++ 	if (hwaddr_len != ETH_ALEN)
++	{
++		teamd_log_info("hwaddr len not a ethernet addr");
++ 		return 0;
++
++	}
+ 
+ 	if (lacp_port->lacp->cfg.enable_retry_count) {
+ 		if (lacp_port->lacp->cfg.retry_count != LACP_CFG_DFLT_RETRY_COUNT
+@@ -1491,7 +1498,13 @@ static int lacpdu_send(struct lacp_port *lacp_port)
+ 		lacpdu.v2.partner_retry_count = lacp_port->partner_retry_count;
+ 	}
+ 
+-	err = teamd_send(lacp_port->sock, &lacpdu, sizeof(lacpdu), 0);
++ 	err = teamd_send(lacp_port->sock, &lacpdu, sizeof(lacpdu), 0);
++	if (err)
++		teamd_log_err("teamd send err: %d", err);
++	else
++		teamd_log_info("Send lacpdu form: %s, lacpdu_info: Actor_system: %02X:%02X:%02X:%02X:%02X:%02X, Actor_port: %u, Actor_State: %u, Partner_system: %02X:%02X:%02X:%02X:%02X:%02X, Partner_port: %u, Partner_State: %u",
++		lacp_port->tdport->ifname, lacpdu.actor.system[0], lacpdu.actor.system[1], lacpdu.actor.system[2], lacpdu.actor.system[3], lacpdu.actor.system[4], lacpdu.actor.system[5], ntohs(lacpdu.actor.port), lacpdu.actor.state,
++		lacpdu.partner.system[0], lacpdu.partner.system[1], lacpdu.partner.system[2], lacpdu.partner.system[3], lacpdu.partner.system[4], lacpdu.partner.system[5], ntohs(lacpdu.partner.port), lacpdu.partner.state);
+ 	return err;
+ }
+ 
+@@ -1517,11 +1530,17 @@ static int lacpdu_process(struct lacp_port *lacp_port, struct lacpdu* lacpdu)
+ 		lacp_port->partner = lacpdu->actor;
+ 		err = lacp_port_partner_update(lacp_port);
+ 		if (err)
+-			return err;
+-		err = lacp_port_agg_update(lacp_port);
+-		if (err)
+-			return err;
+-	}
++		{
++			teamd_log_err("lacp port partner update err: %d", err);
++ 			return err;
++		}
++ 		err = lacp_port_agg_update(lacp_port);
++ 		if (err)
++		{
++			teamd_log_err("lacp port agg update err: %d", err);
++ 			return err;
++		}
++ 	}
+ 
+ 	if (lacpdu->version_number == 0xf1) {
+ 		if (!lacp_port->lacp->cfg.enable_retry_count) {
+@@ -1574,8 +1593,11 @@ static int lacpdu_process(struct lacp_port *lacp_port, struct lacpdu* lacpdu)
+ 	}
+ 
+ 	err = lacp_port_set_state(lacp_port, PORT_STATE_CURRENT);
+-	if (err)
+-		return err;
++ 	if (err)
++	{
++		teamd_log_err("lacp port set state err: %d", err);
++ 		return err;
++	}
+ 
+ 	lacp_port_actor_update(lacp_port);
+ 
+@@ -1599,8 +1621,10 @@ static int lacpdu_process(struct lacp_port *lacp_port, struct lacpdu* lacpdu)
+ 			return err;
+ 	}
+ 	err = lacp_port_timeout_set(lacp_port, false);
+-	if (err)
+-		return err;
++	{
++		teamd_log_err("lacp port time err: %d", err);
++ 		return err;
++	}
+ 
+ 	teamd_loop_callback_enable(lacp_port->ctx,
+ 				   LACP_TIMEOUT_CB_NAME, lacp_port);
+@@ -1616,15 +1640,22 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+ 
+ 	err = teamd_recvfrom(lacp_port->sock, &lacpdu, sizeof(lacpdu), 0,
+ 			     (struct sockaddr *) &ll_from, sizeof(ll_from));
+-	if (err <= 0)
+-		return err;
+-
+-	if (!teamd_port_present(lacp_port->ctx, lacp_port->tdport))
+-		return 0;
+-
+-	admin_state = team_get_ifinfo_admin_state(lacp_port->ctx->ifinfo);
+-	if (!admin_state)
+-		return 0;
++ 	if (err <= 0)
++	{
++		teamd_log_err("teamd recv err: %d", err);
++ 		return err;
++	}
++ 	if (!teamd_port_present(lacp_port->ctx, lacp_port->tdport))
++	{
++		teamd_log_info("teamd port no present");
++ 		return 0;
++	}
++ 	admin_state = team_get_ifinfo_admin_state(lacp_port->ctx->ifinfo);
++ 	if (!admin_state)
++	{
++		teamd_log_info("admin state down");
++ 		return 0;
++	}
+ 
+ 	/* if the lacpdu wasn't read yet, don't process received pdu */
+ 	if (lacp_port->ctx->warm_start_mode) {
+@@ -1639,7 +1670,10 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+ 		}
+ 	}
+ 
+-	return lacpdu_process(lacp_port, &lacpdu);
++	teamd_log_info("Receive lacpdu form: %s, lacpdu_info: Actor_system: %02X:%02X:%02X:%02X:%02X:%02X, Actor_port: %u, Actor_State: %u, Partner_system: %02X:%02X:%02X:%02X:%02X:%02X, Partner_port: %u, Partner_State: %u",
++		lacp_port->tdport->ifname, lacpdu.actor.system[0], lacpdu.actor.system[1], lacpdu.actor.system[2], lacpdu.actor.system[3], lacpdu.actor.system[4], lacpdu.actor.system[5], ntohs(lacpdu.actor.port), lacpdu.actor.state,
++		lacpdu.partner.system[0], lacpdu.partner.system[1], lacpdu.partner.system[2], lacpdu.partner.system[3], lacpdu.partner.system[4], lacpdu.partner.system[5], ntohs(lacpdu.partner.port), lacpdu.partner.state);
++ 	return lacpdu_process(lacp_port, &lacpdu);
+ }
+ 
+ static int lacp_callback_timeout(struct teamd_context *ctx, int events,
+-- 
+2.17.1
+

@@ -1,0 +1,35 @@
+From 311f39d66e31662c47c055411572f87db2c75496 Mon Sep 17 00:00:00 2001
+From: tim_tseng <tim_tseng@edge-core.com>
+Date: Fri, 8 Nov 2024 03:07:13 +0000
+Subject: [PATCH] Check link up state before change lacp port state
+
+---
+ teamd/teamd_runner_lacp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index 9144639..f2fdb70 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -1956,6 +1956,7 @@ static int lacp_event_watch_admin_state_changed(struct teamd_context *ctx,
+ 	struct lacp *lacp = priv;
+ 	struct teamd_port *tdport;
+ 	bool admin_state;
++	bool linkup;
+ 	int err;
+ 
+ 	admin_state = team_get_ifinfo_admin_state(ctx->ifinfo);
+@@ -1963,8 +1964,9 @@ static int lacp_event_watch_admin_state_changed(struct teamd_context *ctx,
+ 	teamd_for_each_tdport(tdport, ctx) {
+ 		struct lacp_port *lacp_port = lacp_port_get(lacp, tdport);
+ 
++		linkup = team_is_port_link_up(tdport->team_port);
+ 		err = lacp_port_set_state(lacp_port,
+-					  admin_state?PORT_STATE_EXPIRED:PORT_STATE_DISABLED);
++					  (admin_state && linkup)?PORT_STATE_EXPIRED:PORT_STATE_DISABLED);
+ 		if (err)
+ 			return err;
+ 	}
+-- 
+2.17.1
+

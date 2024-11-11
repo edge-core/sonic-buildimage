@@ -1,0 +1,38 @@
+From 08d6394dfcfd94050f641621ad436ce51a5bba5f Mon Sep 17 00:00:00 2001
+From: tim_tseng <tim_tseng@edge-core.com>
+Date: Fri, 8 Nov 2024 01:45:37 +0000
+Subject: [PATCH] Add debug log for port task handler
+
+---
+ libteam/libteam.c | 2 +-
+ libteam/ports.c   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libteam/libteam.c b/libteam/libteam.c
+index 2cc80ca..c7a98ae 100644
+--- a/libteam/libteam.c
++++ b/libteam/libteam.c
+@@ -383,7 +383,7 @@ struct team_handle *team_alloc(void)
+ 		return NULL;
+ 
+ 	th->log_fn = log_stderr;
+-	th->log_priority = LOG_ERR;
++	th->log_priority = LOG_DEBUG;
+ 	/* environment overwrites config */
+ 	env = getenv("TEAM_LOG");
+ 	if (env != NULL)
+diff --git a/libteam/ports.c b/libteam/ports.c
+index 1f9e9e0..60d07d0 100644
+--- a/libteam/ports.c
++++ b/libteam/ports.c
+@@ -181,6 +181,7 @@ int get_port_list_handler(struct nl_msg *msg, void *arg)
+ 			port->speed = nla_get_u32(port_attrs[TEAM_ATTR_PORT_SPEED]);
+ 		if (port_attrs[TEAM_ATTR_PORT_DUPLEX])
+ 			port->duplex = nla_get_u8(port_attrs[TEAM_ATTR_PORT_DUPLEX]);
++		dbg(th, "Get port[%d] change task", ifindex);
+ 	}
+ 
+ 	set_call_change_handlers(th, TEAM_PORT_CHANGE);
+-- 
+2.17.1
+
