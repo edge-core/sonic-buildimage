@@ -94,6 +94,10 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_64o-r0/med
 ## update files for as9817-32
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D/th5-as9817-32d-32x800G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D/th5-as9817-32d-32x800G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-400G/th5-as9817-32d-32x400G_ec.config.yml \
+        $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-400G/th5-as9817-32d-32x400G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-100G/th5-as9817-32d-32x100G_ec.config.yml \
+        $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-100G/th5-as9817-32d-32x100G.config.yml
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G.config.yml
 
