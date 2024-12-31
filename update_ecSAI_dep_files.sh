@@ -92,6 +92,8 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_64o-r0/med
          $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_64o-r0/media_settings.json
 
 ## update files for as9817-32
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/media_settings_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/media_settings.json
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D/th5-as9817-32d-32x800G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D/th5-as9817-32d-32x800G.config.yml
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-400G/th5-as9817-32d-32x400G_ec.config.yml \
@@ -100,7 +102,6 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Acc
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-100G/th5-as9817-32d-32x100G.config.yml
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G.config.yml
-
 ## rebuild sonic-device-data
 rm -f $SONIC_BASE/sonic-buildimage/target/debs/bullseye/sonic-device-data_1.0-1_all.deb
 
