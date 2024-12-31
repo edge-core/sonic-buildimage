@@ -632,7 +632,7 @@ device:
       ?
         PORT_ID: [[1, 2], [11, 12], [22, 23], [33, 34], [44, 45], [55, 56], [66, 67], [77, 78], [264, 265], [275, 276], [286, 287], [297, 298], [308, 309], [319, 320], [330, 331], [341, 342]]
       :
-        ENABLE: 1
+        ENABLE: 0
         SPEED: 800000
         NUM_LANES: 8
         FEC_MODE: PC_FEC_RS544_2XN
@@ -640,10 +640,10 @@ device:
       ?
         PORT_ID: [76, 274]
       :
-        ENABLE: 1
+        ENABLE: 0
         SPEED: 25000
         NUM_LANES: 1
-        FEC_MODE: PC_FEC_RS528
+        FEC_MODE: PC_FEC_NONE
         MAX_FRAME_SIZE: 9416
       ?
         PORT_ID: 0
