@@ -101,6 +101,8 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Acc
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-100G/th5-as9817-32d-32x100G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32d-r0/Accton-AS9817-32D-100G/th5-as9817-32d-32x100G.config.yml
 
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/media_settings_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/media_settings.json
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O/th5-as9817-32o-32x800G.config.yml
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O-2x400G/th5-as9817-32o-64x400G_ec.config.yml \
