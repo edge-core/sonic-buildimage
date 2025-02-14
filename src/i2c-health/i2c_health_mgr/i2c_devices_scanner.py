@@ -159,23 +159,26 @@ class I2CDevicesScanner:
             for i2c_dev in self.i2c_region_list_dict[region_id]:
                 device_locked_list.setdefault(i2c_dev.get_name(), region_id)
 
-        if not stop_event.is_set():
-            reset_regions = []
-            # Get the transceivers' present state from STATE_DB
-            (state, _) = self.sel.select(interval * SELECT_TIMEOUT_MSECS)
-            if state == swsscommon.Select.OBJECT:
-                for device_tbl in self.asic_context.keys():
-                    while True:
-                        (key, op, fvp) = device_tbl.pop()
-                        if not key:
-                            break
-                        fvp = dict(fvp) if fvp is not None else {}
-                        if op == swsscommon.SET_COMMAND:
-                            if key in device_locked_list:
-                                region_id = device_locked_list[key]
-                                if region_id not in reset_regions:
-                                    reset_regions.append(region_id)
+        reset_regions = []
+        for _ in range(interval):
+            if not stop_event.is_set():
+                # Get the transceivers' present state from STATE_DB
+                (state, _) = self.sel.select(SELECT_TIMEOUT_MSECS)
+                if state == swsscommon.Select.OBJECT:
+                    for device_tbl in self.asic_context.keys():
+                        while True:
+                            (key, op, fvp) = device_tbl.pop()
+                            if not key:
+                                break
+                            fvp = dict(fvp) if fvp is not None else {}
+                            if op == swsscommon.SET_COMMAND:
+                                if key in device_locked_list:
+                                    region_id = device_locked_list[key]
+                                    if region_id not in reset_regions:
+                                        reset_regions.append(region_id)
+                    break
 
+        if not stop_event.is_set():
             # Actively query the PSU/FAN present state from STATE_DB
             for table_name in QUERY_DEVICE_TABLES:
                 for asic_id, db in self.state_db_connector.items():
