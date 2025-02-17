@@ -321,13 +321,11 @@
         },
 
         "Ethernet512": {
-            "default_brkout_mode": "1x10G[1G]",
-            "autoneg": "off"
+            "default_brkout_mode": "1x10G[1G]"
         },
 
         "Ethernet513": {
-            "default_brkout_mode": "1x10G[1G]",
-            "autoneg": "off"
+            "default_brkout_mode": "1x10G[1G]"
         }
     }
 }
