@@ -76,7 +76,7 @@ static void ipmi_msg_handler(struct ipmi_recv_msg *msg, void *user_msg_data)
 
 	// Check for message ID mismatch
 	if (msg->msgid != ipmi->tx_msgid) {
-		dev_err(ipmi->dev, "Mismatch between received msgid "
+		dev_notice(ipmi->dev, "Mismatch between received msgid "
 			"(%02x) and transmitted msgid (%02x)!\n",
 			(int)msg->msgid, (int)ipmi->tx_msgid);
 		ipmi_free_recv_msg(msg);
