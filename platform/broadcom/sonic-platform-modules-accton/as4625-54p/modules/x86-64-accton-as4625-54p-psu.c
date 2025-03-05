@@ -203,8 +203,8 @@ static int as4625_54p_psu_probe(struct i2c_client *client,
 		goto exit_free;
 	}
 
-	data->hwmon_dev = hwmon_device_register_with_info(&client->dev,
-											DRVNAME, NULL, NULL, NULL);
+	data->hwmon_dev = hwmon_device_register_with_groups(&client->dev,
+											DRVNAME, NULL, NULL);
 	if (IS_ERR(data->hwmon_dev)) {
 		status = PTR_ERR(data->hwmon_dev);
 		goto exit_remove;
@@ -223,15 +223,13 @@ exit:
 	return status;
 }
 
-static int as4625_54p_psu_remove(struct i2c_client *client)
+static void as4625_54p_psu_remove(struct i2c_client *client)
 {
 	struct as4625_54p_psu_data *data = i2c_get_clientdata(client);
 
 	hwmon_device_unregister(data->hwmon_dev);
 	sysfs_remove_group(&client->dev.kobj, &as4625_54p_psu_group);
 	kfree(data);
-
-	return 0;
 }
 
 enum psu_index

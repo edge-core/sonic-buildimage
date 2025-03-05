@@ -332,8 +332,8 @@ static int as4625_fan_probe(struct platform_device *pdev)
 {
 	int status;
 
-	data->hwmon_dev = hwmon_device_register_with_info(&pdev->dev,
-											DRVNAME, NULL, NULL, NULL);
+	data->hwmon_dev = hwmon_device_register_with_groups(&pdev->dev,
+											DRVNAME, NULL, NULL);
 	if (IS_ERR(data->hwmon_dev)) {
 		status = PTR_ERR(data->hwmon_dev);
 		return status;
