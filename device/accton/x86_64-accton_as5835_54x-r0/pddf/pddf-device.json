@@ -711,9 +711,9 @@
             "path_info": {"sysfs_base_path": "/sys/class/hwmon/hwmon1"},
             "attr_list":
             [
-                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp3_crit"},
-                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp3_max"},
-                { "attr_name": "temp1_input", "drv_attr_name":"temp3_input"}
+                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp6_crit"},
+                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp6_max"},
+                { "attr_name": "temp1_input", "drv_attr_name":"temp6_input"}
             ]
         }
     },
@@ -726,9 +726,9 @@
             "path_info": {"sysfs_base_path": "/sys/class/hwmon/hwmon1"},
             "attr_list":
             [
-                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp4_crit"},
-                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp4_max"},
-                { "attr_name": "temp1_input", "drv_attr_name":"temp4_input"}
+                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp12_crit"},
+                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp12_max"},
+                { "attr_name": "temp1_input", "drv_attr_name":"temp12_input"}
             ]
         }
     },
@@ -741,9 +741,9 @@
             "path_info": {"sysfs_base_path": "/sys/class/hwmon/hwmon1"},
             "attr_list":
             [
-                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp5_crit"},
-                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp5_max"},
-                { "attr_name": "temp1_input", "drv_attr_name":"temp5_input"}
+                { "attr_name": "temp1_high_crit_threshold", "drv_attr_name":"temp16_crit"},
+                { "attr_name": "temp1_high_threshold", "drv_attr_name":"temp16_max"},
+                { "attr_name": "temp1_input", "drv_attr_name":"temp16_input"}
             ]
         }
     },
