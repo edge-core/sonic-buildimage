@@ -100,6 +100,11 @@ class Thermal(PddfThermal):
 
     def __init__(self, index, pddf_data=None, pddf_plugin_data=None, is_psu_thermal=False, psu_index=0):
         PddfThermal.__init__(self, index, pddf_data, pddf_plugin_data, is_psu_thermal, psu_index)
+
+        self.pddf_obj = pddf_data
+        self.thermal_obj_name = "TEMP{}".format(self.thermal_index)
+        self.thermal_obj = self.pddf_obj.data[self.thermal_obj_name]
+
         # Threshold Configuration
         self.__conf = DeviceThreshold(self.get_name())
         # Default threshold.
@@ -165,8 +170,7 @@ class Thermal(PddfThermal):
         default_value = self.__default_threshold[HIGH_THRESHOLD]
         if default_value != NOT_AVAILABLE:
             return float(default_value)
-
-        raise NotImplementedError
+        return super().get_high_threshold()
 
     def set_low_threshold(self, temperature):
         try:
@@ -226,7 +230,7 @@ class Thermal(PddfThermal):
         if default_value != NOT_AVAILABLE:
             return float(default_value)
 
-        raise NotImplementedError
+        return super().get_high_critical_threshold()
 
     def set_low_critical_threshold(self, temperature):
         try:
