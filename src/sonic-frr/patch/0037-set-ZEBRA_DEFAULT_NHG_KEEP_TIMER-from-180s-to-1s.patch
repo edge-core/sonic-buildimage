@@ -1,0 +1,25 @@
+From d52b1dd73917f2e1f076b7fc8942eefb70c1d6e1 Mon Sep 17 00:00:00 2001
+From: ecsonic <ecsonic@edge-core.com>
+Date: Mon, 17 Mar 2025 03:29:22 +0000
+Subject: [PATCH] set ZEBRA_DEFAULT_NHG_KEEP_TIMER from 180s to 1s
+
+---
+ zebra/zebra_router.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/zebra/zebra_router.h b/zebra/zebra_router.h
+index 61bde4ac2..538a1f406 100644
+--- a/zebra/zebra_router.h
++++ b/zebra/zebra_router.h
+@@ -239,7 +239,7 @@ struct zebra_router {
+ 	bool all_linkdownv4, default_linkdownv4;
+ 	bool all_linkdownv6, default_linkdownv6;
+ 
+-#define ZEBRA_DEFAULT_NHG_KEEP_TIMER 180
++#define ZEBRA_DEFAULT_NHG_KEEP_TIMER 1
+ 	uint32_t nhg_keep;
+ 
+ 	/* Should we allow non FRR processes to delete our routes */
+-- 
+2.17.1
+
