@@ -276,6 +276,147 @@ class Sfp(SfpOptoeBase):
 
         return ret
 
+    def validate_eeprom_sfp(self):
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(0, 96)
+        if eeprom_raw is None:
+            return False
+
+        for i in range(0, 63):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[63]:
+                return False
+
+        checksum_test = 0
+        for i in range(64, 95):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[95]:
+                return False
+
+        api = self.get_xcvr_api()
+        if api is None:
+            return False
+
+        if api.is_flat_memory():
+            return True
+
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(384, 96)
+        if eeprom_raw is None:
+            return False
+
+        for i in range(0, 95):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[95]:
+                return False
+
+        return True
+
+    def validate_eeprom_qsfp(self):
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(128, 96)
+        if eeprom_raw is None:
+            return None
+
+        for i in range(0, 63):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[63]:
+                return False
+
+        checksum_test = 0
+        for i in range(64, 95):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[95]:
+                return False
+
+        api = self.get_xcvr_api()
+        if api is None:
+            return False
+
+        if api.is_flat_memory():
+            return True
+
+        return True
+
+    def validate_eeprom_cmis(self):
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(128, 95)
+        if eeprom_raw is None:
+            return None
+
+        for i in range(0, 94):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[94]:
+                return False
+
+        api = self.get_xcvr_api()
+        if api is None:
+            return False
+
+        if api.is_flat_memory():
+            return True
+
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(258, 126)
+        if eeprom_raw is None:
+            return None
+
+        for i in range(0, 125):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[125]:
+                return False
+
+        checksum_test = 0
+        eeprom_raw = self.read_eeprom(384, 128)
+        if eeprom_raw is None:
+            return None
+
+        for i in range(0, 127):
+            checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+        else:
+            if checksum_test != eeprom_raw[127]:
+                return False
+
+        # CMIS_5.0 starts to support the checksum of page 04h
+        cmis_rev = float(api.get_cmis_rev())
+        if cmis_rev >= 5.0:
+            checksum_test = 0
+            eeprom_raw = self.read_eeprom(640, 128)
+            if eeprom_raw is None:
+                return None
+
+            for i in range(0, 127):
+                checksum_test = (checksum_test + eeprom_raw[i]) & 0xFF
+            else:
+                if checksum_test != eeprom_raw[127]:
+                    return False
+
+        return True
+
+    def validate_eeprom(self):
+        id_byte_raw = self.read_eeprom(0, 1)
+        if id_byte_raw is None:
+            return False
+
+        id = id_byte_raw[0]
+        if id in self.QSFP_TYPE_CODE_LIST:
+            return self.validate_eeprom_qsfp()
+        elif id in self.SFP_TYPE_CODE_LIST:
+            return self.validate_eeprom_sfp()
+        elif id in self.QSFP_DD_TYPE_CODE_LIST:
+            return self.validate_eeprom_cmis()
+        elif id in self.OSFP_TYPE_CODE_LIST:
+            return self.validate_eeprom_cmis()
+        else:
+            return False
+
     def validate_temperature(self):
         temperature = self.get_temperature()
         if temperature is None:
@@ -299,8 +440,8 @@ class Sfp(SfpOptoeBase):
 
         err_stat = self.SFP_STATUS_BIT_INSERTED
 
-        err_eeprom = self.get_checksum_error()
-        if err_eeprom != "":
+        status = self.validate_eeprom()
+        if status is not True:
             err_stat = (err_stat | self.SFP_ERROR_BIT_BAD_EEPROM)
 
         status = self.validate_temperature()
@@ -317,10 +458,7 @@ class Sfp(SfpOptoeBase):
                     if cnt > 0:
                         err_desc = err_desc + "|"
                         cnt = cnt + 1
-                    if key == self.SFP_ERROR_BIT_BAD_EEPROM:
-                        err_desc = err_desc + err_eeprom
-                    else:
-                        err_desc = err_desc + self.SFP_ERROR_BIT_TO_DESCRIPTION_DICT[key]
+                    err_desc = err_desc + self.SFP_ERROR_BIT_TO_DESCRIPTION_DICT[key]
 
             return err_desc
 
@@ -336,26 +474,10 @@ class Sfp(SfpOptoeBase):
         if not self.get_presence():
             return self.SFP_STATUS_UNPLUGGED
 
-        api = self.get_xcvr_api()
-        if api == None:
-            return self.SFP_ERROR_BIT_TO_DESCRIPTION_DICT[self.SFP_ERROR_BIT_BAD_EEPROM]
-
         try:
-            optoe_state = super().get_error_description()
+            state =  super().get_error_description()
+            if state is None:
+                return self.SFP_STATUS_OK
+            return state
         except NotImplementedError:
-            optoe_state = None
-
-        state = self.__get_error_description()
-        if state == self.SFP_STATUS_OK:
-            if optoe_state == None:
-                err_desc = self.SFP_STATUS_OK
-            else:
-                err_desc = optoe_state
-        else:
-            if optoe_state == None:
-                err_desc = state
-            else:
-                err_desc = optoe_state + "|" + state
-
-        return err_desc
-
+            return self.__get_error_description()
