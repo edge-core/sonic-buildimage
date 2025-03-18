@@ -989,8 +989,8 @@ static int as9737_32db_psu_probe(struct platform_device *pdev)
     int status = 0;
     struct device *hwmon_dev = NULL;
 
-    hwmon_dev = hwmon_device_register_with_info(&pdev->dev, DRVNAME, 
-                    NULL, NULL, as9737_32db_psu_groups[pdev->id]);
+    hwmon_dev = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
+                    NULL, as9737_32db_psu_groups[pdev->id]);
     if (IS_ERR(hwmon_dev)) {
         status = PTR_ERR(hwmon_dev);
         return status;

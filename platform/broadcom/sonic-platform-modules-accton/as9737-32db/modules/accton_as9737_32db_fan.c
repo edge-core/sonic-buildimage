@@ -738,8 +738,8 @@ static int as9737_32db_fan_probe(struct platform_device *pdev)
     int status = 0;
     struct device *hwmon_dev;
 
-    hwmon_dev = hwmon_device_register_with_info(&pdev->dev, DRVNAME,
-                    NULL, NULL, as9737_32db_fan_groups);
+    hwmon_dev = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
+                    NULL, as9737_32db_fan_groups);
     if (IS_ERR(data->hwmon_dev)) {
         status = PTR_ERR(data->hwmon_dev);
         return status;
