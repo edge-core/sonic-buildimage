@@ -266,8 +266,8 @@ static int as9817_32_thermal_probe(struct platform_device *pdev)
     int status = 0;
     struct device *hwmon_dev;
 
-    hwmon_dev = hwmon_device_register_with_info(&pdev->dev, DRVNAME, 
-                    NULL, NULL, as9817_32_thermal_groups);
+    hwmon_dev = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
+                    NULL, as9817_32_thermal_groups);
     if (IS_ERR(data->hwmon_dev)) {
         status = PTR_ERR(data->hwmon_dev);
         return status;
