@@ -1,0 +1,1 @@
+../../x86_64-accton_as9817_32o-r0/sonic_platform/psu.py
