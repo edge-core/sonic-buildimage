@@ -172,11 +172,10 @@ exit_mux:
 	return ret;
 }
 
-static int as9737_32db_mux_remove(struct i2c_client *client)
+static void as9737_32db_mux_remove(struct i2c_client *client)
 {
 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
 	as9737_32db_mux_cleanup(muxc);
-	return 0;
 }
 
 static struct i2c_driver as9737_32db_mux_driver = {
