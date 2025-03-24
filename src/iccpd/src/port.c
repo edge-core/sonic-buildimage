@@ -333,7 +333,7 @@ void local_if_destroy(char *ifname)
     if (!lif)
         return;
 
-    ICCPD_LOG_WARN(__FUNCTION__, "Destroy interface %s, %d\n", lif->name, lif->ifindex);
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Destroy interface %s, %d\n", lif->name, lif->ifindex);
 
     if (lif->type == IF_T_VLAN)
         local_if_vlan_remove(lif);
@@ -556,7 +556,7 @@ void peer_if_del_all_vlan(struct PeerInterface* pif)
 
 void peer_if_destroy(struct PeerInterface* pif)
 {
-    ICCPD_LOG_WARN(__FUNCTION__, "Destroy peer's interface %s, %d",
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Destroy peer's interface %s, %d",
                    pif->name, pif->ifindex);
 
     /* destroy if*/
