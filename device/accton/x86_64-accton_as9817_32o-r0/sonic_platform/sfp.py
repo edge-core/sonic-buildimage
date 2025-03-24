@@ -10,11 +10,18 @@ try:
     import time
     from sonic_platform_base.sonic_xcvr.sfp_optoe_base import SfpOptoeBase
     from .helper import APIHelper
+    from sonic_py_common.general import getstatusoutput_noshell
+    from sonic_py_common import logger
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 FPGA_PCIE_PATH = "/sys/devices/platform/as9817_32_fpga/"
 EEPROM_PATH = '/sys/bus/i2c/devices/{}-00{}/eeprom'
+
+SFP_MUX_I2C_BUS = '42'
+SFP_MUX_I2C_ADDR = '0x1b'
+
+log = logger.Logger()
 
 class Sfp(SfpOptoeBase):
     """Platform-specific Sfp class"""
@@ -50,6 +57,16 @@ class Sfp(SfpOptoeBase):
     EEPROM_DATA_NOT_READY = "eeprom not ready"
     UNKNOWN_SFP_TYPE_ID = "unknow sfp ID"
 
+    SFP_MUX_DIR_CPU = 1
+    SFP_MUX_DIR_FRONT = 2
+    SFP_MUX_SPEED_1G = 1
+    SFP_MUX_SPEED_10G = 2
+    SFP_MUX_SPEED_25G = 3
+    SFP_MUX_CHANNEL = {
+        33 : [0, 1, 4, 5],# ['0x01', '0x02', '0x10', '0x20']
+        34 : [2, 3, 6, 7] # ['0x04', '0x08', '0x40', '0x80']
+    }
+
     _port_to_i2c_mapping = {
          1:2,   2:3,   3:4,   4:5,
          5:6,   6:7,   7:8,   8:9,
@@ -62,9 +79,16 @@ class Sfp(SfpOptoeBase):
         33:34, 34:35,
     }
 
+    _speed_dict = {
+        1000  : SFP_MUX_SPEED_1G,
+        10000 : SFP_MUX_SPEED_10G,
+        25000 : SFP_MUX_SPEED_25G
+    }
+
     def __init__(self, sfp_index=0, intf_name="Unknown"):
         SfpOptoeBase.__init__(self)
         self._api_helper=APIHelper()
+        self.is_host = self._api_helper.is_host()
 
         # Init index
         self.port_num = sfp_index + 1
@@ -481,3 +505,199 @@ class Sfp(SfpOptoeBase):
             return state
         except NotImplementedError:
             return self.__get_error_description()
+
+    def _set_i2c_register(self, bus=None, device=None, register=None, value=None):
+        bus = bus or SFP_MUX_I2C_BUS
+        device = device or SFP_MUX_I2C_ADDR
+        if self.is_host:
+            cmd = ['sudo', '/usr/sbin/i2cset', '-f', '-y', str(bus), str(device), str(register), str(value)]
+        else: # Inside pmon container
+            cmd = ['/usr/sbin/i2cset', '-f', '-y', str(bus), str(device), str(register), str(value)]
+        status, output = getstatusoutput_noshell(cmd)
+        if status != 0:
+            log.log_error(f"Error setting {cmd}: {output}")
+            return False
+        return True
+
+    def _set_register_sequence(self, register_values):
+        for register, value in register_values:
+            if not self._set_i2c_register(register=register, value=value):
+                return False
+        return True
+
+    def _df810_txfir_set(self, offset, pre, main, post):
+        channel = 1 << offset
+        channel_val = f"0x{channel:02x}"
+
+        main_sign = 0x80 if main > 0 else 0x40
+        pre_sign, pre_val = (0x40, -pre) if pre <= 0 else (0x00, pre)
+        post_sign, post_val = (0x40, -post) if post <= 0 else (0x00, post)
+
+        main_val = f"0x{main | main_sign:02x}"
+        pre_val = f"0x{pre_val | pre_sign:02x}"
+        post_val = f"0x{post_val | post_sign:02x}"
+
+        register_values = [
+            ('0xff', '0x01'),
+            ('0xfc', channel_val),
+            ('0x3d', '0x80'), # Enable Pre- and Post-cursor FIR
+            ('0x3d', '0x80'), # main-cursor sign
+            ('0x3f', '0x40'), # post-cursor sign
+            ('0x3e', '0x40'), # pre-cursor sign
+            ('0x3d', main_val),
+            ('0x3f', post_val),
+            ('0x3e', pre_val)
+        ]
+
+        if not self._set_register_sequence(register_values):
+            return False
+
+    def _df810_cdr_bw_set(self, offset, param1, param2):
+        channel = 1 << offset
+        channel_val = f"0x{channel:02x}"
+
+        param1_val = f"0x{param1:02x}"
+        param2_val = f"0x{param2:02x}"
+        register_values = [
+            ('0xff', '0x01'),
+            ('0xfc', channel_val),
+            ('0x1c', param1_val),
+            ('0x9e', param2_val),
+            ('0x9', '0x8'),
+            ('0xa', '0x40'),
+        ]
+
+        if not self._set_register_sequence(register_values):
+            return False
+
+    def _df810_cross_point(self):
+        if not self._set_i2c_register(register="0xff", value="0x01"):
+            return False
+
+        for offset in self.SFP_MUX_CHANNEL[self.port_num]:
+            channel_val = 1 << offset
+
+            register_values = [
+                ('0xfc', f'0x{channel_val:02x}'),
+                ('0x95', '0x08'),
+                ('0x96', '0x00'),
+                ('0x96', '0x04'),
+                ('0x96', '0x04'),
+                ('0x96', '0x06'),
+                ('0x96', '0x06'),
+                ('0x0a', '0x0c'),
+                ('0x0a', '0x00'),
+                ('0x79', '0x11')
+            ]
+
+            if not self._set_register_sequence(register_values):
+                return False
+
+    def set_sfp_mux(self, is_front_port=True, cfg_speed=25000):
+        """Set the SFP MUX configuration.
+
+        Args:
+            is_front_port (bool): Determines the direction of the MUX.
+                                  True for FRONT, False for CPU.
+            cfg_speed (int): The speed configuration in Mbps.
+
+        Raises:
+            ValueError: If the cfg_speed is not supported or if an invalid direction/speed is provided.
+
+        Returns:
+            bool: True if the operation succeeds, False otherwise.
+        """
+        # The MUX configuration is only for MGMT ports
+        if self.port_num < 33:
+            return False
+
+        # Determine MUX direction
+        direction = self.SFP_MUX_DIR_FRONT if is_front_port else self.SFP_MUX_DIR_CPU
+        speed = self._speed_dict.get(cfg_speed)
+
+        # Validate speed
+        if speed is None:
+            supported_speeds = ", ".join(map(str, self._speed_dict.keys()))
+            raise ValueError(
+                f"Error: Invalid speed {cfg_speed}."
+                f"Supported speeds are: {supported_speeds}."
+            )
+
+        # Validate direction and speed compatibility
+        if direction == self.SFP_MUX_DIR_CPU and speed != self.SFP_MUX_SPEED_10G:
+            raise ValueError("Error: CPU direction only supports SFP_MUX_SPEED_10G.")
+
+        # Enable df810 MUX
+        if not self._set_i2c_register(device="0x72", register="0x00", value="0x01"):
+            return False
+
+        for offset in self.SFP_MUX_CHANNEL[self.port_num]:
+            channel_val = 1 << offset
+
+            # By default, these parametere are set to self.SFP_MUX_SPEED_25G.
+            register_values = [
+                ('0xfc', f'0x{channel_val:02x}'), # Select channel
+                ('0xff', '0x01'), # Bit 1 = 1: Allows customer to write to all channels,
+                                  # Bit 0 = 1: Enables SMBus access to the channels specified in register 0xFC.
+                ('0x00', '0x04'), # Bit 2 = 1: Reset channel registers to power-up defaults.
+                ('0x0a', '0x0c'), # Bit 3 = 1: Enable CDR Reset override.
+                                  # Bit 2 = 1: CDR Reset override bit.
+                ('0x2f', '0x54'), # Bit 5-3  : RATE, 25.78125 Gbps = 0x50
+                                  # Bit 2 = 1: Enable the PPM to be used as a qualifier when performing Lock Detect.
+                ('0x31', '0x40'), # Bit 6-5 = 10: adapt CTLE until optimal, then DFE, then CTLE again.
+                ('0x1e', '0xe3'), # Bit 7-5 = 111: Output mode for when the CDR is not locked.
+                                  #                For these values to take effect, Reg_0x09[5] must be set to 0, which is
+                                  #                111: Mute (Default)
+                                  # bit 1 = 1: Enable DFE taps 3-5. DFE_PD must also be set to 0.
+                                  # bit 0 = 1: Normal operation. Enable PFD frequency detector.
+                ('0x0a', '0x00')
+            ]
+
+            if speed == self.SFP_MUX_SPEED_1G:
+                register_values[3:8] = [
+                    ('0x31', '0x00'),  # adapt mode 0: no adaption
+                    ('0x1e', '0x09'),  # puts device into RAW mode
+                    ('0x2d', '0x38'),  # Enable EQ boost override
+                    ('0x03', '0x00'),  # Set EQ boost value as 0
+                    ('0x8e', '0x01')   # vga_sel_gain=1
+                ]
+                register_values.append(('0x13', '0xb0')) # set EQ gain to 1
+            elif speed == self.SFP_MUX_SPEED_10G:
+                register_values[4] = ('0x2f', '0x04')
+
+            if not self._set_register_sequence(register_values):
+                return False
+
+        if direction == self.SFP_MUX_DIR_CPU: # Only support self.SFP_MUX_SPEED_10G
+            if self.port_num == 33:
+                self._df810_txfir_set(0, 0, 17, -2)
+                self._df810_txfir_set(4, 0, 9, 0)
+                self._df810_cdr_bw_set(4, 0x24, 0xfc)
+            elif self.port_num == 34:
+                self._df810_txfir_set(2, 0, 17, -2)
+                self._df810_txfir_set(6, 0, 9, 0)
+                self._df810_cdr_bw_set(6, 0x24, 0xfc)
+        elif direction == self.SFP_MUX_DIR_FRONT:
+            txfir_settings = {
+                self.SFP_MUX_SPEED_1G: {
+                    33: (1, 0, 11, 0),
+                    34: (3, 0, 11, 0),
+                },
+                self.SFP_MUX_SPEED_10G: {
+                    33: (1, 0, 15, -3),
+                    34: (3, 0, 15, -3),
+                },
+                self.SFP_MUX_SPEED_25G: {
+                    33: (1, -8, 22, 0),
+                    34: (3, -8, 22, 0),
+                }
+            }
+            self._df810_txfir_set(*txfir_settings[speed][self.port_num])
+
+            self._df810_cross_point()
+
+        # Disable df810 MUX
+        if not self._set_i2c_register(device="0x72", register="0x00", value="0x00"):
+            return False
+
+        return True
