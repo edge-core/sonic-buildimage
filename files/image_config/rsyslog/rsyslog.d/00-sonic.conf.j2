@@ -33,7 +33,7 @@ if re_match($programname, "bgp[0-9]*#bgpd") then {
 
 ## Teamd rules
 
-if $programname contains "teamd_" then {
+if $programname contains "teamd#teamd_" then {
     /var/log/teamd.log
     stop
 }
