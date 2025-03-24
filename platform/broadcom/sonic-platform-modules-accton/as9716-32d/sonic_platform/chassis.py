@@ -31,6 +31,15 @@ class Chassis(PddfChassis):
         self.__initialize_components()
         self._api_helper = APIHelper()
         self._sfpevent = SfpEvent(self.get_all_sfps())
+        b2f_dir, f2b_dir = 0, 0
+        for fan in self._fan_list:
+            if fan.get_presence():
+                direction = fan.get_direction()
+                b2f_dir += direction == fan.FAN_DIRECTION_INTAKE
+                f2b_dir += direction == fan.FAN_DIRECTION_EXHAUST
+        fan_dir = b2f_dir >= f2b_dir # 1:AFI, 0:AFO
+        for thermal in self._thermal_list:
+            thermal.set_default_threshold(fan_dir)
 
     def __initialize_components(self):
         from sonic_platform.component import Component
