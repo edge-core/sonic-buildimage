@@ -29,6 +29,9 @@ sonic-cfggen -d -t /usr/share/sonic/templates/ntp.keys.j2 >/etc/ntp.keys
 chown root:ntp /etc/ntp.keys
 chmod o-r /etc/ntp.keys
 
+sync;sync;sync
+sleep 1
+
 get_database_reboot_type
 echo "Disabling NTP long jump for reboot type ${reboot_type} ..."
 modify_ntp_default "s/NTPD_OPTS='-g'/NTPD_OPTS='-x'/"
