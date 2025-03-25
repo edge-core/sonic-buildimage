@@ -73,8 +73,8 @@
 	branch = 202311
 [submodule "src/sonic-host-services"]
 	path = src/sonic-host-services
-	url = https://github.com/sonic-net/sonic-host-services
-	branch = 202311
+	url = https://github.com/edge-core/sonic-host-services.git
+	branch = 202311.X
 [submodule "src/sonic-gnmi"]
 	path = src/sonic-gnmi
 	url = https://github.com/sonic-net/sonic-gnmi.git
