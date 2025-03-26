@@ -134,7 +134,7 @@ INCLUDE_SYSTEM_EVENTD = y
 INCLUDE_SYSTEM_TELEMETRY = n
 
 # INCLUDE_ICCPD - build docker-iccpd for mclag support
-INCLUDE_ICCPD = n
+INCLUDE_ICCPD = y
 
 # INCLUDE_SFLOW - build docker-sflow for sFlow support
 INCLUDE_SFLOW = y

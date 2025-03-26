@@ -855,7 +855,11 @@ void iccp_csm_stp_role_count(struct CSM *csm)
             ICCPD_LOG_INFO(__FUNCTION__, "Role: [Active]");
             csm->role_type = STP_ROLE_ACTIVE;
             /* Send ICCP role update and system ID */
-            mlacp_link_set_iccp_role(csm->mlag_id, true, MLACP(csm).system_id);
+
+            if (csm->is_set_mclag_sys_mac)
+                mlacp_link_set_iccp_role(csm->mlag_id, true, MLACP(csm).mclag_system_mac);
+            else
+                mlacp_link_set_iccp_role(csm->mlag_id, true, MLACP(csm).system_id);
         }
         else
         {

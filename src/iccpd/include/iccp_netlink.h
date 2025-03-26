@@ -66,4 +66,13 @@ void recover_if_ipmac_on_standby(struct LocalInterface* lif_po, int dir);
 void update_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir);
 void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, uint8_t *remote_system_mac);
 void update_vlan_if_mac_on_iccp_up(struct LocalInterface* lif_peer, int is_up, uint8_t *remote_system_mac);
+
+
+bool update_po_mclag_sys_mac(struct LocalInterface *lif_po, uint8_t *k_mac, int dir);
+void update_l3_po_mclag_sys_mac(struct LocalInterface *lif_po, char *c_mac, uint8_t *k_mac);
+bool update_l3_vlan_mclag_sys_mac(struct LocalInterface *lif_po, char *c_mac, uint8_t *k_mac, int dir);
+bool mclag_sys_mac_helper(struct CSM *csm, char *c_mac, uint8_t *k_mac, int dir);
+bool update_all_if_mclag_sys_mac(struct CSM* csm, uint8_t *mac, int dir);
+bool recover_all_if_mclag_sys_mac(struct CSM* csm, stp_role_type_et role, uint8_t *mac, int dir);
+bool update_if_mclag_sys_mac(struct CSM *csm, struct LocalInterface *lif_po, uint8_t *k_mac, int dir);
 #endif

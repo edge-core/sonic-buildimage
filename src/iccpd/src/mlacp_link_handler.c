@@ -463,7 +463,7 @@ ssize_t iccp_send_to_mclagsyncd(uint8_t msg_type, char *send_buff, uint16_t msg_
 
 }
 
-#if 0
+#if 1
 static void mlacp_clean_fdb(void)
 {
     struct IccpSyncdHDr * msg_hdr;
@@ -494,6 +494,52 @@ static void mlacp_clean_fdb(void)
 
     }
     ICCPD_LOG_DEBUG(__FUNCTION__, "Notify mclagsyncd to clear FDB");
+    return;
+}
+
+void mlacp_clean_fdb_by_port(const char *port_name)
+{
+    struct IccpSyncdHDr * msg_hdr;
+    char *msg_buf = g_iccp_mlagsyncd_send_buf;
+    ssize_t rc;
+    struct System *sys;
+    mclag_sub_option_hdr_t * sub_msg;
+    int msg_len;
+
+    sys = system_get_instance();
+    if (sys == NULL)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Invalid system instance");
+        return;
+    }
+    memset(msg_buf, 0, ICCP_MLAGSYNCD_SEND_MSG_BUFFER_SIZE);
+    msg_hdr = (struct IccpSyncdHDr *)msg_buf;
+    msg_hdr->ver = ICCPD_TO_MCLAGSYNCD_HDR_VERSION;
+    msg_hdr->type = MCLAG_MSG_TYPE_FLUSH_FDB_BY_PORT;
+    msg_hdr->len = sizeof(struct IccpSyncdHDr);
+
+    sub_msg = (mclag_sub_option_hdr_t*)&msg_buf[msg_hdr->len];
+    sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_PEER_LINK;
+
+    msg_len = strlen(port_name);
+    memcpy(sub_msg->data, port_name, msg_len);
+
+    sub_msg->op_len = msg_len;
+    msg_hdr->len += sizeof(mclag_sub_option_hdr_t);
+    msg_hdr->len += sub_msg->op_len;
+
+    if (sys->sync_fd)
+    {
+        rc = iccp_send_to_mclagsyncd(msg_hdr->type, msg_buf, msg_hdr->len);
+
+        if (rc <= 0)
+        {
+            ICCPD_LOG_WARN(__FUNCTION__, "Send to Mclagsyncd failed rc: %d",rc);
+        }
+
+    }
+    ICCPD_LOG_DEBUG(__FUNCTION__, "Notify mclagsyncd to clear FDB, port = [%s]",
+                    port_name);
     return;
 }
 #endif
@@ -619,7 +665,8 @@ static int mlacp_link_set_traffic_dist_mode(
  */
 int mlacp_link_set_iccp_state(
     int                     mlag_id,
-    bool                    is_oper_up)
+    bool                    is_oper_up,
+    char                    *peer_link_mbr)
 {
     struct IccpSyncdHDr     *msg_hdr;
     mclag_sub_option_hdr_t  *sub_msg;
@@ -663,6 +710,16 @@ int mlacp_link_set_iccp_state(
     sub_msg->op_len = sizeof(is_oper_up);
     memcpy(sub_msg->data, &is_oper_up, sub_msg->op_len);
     msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+
+    if (peer_link_mbr != NULL)
+    {
+        /* Sub-message: peer link interface name */
+        sub_msg = (mclag_sub_option_hdr_t *)&msg_buf[msg_hdr->len];
+        sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_PEER_LINK_MEMBER;
+        sub_msg->op_len = strlen(peer_link_mbr);
+        memcpy(sub_msg->data, peer_link_mbr, sub_msg->op_len);
+        msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+    }
 
     if (sys->sync_fd)
         rc = iccp_send_to_mclagsyncd(msg_hdr->type, msg_buf, msg_hdr->len);
@@ -806,6 +863,128 @@ int mlacp_link_set_iccp_system_id(
         ICCPD_LOG_DEBUG(__FUNCTION__,
             "Set mlag %d, ICCP system ID to %s",
             mlag_id, mac_addr_to_str(system_id));
+        return 0;
+    }
+}
+
+/* Send request to Mclagsyncd to set ICCP peer link
+ * The message includes MLAG id and interface name
+ */
+int mlacp_link_set_iccp_peer_link(
+    int                     mlag_id,
+    char                    *po_name)
+{
+    struct IccpSyncdHDr     *msg_hdr;
+    mclag_sub_option_hdr_t  *sub_msg;
+    char                    *msg_buf = g_iccp_mlagsyncd_send_buf;
+    struct System           *sys;
+    ssize_t                 rc = 0;
+
+    sys = system_get_instance();
+    if (sys == NULL)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Invalid system instance");
+        return MCLAG_ERROR;
+    }
+
+    memset(msg_buf, 0, ICCP_MLAGSYNCD_SEND_MSG_BUFFER_SIZE);
+    msg_hdr = (struct IccpSyncdHDr *)msg_buf;
+    msg_hdr->ver = ICCPD_TO_MCLAGSYNCD_HDR_VERSION;
+    msg_hdr->type = MCLAG_MSG_TYPE_SET_ICCP_PEER_LINK;
+    msg_hdr->len = sizeof(struct IccpSyncdHDr);
+
+    /* Sub-message: mlag ID */
+    sub_msg = (mclag_sub_option_hdr_t *)&msg_buf[msg_hdr->len];
+    sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_MCLAG_ID;
+    sub_msg->op_len = sizeof(mlag_id);
+    memcpy(sub_msg->data, &mlag_id, sub_msg->op_len);
+    msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+
+    /* Sub-message: peer link interface name */
+    sub_msg = (mclag_sub_option_hdr_t *)&msg_buf[msg_hdr->len];
+    sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_PEER_LINK;
+    sub_msg->op_len = strlen(po_name);
+    memcpy(sub_msg->data, po_name, sub_msg->op_len);
+    msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+
+    if (sys->sync_fd)
+        rc = write(sys->sync_fd,msg_buf, msg_hdr->len);
+
+    if ((rc <= 0) || (rc != msg_hdr->len))
+    {
+        //SYSTEM_SET_SYNCD_TX_DBG_COUNTER(sys, msg_hdr->type, ICCP_DBG_CNTR_STS_ERR);
+        ICCPD_LOG_ERR(__FUNCTION__,
+            "Failed to write mlag %d, ICCP peer link if %s, rc %d",
+            mlag_id, po_name, rc);
+        return MCLAG_ERROR;
+    }
+    else
+    {
+        //SYSTEM_SET_SYNCD_TX_DBG_COUNTER(sys, msg_hdr->type, ICCP_DBG_CNTR_STS_OK);
+        ICCPD_LOG_DEBUG(__FUNCTION__,
+            "Set mlag %d, ICCP peer link if %s",
+            mlag_id, po_name);
+        return 0;
+    }
+}
+
+/* Send request to Mclagsyncd to del ICCP peer link
+ * The message includes MLAG id and interface name
+ */
+int mlacp_link_del_iccp_peer_link(
+    int                     mlag_id,
+    char                    *po_name)
+{
+    struct IccpSyncdHDr     *msg_hdr;
+    mclag_sub_option_hdr_t  *sub_msg;
+    char                    *msg_buf = g_iccp_mlagsyncd_send_buf;
+    struct System           *sys;
+    ssize_t                 rc = 0;
+
+    sys = system_get_instance();
+    if (sys == NULL)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Invalid system instance");
+        return MCLAG_ERROR;
+    }
+
+    memset(msg_buf, 0, ICCP_MLAGSYNCD_SEND_MSG_BUFFER_SIZE);
+    msg_hdr = (struct IccpSyncdHDr *)msg_buf;
+    msg_hdr->ver = ICCPD_TO_MCLAGSYNCD_HDR_VERSION;
+    msg_hdr->type = MCLAG_MSG_TYPE_DEL_ICCP_PEER_LINK;
+    msg_hdr->len = sizeof(struct IccpSyncdHDr);
+
+    /* Sub-message: mlag ID */
+    sub_msg = (mclag_sub_option_hdr_t *)&msg_buf[msg_hdr->len];
+    sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_MCLAG_ID;
+    sub_msg->op_len = sizeof(mlag_id);
+    memcpy(sub_msg->data, &mlag_id, sub_msg->op_len);
+    msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+
+    /* Sub-message: peer link interface name */
+    sub_msg = (mclag_sub_option_hdr_t *)&msg_buf[msg_hdr->len];
+    sub_msg->op_type = MCLAG_SUB_OPTION_TYPE_PEER_LINK;
+    sub_msg->op_len = strlen(po_name);
+    memcpy(sub_msg->data, po_name, sub_msg->op_len);
+    msg_hdr->len += (sizeof(mclag_sub_option_hdr_t) + sub_msg->op_len);
+
+    if (sys->sync_fd)
+        rc = write(sys->sync_fd,msg_buf, msg_hdr->len);
+
+    if ((rc <= 0) || (rc != msg_hdr->len))
+    {
+        //SYSTEM_SET_SYNCD_TX_DBG_COUNTER(sys, msg_hdr->type, ICCP_DBG_CNTR_STS_ERR);
+        ICCPD_LOG_ERR(__FUNCTION__,
+            "Failed to write mlag %d, ICCP peer link if %s, rc %d",
+            mlag_id, po_name, rc);
+        return MCLAG_ERROR;
+    }
+    else
+    {
+        //SYSTEM_SET_SYNCD_TX_DBG_COUNTER(sys, msg_hdr->type, ICCP_DBG_CNTR_STS_OK);
+        ICCPD_LOG_DEBUG(__FUNCTION__,
+            "Set mlag %d, ICCP peer link if %s",
+            mlag_id, po_name);
         return 0;
     }
 }
@@ -1085,7 +1264,7 @@ void update_peerlink_isolate_from_all_csm_lif(
     char *msg_buf = g_iccp_mlagsyncd_send_buf;
     struct System *sys;
 
-    char mlag_po_buf[512];
+    char mlag_po_buf[4096];
     int src_len = 0, dst_len = 0;
     ssize_t rc;
 
@@ -1100,7 +1279,7 @@ void update_peerlink_isolate_from_all_csm_lif(
         return;
 
     memset(msg_buf, 0, ICCP_MLAGSYNCD_SEND_MSG_BUFFER_SIZE);
-    memset(mlag_po_buf, 0, 511);
+    memset(mlag_po_buf, 0, 4096);
 
     msg_hdr = (struct IccpSyncdHDr *)msg_buf;
     msg_hdr->ver = ICCPD_TO_MCLAGSYNCD_HDR_VERSION;
@@ -1700,6 +1879,13 @@ void del_mac_from_chip(struct MACMsg* mac_msg)
     return;
 }
 
+void del_mac_from_app_db(struct MACMsg* mac_msg)
+{
+    iccp_send_fdb_entry_to_syncd(  mac_msg, mac_msg->fdb_type, MAC_SYNC_DEL_APP_DB);
+
+    return;
+}
+
 uint8_t set_mac_local_age_flag(struct CSM *csm, struct MACMsg* mac_msg, uint8_t set, uint8_t update_peer )
 {
     uint8_t new_age_flag = 0;
@@ -1759,9 +1945,9 @@ uint8_t set_mac_local_age_flag(struct CSM *csm, struct MACMsg* mac_msg, uint8_t 
 }
 
 /*Deal with mac add,del,move when portchannel up or down*/
-static void update_l2_mac_state(struct CSM *csm,
-                                struct LocalInterface *lif,
-                                int po_state)
+void update_l2_mac_state(struct CSM *csm,
+                         struct LocalInterface *lif,
+                         int po_state)
 {
     struct MACMsg* mac_msg = NULL,  *mac_temp = NULL;
     struct PeerInterface* pif = NULL;
@@ -2026,6 +2212,8 @@ void mlacp_convert_remote_mac_to_local(struct CSM *csm, char *po_name)
                     "interface %s, MAC %s vlan-id %d age flag:%d", mac_msg->origin_ifname,
                     mac_msg->ifname, mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid, mac_msg->age_flag);
 
+            memcpy(mac_msg->ifname, mac_msg->origin_ifname, MAX_L_PORT_NAME);
+
             /*Send mac add message to mclagsyncd with aging enabled*/
             add_mac_to_chip(mac_msg, MAC_TYPE_DYNAMIC_LOCAL);
 
@@ -2232,6 +2420,7 @@ void mlacp_peer_conn_handler(struct CSM* csm)
     struct LocalInterface *lif = NULL;
     struct PeerInterface* peer_if;
     static int once_connected = 0;
+    static int once_set_mclag_sys_mac = 0;
     struct System* sys = NULL;
     struct If_info * cif = NULL;
 
@@ -2266,9 +2455,10 @@ void mlacp_peer_conn_handler(struct CSM* csm)
     {
         once_connected = 1;
         mlacp_fix_bridge_mac(csm);
-        // do not required to flush FDB
-        //if (sys->warmboot_start != WARM_REBOOT)
-          //  mlacp_clean_fdb();
+        // SAG's MAC may be learned on peerlink if not flush FDB
+        // after session connected.
+        if (sys->warmboot_start != WARM_REBOOT)
+            mlacp_clean_fdb();
     }
 
     sys->csm_trans_time = time(NULL);
@@ -2279,11 +2469,31 @@ void mlacp_peer_conn_handler(struct CSM* csm)
         if (lif->type == IF_T_PORT_CHANNEL)
         {
             mlacp_portchannel_state_handler(csm, lif, (lif->state == PORT_STATE_UP) ? 1 : 0);
+
+            if (csm->is_set_mclag_sys_mac && once_set_mclag_sys_mac++ == 0)
+            {
+                ICCPD_LOG_NOTICE(__FUNCTION__, "peer connect to set MCLAG system MAC!!!!");
+                set_mclag_system_mac(csm->mlag_id, mac_addr_to_str(MLACP(csm).mclag_system_mac));
+            }
         }
     }
 
     /* Send ICCP up update to Mclagsyncd */
-    mlacp_link_set_iccp_state(csm->mlag_id, true);
+    if (csm->peer_link_if)
+    {
+        if (!memcmp(csm->peer_itf_name, "Ethernet", 8))
+        {
+            mlacp_link_set_iccp_state(csm->mlag_id, true, csm->peer_itf_name);
+        }
+        else
+        {
+            mlacp_link_set_iccp_state(csm->mlag_id, true, csm->peer_link_if->portchannel_member_buf);
+        }
+    }
+    else
+    {
+        mlacp_link_set_iccp_state(csm->mlag_id, true, NULL);
+    }
 
     /* Send remote interface status update to Mclagsyncd */
     LIST_FOREACH(peer_if, &(MLACP(csm).pif_list), mlacp_next)
@@ -2417,7 +2627,21 @@ void mlacp_peer_disconn_handler(struct CSM* csm)
      * so that mclagsync can differentiate between session down and all remote
      * MLAG interface down
      */
-    mlacp_link_set_iccp_state(csm->mlag_id, false);
+    if (csm->peer_link_if)
+    {
+        if (!memcmp(csm->peer_itf_name, "Ethernet", 8))
+        {
+            mlacp_link_set_iccp_state(csm->mlag_id, false, csm->peer_itf_name);
+        }
+        else
+        {
+            mlacp_link_set_iccp_state(csm->mlag_id, false, csm->peer_link_if->portchannel_member_buf);
+        }
+    }
+    else
+    {
+        mlacp_link_set_iccp_state(csm->mlag_id, false, NULL);
+    }
 
     /* Clean all port block*/
     peerlink_port_isolate_cleanup(csm);
@@ -2452,8 +2676,13 @@ void mlacp_peer_disconn_handler(struct CSM* csm)
     /* On standby, system ID is reverted back to its local system ID.
      * Update Mclagsyncd
      * */
-    if (csm->role_type == STP_ROLE_STANDBY)
-        mlacp_link_set_iccp_system_id(csm->mlag_id, MLACP(csm).system_id);
+    if (csm->is_set_mclag_sys_mac)
+        mlacp_link_set_iccp_system_id(csm->mlag_id, MLACP(csm).mclag_system_mac);
+    else
+    {
+        if (csm->role_type == STP_ROLE_STANDBY)
+            mlacp_link_set_iccp_system_id(csm->mlag_id, MLACP(csm).system_id);
+    }
 
     /* Delete remote interface info */
     LIST_FOREACH(peer_if, &(MLACP(csm).pif_list), mlacp_next)
@@ -2552,17 +2781,25 @@ void mlacp_mlag_link_add_handler(struct CSM *csm, struct LocalInterface *lif)
     //enable peerlink isolation only if the both mclag interfaces are up
     update_peerlink_isolate_from_lif(csm, lif, lif->po_active);
 
-    //if it is standby node and peer interface is configured, update
-    //standby node mac to active's mac for this lif
-    if (csm->role_type == STP_ROLE_STANDBY)
+    if (csm->is_set_mclag_sys_mac)
     {
-        struct PeerInterface* pif=NULL;
-        pif = peer_if_find_by_name(csm, lif->name);
-
-        if (pif)
+        update_if_mclag_sys_mac(csm, lif, MLACP(csm).mclag_system_mac, 4);
+        mlacp_link_set_iccp_system_id(csm->mlag_id, lif->mac_addr);
+    }
+    else
+    {
+        //if it is standby node and peer interface is configured, update
+        //standby node mac to active's mac for this lif
+        if (csm->role_type == STP_ROLE_STANDBY)
         {
-            update_if_ipmac_on_standby(lif, 4);
-            mlacp_link_set_iccp_system_id(csm->mlag_id, lif->mac_addr);
+            struct PeerInterface* pif=NULL;
+            pif = peer_if_find_by_name(csm, lif->name);
+
+            if (pif)
+            {
+                update_if_ipmac_on_standby(lif, 4);
+                mlacp_link_set_iccp_system_id(csm->mlag_id, lif->mac_addr);
+            }
         }
     }
 
@@ -2776,6 +3013,12 @@ void do_mac_update_from_syncd(uint8_t mac_addr[ETHER_ADDR_LEN], uint16_t vid, ch
         ICCPD_LOG_DEBUG("ICCP_FDB", "MAC update from mclagsyncd: RB_FIND success for the MAC entry : %s, "
             " vid: %d , ifname %s, type: %d, age flag: %d", mac_addr_to_str(mac_info->mac_addr),
             mac_info->vid, mac_info->ifname, mac_info->fdb_type, mac_info->age_flag );
+
+        if (mac_info->fdb_type == MAC_TYPE_STATIC && strcmp(mac_info->ifname, csm->peer_itf_name) == 0)
+        {
+            ICCPD_LOG_DEBUG("ICCP_FDB", "Ignore MAC for unique IP");
+            return;
+        }
     }
 
     /*handle mac add*/
@@ -2857,19 +3100,35 @@ void do_mac_update_from_syncd(uint8_t mac_addr[ETHER_ADDR_LEN], uint16_t vid, ch
                 sprintf(mac_info->ifname, "%s", mac_msg->ifname);
                 sprintf(mac_info->origin_ifname, "%s", mac_msg->ifname);
 
-                /*Remove MAC_AGE_LOCAL flag*/
-                mac_info->age_flag = set_mac_local_age_flag(csm, mac_info, 0, 1);
+                if (mac_info->age_flag == MAC_AGE_PEER)
+                {
+                    if ((MLACP(csm).current_state == MLACP_STATE_EXCHANGE))
+                    {
+                        mac_info->op_type = MAC_SYNC_ADD;
+                        if (!MAC_IN_MSG_LIST(&(MLACP(csm).mac_msg_list), mac_info, tail))
+                        {
+                            ICCPD_LOG_DEBUG("ICCP_FDB", "local learn move, need to notify peer to update it.");
+                            TAILQ_INSERT_TAIL(&(MLACP(csm).mac_msg_list), mac_info, tail);
+                        }
+                    }
+                }
+                else
+                {
+                    ICCPD_LOG_DEBUG("ICCP_FDB", "remote learn move, need to notify peer to update it.");
+                    /*Remove MAC_AGE_LOCAL flag*/
+                    mac_info->age_flag = set_mac_local_age_flag(csm, mac_info, 0, 1);
+                }
 
                 ICCPD_LOG_DEBUG("ICCP_FDB", "MAC update from mclagsyncd: Update MAC %s, vlan %d ifname %s",
                     mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid, mac_msg->ifname);
                 // MAC is local now Del entry from MCLAG_FDB_TABLE if peer not aged.
-                if (!(mac_msg->age_flag & MAC_AGE_PEER))
+                if (!(mac_info->age_flag & MAC_AGE_PEER))
                 {
                     ICCPD_LOG_DEBUG("ICCP_FDB", " MAC update from mclagsyncd: MAC move Update MAC remote to local %s, vlan %d"
                             " ifname %s, del entry from MCLAG_FDB_TABLE",
                             mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid, mac_msg->ifname);
 		    mac_info->age_flag = MAC_AGE_PEER;
-                    del_mac_from_chip(mac_msg);
+                    del_mac_from_app_db(mac_msg);
                 }
             }
             else
@@ -2880,12 +3139,12 @@ void do_mac_update_from_syncd(uint8_t mac_addr[ETHER_ADDR_LEN], uint16_t vid, ch
                 ICCPD_LOG_DEBUG("ICCP_FDB", "MAC update from mclagsyncd: Duplicate update MAC %s, vlan %d ifname %s",
                         mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid, mac_msg->ifname);
                 // MAC is local now Del entry from MCLAG_FDB_TABLE if peer not aged.
-                if (!(mac_msg->age_flag & MAC_AGE_PEER))
+                if (!(mac_info->age_flag & MAC_AGE_PEER))
                 {
                     ICCPD_LOG_DEBUG("ICCP_FDB", "MAC update from mclagsyncd: Update MAC remote to local %s, vlan %d"
                             " ifname %s, del entry from MCLAG_FDB_TABLE",
                             mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid, mac_msg->ifname);
-                    del_mac_from_chip(mac_msg);
+                    del_mac_from_app_db(mac_msg);
                 }
                 return;
             }
@@ -2987,10 +3246,7 @@ void do_mac_update_from_syncd(uint8_t mac_addr[ETHER_ADDR_LEN], uint16_t vid, ch
                         "MAC %s vlan-id %d", mac_info->ifname,
                         mac_addr_to_str(mac_info->mac_addr), mac_info->vid);
 
-                    if (mac_info->add_to_syncd)
-                    {
-                        del_mac_from_chip(mac_info);
-                    }
+                    del_mac_from_chip(mac_info);
 
                     /*If peer link is down, del the mac*/
                     MAC_RB_REMOVE(mac_rb_tree, &MLACP(csm).mac_rb, mac_info);
@@ -3025,10 +3281,8 @@ void do_mac_update_from_syncd(uint8_t mac_addr[ETHER_ADDR_LEN], uint16_t vid, ch
                     mac_addr_to_str(mac_info->mac_addr), mac_info->vid);
 
                 //before removing the MAC send del to syncd if added before.
-                if (mac_info->add_to_syncd)
-                {
-                    del_mac_from_chip(mac_info);
-                }
+                del_mac_from_chip(mac_info);
+
                 /*If local and peer both aged, del the mac (local orphan mac is here)*/
                 MAC_RB_REMOVE(mac_rb_tree, &MLACP(csm).mac_rb, mac_info);
 
@@ -3143,6 +3397,12 @@ int iccp_mclagsyncd_mclag_domain_cfg_handler(struct System *sys, char *msg_buf)
                     set_session_timeout(cfg_info->domain_id, HEARTBEAT_TIMEOUT_SEC);
                 }
             }
+
+            if(cfg_info->attr_bmap & MCLAG_CFG_ATTR_MCLAG_SYS_MAC)
+            {
+                ICCPD_LOG_NOTICE(__FUNCTION__, "config MCLAG system MAC = %s", mac_addr_to_str(cfg_info->mclag_system_mac));
+                set_mclag_system_mac(cfg_info->domain_id, mac_addr_to_str(cfg_info->mclag_system_mac));
+            }
         } //MCLAG Domain create/update End
         else if (cfg_info->op_type == MCLAG_CFG_OPER_DEL) //mclag domain delete
         {
@@ -3171,6 +3431,11 @@ int iccp_mclagsyncd_mclag_domain_cfg_handler(struct System *sys, char *msg_buf)
             else if(cfg_info->attr_bmap & MCLAG_CFG_ATTR_PEER_ADDR)
             {
                 unset_peer_address(cfg_info->domain_id);
+            }
+            else if(cfg_info->attr_bmap & MCLAG_CFG_ATTR_MCLAG_SYS_MAC)
+            {
+                ICCPD_LOG_NOTICE(__FUNCTION__, "Pepare for removing MCLAG system MAC!!!!!!");
+                unset_mclag_system_mac(cfg_info->domain_id);
             }
         } //MCLAG Domain Attribute delete End
     }
@@ -4284,6 +4549,7 @@ int syn_local_arp_info_to_peer(struct CSM* csm, struct LocalInterface *local_if,
 {
     struct ARPMsg arp_msg = {0};
     int msg_len = 0, rc = MCLAG_ERROR;
+    uint8_t null_mac[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     if (!csm || !local_if) {
         ICCPD_LOG_DEBUG(__FUNCTION__,"invalid parameters");
@@ -4302,7 +4568,19 @@ int syn_local_arp_info_to_peer(struct CSM* csm, struct LocalInterface *local_if,
     arp_msg.ipv4_addr = local_if->ipv4_addr;
     arp_msg.flag |= NEIGH_SYNC_FLAG_SELF_IP;
     memcpy(arp_msg.ifname, local_if->name, MAX_L_PORT_NAME);
-    memcpy(arp_msg.mac_addr, local_if->mac_addr, ETHER_ADDR_LEN);
+    if (csm->role_type == STP_ROLE_ACTIVE)
+        memcpy(arp_msg.mac_addr, local_if->mac_addr, ETHER_ADDR_LEN);
+    else
+    {
+        /*
+         * If lif is session or orphant port, its mac_addr will be all zero. Under the situation,
+         * There use the l3_mac_addr instead of mac_addr.
+         */
+        if (memcmp(local_if->l3_mac_addr, null_mac,ETHER_ADDR_LEN))
+            memcpy(arp_msg.mac_addr, local_if->l3_mac_addr, ETHER_ADDR_LEN);
+        else
+            memcpy(arp_msg.mac_addr, local_if->mac_addr, ETHER_ADDR_LEN);
+    }
 
     ICCPD_LOG_DEBUG(__FUNCTION__," add %d ack %d ifname %s, ip %s", sync_add, ack, arp_msg.ifname, show_ip_str(arp_msg.ipv4_addr));
     ICCPD_LOG_DEBUG(__FUNCTION__," mac [%02X:%02X:%02X:%02X:%02X:%02X]",

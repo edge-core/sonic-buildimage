@@ -25,6 +25,7 @@
 #define MLACP_TLV_H_
 
 #include <sys/queue.h>
+#include <stdbool.h>
 
 #include "../include/msg_format.h"
 #include "../include/port.h"
@@ -500,6 +501,8 @@ enum MAC_OP_TYPE
     MAC_SYNC_ADD    = 1,
     MAC_SYNC_DEL    = 2,
     MAC_SYNC_ACK    = 4,
+    MAC_SYNC_FORCE_DEL   = 8,    /*MAC is peer's CPU MAC need to delete*/
+    MAC_SYNC_DEL_APP_DB  = 16,
 };
 
 enum MAC_TYPE
@@ -525,6 +528,7 @@ struct MACMsg
     uint8_t age_flag;/*local or peer is age?*/
     uint8_t pending_local_del;
     uint8_t add_to_syncd;
+    bool is_peer_cpu_mac;
 
     TAILQ_ENTRY(MACMsg) tail;     // entry into mac_msg_list
 };
