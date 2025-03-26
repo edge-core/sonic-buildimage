@@ -20,6 +20,7 @@ ExecStop=/usr/local/bin/{{docker_container_name}}.sh stop{% if multi_instance ==
 ExecStopPost=/usr/local/bin/write_standby.py --shutdown bgp
 
 RestartSec=30
+TimeoutStartSec=180
 
 [Install]
 WantedBy=sonic.target
