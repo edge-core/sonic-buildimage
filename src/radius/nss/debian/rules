@@ -3,6 +3,9 @@
 %:
 	dh $@
 
+override_dh_link:
+	dh_link /bin/bash /usr/bin/sonic-launch-shell
+
 override_dh_fixperms:
 	dh_fixperms
 	chmod 644 debian/libnss-radius/lib/$(DEB_HOST_MULTIARCH)/libnss_radius.so.2
