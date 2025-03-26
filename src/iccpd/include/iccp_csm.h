@@ -143,6 +143,8 @@ struct CSM
     /* Log */
     struct MsgLog msg_log;
 
+    bool is_set_mclag_sys_mac;
+
     LIST_ENTRY(CSM) next;
     LIST_HEAD(csm_if_list, If_info) if_bind_list;
 };

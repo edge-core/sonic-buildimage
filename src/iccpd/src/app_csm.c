@@ -238,8 +238,16 @@ int mlacp_bind_local_if(struct CSM* csm, struct LocalInterface* lif)
     {
         if (lif_po->type == IF_T_PORT_CHANNEL && lif_po->po_id == lif->po_id)
         {
-            /*if join a po member, may swss restart, reset portchannel ip mac  to mclagsyncd*/
-            update_if_ipmac_on_standby(lif_po, 1);
+            if (csm->is_set_mclag_sys_mac)
+            {
+                update_if_mclag_sys_mac(csm, lif_po, MLACP(csm).mclag_system_mac, 1);
+            }
+            else
+            {
+                /*if join a po member, may swss restart, reset portchannel ip mac  to mclagsyncd*/
+                update_if_ipmac_on_standby(lif_po, 1);
+            }
+
             return 0;
         }
     }
@@ -311,6 +319,10 @@ int mlacp_bind_port_channel_to_csm(struct CSM* csm, const char *ifname)
     mlacp_mlag_link_add_handler(csm, lif_po);
 
     /*ICCPD_LOG_WARN(tag, "po%d active =  %d\n", po_id, po_is_active);*/
+
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Update MAC after binding MACLAG member!");
+    update_l2_mac_state(csm, lif_po, (lif_po->state == PORT_STATE_UP) ? 1 : 0);
+
     return 0;
 }
 
