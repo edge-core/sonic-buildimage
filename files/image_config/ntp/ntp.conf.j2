@@ -83,6 +83,9 @@ trustedkey {{ trusted_keys_arr|join(' ') }}
 LOOPBACK_INTERFACE ip when MGMT_INTERFACE is not defined, or eth0 if we don't
 have both of them (default is to listen on all ip addresses) -#}
 interface ignore wildcard
+{% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
+interface ignore lo
+{% endif %}
 
 {# Set interface to listen on:
      * Set global variable for configured source interface name.
