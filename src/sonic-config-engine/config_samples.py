@@ -158,12 +158,34 @@ def generate_l2_config(data):
             data['VLAN_MEMBER']['Vlan1000|{}'.format(port)] = {'tagging_mode': 'untagged'}
     return data
 
+def generate_x_default_config(data):
+    data['DEVICE_METADATA']['localhost']['hostname'] = 'sonic'
+    data['DEVICE_METADATA']['localhost']['type'] = 'LeafRouter'
+    data['DEVICE_METADATA']['localhost']['docker_routing_config_mode'] = 'split-unified'
+    data['DEVICE_METADATA']['localhost']['frr_mgmt_framework_config'] = 'true'
+    data['REST_SERVER'] = {'default': {'client_auth': 'user'}}
+
+    # use eth0 as default management port
+    data['MGMT_PORT'] = {
+        'eth0': {
+            'alias': 'eth0',
+            'admin_status': 'up',
+            'description': 'Management Port'
+        }
+    }
+
+    for port in natsorted(data['PORT']):
+        data['PORT'][port]['admin_status'] = 'up'
+        data['PORT'][port]['mtu'] = '9100'
+    return data
+
 _sample_generators = {
         't1': generate_t1_sample_config,
         'l2': generate_l2_config,
         'empty': generate_empty_config,
         'l1': generate_l1_config,
-        'l3': generate_l3_config
+        'l3': generate_l3_config,
+        'x_default': generate_x_default_config
         }
 
 def get_available_config():

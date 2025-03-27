@@ -460,7 +460,10 @@ typedef enum mclag_msg_type_e_
     MCLAG_MSG_TYPE_SET_REMOTE_IF_STATE      = 12,
     MCLAG_MSG_TYPE_DEL_REMOTE_IF_INFO       = 13,
     MCLAG_MSG_TYPE_SET_PEER_LINK_ISOLATION  = 14,
-    MCLAG_MSG_TYPE_SET_ICCP_PEER_SYSTEM_ID  = 15
+    MCLAG_MSG_TYPE_SET_ICCP_PEER_SYSTEM_ID  = 15,
+    MCLAG_MSG_TYPE_SET_ICCP_PEER_LINK       = 16,
+    MCLAG_MSG_TYPE_DEL_ICCP_PEER_LINK       = 17,
+    MCLAG_MSG_TYPE_FLUSH_FDB_BY_PORT        = 18
 }mclag_msg_type_e;
 
 
@@ -479,7 +482,9 @@ typedef enum mclag_sub_option_type_e_
     MCLAG_SUB_OPTION_TYPE_SYSTEM_ID         = 10,
     MCLAG_SUB_OPTION_TYPE_OPER_STATUS       = 11,
     MCLAG_SUB_OPTION_TYPE_ISOLATION_STATE   = 12,
-    MCLAG_SUB_OPTION_TYPE_PEER_SYSTEM_ID    = 13
+    MCLAG_SUB_OPTION_TYPE_PEER_SYSTEM_ID    = 13,
+    MCLAG_SUB_OPTION_TYPE_PEER_LINK         = 14,
+    MCLAG_SUB_OPTION_TYPE_PEER_LINK_MEMBER  = 15
 } mclag_sub_option_type_e;
 
 enum MCLAG_DOMAIN_CFG_OP_TYPE {
@@ -492,12 +497,13 @@ enum MCLAG_DOMAIN_CFG_OP_TYPE {
 
 
 enum MCLAG_DOMAIN_CFG_ATTR_BMAP_FLAGS {
-    MCLAG_CFG_ATTR_NONE                  = 0x0,
-    MCLAG_CFG_ATTR_SRC_ADDR              = 0x1,
-    MCLAG_CFG_ATTR_PEER_ADDR             = 0x2,
-    MCLAG_CFG_ATTR_PEER_LINK             = 0x4,
-    MCLAG_CFG_ATTR_KEEPALIVE_INTERVAL    = 0x8,
-    MCLAG_CFG_ATTR_SESSION_TIMEOUT       = 0x10
+    MCLAG_CFG_ATTR_NONE                  = 0x0,  
+    MCLAG_CFG_ATTR_SRC_ADDR              = 0x1,  
+    MCLAG_CFG_ATTR_PEER_ADDR             = 0x2,  
+    MCLAG_CFG_ATTR_PEER_LINK             = 0x4,   
+    MCLAG_CFG_ATTR_KEEPALIVE_INTERVAL    = 0x8,   
+    MCLAG_CFG_ATTR_SESSION_TIMEOUT       = 0x10,
+    MCLAG_CFG_ATTR_MCLAG_SYS_MAC         = 0x20
 };
 
 struct IccpSyncdHDr
@@ -538,6 +544,7 @@ struct mclag_domain_cfg_info
     char peer_ip[INET_ADDRSTRLEN];
     char peer_ifname[MAX_L_PORT_NAME];
     uint8_t  system_mac[ETHER_ADDR_LEN];
+    uint8_t  mclag_system_mac[ETHER_ADDR_LEN];
     int attr_bmap;
 };
 

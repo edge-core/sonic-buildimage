@@ -69,9 +69,11 @@ int iccp_connect_syncd();
 
 void mlacp_link_disable_traffic_distribution(struct LocalInterface *lif);
 void mlacp_link_enable_traffic_distribution(struct LocalInterface *lif);
-int mlacp_link_set_iccp_state(int mlag_id, bool is_oper_up);
+int mlacp_link_set_iccp_state(int mlag_id, bool is_oper_up, char *peer_link_mbr);
 int mlacp_link_set_iccp_role(int mlag_id, bool is_active_role, uint8_t *system_id);
 int mlacp_link_set_iccp_system_id(int mlag_id, uint8_t *system_id);
+int mlacp_link_set_iccp_peer_link(int mlag_id, char *po_name);
+int mlacp_link_del_iccp_peer_link(int mlag_id, char *po_name);
 int mlacp_link_del_iccp_info(int mlag_id);
 int mlacp_link_set_remote_if_state(int mlag_id, char *po_name, bool is_oper_up);
 int mlacp_link_del_remote_if_info(int mlag_id, char *po_name);
@@ -94,4 +96,6 @@ void mlacp_fix_bridge_mac(struct CSM* csm);
 void update_orphan_port_mac(struct CSM *csm, struct LocalInterface *lif, int state);
 void mlacp_convert_remote_mac_to_local(struct CSM *csm, char *po_name);
 int sync_unique_ip();
+void mlacp_clean_fdb_by_port(const char *port_name);
+void update_l2_mac_state(struct CSM *csm, struct LocalInterface *lif, int po_state);
 #endif

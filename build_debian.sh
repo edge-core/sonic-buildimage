@@ -409,8 +409,9 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     auditd                  \
     linux-perf              \
     resolvconf              \
-	lsof                    \
-	sysstat
+    lsof                    \
+    sysstat                 \
+    nftables
 
 # default rsyslog version is 8.2110.0 which has a bug on log rate limit,
 # use backport version
@@ -689,8 +690,8 @@ if [ "${enable_organization_extensions}" = "y" ]; then
    fi
 fi
 
-## Setup ebtable rules (rule file in text format)
-sudo cp files/image_config/ebtables/ebtables.filter.cfg ${FILESYSTEM_ROOT}/etc
+## Setup nftables rules
+sudo cp files/image_config/nftables/nftables.conf ${FILESYSTEM_ROOT}/etc
 
 ## Debug Image specific changes
 ## Update motd for debug image
