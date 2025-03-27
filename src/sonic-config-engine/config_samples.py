@@ -158,10 +158,10 @@ def generate_l2_config(data):
             data['VLAN_MEMBER']['Vlan1000|{}'.format(port)] = {'tagging_mode': 'untagged'}
     return data
 
-def generate_ec_default_config(data):
+def generate_x_default_config(data):
     data['DEVICE_METADATA']['localhost']['hostname'] = 'sonic'
     data['DEVICE_METADATA']['localhost']['type'] = 'LeafRouter'
-    data['DEVICE_METADATA']['localhost']['docker_routing_config_mode'] = 'split'
+    data['DEVICE_METADATA']['localhost']['docker_routing_config_mode'] = 'split-unified'
     data['DEVICE_METADATA']['localhost']['frr_mgmt_framework_config'] = 'true'
     data['REST_SERVER'] = {'default': {'client_auth': 'user'}}
 
@@ -185,7 +185,7 @@ _sample_generators = {
         'empty': generate_empty_config,
         'l1': generate_l1_config,
         'l3': generate_l3_config,
-        'ec_default': generate_ec_default_config
+        'x_default': generate_x_default_config
         }
 
 def get_available_config():
