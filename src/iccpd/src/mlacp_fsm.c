@@ -1536,6 +1536,11 @@ static void mlacp_exchange_handler(struct CSM* csm, struct Msg* msg)
             len = mlacp_prepare_for_Aggport_config(csm, g_csm_buf, CSM_BUFFER_SIZE, lif, 0);
             iccp_csm_send(csm, g_csm_buf, len);
 
+            /* Send port channel state information*/
+            memset(g_csm_buf, 0, CSM_BUFFER_SIZE);
+            len = mlacp_prepare_for_Aggport_state(csm, g_csm_buf, CSM_BUFFER_SIZE, lif);
+            iccp_csm_send(csm, g_csm_buf, len);
+
             memset(g_csm_buf, 0, CSM_BUFFER_SIZE);
             len = mlacp_prepare_for_port_channel_info(csm, g_csm_buf, CSM_BUFFER_SIZE, lif);
             iccp_csm_send(csm, g_csm_buf, len);

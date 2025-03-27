@@ -674,6 +674,7 @@ void update_if_ipmac_on_standby(struct LocalInterface* lif_po, int dir)
         /* Refresh link local address according the new MAC */
         iccp_netlink_if_shutdown_set(lif_po->ifindex);
         iccp_netlink_if_startup_set(lif_po->ifindex);
+        memcpy(lif_po->mac_addr, MLACP(csm).remote_system.system_id, ETHER_ADDR_LEN);
     }
 
     /*Set portchannel ip mac */
