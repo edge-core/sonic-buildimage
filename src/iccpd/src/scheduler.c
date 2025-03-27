@@ -82,7 +82,7 @@ static void heartbeat_check(struct CSM *csm)
     if ( (time(NULL) - csm->heartbeat_update_time) > csm->session_timeout)
     {
         /* hearbeat timeout*/
-        ICCPD_LOG_WARN("ICCP_FSM", "iccpd connection timeout (heartbeat)");
+        ICCPD_LOG_NOTICE("ICCP_FSM", "iccpd connection timeout (heartbeat)");
         scheduler_session_disconnect_handler(csm);
     }
 
