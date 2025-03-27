@@ -2197,18 +2197,19 @@ class BGPConfigDaemon:
         self.static_route_list = {}
         sroute_table = self.config_db.get_table('STATIC_ROUTE')
         get_list = lambda v: v.split(',') if v is not None else None
-        for key, entry in sroute_table.items():
-            if type(key) is tuple and len(key) == 2:
-                vrf, ip_prefix = key
-            else:
-                vrf = self.DEFAULT_VRF
-                ip_prefix = key
-            af, ip_prefix = IpNextHopSet.get_af_norm_prefix(ip_prefix)
-            nh_attr = lambda k: get_list(entry.get(k, None))
-            self.static_route_list.setdefault(vrf, {})[ip_prefix] = IpNextHopSet(af,
-                                        nh_attr('blackhole'), nh_attr('nexthop'),nh_attr('track'),
-                                        nh_attr('ifname'), nh_attr('tag'), nh_attr('distance'),
-                                        nh_attr('nexthop-vrf'))
+        if self.config_mode == "unified":
+            for key, entry in sroute_table.items():
+                if type(key) is tuple and len(key) == 2:
+                    vrf, ip_prefix = key
+                else:
+                    vrf = self.DEFAULT_VRF
+                    ip_prefix = key
+                af, ip_prefix = IpNextHopSet.get_af_norm_prefix(ip_prefix)
+                nh_attr = lambda k: get_list(entry.get(k, None))
+                self.static_route_list.setdefault(vrf, {})[ip_prefix] = IpNextHopSet(af,
+                                            nh_attr('blackhole'), nh_attr('nexthop'),nh_attr('track'),
+                                            nh_attr('ifname'), nh_attr('tag'), nh_attr('distance'),
+                                            nh_attr('nexthop-vrf'))
 
         self.table_handler_list = [
             ('VRF', self.vrf_handler),
@@ -2258,8 +2259,10 @@ class BGPConfigDaemon:
         syslog.syslog(syslog.LOG_DEBUG, 'Init Cached DB data')
         for key, entry in self.table_data_cache.items():
             syslog.syslog(syslog.LOG_DEBUG, '  %-20s : %s' % (key, entry))
-        if self.config_mode == "unified":
+        if self.config_mode == "unified" or self.config_mode == "split":
             for table, _ in self.table_handler_list:
+                if self.config_mode == "split" and table != "STATIC_ROUTE":
+                    continue
                 table_list = self.config_db.get_table(table)
                 for key, data in table_list.items():
                     syslog.syslog(syslog.LOG_DEBUG, 'config replay for table {} key {}'.format(table, key))
