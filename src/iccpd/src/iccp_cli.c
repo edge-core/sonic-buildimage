@@ -132,11 +132,16 @@ int set_peer_link(int mid, const char* ifname)
         if (lif->type == IF_T_PORT_CHANNEL)
             iccp_get_port_member_list(lif);
 
+        set_peerlink_mlag_port_learn(csm->peer_link_if, 0);
         set_peerlink_learn_kernel(csm, 0, 4);
+        mlacp_clean_fdb_by_port(csm->peer_itf_name);
     }
 
     /*disconnect the link for mac and arp sync up*/
     scheduler_session_disconnect_handler(csm);
+
+    /* Set ICCP peer link to STATE_DB */
+    mlacp_link_set_iccp_peer_link(csm->mlag_id, csm->peer_itf_name);
 
     return 0;
 }
@@ -160,6 +165,9 @@ int unset_peer_link(int mid)
 
     /* update peer-link link handler*/
     scheduler_session_disconnect_handler(csm);
+
+    /* Remove ICCP peer link from STATE_DB */
+    mlacp_link_del_iccp_peer_link(csm->mlag_id, csm->peer_itf_name);
 
     /* clean peer-link*/
     memset(csm->peer_itf_name, 0, MAX_L_PORT_NAME);
@@ -553,3 +561,64 @@ int unset_local_system_id( )
     return 0;
 }
 
+void set_mclag_system_mac(int domain_id, const char* mac)
+{
+    struct CSM* csm = system_get_csm_by_mlacp_id(domain_id);
+    struct LocalInterface *lif_po = NULL;
+    uint8_t mclag_sys_mac[ETHER_ADDR_LEN];
+
+    if (!csm)
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "MCLAG domain doesn't exist!!!!");
+        return;
+    }
+
+    ICCPD_LOG_NOTICE(__FUNCTION__, "mac = %s", mac);
+
+    parseMacString(mac, mclag_sys_mac);
+
+    if (update_all_if_mclag_sys_mac(csm, mclag_sys_mac, 1))
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Set MCLAG system MAC [%02X:%02X:%02X:%02X:%02X:%02X].",
+                        mclag_sys_mac[0], mclag_sys_mac[1],
+                        mclag_sys_mac[2], mclag_sys_mac[3],
+                        mclag_sys_mac[4], mclag_sys_mac[5]);
+
+        memcpy(MLACP(csm).mclag_system_mac, mclag_sys_mac, ETHER_ADDR_LEN);
+        csm->is_set_mclag_sys_mac = true;
+        mlacp_link_set_iccp_system_id(domain_id, mclag_sys_mac);
+    }
+    else
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Failed to set MCLAG system MAC [%02X:%02X:%02X:%02X:%02X:%02X].",
+                        mclag_sys_mac[0], mclag_sys_mac[1],
+                        mclag_sys_mac[2], mclag_sys_mac[3],
+                        mclag_sys_mac[4], mclag_sys_mac[5]);
+    }
+}
+
+void unset_mclag_system_mac(int domain_id)
+{
+    uint8_t null_mac[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    uint8_t recover_mac[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    struct CSM* csm = system_get_csm_by_mlacp_id(domain_id);
+    struct LocalInterface *lif_po = NULL;
+
+    if (!csm)
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "MCLAG domain doesn't exist!!!!");
+        return;
+    }
+
+    if (recover_all_if_mclag_sys_mac(csm, csm->role_type, recover_mac, 1))
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Successed to recover MCLAG system MAC");
+        memcpy(MLACP(csm).mclag_system_mac, null_mac, ETHER_ADDR_LEN);
+        csm->is_set_mclag_sys_mac = false;
+        mlacp_link_set_iccp_system_id(domain_id, recover_mac);
+    }
+    else
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Failed to recover MCLAG system MAC");
+    }
+}

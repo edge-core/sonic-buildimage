@@ -70,7 +70,8 @@ int mlacp_fsm_update_system_conf(struct CSM* csm, mLACPSysConfigTLV*sysconf)
 
     /* On standby, update system ID upon receiving change from active */
     if ((csm->role_type == STP_ROLE_STANDBY) &&
-        (memcmp(old_remote_system_id, sysconf->sys_id, ETHER_ADDR_LEN) != 0))
+        (memcmp(old_remote_system_id, sysconf->sys_id, ETHER_ADDR_LEN) != 0) &&
+         !csm->is_set_mclag_sys_mac)
     {
         mlacp_link_set_iccp_system_id(csm->mlag_id, sysconf->sys_id);
     }
@@ -219,6 +220,7 @@ int mlacp_fsm_update_mac_entry_from_peer( struct CSM* csm, struct mLACPMACData *
     struct MACMsg *mac_msg = NULL, *new_mac_msg = NULL;
     struct MACMsg mac_data, mac_find;
     struct LocalInterface* local_if = NULL;
+    struct LocalInterface* peer_link_if = NULL;
     uint8_t from_mclag_intf = 0;/*0: orphan port, 1: MCLAG port*/
     memset(&mac_data, 0, sizeof(struct MACMsg));
     memset(&mac_find, 0, sizeof(struct MACMsg));
@@ -244,6 +246,31 @@ int mlacp_fsm_update_mac_entry_from_peer( struct CSM* csm, struct mLACPMACData *
             from_mclag_intf = 1;
             break;
         }
+    }
+
+    peer_link_if = local_if_find_by_name(csm->peer_itf_name);
+    if (peer_link_if && memcmp(peer_link_if->mac_addr, MacData->mac_addr, ETHER_ADDR_LEN) == 0)
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Received MAC is CPU MAC, ignore");
+
+        if (from_mclag_intf)
+        {
+            if (MacData->type == MAC_SYNC_ADD)
+            {
+                mac_msg = (struct MACMsg*)&mac_data;
+                mac_msg->op_type = MAC_SYNC_FORCE_DEL;
+                mac_msg->vid = ntohs(MacData->vid);
+                memcpy(mac_msg->mac_addr, MacData->mac_addr, ETHER_ADDR_LEN);
+
+                if (iccp_csm_init_mac_msg(&new_mac_msg, (char*)mac_msg, sizeof(struct MACMsg)) == 0)
+                {
+                    ICCPD_LOG_NOTICE(__FUNCTION__, "Tell to peer about CPU MAC need to delete!!!");
+                    TAILQ_INSERT_TAIL(&(MLACP(csm).mac_msg_list), new_mac_msg, tail);
+                }
+            }
+        }
+
+        return 0;
     }
 
     mac_find.vid = ntohs(MacData->vid);
@@ -472,6 +499,14 @@ int mlacp_fsm_update_mac_entry_from_peer( struct CSM* csm, struct mLACPMACData *
         }
         else
         {
+            ICCPD_LOG_NOTICE("ICCP_FDB", "Recv MAC DEL from peer: age flag: %d MAC %s vlan %d, notify peer readd!",
+                             mac_msg->age_flag, mac_addr_to_str(mac_msg->mac_addr), mac_msg->vid);
+            mac_msg->op_type = MAC_SYNC_ADD;
+            if (!MAC_IN_MSG_LIST(&(MLACP(csm).mac_msg_list), mac_msg, tail))
+            {
+                TAILQ_INSERT_TAIL(&(MLACP(csm).mac_msg_list), mac_msg, tail);
+            }
+
             return 0;
         }
     }
@@ -547,6 +582,12 @@ int mlacp_fsm_update_mac_entry_from_peer( struct CSM* csm, struct mLACPMACData *
             }
             #endif
         }
+    }
+    else if (mac_msg && MacData->type == MAC_SYNC_FORCE_DEL)
+    {
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Force delete peer's CPU MAC");
+        add_mac_to_chip(mac_msg, MAC_TYPE_STATIC);
+        mac_msg->is_peer_cpu_mac = true;
     }
 
     return 0;
@@ -785,6 +826,19 @@ int mlacp_fsm_update_arp_entry(struct CSM* csm, struct ARPMsg *arp_entry)
         return 0;
     }
 
+    /* update ARP list*/
+    TAILQ_FOREACH(msg, &(MLACP(csm).arp_list), tail)
+    {
+        arp_msg = (struct ARPMsg*)msg->buf;
+        if (arp_msg->ipv4_addr == arp_entry->ipv4_addr)
+        {
+            /*arp_msg->op_type = tlv->type;*/
+            sprintf(arp_msg->ifname, "%s", arp_entry->ifname);
+            memcpy(arp_msg->mac_addr, arp_entry->mac_addr, ETHER_ADDR_LEN);
+            break;
+        }
+    }
+
     /* set dynamic ARP*/
     if (set_arp_flag == 1)
     {
@@ -813,15 +867,18 @@ int mlacp_fsm_update_arp_entry(struct CSM* csm, struct ARPMsg *arp_entry)
         }
         else
         {
-            err = iccp_netlink_neighbor_request(AF_INET, (uint8_t *)&arp_entry->ipv4_addr, 0, arp_entry->mac_addr, arp_entry->ifname, permanent_neigh, 9);
-            if (err < 0)
+            if (msg)
             {
-                if (err != ICCP_NLE_SEQ_MISMATCH) {
-                    ICCPD_LOG_ERR(__FUNCTION__, "ARP delete failure for %s %s %s, status %d",
+                err = iccp_netlink_neighbor_request(AF_INET, (uint8_t *)&arp_entry->ipv4_addr, 0, arp_entry->mac_addr, arp_entry->ifname, permanent_neigh, 9);
+                if (err < 0)
+                {
+                    if (err != ICCP_NLE_SEQ_MISMATCH) {
+                        ICCPD_LOG_ERR(__FUNCTION__, "ARP delete failure for %s %s %s, status %d",
                                 arp_entry->ifname, show_ip_str(arp_entry->ipv4_addr), mac_str, err);
-                    return MCLAG_ERROR;
+                        return MCLAG_ERROR;
+                    }
                 }
-            }
+	    }
         }
 
         ICCPD_LOG_DEBUG(__FUNCTION__, "ARP update for %s %s %s",
@@ -837,19 +894,6 @@ int mlacp_fsm_update_arp_entry(struct CSM* csm, struct ARPMsg *arp_entry)
                 ICCPD_LOG_DEBUG(__FUNCTION__, "ignore my ip %s", show_ip_str(arp_entry->ipv4_addr));
                 return 0;
             }
-        }
-    }
-
-    /* update ARP list*/
-    TAILQ_FOREACH(msg, &(MLACP(csm).arp_list), tail)
-    {
-        arp_msg = (struct ARPMsg*)msg->buf;
-        if (arp_msg->ipv4_addr == arp_entry->ipv4_addr)
-        {
-            /*arp_msg->op_type = tlv->type;*/
-            sprintf(arp_msg->ifname, "%s", arp_entry->ifname);
-            memcpy(arp_msg->mac_addr, arp_entry->mac_addr, ETHER_ADDR_LEN);
-            break;
         }
     }
 

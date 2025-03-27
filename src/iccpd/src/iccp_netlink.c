@@ -634,7 +634,7 @@ void update_if_ipmac_on_standby(struct LocalInterface* lif_po, int dir)
     int ret = 0;
     struct PeerInterface* pif = NULL;
 
-    if (!csm)
+    if (!csm || csm->is_set_mclag_sys_mac)
         return;
 
     if (lif_po->type != IF_T_PORT_CHANNEL)
@@ -750,7 +750,12 @@ void recover_if_ipmac_on_standby(struct LocalInterface *lif_po, int dir)
     if (lif_po->type != IF_T_PORT_CHANNEL)
         return;
 
-    if (csm->role_type != STP_ROLE_STANDBY)
+    if (csm->is_set_mclag_sys_mac)
+    {
+        if (dir != 1)
+            return;
+    }
+    else if (csm->role_type != STP_ROLE_STANDBY)
     {
         return;
     }
@@ -1316,8 +1321,17 @@ void iccp_event_handler_obj_input_newaddr(struct nl_object *obj, void *arg)
         lif->port_config_sync = 1;
         if (memcmp((char *)lif->ipv6_addr, addr_null, 16) == 0)
         {
-            update_if_ipmac_on_standby(lif, 6);
-            update_vlan_if_mac_on_standby(lif, 2);
+            if (lif->csm && lif->csm->is_set_mclag_sys_mac)
+            {
+                struct CSM *csm = lif->csm;
+                update_if_mclag_sys_mac(csm, lif, MLACP(csm).mclag_system_mac, 6);
+            }
+            else
+            {
+                update_if_ipmac_on_standby(lif, 6);
+                update_vlan_if_mac_on_standby(lif, 2);
+            }
+
             sync_mac = 1;
         }
         iccp_del_self_ip_from_neigh_table (lif, AF_INET);
@@ -1353,8 +1367,17 @@ void iccp_event_handler_obj_input_newaddr(struct nl_object *obj, void *arg)
         lif->port_config_sync = 1;
         if (lif->ipv4_addr == 0)
         {
-            update_if_ipmac_on_standby(lif, 7);
-            update_vlan_if_mac_on_standby(lif, 3);
+            if (lif->csm && lif->csm->is_set_mclag_sys_mac)
+            {
+                struct CSM* csm = lif->csm;
+                update_if_mclag_sys_mac(csm, lif, MLACP(csm).mclag_system_mac, 7);
+            }
+            else
+            {
+                update_if_ipmac_on_standby(lif, 7);
+                update_vlan_if_mac_on_standby(lif, 3);
+            }
+
             sync_mac = 1;
         }
         iccp_del_self_ip_from_neigh_table (lif, AF_INET6);
@@ -2304,19 +2327,31 @@ void update_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir)
         return;
     }
 
-    if (csm->role_type != STP_ROLE_STANDBY)
+    if (csm->role_type != STP_ROLE_STANDBY && !csm->is_set_mclag_sys_mac)
         return;
 
     memset(macaddr, 0, 64);
     memset(system_mac, 0, ETHER_ADDR_LEN);
     if (lif_vlan->is_l3_proto_enabled == false)
     {
-        if (memcmp(MLACP(csm).remote_system.system_id, null_mac, ETHER_ADDR_LEN) == 0) {
-            ICCPD_LOG_DEBUG(__FUNCTION__, " remote system_id not initialised.");
-            return;
+        if (csm->is_set_mclag_sys_mac)
+        {
+            if (memcmp(MLACP(csm).mclag_system_mac, null_mac, ETHER_ADDR_LEN) == 0) {
+                ICCPD_LOG_DEBUG(__FUNCTION__, " MCLAG system MAC is not initialised.");
+                return;
+            }
+            memcpy(system_mac, MLACP(csm).mclag_system_mac, ETHER_ADDR_LEN);
+            SET_MAC_STR(macaddr, MLACP(csm).mclag_system_mac);
         }
-        memcpy(system_mac, MLACP(csm).remote_system.system_id, ETHER_ADDR_LEN);
-        SET_MAC_STR(macaddr, MLACP(csm).remote_system.system_id);
+        else
+        {
+            if (memcmp(MLACP(csm).remote_system.system_id, null_mac, ETHER_ADDR_LEN) == 0) {
+                ICCPD_LOG_DEBUG(__FUNCTION__, " remote system_id not initialised.");
+                return;
+            }
+            memcpy(system_mac, MLACP(csm).remote_system.system_id, ETHER_ADDR_LEN);
+            SET_MAC_STR(macaddr, MLACP(csm).remote_system.system_id);
+        }
     } else {
         if (memcmp(MLACP(csm).system_id, null_mac, ETHER_ADDR_LEN) == 0){
             ICCPD_LOG_NOTICE(__FUNCTION__, " system_id not initialised.");
@@ -2354,7 +2389,7 @@ void update_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir)
 
             iccp_set_interface_ipadd_mac(lif_vlan, macaddr);
             memcpy(lif_vlan->l3_mac_addr, system_mac, ETHER_ADDR_LEN);
-            if (lif_vlan->is_l3_proto_enabled == false) {
+            if (lif_vlan->is_l3_proto_enabled == false && csm->is_set_mclag_sys_mac == false) {
                 set_peer_mac_in_kernel (macaddr, vid, 1);
             }
         } else {
@@ -2376,7 +2411,11 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
     char remote_macaddr[64] = { 0 };
     uint8_t system_mac[ETHER_ADDR_LEN] = { 0 };
     int ret = 0;
-    int vid = 0;
+    struct VLAN_ID vlan_key = { 0 };
+    struct VLAN_ID *vlan = NULL;
+    int vid = 0, vlan_member = 0;
+    struct LocalInterface *lif_peer = NULL;
+    struct LocalInterface *lif_po = NULL;
 
     if (lif_vlan->type != IF_T_VLAN)
         return;
@@ -2384,9 +2423,37 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
     if ((sys = system_get_instance()) == NULL)
         return;
 
+    sscanf (lif_vlan->name, "Vlan%d", &vid);
+
+    memset(&vlan_key, 0, sizeof(struct VLAN_ID));
+    vlan_key.vid = vid;
+
     LIST_FOREACH(csm, &(sys->csm_list), next)
     {
         if (csm->peer_link_if) {
+            lif_peer = csm->peer_link_if;
+            vlan = RB_FIND(vlan_rb_tree, &(lif_peer->vlan_tree), &vlan_key);
+            if (vlan && vlan->vlan_itf)
+            {
+                vlan_member = 1;
+                break;
+            }
+        }
+
+        LIST_FOREACH(lif_po, &(MLACP(csm).lif_list), mlacp_next)
+        {
+            if (lif_po->type == IF_T_PORT_CHANNEL)
+            {
+                vlan = RB_FIND(vlan_rb_tree, &(lif_po->vlan_tree), &vlan_key);
+                if (vlan)
+                {
+                    vlan_member = 1;
+                    break;
+                }
+            }
+        }
+        if (vlan_member)
+        {
             break;
         }
     }
@@ -2396,7 +2463,7 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
         return;
     }
 
-    if (csm->role_type != STP_ROLE_STANDBY)
+    if (csm->role_type != STP_ROLE_STANDBY && !csm->is_set_mclag_sys_mac)
         return;
 
     sscanf (lif_vlan->name, "Vlan%d", &vid);
@@ -2412,12 +2479,26 @@ void recover_vlan_if_mac_on_standby(struct LocalInterface* lif_vlan, int dir, ui
         memcpy(system_mac, MLACP(csm).remote_system.system_id, ETHER_ADDR_LEN);
         SET_MAC_STR(macaddr, MLACP(csm).remote_system.system_id);
     } else {
-        if (memcmp(MLACP(csm).system_id, null_mac, ETHER_ADDR_LEN) == 0) {
-            ICCPD_LOG_NOTICE(__FUNCTION__, " system_id not initialised.");
-            return;
+        /*ICCPD doesn't need to change the MAC of VLAN of MCLAG member if MCLAG system MAC is configured during rebooting.*/
+        /*dir 4 present that ICCPD session goes down.*/
+        if (csm->is_set_mclag_sys_mac && dir == 4)
+        {
+            if (memcmp(MLACP(csm).mclag_system_mac, null_mac, ETHER_ADDR_LEN) == 0) {
+                ICCPD_LOG_DEBUG(__FUNCTION__, " MCLAG system MAC is not initialised.");
+                return;
+            }
+            memcpy(system_mac, MLACP(csm).mclag_system_mac, ETHER_ADDR_LEN);
+            SET_MAC_STR(macaddr, MLACP(csm).mclag_system_mac);
         }
-        memcpy(system_mac, MLACP(csm).system_id, ETHER_ADDR_LEN);
-        SET_MAC_STR(macaddr, MLACP(csm).system_id);
+        else
+        {
+            if (memcmp(MLACP(csm).system_id, null_mac, ETHER_ADDR_LEN) == 0) {
+                ICCPD_LOG_NOTICE(__FUNCTION__, " system_id not initialised.");
+                return;
+            }
+            memcpy(system_mac, MLACP(csm).system_id, ETHER_ADDR_LEN);
+            SET_MAC_STR(macaddr, MLACP(csm).system_id);
+        }
     }
 
     if (memcmp(system_mac, null_mac, ETHER_ADDR_LEN) == 0) {
@@ -2483,4 +2564,163 @@ void update_vlan_if_mac_on_iccp_up(struct LocalInterface* lif_peer, int is_up, u
         }
 
     }
+}
+
+bool update_po_mclag_sys_mac(struct LocalInterface *lif_po, uint8_t *k_mac, int dir)
+{
+    int ret = 0;
+
+    if (memcmp(lif_po->mac_addr, k_mac, ETHER_ADDR_LEN) != 0)
+    {
+        ret =  iccp_netlink_if_hwaddr_set(lif_po->ifindex,  k_mac, ETHER_ADDR_LEN);
+        if (ret != 0)
+        {
+            ICCPD_LOG_ERR(__FUNCTION__, "Set %s mac error, ret = %d, dir = %d", lif_po->name, ret, dir);
+            return false;
+        }
+
+        /* Refresh link local address according the new MAC */
+        iccp_netlink_if_shutdown_set(lif_po->ifindex);
+        iccp_netlink_if_startup_set(lif_po->ifindex);
+        memcpy(lif_po->mac_addr, k_mac, ETHER_ADDR_LEN);
+    }
+
+    return true;
+}
+
+void update_l3_po_mclag_sys_mac(struct LocalInterface *lif_po, char *c_mac, uint8_t *k_mac)
+{
+    if (memcmp(lif_po->l3_mac_addr, k_mac, ETHER_ADDR_LEN) != 0)
+    {
+        iccp_set_interface_ipadd_mac(lif_po, c_mac);
+        memcpy(lif_po->l3_mac_addr, k_mac, ETHER_ADDR_LEN);
+    }
+}
+
+bool update_l3_vlan_mclag_sys_mac(struct LocalInterface *lif_po, char *c_mac, uint8_t *k_mac, int dir)
+{
+    struct LocalInterface *lif_vlan = NULL;
+    struct VLAN_ID *vlan = NULL;
+    int ret = 0;
+
+    RB_FOREACH(vlan, vlan_rb_tree, &(lif_po->vlan_tree))
+    {
+        lif_vlan = vlan->vlan_itf;
+        if (!lif_vlan)
+            continue;
+
+        if (local_if_is_l3_mode(lif_vlan))
+        {
+            if ((memcmp(lif_vlan->l3_mac_addr, k_mac, ETHER_ADDR_LEN) != 0) &&
+                lif_vlan->is_l3_proto_enabled == false)
+            {
+                ret = iccp_netlink_if_hwaddr_set(lif_vlan->ifindex, k_mac, ETHER_ADDR_LEN);
+                if (ret != 0)
+                {
+                    ICCPD_LOG_NOTICE(__FUNCTION__, "Set %s mac error, ret = %d", lif_vlan->name, ret);
+                    return false;
+                }
+
+                /* Refresh link local address according the new MAC */
+                iccp_netlink_if_shutdown_set(lif_vlan->ifindex);
+                iccp_netlink_if_startup_set(lif_vlan->ifindex);
+
+                iccp_set_interface_ipadd_mac(lif_vlan, c_mac);
+                memcpy(lif_vlan->l3_mac_addr, k_mac, ETHER_ADDR_LEN);
+            }
+        }
+        else
+            ICCPD_LOG_NOTICE(__FUNCTION__, "%s not L3 interface, dir %d", lif_vlan->name, dir);
+    }
+
+    return true;
+}
+
+bool mclag_sys_mac_helper(struct CSM *csm, char *c_mac, uint8_t *k_mac, int dir)
+{
+    struct LocalInterface *lif_po = NULL;
+    bool ret = true;
+
+    LIST_FOREACH(lif_po, &(MLACP(csm).lif_list), mlacp_next)
+    {
+        if (lif_po->type == IF_T_PORT_CHANNEL)
+        {
+            if (update_po_mclag_sys_mac(lif_po, k_mac, dir))
+            {
+                if (local_if_is_l3_mode(lif_po))
+                {
+                    update_l3_po_mclag_sys_mac(lif_po, c_mac, k_mac);
+                }
+                else
+                {
+                    ret = update_l3_vlan_mclag_sys_mac(lif_po, c_mac, k_mac, dir);
+                }
+            }
+            else
+                return false;
+        }
+    }
+
+    return ret;
+}
+
+bool update_all_if_mclag_sys_mac(struct CSM* csm, uint8_t *mac, int dir)
+{
+    char macaddr[64];
+
+    memset(macaddr, 0, 64);
+    SET_MAC_STR(macaddr, mac);
+
+    return mclag_sys_mac_helper(csm, macaddr, mac, dir);
+}
+
+
+bool recover_all_if_mclag_sys_mac(struct CSM* csm, stp_role_type_et role, uint8_t *mac, int dir)
+{
+    char macaddr[64];
+
+    int ret = 0;
+
+    memset(macaddr, 0, 64);
+
+    if (role == STP_ROLE_ACTIVE || MLACP(csm).current_state != MLACP_STATE_EXCHANGE)
+    {
+        memcpy(mac, MLACP(csm).system_id, ETHER_ADDR_LEN);
+        SET_MAC_STR(macaddr, MLACP(csm).system_id);
+    }
+    else
+    {
+        memcpy(mac, MLACP(csm).remote_system.system_id, ETHER_ADDR_LEN);
+        SET_MAC_STR(macaddr, MLACP(csm).remote_system.system_id);
+    }
+
+    return mclag_sys_mac_helper(csm, macaddr, mac, dir);
+}
+
+bool update_if_mclag_sys_mac(struct CSM *csm, struct LocalInterface *lif_po, uint8_t *k_mac, int dir)
+{
+    bool ret = true;
+    char macaddr[64];
+
+    memset(macaddr, 0, 64);
+    SET_MAC_STR(macaddr, k_mac);
+
+    if (lif_po->type == IF_T_PORT_CHANNEL)
+    {
+        if (update_po_mclag_sys_mac(lif_po, k_mac, dir))
+        {
+            if (local_if_is_l3_mode(lif_po))
+            {
+                update_l3_po_mclag_sys_mac(lif_po, macaddr, k_mac);
+            }
+            else
+            {
+                ret = update_l3_vlan_mclag_sys_mac(lif_po, macaddr, k_mac, dir);
+            }
+        }
+        else
+            return false;
+    }
+
+    return ret;
 }

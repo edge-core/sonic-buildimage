@@ -108,7 +108,7 @@ function preStartAction()
     fi
 {%- elif docker_container_name == "snmp" %}
     $SONIC_DB_CLI STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
-{%- elif docker_container_name == "dhcp_relay" %}
+{%- elif docker_container_name == "dhcp_relay" or docker_container_name == "iccpd" %}
     until [[ $($SONIC_DB_CLI APPL_DB EXISTS "PORT_TABLE:PortInitDone" | grep -c 1) -gt 0 ]]; do
         sleep 1;
     done
@@ -208,9 +208,9 @@ function postStartAction()
            fi
        fi
     fi
-    # Setup ebtables configuration
+    # Setup nftables configuration
 {%- if sonic_asic_platform != "vs" %}
-    ebtables_config
+    nft -f /etc/nftables.conf
 {%- endif %}
     # chassisdb starts before database starts, bypass the PING check since other
     # databases are not availbale until database container is ready.

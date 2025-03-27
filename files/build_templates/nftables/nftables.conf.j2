@@ -1,0 +1,48 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table bridge filter {
+        chain INPUT {
+                type filter hook input priority filter; policy accept;
+        }
+
+        chain FORWARD {
+                type filter hook forward priority filter; policy accept;
+                iifname "PortChannel*" counter packets 0 bytes 0 jump MCLAG_PORT_ISOLATION
+                iifname "Ethernet*" counter packets 0 bytes 0 jump MCLAG_PORT_ISOLATION
+                iifname "VTTNL*" counter packets 0 bytes 0 jump MCLAG_PORT_ISOLATION
+                ether type ip6 icmpv6 type 135-136 icmpv6 code 0  counter packets 0 bytes 0 jump ND_LIST
+                ether type vlan vlan type ip6 icmpv6 type 135-136 icmpv6 code 0 counter packets 0 bytes 0 jump ND_LIST
+                ether type vlan vlan type 0x0806  counter packets 0 bytes 0 jump VLAN_ARP_LIST
+                ether type arp counter packets 0 bytes 0 jump ARP_LIST
+                ether type ip ip daddr 255.255.255.255 udp sport 68 udp dport 67  counter packets 0 bytes 0 jump VLAN_UNTAG_PORT_LIST
+{%- if sonic_asic_platform != "vs" %}
+                ether daddr 01:80:c2:00:00:00 counter packets 0 bytes 0 drop
+                ether type arp counter packets 0 bytes 0 drop
+                ether type vlan vlan type 0x0806  counter packets 0 bytes 0 drop
+                ether type ip6 icmpv6 type 135-136 icmpv6 code 0  counter packets 0 bytes 0 drop
+                ether type vlan vlan type ip6 icmpv6 type 135-136 icmpv6 code 0 counter packets 0 bytes 0 drop
+                ether type vlan vlan type 0x8100  counter packets 0 bytes 0 drop
+{%- endif %}
+        }
+
+        chain OUTPUT {
+                type filter hook output priority filter; policy accept;
+        }
+
+        chain MCLAG_PORT_ISOLATION {
+        }
+
+        chain ND_LIST {
+        }
+
+        chain VLAN_ARP_LIST {
+        }
+
+        chain ARP_LIST {
+        }
+
+        chain VLAN_UNTAG_PORT_LIST {
+        }
+}

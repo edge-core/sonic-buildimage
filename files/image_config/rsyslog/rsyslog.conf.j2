@@ -52,6 +52,8 @@ $UDPServerRun 514
 
 # Define a custom template
 $template SONiCFileFormat,"%timegenerated%.%timegenerated:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
+$template SONiCFileFormat_RFC3164,"<%PRI%>%timegenerated%.%timegenerated:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
+$template SONiCFileFormat_RFC5424,"<%PRI%>1 %TIMESTAMP:::date-rfc3339% %HOSTNAME% %APP-NAME% %PROCID% %MSGID% %STRUCTURED-DATA% %msg%\n"
 $ActionFileDefaultTemplate SONiCFileFormat
 
 template(name="WelfRemoteFormat" type="string" string="%TIMESTAMP% id=firewall time=\"%timereported\
@@ -108,7 +110,7 @@ $RepeatedMsgReduction on
 
 {% set fmodifier = '!' if filter == 'exclude' else '' %}
 {% set device = 'eth0' if vrf == 'default' else vrf -%}
-{% set template = 'WelfRemoteFormat' if format == 'welf' else 'SONiCFileFormat' -%}
+{% set template = 'WelfRemoteFormat' if format == 'welf' else 'SONiCFileFormat_RFC3164' -%}
 
 {# Server extra options -#}
 {% set options = '' -%}

@@ -160,6 +160,7 @@ struct mLACP
     uint8_t need_to_sync;
     uint8_t node_id;
     uint8_t system_id[ETHER_ADDR_LEN];
+    uint8_t mclag_system_mac[ETHER_ADDR_LEN];
     uint16_t system_priority;
     uint8_t system_config_changed;
 
