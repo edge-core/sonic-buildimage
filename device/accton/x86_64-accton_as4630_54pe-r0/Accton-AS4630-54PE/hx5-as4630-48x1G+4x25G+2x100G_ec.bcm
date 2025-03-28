@@ -16,7 +16,7 @@ parity_enable=0
 mem_cache_enable=1
 
 l2_mem_entries=32768
-#l3_mem_entries=49152
+l3_mem_entries=32768
 #fpem_mem_entries=16384
 l2xmsg_mode=1
 l3_alpm_enable=2
