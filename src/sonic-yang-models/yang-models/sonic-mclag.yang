@@ -99,6 +99,10 @@ module sonic-mclag {
                     }
                     default 30;
                 }
+                leaf mclag_system_id {
+                    description "MCLAG system MAC";
+                    type string;
+                }
                 must "(keepalive_interval * 3) <= session_timeout" {
                     error-message "(keepalive interval * 3) <= session_timeout value";
                     error-app-tag keepalive_session_multiplier-invalid;
