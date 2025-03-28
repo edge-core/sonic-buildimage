@@ -19,7 +19,7 @@ mem_cache_enable=1
 l2_mem_entries=32768
 l3_alpm_enable=2
 ipv6_lpm_128b_enable=1
-#l3_mem_entries=49152
+l3_mem_entries=32768
 #fpem_mem_entries=16384
 l2xmsg_mode=1
 port_flex_enable=1
@@ -146,7 +146,7 @@ portmap_34=34:2.5
 portmap_35=35:2.5
 portmap_36=36:2.5
 
-#3x PM4x25 (3 * 4 --> 12 physical ports) 
+#3x PM4x25 (3 * 4 --> 12 physical ports)
 #FC0
 
 dport_map_port_49=51
