@@ -99,6 +99,52 @@ sysContact     Azure Cloud Switch vteam <linuxnetdev@microsoft.com>
                                                  # Application + End-to-End layers
 sysServices    72
 
+{% if DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as4630_54pe-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.1
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as4630_54npe-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.2
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as4630_54te-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.3
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as5835_54x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.4
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as5835_54t-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.5
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as7326_56x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.6
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as7726_32x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.7
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as7816_64x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.8
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_minipack-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.9
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9716_32d-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.10
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_wedge100bf_32x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.11
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as5835im-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.12
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_wedge100bf_32qs-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.13
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_wedge100bf_65x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.14
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as5812_54x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.15
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as7712_32x-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.16
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9726_32d-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.17
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9736_64d-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.18
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9737_32db-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.23
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9817_64d-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.24
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9817_64o-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.25
+{% elif DEVICE_METADATA['localhost']['platform'] == "x86_64-accton_as9817_64fk-r0" %}
+sysObjectID    1.3.6.1.4.1.259.11.1.1.1.26
+{% endif %}
+
 
 #
 #  Process Monitoring
@@ -147,7 +193,7 @@ load   12 10 5
 {% set v1SnmpTrapPort = SNMP_TRAP_CONFIG['v1TrapDest']['DestPort'] %}
 {% set v1SnmpTrapVrf = SNMP_TRAP_CONFIG['v1TrapDest']['vrf'] %}
 {% set v1SnmpTrapComm = SNMP_TRAP_CONFIG['v1TrapDest']['Community'] %}
-trapsink {{ v1SnmpTrapIp }}:{{ v1SnmpTrapPort }}{% if v1SnmpTrapVrf != 'None' %}%{{ v1SnmpTrapVrf }}{% endif %} {{ v1SnmpTrapComm }}{{ "" }}
+trapsink [{{ v1SnmpTrapIp }}]:{{ v1SnmpTrapPort }}{% if v1SnmpTrapVrf != 'None' %}%{{ v1SnmpTrapVrf }}{% endif %} {{ v1SnmpTrapComm }}{{ "" }}
 {% else %}
 #trapsink     localhost public
 {% endif %}
@@ -157,7 +203,7 @@ trapsink {{ v1SnmpTrapIp }}:{{ v1SnmpTrapPort }}{% if v1SnmpTrapVrf != 'None' %}
 {% set v2SnmpTrapPort = SNMP_TRAP_CONFIG['v2TrapDest']['DestPort'] %}
 {% set v2SnmpTrapVrf = SNMP_TRAP_CONFIG['v2TrapDest']['vrf'] %}
 {% set v2SnmpTrapComm = SNMP_TRAP_CONFIG['v2TrapDest']['Community'] %}
-trap2sink {{ v2SnmpTrapIp }}:{{ v2SnmpTrapPort }}{% if v2SnmpTrapVrf != 'None' %}%{{ v2SnmpTrapVrf }}{% endif %} {{ v2SnmpTrapComm }}{{ "" }}
+trap2sink [{{ v2SnmpTrapIp }}]:{{ v2SnmpTrapPort }}{% if v2SnmpTrapVrf != 'None' %}%{{ v2SnmpTrapVrf }}{% endif %} {{ v2SnmpTrapComm }}{{ "" }}
 {% else %}
 #trap2sink    localhost public
 {% endif %}
@@ -167,7 +213,7 @@ trap2sink {{ v2SnmpTrapIp }}:{{ v2SnmpTrapPort }}{% if v2SnmpTrapVrf != 'None' %
 {% set v3SnmpTrapPort = SNMP_TRAP_CONFIG['v3TrapDest']['DestPort'] %}
 {% set v3SnmpTrapVrf = SNMP_TRAP_CONFIG['v3TrapDest']['vrf'] %}
 {% set v3SnmpTrapComm = SNMP_TRAP_CONFIG['v3TrapDest']['Community'] %}
-trapsink {{ v3SnmpTrapIp }}:{{ v3SnmpTrapPort }}{% if v3SnmpTrapVrf != 'None' %}%{{ v3SnmpTrapVrf }}{% endif %} {{ v3SnmpTrapComm }}{{ "" }}
+trapsink [{{ v3SnmpTrapIp }}]:{{ v3SnmpTrapPort }}{% if v3SnmpTrapVrf != 'None' %}%{{ v3SnmpTrapVrf }}{% endif %} {{ v3SnmpTrapComm }}{{ "" }}
 {% else %}
 #informsink   localhost public
 {% endif %}
