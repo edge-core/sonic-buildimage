@@ -33,6 +33,7 @@ bcm_device:
       vlan_flooding_l2mc_num_reserved: 0
       sai_tunnel_support: 0
       bcm_tunnel_term_compatible_mode: 1
+      shared_block_mask_section: uc_bc
 ...
 ---
 bcm_device:
