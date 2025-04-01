@@ -187,26 +187,24 @@ load   12 10 5
 #
 # Note: disabled snmp traps due to side effect of causing snmpd to listen on all ports (0.0.0.0)
 #
-#   send SNMPv1  traps
-{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v1TrapDest'] %}
-{% set v1SnmpTrapIp = SNMP_TRAP_CONFIG['v1TrapDest']['DestIp'] %}
-{% set v1SnmpTrapPort = SNMP_TRAP_CONFIG['v1TrapDest']['DestPort'] %}
-{% set v1SnmpTrapVrf = SNMP_TRAP_CONFIG['v1TrapDest']['vrf'] %}
-{% set v1SnmpTrapComm = SNMP_TRAP_CONFIG['v1TrapDest']['Community'] %}
-trapsink [{{ v1SnmpTrapIp }}]:{{ v1SnmpTrapPort }}{% if v1SnmpTrapVrf != 'None' %}%{{ v1SnmpTrapVrf }}{% endif %} {{ v1SnmpTrapComm }}{{ "" }}
-{% else %}
-#trapsink     localhost public
+#   send SNMPv1 and SNMPv2c  traps
+{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG["GLOBAL"] and SNMP_TRAP_CONFIG["GLOBAL"]["version"] %}
+    {% if SNMP_TRAP_CONFIG["GLOBAL"]["version"] == "1" %}
+        {% set trapsink_prefix = "trapsink" %}
+    {% else %}
+        {% set trapsink_prefix = "trap2sink" %}
+    {% endif %}
+
+    {%- for trap_receiver in SNMP_TRAP_RECEIVER %}
+        {% set community = SNMP_TRAP_RECEIVER[trap_receiver]["community"] %}
+        {% set ip_addr = SNMP_TRAP_RECEIVER[trap_receiver]["ip_addr"] %}
+        {% set port = SNMP_TRAP_RECEIVER[trap_receiver]["port"] %}
+        {% set vrf = SNMP_TRAP_RECEIVER[trap_receiver]["vrf"] %}
+
+{{ trapsink_prefix }} [{{ ip_addr }}]:{{ port }}{% if vrf != "None" %}%{{ vrf }}{% endif %} {{ community }}{{ "" }}
+    {%- endfor %}
 {% endif %}
-#   send SNMPv2c traps
-{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v2TrapDest'] %}
-{% set v2SnmpTrapIp = SNMP_TRAP_CONFIG['v2TrapDest']['DestIp'] %}
-{% set v2SnmpTrapPort = SNMP_TRAP_CONFIG['v2TrapDest']['DestPort'] %}
-{% set v2SnmpTrapVrf = SNMP_TRAP_CONFIG['v2TrapDest']['vrf'] %}
-{% set v2SnmpTrapComm = SNMP_TRAP_CONFIG['v2TrapDest']['Community'] %}
-trap2sink [{{ v2SnmpTrapIp }}]:{{ v2SnmpTrapPort }}{% if v2SnmpTrapVrf != 'None' %}%{{ v2SnmpTrapVrf }}{% endif %} {{ v2SnmpTrapComm }}{{ "" }}
-{% else %}
-#trap2sink    localhost public
-{% endif %}
+
 #   send SNMPv2c INFORMs
 {% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v3TrapDest'] %}
 {% set v3SnmpTrapIp = SNMP_TRAP_CONFIG['v3TrapDest']['DestIp'] %}
