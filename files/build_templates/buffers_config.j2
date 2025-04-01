@@ -160,6 +160,12 @@ def
     {%- endfor %}
 {%- endif %}
 
+{%- set port_names_list  = [] %}
+{%- for port in PORT_ALL %}
+    {%- if port_names_list.append(port) %}{%- endif %}
+{%- endfor %}
+{%- set port_names  = port_names_list  | join(',') %}
+
 {%- set port_names_list_active  = [] %}
 {%- for port in PORT_ACTIVE %}
     {%- if port_names_list_active.append(port) %}{%- endif %}
@@ -182,15 +188,6 @@ def
 {%- endfor %}
 {%- set port_names_inactive  = port_names_list_inactive  | join(',') %}
 {
-    "CABLE_LENGTH": {
-        "AZURE": {
-    {% for port in PORT_ALL %}
-        {%- set cable = cable_length(port) %}
-        "{{ port }}": "{{ cable }}"{%- if not loop.last %},{% endif %}
-
-    {% endfor %}
-    }
-    },
 
 {% if defs.generate_buffer_pool_and_profiles is defined %}
 {{ defs.generate_buffer_pool_and_profiles() }}
@@ -211,7 +208,7 @@ def
 {% elif defs.generate_pg_profiles_with_inactive_ports is defined %}
 {{ defs.generate_pg_profiles_with_inactive_ports(port_names_active, port_names_inactive) }},
 {% elif defs.generate_pg_profils is defined %}
-{{ defs.generate_pg_profils(port_names_active) }}
+{{ defs.generate_pg_profils(port_names) }}
 {% else %}
     "BUFFER_PG": {
 {% for port in PORT_ACTIVE %}
@@ -253,7 +250,7 @@ def
 {% elif (defs.generate_queue_buffers_with_extra_lossless_queues is defined) and (port_names_extra_queues != '') %}
 {{ defs.generate_queue_buffers_with_extra_lossless_queues(port_names_active, port_names_extra_queues) }}
 {% elif defs.generate_queue_buffers is defined %}
-{{ defs.generate_queue_buffers(port_names_active) }}
+{{ defs.generate_queue_buffers(port_names) }}
 {% elif defs.generate_queue_buffers_with_inactive_ports is defined %}
 {{ defs.generate_queue_buffers_with_inactive_ports(port_names_active, port_names_inactive) }}
 {% else %}
