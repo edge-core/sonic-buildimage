@@ -392,7 +392,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "MB_RightCenter_temp(0x49)",
@@ -400,7 +400,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "MB_LeftCenter_temp(0x4a)",
@@ -408,7 +408,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "CB_temp(0x4b)",
@@ -416,7 +416,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "OCXO_temp(0x4c)",
@@ -424,7 +424,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "FB_1_temp(0x4e)",
@@ -432,7 +432,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "FB_2_temp(0x4f)",
@@ -440,7 +440,7 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": false
             },
             {
                 "name": "CPU_Package_temp",
