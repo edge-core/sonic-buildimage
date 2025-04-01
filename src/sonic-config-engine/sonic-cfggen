@@ -302,6 +302,55 @@ def _get_jinja2_env(paths):
 
     return env
 
+def convert_snmptrap_config(data):
+    if "SNMP_TRAP_CONFIG" not in data:
+        return
+
+    def get_config(config):
+        return config.get("Community", None), \
+            config.get("DestIp", None), \
+            config.get("DestPort", None), \
+            config.get("vrf", None),
+
+    version = None
+
+    if "SNMP_TRAP_RECEIVER" not in data:
+        data["SNMP_TRAP_RECEIVER"] = {}
+
+    if "v2TrapDest" in data["SNMP_TRAP_CONFIG"]:
+        version = 2
+
+        community, ip_addr, port, vrf = get_config(data["SNMP_TRAP_CONFIG"]["v2TrapDest"])
+
+        data["SNMP_TRAP_RECEIVER"][ip_addr] = {
+            "community": community,
+            "ip_addr": ip_addr,
+            "port": port,
+            "vrf": vrf
+        }
+
+        del data["SNMP_TRAP_CONFIG"]["v2TrapDest"]
+
+    if "v1TrapDest" in data["SNMP_TRAP_CONFIG"]:
+        if version == None:
+            version = 1
+
+            community, ip_addr, port, vrf = get_config(data["SNMP_TRAP_CONFIG"]["v1TrapDest"])
+
+            data["SNMP_TRAP_RECEIVER"][ip_addr] = {
+                "community": community,
+                "ip_addr": ip_addr,
+                "port": port,
+                "vrf": vrf
+            }
+
+        del data["SNMP_TRAP_CONFIG"]["v1TrapDest"]
+
+    if version:
+        data["SNMP_TRAP_CONFIG"]["GLOBAL"] = {
+            "version": version
+        }
+
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     group = parser.add_mutually_exclusive_group()
@@ -486,6 +535,8 @@ def main():
         else:
             SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
             configdb = ConfigDBPipeConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
+
+        convert_snmptrap_config(data)
 
         configdb.connect(False)
         configdb.mod_config(FormatConverter.output_to_db(data))
