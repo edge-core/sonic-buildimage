@@ -29,6 +29,8 @@ auto Ethernet0
 allow-hotplug Ethernet0
 iface Ethernet0 inet dhcp
 iface Ethernet0 inet6 dhcp
+    post-up sysctl net.ipv6.conf.Ethernet0.forwarding=0
+    pre-down sysctl net.ipv6.conf.Ethernet0.forwarding=1
 
 #
 source /etc/network/interfaces.d/*
