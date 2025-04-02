@@ -1,0 +1,41 @@
+From d931d0b4db0e513289bf573d4a23f5ed57afbf8a Mon Sep 17 00:00:00 2001
+From: irene_pan <irene_pan@edge-core.com>
+Date: Mon, 28 Oct 2024 08:15:54 +0000
+Subject: [PATCH] Support for interfaces with IPv6 linklocal
+
+---
+ relay/dhcrelay.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
+index 31fe61b..fa7ff78 100644
+--- a/relay/dhcrelay.c
++++ b/relay/dhcrelay.c
+@@ -947,11 +947,6 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 			 "%s interface.", ip->name);
+ 		return;
+ 	}
+-	if (ip->address_count < 1 || ip->addresses == NULL) {
+-		log_info("Discarding packet received on %s interface that "
+-			 "has no IPv4 address assigned.", ip->name);
+-		return;
+-	}
+ 
+ 	if (enable_support_for_dual_tor) {
+ 		if (packet->yiaddr.s_addr) {
+@@ -1081,6 +1076,12 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 	if (!(ip->flags & INTERFACE_REQUESTED))
+ 		return;
+ 
++	if (ip->address_count < 1 || ip->addresses == NULL) {
++		log_info("Discarding packet received on %s interface that "
++		         "has no IPv4 address assigned.", ip->name);
++		return;
++	}
++
+ 	/* Add relay agent options if indicated.   If something goes wrong,
+ 	 * drop the packet.  Note this may set packet->giaddr if RFC3527
+ 	 * is enabled. */
+-- 
+2.47.0
+
