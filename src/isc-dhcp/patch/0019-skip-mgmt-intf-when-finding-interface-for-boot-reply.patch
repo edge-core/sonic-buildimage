@@ -1,0 +1,36 @@
+From 9ce4b1f103d134f91a85dbb4974e4eaddc258277 Mon Sep 17 00:00:00 2001
+From: irene_pan <irene_pan@edge-core.com>
+Date: Wed, 2 Apr 2025 06:49:47 +0000
+Subject: [PATCH] skip mgmt intf when finding interface for boot reply
+
+---
+ relay/dhcrelay.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
+index 94ce67d..c8ee9d4 100644
+--- a/relay/dhcrelay.c
++++ b/relay/dhcrelay.c
+@@ -36,7 +36,7 @@
+ TIME default_lease_time = 43200; /* 12 hours... */
+ TIME max_lease_time = 86400; /* 24 hours... */
+ struct tree_cache *global_options[256];
+-
++const char *MGMT_INTF = "eth0";
+ struct option *requested_opts[2];
+ 
+ /* Needed to prevent linking against conflex.c. */
+@@ -985,6 +985,10 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 			for (out = interfaces; out; out = out->next) {
+ 				int i;
+ 
++				if (strcmp(out->name, MGMT_INTF) == 0) {
++					continue;
++				}
++
+ 				for (i = 0 ; i < out->address_count ; i++ ) {
+ 					if (out->addresses[i].s_addr ==
+ 						packet->giaddr.s_addr) {
+-- 
+2.49.0
+

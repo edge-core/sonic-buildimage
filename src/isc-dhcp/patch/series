@@ -17,3 +17,4 @@
 0016-Don-t-look-up-the-ifindex-for-fallback.patch
 0017-Support-for-interfaces-with-IPv6-linklocal.patch
 0018-Enlarge-alias-size-to-be-equal-to-the-def-of-linux.patch
+0019-skip-mgmt-intf-when-finding-interface-for-boot-reply.patch
