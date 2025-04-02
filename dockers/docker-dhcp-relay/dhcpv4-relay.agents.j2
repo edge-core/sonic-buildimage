@@ -1,12 +1,5 @@
 {# Append DHCPv4 agents #}
-{% if VLAN and vlan_name in VLAN and 'dhcp_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcp_servers']|length > 0 %}
-{% for dhcp_server in VLAN[vlan_name]['dhcp_servers'] %}
-{% if dhcp_server | ipv4 %}
-{% set _dummy = relay_for_ipv4.update({'flag': True}) %}
-{% endif %}
-{% endfor %}
-{% if relay_for_ipv4.flag %}
-{% set _dummy = relay_for_ipv4.update({'flag': False}) %}
+{% if vlan_name in ipv4_vlan_interfaces %}
 [program:isc-dhcpv4-relay-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
@@ -21,8 +14,31 @@ command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /t
 {% for (name, prefix) in INTERFACE|pfx_filter %}
 {% if prefix | ipv4 %} -iu {{ name }}{% endif -%}
 {% endfor %}
-{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %}
-{% if prefix | ipv4 %} -iu {{ name }}{% endif -%}
+{% for port in PORT %}
+{% set portchannel_member = namespace(found=false) %}
+{% set vlan_member = namespace(found=false) %}
+{% for key in PORTCHANNEL_MEMBER %}
+{% if key[1] == port %}
+{% set portchannel_member.found = true %}
+{% endif %}
+{% endfor %}
+{% for key in VLAN_MEMBER %}
+{% if key[1] == port %}
+{% set vlan_member.found = true %}
+{% endif %}
+{% endfor %}
+{% if not portchannel_member.found %}
+{% if not vlan_member.found %} -iu {{ port }}{% endif -%}
+{% endif %}
+{% endfor %}
+{% for port in PORTCHANNEL %}
+{% set vlan_member = namespace(found=false) %}
+{% for key in VLAN_MEMBER %}
+{% if key[1] == port %}
+{% set vlan_member.found = true %}
+{% endif %}
+{% endfor %}
+{% if not vlan_member.found %} -iu {{ port }}{% endif -%}
 {% endfor %}
 {% for (name, gateway) in VLAN_INTERFACE|get_primary_addr %}
 {% if gateway | ipv4 and name == vlan_name %} -pg {{ gateway }}{% endif -%}
@@ -39,5 +55,4 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=start:exited
 
-{% endif %}
 {% endif %}
