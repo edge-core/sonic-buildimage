@@ -58,6 +58,8 @@ iface {{ port }} inet dhcp
 {% endif %}
 {% if ZTP['mode']['ipv6'] == 'true' %}
 iface {{ port }} inet6 dhcp
+    post-up sysctl net.ipv6.conf.{{ port }}.forwarding=0
+    pre-down sysctl net.ipv6.conf.{{ port }}.forwarding=1
 {% endif %}
 {% endif %}
 {% endfor %}
