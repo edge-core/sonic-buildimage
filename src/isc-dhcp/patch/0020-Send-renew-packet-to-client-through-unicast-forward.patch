@@ -1,0 +1,38 @@
+From 15f04c4d5dbe6fd161f77187317716f23942fa16 Mon Sep 17 00:00:00 2001
+From: irene_pan <irene_pan@edge-core.com>
+Date: Wed, 2 Apr 2025 07:21:56 +0000
+Subject: [PATCH] Send renew packet to client through unicast forward
+
+---
+ common/socket.c  | 2 +-
+ relay/dhcrelay.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/common/socket.c b/common/socket.c
+index e707a7f..17cec61 100644
+--- a/common/socket.c
++++ b/common/socket.c
+@@ -1238,7 +1238,7 @@ isc_result_t fallback_discard (object)
+ int can_unicast_without_arp (ip)
+ 	struct interface_info *ip;
+ {
+-	return 0;
++	return 1;
+ }
+ 
+ int can_receive_unicast_unconfigured (ip)
+diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
+index c8ee9d4..16fa941 100644
+--- a/relay/dhcrelay.c
++++ b/relay/dhcrelay.c
+@@ -1017,6 +1017,7 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 			return;
+ 
+ 		if (!(packet->flags & htons(BOOTP_BROADCAST)) &&
++			(packet->ciaddr.s_addr) &&
+ 			can_unicast_without_arp(out)) {
+ 			to.sin_addr = packet->yiaddr;
+ 			to.sin_port = remote_port;
+-- 
+2.49.0
+
