@@ -4,6 +4,7 @@ function wait_until_iface_ready
 {
     IFACE_NAME=$1
     IFACE_CIDR=$2
+    COUNT=${3:-600}
 
     echo "Waiting until interface ${IFACE_NAME} is ready..."
 
@@ -12,13 +13,16 @@ function wait_until_iface_ready
     while true; do
         RESULT=$(sonic-db-cli STATE_DB HGET "INTERFACE_TABLE|${IFACE_NAME}|${IFACE_CIDR}" "state" 2> /dev/null)
         if [ x"$RESULT" == x"ok" ]; then
+            echo "Interface ${IFACE_NAME} is ready!"
             break
         fi
-
+        if [ $COUNT == 0 ]; then
+            echo "Interface ${IFACE_NAME} is not ready!"
+            break
+        fi
         sleep 1
+        COUNT=$((COUNT-1))
     done
-
-    echo "Interface ${IFACE_NAME} is ready!"
 }
 
 function check_for_ipv6_link_local
