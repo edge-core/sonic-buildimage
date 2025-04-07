@@ -29,6 +29,12 @@ QSFP_POWEROVERRIDE_OFFSET = 93
 SFP_STATUS_INSERTED = '1'
 SFP_STATUS_REMOVED = '0'
 
+SYSFS_RESET_DISABLE = 0
+SYSFS_RESET_ENABLE = 1
+
+SYSFS_LPM_MODE_DISABLE = 0
+SYSFS_LPM_MODE_ENABLE = 1
+
 class Sfp(SfpOptoeBase):
     """Platform-specific Sfp class"""
 
@@ -83,18 +89,6 @@ class Sfp(SfpOptoeBase):
         self.present_path = "{}{}{}{}".format(self.CPLD_I2C_PATH, self._cpld_mapping[0], '/module_present_', self._port_num)
         self.lpmode_path = "{}{}{}{}".format(self.CPLD_I2C_PATH, self._cpld_mapping[0], '/module_lpmode_', self._port_num)
 
-
-    def __write_txt_file(self, file_path, value):
-        try:
-            reg_file = open(file_path, "w")
-        except IOError as e:
-            logger.log_error("Error: unable to open file: {}".format(str(e)))
-            return False
-
-        reg_file.write(str(value))
-        reg_file.close()
-
-        return True
 
     def __is_host():
         try:
@@ -185,36 +179,15 @@ class Sfp(SfpOptoeBase):
         Returns:
             A Boolean, True if lpmode is enabled, False if disabled
         """
-        logger.log_debug("get_lpmode() is not yet implemented")
-        return False
-
         if self._port_num > self.PORT_END:
             # SFP doesn't support this feature
             return False
         else:
-            try:
-                eeprom = None
-                if not self.get_presence():
-                    return False
-                # Write to eeprom
-                eeprom = open(self.eeprom_path, "rb")
-                eeprom.seek(QSFP_POWEROVERRIDE_OFFSET)
-                lpmode = ord(eeprom.read(1))
-
-                if ((lpmode & 0x3) == 0x3):
-                    return True  # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
-                else:
-                    # High Power Mode if one of the following conditions is matched:
-                    # 1. "Power override" bit is 0
-                    # 2. "Power override" bit is 1 and "Power set" bit is 0
-                    return False
-            except IOError as e:
-                logger.log_error("Error: unable to open file: {}".format(str(e)))
+            val = self._api_helper.read_txt_file(self.lpmode_path)
+            if val is not None:
+                return int(val, 10) == 1
+            else:
                 return False
-            finally:
-                if eeprom is not None:
-                    eeprom.close()
-                    time.sleep(0.01)
 
 
     def reset(self):
@@ -230,12 +203,12 @@ class Sfp(SfpOptoeBase):
         elif not self.get_presence():
             return False
 
-        ret = self.__write_txt_file(self.reset_path, 1)  #sysfs 1: enable reset
+        ret = self._api_helper.write_txt_file(self.reset_path, SYSFS_RESET_ENABLE)
         if ret is not True:
             return ret
 
         time.sleep(0.2)
-        ret = self.__write_txt_file(self.reset_path, 0) #sysfs 0: disable reset
+        ret = self._api_helper.write_txt_file(self.reset_path, SYSFS_RESET_DISABLE)
         time.sleep(0.2)
 
         return ret
@@ -246,7 +219,6 @@ class Sfp(SfpOptoeBase):
         Sets the lpmode (low power mode) of SFP
         Args:
             lpmode: A Boolean, True to enable lpmode, False to disable it
-            Note  : lpmode can be overridden by set_power_override
         Returns:
             A boolean, True if lpmode is set successfully, False if not
         """
@@ -256,54 +228,10 @@ class Sfp(SfpOptoeBase):
             if not self.get_presence():
                 return False
 
-            if lpmode is True:
-                self.set_power_override(True, True)
-            else:
-                self.set_power_override(True, False)
-
-            return True
-
-    def set_power_override(self, power_override, power_set):
-        """
-        Sets SFP power level using power_override and power_set
-        Args:
-            power_override :
-                    A Boolean, True to override set_lpmode and use power_set
-                    to control SFP power, False to disable SFP power control
-                    through power_override/power_set and use set_lpmode
-                    to control SFP power.
-            power_set :
-                    Only valid when power_override is True.
-                    A Boolean, True to set SFP to low power mode, False to set
-                    SFP to high power mode.
-        Returns:
-            A boolean, True if power-override and power_set are set successfully,
-            False if not
-        """
-        if self._port_num > self.PORT_END:
-            return False # SFP doesn't support this feature
-        else:
-            if not self.get_presence():
-                return False
-            try:
-                power_override_bit = (1 << 0) if power_override else 0
-                power_set_bit      = (1 << 1) if power_set else (1 << 3)
-
-                buffer = create_string_buffer(1)
-                if sys.version_info[0] >= 3:
-                    buffer[0] = (power_override_bit | power_set_bit)
-                else:
-                    buffer[0] = chr(power_override_bit | power_set_bit)
-                # Write to eeprom
-
-                with open(self.eeprom_path, "r+b") as fd:
-                    fd.seek(QSFP_POWEROVERRIDE_OFFSET)
-                    fd.write(buffer[0])
-                    time.sleep(0.01)
-            except Exception as e:
-                logger.log_error("Error: unable to open file: {}".format(str(e)))
-                return False
-            return True
+            val = SYSFS_LPM_MODE_ENABLE
+            if lpmode == False:
+                val = SYSFS_LPM_MODE_DISABLE
+            return self._api_helper.write_txt_file(self.lpmode_path, val)
 
 
     def get_transceiver_info(self):
