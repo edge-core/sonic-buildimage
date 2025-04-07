@@ -1120,7 +1120,7 @@
             "index": "33",
             "lanes": "513",
             "breakout_modes": {
-                "1x25G": ["Eth33(Port33)"]
+                "1x25G[10G,1G]": ["Eth33(Port33)"]
             }
         },
 
@@ -1128,7 +1128,7 @@
             "index": "34",
             "lanes": "515",
             "breakout_modes": {
-                "1x25G": ["Eth34(Port34)"]
+                "1x25G[10G,1G]": ["Eth34(Port34)"]
             }
         }
     }
