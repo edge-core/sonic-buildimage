@@ -154,7 +154,7 @@ class TestConfigVlanDhcpRelay(object):
             assert result.exit_code == 0
             assert result.output == config_vlan_add_dhcpv6_relay_output
             assert mock_run_command.call_count == 3
-            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1']})
+            db.cfgdb.set_entry.assert_called_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1']})
 
         db.cfgdb.set_entry.reset_mock()
 
@@ -167,7 +167,8 @@ class TestConfigVlanDhcpRelay(object):
             assert result.exit_code == 0
             assert result.output == config_vlan_del_dhcpv6_relay_output
             assert mock_run_command.call_count == 3
-            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+            db.cfgdb.set_entry.assert_called_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+            assert 2 == db.cfgdb.set_entry.call_count
 
     def test_config_vlan_add_del_multiple_dhcpv6_relay_dest(self, mock_cfgdb):
         runner = CliRunner()
@@ -183,7 +184,8 @@ class TestConfigVlanDhcpRelay(object):
             assert result.exit_code == 0
             assert result.output == config_vlan_add_multiple_dhcpv6_relay_output
             assert mock_run_command.call_count == 3
-            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2', 'fc02:2000::3']})
+            db.cfgdb.set_entry.assert_called_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2', 'fc02:2000::3']})
+            assert 2 == db.cfgdb.set_entry.call_count
 
         db.cfgdb.set_entry.reset_mock()
 
@@ -196,7 +198,8 @@ class TestConfigVlanDhcpRelay(object):
             assert result.exit_code == 0
             assert result.output == config_vlan_del_multiple_dhcpv6_relay_output
             assert mock_run_command.call_count == 3
-            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+            db.cfgdb.set_entry.assert_called_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+            assert 2 == db.cfgdb.set_entry.call_count
 
     def test_config_vlan_remove_nonexist_dhcp_relay_dest(self, mock_cfgdb):
         runner = CliRunner()
