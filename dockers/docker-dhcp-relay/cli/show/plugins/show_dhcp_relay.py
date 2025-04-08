@@ -33,7 +33,7 @@ config_db = ConfigDBConnector()
 
 def get_dhcp_helper_address(ctx, vlan):
     cfg, db = ctx
-    vlan_dhcp_helper_data, _, _ = cfg
+    vlan_dhcp_helper_data, _, _, _ = cfg
     vlan_config = vlan_dhcp_helper_data.get(vlan)
     if not vlan_config:
         return ""

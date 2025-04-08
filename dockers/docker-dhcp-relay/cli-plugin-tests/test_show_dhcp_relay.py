@@ -99,7 +99,7 @@ def test_plugin_registration():
                                            {"dhcp_server": {"state": "enabled"}}, {"dhcp_server": {}}])
 def test_dhcp_relay_column_output(feature_table):
     ctx = (
-        ({'Vlan1001': {'dhcp_servers': ['192.0.0.1', '192.168.0.2']}}, {}, {}),
+        ({'Vlan1001': {'dhcp_servers': ['192.0.0.1', '192.168.0.2']}}, {}, {}, ()),
         (MockDb({"FEATURE": feature_table})),
     )
     if "dhcp_server" in feature_table and "state" in feature_table["dhcp_server"] and \
