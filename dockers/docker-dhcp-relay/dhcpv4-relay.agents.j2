@@ -40,6 +40,25 @@ command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /t
 {% endfor %}
 {% if not vlan_member.found %} -iu {{ port }}{% endif -%}
 {% endfor %}
+{%- for vxlan_map_realy_from in VXLAN_TUNNEL_MAP %}
+    {%- if VXLAN_TUNNEL_MAP[vxlan_map_realy_from]['vlan'] == vlan_name %}
+        {%- set vxlan_intf_ip = namespace(found=false) %}
+        {%- for vxlan_map_realy_to in VXLAN_TUNNEL_MAP %}
+            {%- if VXLAN_TUNNEL_MAP[vxlan_map_realy_to]['vlan'] != vlan_name %}
+                {%- for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
+                    {%- if prefix | ipv4 and name == VXLAN_TUNNEL_MAP[vxlan_map_realy_to]['vlan'] %}{%- set vxlan_intf_ip.found = true %}{%- endif -%}
+                {%- endfor %}
+                {%- if not vxlan_intf_ip.found %}
+                    {%- for vrf_name in VRF %}
+                        {%- if VRF[vrf_name]['vni'] == VXLAN_TUNNEL_MAP[vxlan_map_realy_to]['vni'] %}
+                            {%- if VXLAN_TUNNEL_MAP[vxlan_map_realy_to]['vlan'] %} -iu {{ VXLAN_TUNNEL_MAP[vxlan_map_realy_to]['vlan'] }}{%- endif -%}
+                        {%- endif %}
+                    {%- endfor %}
+                {%- endif %}
+            {%- endif %}
+        {%- endfor %}
+    {%- endif %}
+{%- endfor %}
 {% for (name, gateway) in VLAN_INTERFACE|get_primary_addr %}
 {% if gateway | ipv4 and name == vlan_name %} -pg {{ gateway }}{% endif -%}
 {% endfor %}
