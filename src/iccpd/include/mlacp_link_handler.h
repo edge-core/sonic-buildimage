@@ -90,6 +90,7 @@ int syn_local_arp_info_to_peer(struct CSM* csm, struct LocalInterface *local_if,
 int syn_local_nd_info_to_peer(struct CSM* csm, struct LocalInterface *local_if, int sync_add, int ack, int is_ipv6_ll, int dir);
 int syn_ack_local_neigh_mac_info_to_peer(char *ifname, int is_ipv6_ll);
 int is_unique_ip_configured(char *ifname);
+int is_sag_configured(char *ifname);
 void set_peerlink_learn_kernel(struct CSM* csm, int enable, int dir);
 void set_peer_mac_in_kernel(char *mac, int vlan, int add);
 void mlacp_fix_bridge_mac(struct CSM* csm);

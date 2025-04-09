@@ -73,6 +73,7 @@ void system_init(struct System* sys)
     LIST_INIT(&(sys->lif_list));
     LIST_INIT(&(sys->lif_purge_list));
     LIST_INIT(&(sys->unq_ip_if_list));
+    LIST_INIT(&(sys->sag_if_list));
     LIST_INIT(&(sys->pending_vlan_mbr_if_list));
 
     sys->log_file_path = strdup("/var/log/iccpd.log");
