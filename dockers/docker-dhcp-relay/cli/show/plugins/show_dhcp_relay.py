@@ -47,6 +47,23 @@ def get_dhcp_helper_address(ctx, vlan):
 
 show_vlan.VlanBrief.register_column('DHCP Helper Address', get_dhcp_helper_address)
 
+def get_dhcp_relay_max_packet_size(ctx, vlan):
+    cfg, _ = ctx
+    vlan_dhcp_max_packet_size_data, _, _, _ = cfg
+    vlan_config = vlan_dhcp_max_packet_size_data.get(vlan)
+    if not vlan_config:
+        return ""
+
+    dhcp_relay_max_packet_size = vlan_config.get('dhcp_relay_max_packet_size', [])
+
+    if not dhcp_relay_max_packet_size:
+        return ""
+    else:
+        return dhcp_relay_max_packet_size
+
+
+show_vlan.VlanBrief.register_column('Max Packet Size', get_dhcp_relay_max_packet_size)
+
 class DHCPv4_Counter(object):
     def __init__(self):
         self.db = SonicV2Connector(use_unix_socket_path=False)
