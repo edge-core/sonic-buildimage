@@ -9,6 +9,8 @@
 
 using json = nlohmann::json;
 
+std::atomic<bool> RsyslogPlugin::g_running{false};
+
 bool RsyslogPlugin::onMessage(string msg, lua_State* luaState) {
     string tag;
     event_params_t paramDict;
@@ -104,11 +106,11 @@ bool RsyslogPlugin::createRegexList() {
 }
 
 void RsyslogPlugin::run() {
+    signal(SIGTERM, RsyslogPlugin::signalHandler);
     lua_State* luaState = luaL_newstate();
     luaL_openlibs(luaState);
-    while(true) {
-        string line;
-        getline(cin, line);
+    string line;
+    while(RsyslogPlugin::g_running && getline(cin, line)) {
         if(line.empty()) {
             continue;
         }
@@ -132,4 +134,5 @@ RsyslogPlugin::RsyslogPlugin(string moduleName, string regexPath) {
     m_parser = unique_ptr<SyslogParser>(new SyslogParser());
     m_moduleName = moduleName;
     m_regexPath = regexPath;
+    RsyslogPlugin::g_running = true;
 }
