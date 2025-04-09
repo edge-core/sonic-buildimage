@@ -67,6 +67,7 @@ void local_if_init(struct LocalInterface* local_if)
     local_if->csm = NULL;
     local_if->isolate_to_peer_link = 0;
     local_if->is_l3_proto_enabled = false;
+    local_if->is_sag_enabled = false;
     local_if->vlan_count = 0;
     RB_INIT(vlan_rb_tree, &local_if->vlan_tree);
 
@@ -145,6 +146,10 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type, uint
             if(is_unique_ip_configured(local_if->name))
             {
                 local_if->is_l3_proto_enabled = true;
+            }
+            if(is_sag_configured(local_if->name))
+            {
+                local_if->is_sag_enabled = true;
             }
             break;
 

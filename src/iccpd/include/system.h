@@ -319,6 +319,7 @@ struct System
     LIST_HEAD(lif_all_list, LocalInterface) lif_list;
     LIST_HEAD(lif_purge_all_list, LocalInterface) lif_purge_list;
     LIST_HEAD(unq_ip_all_if_list, Unq_ip_If_info) unq_ip_if_list;
+    LIST_HEAD(sag_all_if_list, Sag_If_info) sag_if_list;
     LIST_HEAD(pending_vlan_mbr_if_list, PendingVlanMbrIf) pending_vlan_mbr_if_list;
 
     /* Settings */

@@ -440,7 +440,8 @@ typedef enum mclag_syncd_msg_type_e_
     MCLAG_SYNCD_MSG_TYPE_CFG_MCLAG_DOMAIN       = 2,
     MCLAG_SYNCD_MSG_TYPE_CFG_MCLAG_IFACE        = 3,
     MCLAG_SYNCD_MSG_TYPE_VLAN_MBR_UPDATES       = 4,
-    MCLAG_SYNCD_MSG_TYPE_CFG_MCLAG_UNIQUE_IP    = 5
+    MCLAG_SYNCD_MSG_TYPE_CFG_MCLAG_UNIQUE_IP    = 5,
+    MCLAG_SYNCD_MSG_TYPE_STATE_SAG              = 6
 }mclag_syncd_msg_type_e;
 
 typedef enum mclag_msg_type_e_
@@ -575,6 +576,13 @@ struct mclag_vlan_mbr_info
     int op_type;/*add/del vlan_member */
     unsigned int vid;
     char mclag_iface[MAX_L_PORT_NAME];
+};
+
+struct sag_info
+{
+    int op_type; /* add/del sag for a VLAN interface */
+    char sag_ifname[MAX_L_PORT_NAME];
+    uint8_t sag_mac[ETHER_ADDR_LEN];
 };
 
 struct MsgLog

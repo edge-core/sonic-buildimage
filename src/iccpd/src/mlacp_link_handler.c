@@ -3614,6 +3614,78 @@ int iccp_mclagsyncd_vlan_mbr_update_handler(struct System *sys, char *msg_buf)
     return 0;
 }
 
+int iccp_mclagsyncd_sag_state_update_handler(struct System *sys, char *msg_buf)
+{
+    struct IccpSyncdHDr * msg_hdr;
+    struct sag_info* sag_info;
+    struct LocalInterface *lif = NULL;
+    int count, i = 0;
+    struct Sag_If_info* sag_if = NULL;
+
+    msg_hdr = (struct IccpSyncdHDr *)msg_buf;
+
+    count = (msg_hdr->len- sizeof(struct IccpSyncdHDr))/sizeof(struct sag_info);
+
+    for (i =0; i<count; i++)
+    {
+        sag_info = (struct sag_info*)((char *)(msg_buf) + sizeof(struct IccpSyncdHDr) + i * sizeof(struct sag_info));
+        ICCPD_LOG_DEBUG(__FUNCTION__, "recv SAG state updates op_type:%d sag_name:%s sag_mac:[%02X:%02X:%02X:%02X:%02X:%02X]",
+                sag_info->op_type, sag_info->sag_ifname,
+                sag_info->sag_mac[0], sag_info->sag_mac[1], sag_info->sag_mac[2], sag_info->sag_mac[3], sag_info->sag_mac[4], sag_info->sag_mac[5]);
+
+        if (sag_info->op_type == MCLAG_CFG_OPER_ADD)
+        {
+            LIST_FOREACH(sag_if, &(sys->sag_if_list), if_next)
+            {
+                if (strcmp(sag_if->name, sag_info->sag_ifname) == 0)
+                {
+                    break;
+                }
+            }
+
+            if (!sag_if)
+            {
+                sag_if = (struct Sag_If_info *)malloc(sizeof(struct Sag_If_info));
+                if (!sag_if)
+                    return -1;
+
+                snprintf(sag_if->name, MAX_L_PORT_NAME, "%s", sag_info->sag_ifname);
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Add sag_ifname %s", sag_if->name);
+                LIST_INSERT_HEAD(&(sys->sag_if_list), sag_if, if_next);
+            }
+        }
+        else if (sag_info->op_type == MCLAG_CFG_OPER_DEL)
+        {
+            LIST_FOREACH(sag_if, &(sys->sag_if_list), if_next)
+            {
+                if (strcmp(sag_if->name, sag_info->sag_ifname) == 0)
+                {
+                    ICCPD_LOG_DEBUG(__FUNCTION__, "Del sag_ifname %s", sag_if->name);
+                    LIST_REMOVE(sag_if, if_next);
+                    free(sag_if);
+                    break;
+                }
+            }
+        }
+
+        lif = local_if_find_by_name(sag_info->sag_ifname);
+        if (lif)
+        {
+            if (sag_info->op_type == MCLAG_CFG_OPER_ADD)
+            {
+                lif->is_sag_enabled = true;
+            }
+            else if (sag_info->op_type == MCLAG_CFG_OPER_DEL)
+            {
+                lif->is_sag_enabled = false;
+            }
+            sag_update_vlan_if_mac_on_standby(lif, 7, sag_info->sag_mac);
+        }
+    }
+
+    return 0;
+}
+
 int iccp_receive_fdb_handler_from_syncd(struct System *sys, char *msg_buf)
 {
     int count = 0;
@@ -3856,6 +3928,10 @@ int iccp_mclagsyncd_msg_handler(struct System *sys)
         else if (msg_hdr->type == MCLAG_SYNCD_MSG_TYPE_VLAN_MBR_UPDATES)
         {
             iccp_mclagsyncd_vlan_mbr_update_handler(sys, &msg_buf[pos]);
+        }
+        else if (msg_hdr->type == MCLAG_SYNCD_MSG_TYPE_STATE_SAG)
+        {
+            iccp_mclagsyncd_sag_state_update_handler(sys, &msg_buf[pos]);
         }
         else
         {
@@ -4762,6 +4838,25 @@ int is_unique_ip_configured(char *ifname)
     LIST_FOREACH(unq_ip_if, &(sys->unq_ip_if_list), if_next)
     {
         if (strcmp(unq_ip_if->name, ifname) == 0)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int is_sag_configured(char *ifname)
+{
+    struct System* sys = NULL;
+    struct Sag_If_info* sag_if = NULL;
+
+    if (!(sys = system_get_instance()))
+        return 0;
+
+    LIST_FOREACH(sag_if, &(sys->sag_if_list), if_next)
+    {
+        if (strcmp(sag_if->name, ifname) == 0)
         {
             return 1;
         }
