@@ -33,6 +33,8 @@ ifp_inports_support_enable=1
 
 num_ipv6_lpm_128b_entries=512
 
+multi_hash_recurse_depth_l3=3
+
 #riot vxlan
 flow_init_mode=1
 riot_enable=1
