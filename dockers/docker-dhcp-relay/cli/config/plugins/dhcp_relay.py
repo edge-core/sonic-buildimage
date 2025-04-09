@@ -305,6 +305,34 @@ def del_vlan_dhcp_relay_destination(db, vid, dhcp_relay_destination_ips):
     except SystemExit as e:
         ctx.fail("Restart service dhcp_relay failed with error {}".format(e))
 
+@vlan_dhcp_relay.group(cls=clicommon.AbbreviationGroup, name='max_packet_size')
+def vlan_dhcp_relay_max_packet_size():
+    """Configure DHCP relay max packet size"""
+    pass
+
+@vlan_dhcp_relay_max_packet_size.command('add')
+@click.argument('vid', metavar='<vid>', required=True, type=int)
+@click.argument('dhcp_relay_max_packet_size', metavar='<dhcp_relay_max_packet_size>', required=True, type=int)
+@clicommon.pass_db
+def add_vlan_dhcp_relay_max_packet_size(db, vid, dhcp_relay_max_packet_size):
+    """ Set max packet size to the VLAN's DHCP relay """
+
+    ctx = click.get_current_context()
+
+    if dhcp_relay_max_packet_size < 576 or dhcp_relay_max_packet_size > 1500:
+        ctx.fail("Max packet size should be between 576 and 1500")
+
+    vlan_name = 'Vlan{}'.format(vid)
+    vlan = db.cfgdb.get_entry('VLAN', vlan_name)
+    if len(vlan) == 0:
+        ctx.fail("{} doesn't exist".format(vlan_name))
+
+    db.cfgdb.mod_entry('VLAN', vlan_name, {"dhcp_relay_max_packet_size": dhcp_relay_max_packet_size})
+    click.echo("Added DHCP relay max packet size {} for {}".format(dhcp_relay_max_packet_size, vlan_name))
+    try:
+        restart_dhcp_relay_service()
+    except SystemExit as e:
+        ctx.fail("Restart service dhcp_relay failed with error {}".format(e))
 
 def register(cli):
     cli.add_command(dhcp_relay)

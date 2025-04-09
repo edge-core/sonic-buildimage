@@ -1,8 +1,12 @@
 {# Append DHCPv4 agents #}
+{%- set default_dhcp_relay_max_packet_size = 1300 %}
 {% if vlan_name in ipv4_vlan_interfaces %}
 [program:isc-dhcpv4-relay-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
-command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
+command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt
+{%- if 'dhcp_relay_max_packet_size' in VLAN[vlan_name] %} -A {{ VLAN[vlan_name]['dhcp_relay_max_packet_size'] }}
+{%- else %} -A {{default_dhcp_relay_max_packet_size}}
+{%- endif %} -id {{ vlan_name }}
 {#- Dual ToR Option #}
 {% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %} -U Loopback0 -dt{% endif -%}
 {#- si option to use intf addr in relay #}
