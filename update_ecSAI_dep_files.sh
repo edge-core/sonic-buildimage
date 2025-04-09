@@ -11,6 +11,22 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54t-r0/Acc
 
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54p-r0/Accton-AS4625-54P/hr4-as4625-48x1G+6x10G_ec.config.bcm \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54p-r0/Accton-AS4625-54P/hr4-as4625-48x1G+6x10G.config.bcm        
+
+
+## update files for as9737
+
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/platform_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/platform.json
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB/th4-as9737-32x400G_ec.config.yml \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB/th4-as9737-32x400G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB/hwsku_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB/hwsku.json
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB-100G/th4-as9737-32x100G_ec.config.yml \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB-100G/th4-as9737-32x100G.config.yml
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB-100G/hwsku_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/Accton-AS9737-32DB-100G/hwsku.json
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/media_settings_ec.json \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9737_32db-r0/media_settings.json
         
 
 ## update files for as9736
