@@ -1,0 +1,152 @@
+From 3d2a84e16723aa8d45a003b78192b075b8caf128 Mon Sep 17 00:00:00 2001
+From: ubuntu <ubuntu@contoso.com>
+Date: Thu, 10 Apr 2025 02:58:27 +0000
+Subject: [PATCH] bgpd: some safi's do not mix with bgp suppress-fib
+
+---
+ bgpd/bgp_route.c      |  8 ++++----
+ bgpd/bgp_route.h      | 10 +++++++---
+ bgpd/bgp_updgrp_adv.c | 13 ++++++++-----
+ 3 files changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/bgpd/bgp_route.c b/bgpd/bgp_route.c
+index a7a5c9849..a64fb8ced 100644
+--- a/bgpd/bgp_route.c
++++ b/bgpd/bgp_route.c
+@@ -2908,7 +2908,7 @@ void subgroup_process_announce_selected(struct update_subgroup *subgrp,
+ 	 * is pending (BGP_NODE_FIB_INSTALL_PENDING), do not advertise the
+ 	 * route
+ 	 */
+-	advertise = bgp_check_advertise(bgp, dest);
++	advertise = bgp_check_advertise(bgp, dest, safi);
+ 
+ 	if (selected) {
+ 		if (subgroup_announce_check(dest, selected, subgrp, p, &attr,
+@@ -2917,7 +2917,7 @@ void subgroup_process_announce_selected(struct update_subgroup *subgrp,
+ 			 * in FIB, then it is advertised
+ 			 */
+ 			if (advertise) {
+-				if (!bgp_check_withdrawal(bgp, dest))
++				if (!bgp_check_withdrawal(bgp, dest, safi))
+ 					bgp_adj_out_set_subgroup(
+ 						dest, subgrp, &attr, selected);
+ 				else
+@@ -7686,7 +7686,7 @@ void bgp_aggregate_route(struct bgp *bgp, const struct prefix *p, afi_t afi,
+ 		/* If suppress fib is enabled and route not installed
+ 		 * in FIB, skip the route
+ 		 */
+-		if (!bgp_check_advertise(bgp, dest))
++		if (!bgp_check_advertise(bgp, dest, safi))
+ 			continue;
+ 
+ 		match = 0;
+@@ -8198,7 +8198,7 @@ void bgp_aggregate_increment(struct bgp *bgp, const struct prefix *p,
+ 	/* If suppress fib is enabled and route not installed
+ 	 * in FIB, do not update the aggregate route
+ 	 */
+-	if (!bgp_check_advertise(bgp, pi->net))
++	if (!bgp_check_advertise(bgp, pi->net, safi))
+ 		return;
+ 
+ 	child = bgp_node_get(table, p);
+diff --git a/bgpd/bgp_route.h b/bgpd/bgp_route.h
+index 2afd97c4d..83a72568e 100644
+--- a/bgpd/bgp_route.h
++++ b/bgpd/bgp_route.h
+@@ -599,8 +599,11 @@ static inline void prep_for_rmap_apply(struct bgp_path_info *dst_pi,
+ 	}
+ }
+ 
+-static inline bool bgp_check_advertise(struct bgp *bgp, struct bgp_dest *dest)
++static inline bool bgp_check_advertise(struct bgp *bgp, struct bgp_dest *dest,
++										safi_t safi)
+ {
++	if (!bgp_fibupd_safi(safi))
++		return true;
+ 	return (!(BGP_SUPPRESS_FIB_ENABLED(bgp) &&
+ 		  CHECK_FLAG(dest->flags, BGP_NODE_FIB_INSTALL_PENDING) &&
+ 		 (!bgp_option_check(BGP_OPT_NO_FIB))));
+@@ -612,11 +615,12 @@ static inline bool bgp_check_advertise(struct bgp *bgp, struct bgp_dest *dest)
+  * This function assumes that bgp_check_advertise was already returned
+  * as good to go.
+  */
+-static inline bool bgp_check_withdrawal(struct bgp *bgp, struct bgp_dest *dest)
++static inline bool bgp_check_withdrawal(struct bgp *bgp, struct bgp_dest *dest,
++										safi_t safi)
+ {
+ 	struct bgp_path_info *pi, *selected = NULL;
+ 
+-	if (!BGP_SUPPRESS_FIB_ENABLED(bgp))
++	if (!bgp_fibupd_safi(safi) || !BGP_SUPPRESS_FIB_ENABLED(bgp))
+ 		return false;
+ 
+ 	for (pi = bgp_dest_get_bgp_path_info(dest); pi; pi = pi->next) {
+diff --git a/bgpd/bgp_updgrp_adv.c b/bgpd/bgp_updgrp_adv.c
+index af8ef751d..8617aa416 100644
+--- a/bgpd/bgp_updgrp_adv.c
++++ b/bgpd/bgp_updgrp_adv.c
+@@ -317,6 +317,7 @@ static void subgroup_coalesce_timer(struct thread *thread)
+ {
+ 	struct update_subgroup *subgrp;
+ 	struct bgp *bgp;
++	safi_t safi;
+ 
+ 	subgrp = THREAD_ARG(thread);
+ 	if (bgp_debug_update(NULL, NULL, subgrp->update_group, 0))
+@@ -328,6 +329,7 @@ static void subgroup_coalesce_timer(struct thread *thread)
+ 	bgp = SUBGRP_INST(subgrp);
+ 	subgroup_announce_route(subgrp);
+ 
++	safi = SUBGRP_SAFI(subgrp);
+ 
+ 	/* While the announce_route() may kick off the route advertisement timer
+ 	 * for
+@@ -338,7 +340,7 @@ static void subgroup_coalesce_timer(struct thread *thread)
+ 	 * announce, this is the method currently employed to trigger the EOR.
+ 	 */
+ 	if (!bgp_update_delay_active(SUBGRP_INST(subgrp)) &&
+-	    !(BGP_SUPPRESS_FIB_ENABLED(bgp))) {
++	    !(bgp_fibupd_safi(safi) && BGP_SUPPRESS_FIB_ENABLED(bgp))) {
+ 		struct peer_af *paf;
+ 		struct peer *peer;
+ 
+@@ -559,7 +561,8 @@ void bgp_adj_out_set_subgroup(struct bgp_dest *dest,
+ 			 * the flag PEER_STATUS_ADV_DELAY which will allow
+ 			 * more routes to be sent in the update message
+ 			 */
+-			if (BGP_SUPPRESS_FIB_ENABLED(bgp)) {
++			if (bgp_fibupd_safi(safi) &&
++				BGP_SUPPRESS_FIB_ENABLED(bgp)) {
+ 				adv_peer = PAF_PEER(paf);
+ 				if (!bgp_adv_fifo_count(
+ 						&subgrp->sync->withdraw))
+@@ -703,7 +706,7 @@ void subgroup_announce_table(struct update_subgroup *subgrp,
+ 		const struct prefix *dest_p = bgp_dest_get_prefix(dest);
+ 
+ 		/* Check if the route can be advertised */
+-		advertise = bgp_check_advertise(bgp, dest);
++		advertise = bgp_check_advertise(bgp, dest, safi);
+ 
+ 		for (ri = bgp_dest_get_bgp_path_info(dest); ri; ri = ri->next) {
+ 
+@@ -715,7 +718,7 @@ void subgroup_announce_table(struct update_subgroup *subgrp,
+ 						    &attr, NULL)) {
+ 				/* Check if route can be advertised */
+ 				if (advertise) {
+-					if (!bgp_check_withdrawal(bgp, dest))
++					if (!bgp_check_withdrawal(bgp, dest, safi))
+ 						bgp_adj_out_set_subgroup(
+ 							dest, subgrp, &attr,
+ 							ri);
+@@ -1053,7 +1056,7 @@ void group_announce_route(struct bgp *bgp, afi_t afi, safi_t safi,
+ 	/* If suppress fib is enabled, the route will be advertised when
+ 	 * FIB status is received
+ 	 */
+-	if (!bgp_check_advertise(bgp, dest))
++	if (!bgp_check_advertise(bgp, dest, safi))
+ 		return;
+ 
+ 	update_group_af_walk(bgp, afi, safi, group_announce_route_walkcb, &ctx);
+-- 
+2.30.2
+
