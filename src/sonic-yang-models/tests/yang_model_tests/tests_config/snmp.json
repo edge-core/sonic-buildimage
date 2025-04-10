@@ -275,7 +275,7 @@
                        "SNMP_USER_TYPE": "AuthNoPriv",
                        "SNMP_USER_PERMISSION": "RW",
                        "SNMP_USER_AUTH_PASSWORD": "auth_pass",
-                       "SNMP_USER_AUTH_TYPE": "HMAC-SHA-2",
+                       "SNMP_USER_AUTH_TYPE": "SHA-512",
                        "SNMP_USER_ENCRYPTION_TYPE": "",
                        "SNMP_USER_ENCRYPTION_PASSWORD": ""
                     }

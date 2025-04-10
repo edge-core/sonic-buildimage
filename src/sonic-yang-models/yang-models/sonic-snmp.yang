@@ -117,10 +117,10 @@ module sonic-snmp {
           type string;
           must "(current()/../SNMP_USER_TYPE = 'noAuthNoPriv' and current() = '') or
                 ((current()/../SNMP_USER_TYPE = 'AuthNoPriv' or current()/../SNMP_USER_TYPE = 'Priv')
-                and (current() = 'SHA' or current() = 'MD5' or current() = 'HMAC-SHA-2'))";
+                and (current() = 'SHA' or current() = 'MD5' or current() = 'SHA-224' or current() = 'SHA-256' or current() = 'SHA-384' or current() = 'SHA-512'))";
           default "";
           description
-            "Specify authentication type used for user, can be MD5, SHA or HMAC-SHA-2";
+            "Specify authentication type used for user, can be MD5, SHA, SHA-224, SHA-256, SHA-384 or SHA-512";
         }
         leaf SNMP_USER_AUTH_PASSWORD {
           type string {
