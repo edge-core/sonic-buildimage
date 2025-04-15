@@ -34,4 +34,7 @@ COPY ["critical_processes", "/etc/supervisor"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
+RUN ln -s /usr/sbin/iptables /sbin/iptables && \
+    ln -s /usr/sbin/ip6tables /sbin/ip6tables
+
 ENTRYPOINT ["/usr/local/bin/supervisord"]
