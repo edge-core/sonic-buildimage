@@ -40,7 +40,13 @@ dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 
 [program:snmpd]
+{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG["GLOBAL"] and SNMP_TRAP_CONFIG["GLOBAL"]["sourceip"]  %}
+{% set ip_addr = SNMP_TRAP_CONFIG["GLOBAL"]["sourceip"] %}
+command=/usr/sbin/snmpd --clientaddr={{ ip_addr }} -C -c /etc/snmp/snmpd.conf -f -LS0-2d -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf,ifTable,ifXTable,inetCidrRouteTable,ipCidrRouteTable,ip,disk_hw -p /run/snmpd.pid
+{% else %}
 command=/usr/sbin/snmpd -C -c /etc/snmp/snmpd.conf -f -LS0-2d -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf,ifTable,ifXTable,inetCidrRouteTable,ipCidrRouteTable,ip,disk_hw -p /run/snmpd.pid
+{% endif %}
+
 priority=3
 autostart=false
 autorestart=false
@@ -50,7 +56,7 @@ dependent_startup=true
 dependent_startup_wait_for=start:exited
 
 [program:snmp-subagent]
-command=/usr/bin/env python3 -m sonic_ax_impl
+command=/usr/bin/env python3 -m sonic_ax_impl {% if update_frequency %} -f {{ update_frequency }} {% endif %}
 priority=4
 autostart=false
 autorestart=false
