@@ -4,6 +4,12 @@ export SONIC_BASE=$1
 
 set +e
 
+## update files for as4625
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54p-r0/Accton-AS4625-54P/hr4-as4625-48x1G+6x10G_ec.config.bcm  \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54p-r0/Accton-AS4625-54P/hr4-as4625-48x1G+6x10G.config.bcm
+cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54t-r0/Accton-AS4625-54T/hr4-as4625-48x1G+6x10G_ec.config.bcm \
+         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4625_54t-r0/Accton-AS4625-54T/hr4-as4625-48x1G+6x10G.config.bcm
+
 ## update files for as4630
 
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as4630_54pe-r0/Accton-AS4630-54PE/hx5-as4630-48x1G+4x25G+2x100G_ec.bcm  \
