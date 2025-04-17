@@ -188,6 +188,12 @@ module sonic-portchannel {
 			default disable;
 		}
 
+        leaf grat_arp {
+            type string {
+                pattern "enabled|disabled";
+            }
+        }
+
             } /* end of list PORTCHANNEL_INTERFACE_LIST */
 
             list PORTCHANNEL_INTERFACE_IPPREFIX_LIST {
