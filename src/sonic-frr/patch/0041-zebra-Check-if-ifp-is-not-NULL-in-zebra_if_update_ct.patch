@@ -1,0 +1,44 @@
+From f283fa3386bd5feb77191ef754fc6099a181c4d9 Mon Sep 17 00:00:00 2001
+From: Eric Yang <eric_yang@edge-core.com>
+Date: Thu, 10 Apr 2025 03:29:55 +0000
+Subject: [PATCH] zebra: Check if ifp is not NULL in zebra_if_update_ctx() and
+ Prevent protodown_rc from going Bzonkas
+
+---
+ zebra/interface.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/zebra/interface.c b/zebra/interface.c
+index bfe7a0689..9fa386329 100644
+--- a/zebra/interface.c
++++ b/zebra/interface.c
+@@ -1189,6 +1189,12 @@ static bool if_ignore_set_protodown(const struct interface *ifp, bool new_down,
+ 
+ 	zif = ifp->info;
+ 
++	/*
++	 * FRR does not have enough data to make this request
++	 */
++	 if (ifp->ifindex == IFINDEX_INTERNAL)
++	 	return true;
++
+ 	/* Current state as we know it */
+ 	old_down = !!(ZEBRA_IF_IS_PROTODOWN(zif));
+ 	old_set_down = !!CHECK_FLAG(zif->flags, ZIF_FLAG_SET_PROTODOWN);
+@@ -1372,6 +1378,13 @@ static void zebra_if_update_ctx(struct zebra_dplane_ctx *ctx,
+ 	bool pd_reason_val;
+ 	bool down;
+ 
++	if (!ifp) {
++		if (IS_ZEBRA_DEBUG_KERNEL)
++			zlog_debug("%s: Can't find ifp", __func__);
++
++		return;
++	}
++
+ 	dp_res = dplane_ctx_get_status(ctx);
+ 	pd_reason_val = dplane_ctx_get_intf_pd_reason_val(ctx);
+ 	down = dplane_ctx_intf_is_protodown(ctx);
+-- 
+2.17.1
+

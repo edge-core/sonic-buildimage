@@ -36,3 +36,4 @@ cross-compile-changes.patch
 0037-set-ZEBRA_DEFAULT_NHG_KEEP_TIMER-from-180s-to-1s.patch
 0038-PATCH-yang-route-distinguisher-typedef-for-route-map.patch
 0039-Let-it-return-the-first-matched-route-in-mibII-ipforward-in-zebra_snmp.patch
+0041-zebra-Check-if-ifp-is-not-NULL-in-zebra_if_update_ct.patch
