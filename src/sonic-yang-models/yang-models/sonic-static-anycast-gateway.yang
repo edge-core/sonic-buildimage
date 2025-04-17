@@ -1,0 +1,38 @@
+module sonic-static-anycast-gateway {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-static-anycast-gateway";
+    prefix sag;
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    description "SAG yang Module for SONiC OS";
+
+    revision 2024-01-22 {
+        description
+            "Initial version";
+    }
+
+    container sonic-static-anycast-gateway {
+        container SAG {
+            description "Global static anycast gateway configuration";
+
+            list SAG_LIST {
+                key "name";
+                unique "name";
+                leaf name {
+                    type string {
+                        pattern "GLOBAL";
+                    }
+                }
+
+                leaf gateway_mac {
+                    type yang:mac-address;
+                }
+            }
+        }
+    }
+}
