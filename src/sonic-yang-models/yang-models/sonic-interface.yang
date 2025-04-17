@@ -81,6 +81,12 @@ module sonic-interface {
 					default disable;
 				}
 
+				leaf grat_arp {
+					type string {
+						pattern "enabled|disabled";
+					}
+				}
+
                 leaf loopback_action {
                     description "Packet action when a packet ingress and gets routed on the same IP interface";
                     type stypes:loopback_action;
