@@ -93,7 +93,7 @@ sysLocation    public
 {% if SNMP is defined and SNMP.CONTACT is defined %}
 sysContact     {{ SNMP.CONTACT.keys() | first }} {{ SNMP.CONTACT.values() | first }}
 {% else %}
-sysContact     Azure Cloud Switch vteam <linuxnetdev@microsoft.com>
+sysContact     Edgecore Open Networking Products team <support@edge-core.com>
 {% endif %}
 
                                                  # Application + End-to-End layers
