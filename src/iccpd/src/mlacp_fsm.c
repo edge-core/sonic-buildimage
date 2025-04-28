@@ -68,7 +68,11 @@
             mac_msg = TAILQ_FIRST(&(list)); \
             TAILQ_REMOVE(&(list), mac_msg, tail); \
             if (mac_msg->op_type == MAC_SYNC_DEL) \
+            { \
+                if (RB_FIND(mac_rb_tree, &MLACP(csm).mac_rb , mac_msg)) \
+                    MAC_RB_REMOVE(mac_rb_tree, &MLACP(csm).mac_rb, mac_msg);\
                 free(mac_msg); \
+            } \
         } \
         TAILQ_INIT(&(list)); \
     }
