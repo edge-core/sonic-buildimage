@@ -27,6 +27,8 @@ debs/{{ deb }}{{' '}}
 COPY ["start.sh", "iccpd.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["iccpd.j2", "/usr/share/sonic/templates/"]
+COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["critical_processes", "/etc/supervisor"]
 
 RUN chmod +x /usr/bin/start.sh /usr/bin/iccpd.sh
 RUN apt-get clean -y      && \

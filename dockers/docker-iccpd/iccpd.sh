@@ -4,8 +4,6 @@ export platform=$(sonic-cfggen -d -y /etc/sonic/sonic_version.yml --var asic_typ
 
 function start_app {
     rm -f /var/run/iccpd/*
-    mclagsyncd &
-    iccpd
 }
 
 function clean_up {
