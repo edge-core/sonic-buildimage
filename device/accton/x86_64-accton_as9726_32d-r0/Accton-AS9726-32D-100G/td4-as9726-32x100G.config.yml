@@ -790,9 +790,7 @@ device:
 device:
     0:
         TM_THD_CONFIG:
-            THRESHOLD_MODE: LOSSY
-        TM_SCHEDULER_CONFIG:
-            DYNAMIC_VOQ: 0
+            THRESHOLD_MODE: LOSSLESS
 ...
 ---
 device:
