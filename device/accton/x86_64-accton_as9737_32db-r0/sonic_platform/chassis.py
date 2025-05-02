@@ -28,12 +28,6 @@ PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
 REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
 
-SYSLED_FNODE= "/sys/devices/platform/as9737_32db_led/led_alarm"
-SYSLED_MODES = {
-    "0" : "STATUS_LED_COLOR_OFF",
-    "10" : "STATUS_LED_COLOR_RED",
-}
-
 class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
 
@@ -291,18 +285,7 @@ class Chassis(ChassisBase):
         return True
 
     def get_status_led(self):
-        val = self._api_helper.read_txt_file(SYSLED_FNODE)
-        return SYSLED_MODES[val] if val in SYSLED_MODES else "UNKNOWN"
+        return "ControlledByBMC"
 
     def set_status_led(self, color):
-        mode = None
-        for key, val in SYSLED_MODES.items():
-            if val == color:
-                mode = key
-                break
-        if mode is None:
-            return False
-        else:
-            return self._api_helper.write_txt_file(SYSLED_FNODE, mode)
-
-
+        return True
