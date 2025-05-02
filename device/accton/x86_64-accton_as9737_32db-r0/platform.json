@@ -3,8 +3,7 @@
         "name": "AS9737-32DB",
         "thermal_manager":false,
         "status_led": {
-            "controllable": true,
-            "colors": ["STATUS_LED_COLOR_RED", "STATUS_LED_COLOR_OFF"]
+            "controllable": false
         },
         "components": [
             {
