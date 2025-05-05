@@ -17,15 +17,17 @@ except ImportError as e:
 PSU_FAN_MAX_RPM = 30000 # Taken from SPEC FSH082-610G Rev A12 at "9. Fans Control Requirement"
 TRAY_FRONT_FAN_MAX_RPM = 31000
 TRAY_REAR_FAN_MAX_RPM = 28000
-TRAY_FANSPEED_TOLERANCE = 25
-TRAY_LOW_FANSPEED_TOLERANCE = 45
-TRAY_LOW_FANSPEED_RPM = 30
+
+# The tolerance was set to 15% RPM to cover the worst-case deviation of 13.15% RPM,
+# which occurs at the minimum fan speed of 40% RPM.
+TRAY_FANSPEED_TOLERANCE = 15
 
 FP_FAN_LED_FILE = "/sys/class/leds/es9618xx_led::fan/brightness"
 CPLD_I2C_PATH = "/sys/bus/i2c/devices/10-0066/fan"
 FAN_LED_MODE = CPLD_I2C_PATH + "_led_mode"
 FAN_PERCENTAGE = CPLD_I2C_PATH + "_duty_cycle_percentage"
-FAN_PERCENTAGE_TMP = "/tmp/fan_duty_cycle_percentage"
+FAN_REQUESTED_PERCENTAGE = "/tmp/fan_requested_rpm_percentage"
+FAN_CONFIGURED_PERCENTAGE = "/tmp/fan_configured_rpm_percentage"
 PSU_I2C_PATH ="/sys/bus/i2c/devices/{}-00{}/"
 PSU_HWMON_I2C_MAPPING = {
     0: {
@@ -52,6 +54,25 @@ PSU_CPLD_I2C_MAPPING = {
 LED_DEBUG_MODE_OFF = "0"
 LED_DEBUG_MODE_ON = "1"
 
+# Format: PWM DC Percentage, # PWM Code
+FAN_PWM_CODE_SPEED_LIST = [
+    0.0,    # 0
+    31.25,  # 1
+    31.25,  # 2
+    31.25,  # 3
+    31.25,  # 4
+    37.5,   # 5
+    43.75,  # 6
+    50.0,   # 7
+    56.25,  # 8
+    62.5,   # 9
+    68.75,  # 10
+    75.0,   # 11
+    81.25,  # 12
+    87.5,   # 13
+    93.75,  # 14
+    100.0   # 15
+]
 
 class Fan(FanBase):
     """Platform-specific Fan class"""
@@ -195,23 +216,40 @@ class Fan(FanBase):
 
     def get_target_speed(self):
         """
-        Retrieves the target (expected) speed of the fan
+        Retrieves the target (requested) speed of the fan.
         Returns:
             An integer, the percentage of full fan speed, in the range 0 (off)
                  to 100 (full speed)
-
-        Note:
-            speed_pc = pwm_target/255*100
-
-            0   : when PWM mode is use
-            pwm : when pwm mode is not use
         """
         if self.is_psu_fan:
             return 100
         elif self.get_presence():
             speed = 100
             try:
-                speed = int(self._api_helper.read_txt_file(FAN_PERCENTAGE_TMP))
+                speed = int(self._api_helper.read_txt_file(FAN_REQUESTED_PERCENTAGE))
+            except:
+                pass
+            return speed
+        else:
+            return None
+
+    def get_configured_speed(self):
+        """
+        Retrieves the configured speed of the fan.
+        Returns:
+            An integer, the percentage of full fan speed, in the range 0 (off)
+                 to 100 (full speed)
+        Notes:
+            This is a platform-specific function and does not belong to the base class.
+            This function was created to check speed tolerances against the configured
+            speed supported by the fan, rather than the requested target speed.
+        """
+        if self.is_psu_fan:
+            return 100
+        elif self.get_presence():
+            speed = 100
+            try:
+                speed = int(self._api_helper.read_txt_file(FAN_CONFIGURED_PERCENTAGE))
             except:
                 pass
             return speed
@@ -228,11 +266,62 @@ class Fan(FanBase):
         tolerance = TRAY_FANSPEED_TOLERANCE
         if self.is_psu_fan:
             tolerance = 100
-        else:
-            if self.get_target_speed() <= TRAY_LOW_FANSPEED_RPM:
-                tolerance = TRAY_LOW_FANSPEED_TOLERANCE
 
         return tolerance
+
+    def is_under_speed(self):
+        """
+        Calculates whether the fan speed falls below the low-speed threshold tolerance
+
+        This function checks whether the current fan speed is below the allowed
+        tolerance relative to the target/configured fan speed.
+        This function uses the target fan speed for PSU fans and the configured
+        hardware-supported fan speed for all other fans.
+
+        Returns:
+            A boolean, True if fan speed is under the low threshold, False if not
+        """
+        speed = self.get_speed()
+        tolerance = self.get_speed_tolerance()
+        if self.is_psu_fan:
+            target_speed = self.get_target_speed()
+        else:
+            target_speed = self.get_configured_speed()
+
+        for param, value in (('speed', speed), ('target speed', target_speed), ('speed tolerance', tolerance)):
+            if not isinstance(value, int):
+                raise TypeError(f'Fan {param} is not an integer value: {param}={value}')
+            if value < 0 or value > 100:
+                raise ValueError(f'Fan {param} is not a valid percentage value: {param}={value}')
+
+        return speed * 100 < target_speed * (100 - tolerance)
+
+    def is_over_speed(self):
+        """
+        Calculates whether the fan speed exceeds the high-speed threshold tolerance
+
+        This function checks whether the current fan speed exceeds the allowed
+        tolerance relative to the target/configured fan speed.
+        This function uses the target fan speed for PSU fans and the configured
+        hardware-supported fan speed for all other fans.
+
+        Returns:
+            A boolean, True if fan speed is over the high threshold, False if not
+        """
+        speed = self.get_speed()
+        tolerance = self.get_speed_tolerance()
+        if self.is_psu_fan:
+            target_speed = self.get_target_speed()
+        else:
+            target_speed = self.get_configured_speed()
+
+        for param, value in (('speed', speed), ('target speed', target_speed), ('speed tolerance', tolerance)):
+            if not isinstance(value, int):
+                raise TypeError(f'Fan {param} is not an integer value: {param}={value}')
+            if value < 0 or value > 100:
+                raise ValueError(f'Fan {param} is not a valid percentage value: {param}={value}')
+
+        return speed * 100 > target_speed * (100 + tolerance)
 
     def set_speed(self, speed):
         """
@@ -242,14 +331,53 @@ class Fan(FanBase):
                    in the range 0 (off) to 100 (full speed)
         Returns:
             A boolean, True if speed is set successfully, False if not
+        Notes:
+            This function accepts a speed value in RPM percentage and converts
+            it to a PWM percentage for the fan driver.
 
+            The fan driver configures the fan speed based on predefined speed steps.
+
+            The configured fan speed is converted from PWM to RPM, the difference
+            between the configured and measured RPM is then calculated and compared
+            against the allowed RPM tolerance.
+
+            The equations for converting between RPM percentage and PWM percentage are:
+                For front fan:
+                    RPM_Value = (279 * PWM_Percentage) + 3100
+                    RPM_Percentage = (RPM_Value / 31000) * 100
+                For rear fan:
+                    RPM Value = 252 * PWM Percentage + 2800
+                    RPM_Percentage = (RPM_Value / 28000) * 100
+
+            Since this function now accepts fan speed as a RPM percentage and the
+            thermal control logic uses increments of 10%, the valid input range
+            is 40% - 100%, as fan speeds below 40% are non-linear. This range is not
+            enforced here, as it is already handled by the fan driver.
+            The minimum RPM percentage of 40% is equivalent to PWM percentage of 33%.
         """
 
         if not self.is_psu_fan and self.get_presence():
-            speed = int(speed)
-            sts1 = self._api_helper.write_txt_file(FAN_PERCENTAGE, speed)
-            sts2 = self._api_helper.write_txt_file(FAN_PERCENTAGE_TMP, speed)
-            return sts1 and sts2
+            if self.fan_index == 0:
+                speed_rpm_max = TRAY_FRONT_FAN_MAX_RPM
+                slope = 279
+                intercept = 3100
+            else:
+                speed_rpm_max = TRAY_REAR_FAN_MAX_RPM
+                slope = 252
+                intercept = 2800
+
+            # Calculation Flow: Requested RPM → Requested PWM → PWM Code → Actual PWM → Actual RPM
+            req_rpm_speed_perc = int(speed)
+            req_rpm_speed_val = int(req_rpm_speed_perc * speed_rpm_max / 100)
+            req_pwm_speed_perc = int((req_rpm_speed_val - intercept) / slope)
+            req_pwm_code = int(req_pwm_speed_perc * 100 / 625) - 1
+            cfg_pwm_speed_perc = FAN_PWM_CODE_SPEED_LIST[req_pwm_code]
+            cfg_rpm_speed_val = int(cfg_pwm_speed_perc * slope + intercept)
+            cfg_rpm_speed_perc = int(cfg_rpm_speed_val / speed_rpm_max * 100)
+            sts1 = self._api_helper.write_txt_file(FAN_PERCENTAGE, req_pwm_speed_perc)
+            sts2 = self._api_helper.write_txt_file(FAN_REQUESTED_PERCENTAGE, req_rpm_speed_perc)
+            sts3 = self._api_helper.write_txt_file(FAN_CONFIGURED_PERCENTAGE, cfg_rpm_speed_perc)
+            return sts1 and sts2 and sts3
 
         return False
 
