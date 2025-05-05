@@ -153,7 +153,7 @@ class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
     previous_cooling_stage = -1
     thermal_policy_pause_countdown = 0
     MINIMAL_TEMPERATURE = -127
-    MINIMAL_COOLING_LEVEL = 3
+    MINIMAL_COOLING_LEVEL = 4
     THERMAL_X48 = 0
     THERMAL_X49 = 1
     THERMAL_X4A = 2
