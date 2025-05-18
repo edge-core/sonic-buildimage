@@ -80,6 +80,8 @@ class Psu(PsuBase):
             A float number, the output voltage in volts,
             e.g. 12.1
         """
+        if self.get_status() == 0:
+            return None
         vout_path = "{}{}".format(self.hwmon_path, 'psu_v_out')        
         vout_val=self._api_helper.read_txt_file(vout_path)
         return float(vout_val)/ 1000
@@ -90,6 +92,8 @@ class Psu(PsuBase):
         Returns:
             A float number, the electric current in amperes, e.g 15.4
         """
+        if self.get_status() == 0:
+            return None
         iout_path = "{}{}".format(self.hwmon_path, 'psu_i_out')        
         val=self._api_helper.read_txt_file(iout_path)
         if val is not None:
@@ -103,6 +107,8 @@ class Psu(PsuBase):
         Returns:
             A float number, the power in watts, e.g. 302.6
         """
+        if self.get_status() == 0:
+            return None
         pout_path = "{}{}".format(self.hwmon_path, 'psu_p_out')        
         val=self._api_helper.read_txt_file(pout_path)
         if val is not None:
