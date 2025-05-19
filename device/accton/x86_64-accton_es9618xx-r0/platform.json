@@ -247,27 +247,22 @@
         },
         {
           "name": "ASIC sensor 1",
-          "high-threshold" : false,
           "controllable": false
         },
         {
           "name": "ASIC sensor 2",
-          "high-threshold" : false,
           "controllable": false
         },
         {
           "name": "ASIC sensor 3",
-          "high-threshold" : false,
           "controllable": false
         },
         {
           "name": "ASIC  average",
-          "high-threshold" : false,
           "controllable": false
         },
         {
           "name": "ASIC  maximum",
-          "high-threshold" : false,
           "controllable": false
         }
       ],
