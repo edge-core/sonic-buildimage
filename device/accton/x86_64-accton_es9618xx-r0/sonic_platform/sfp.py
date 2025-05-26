@@ -37,6 +37,8 @@ class Sfp(SfpOptoeBase):
     PLATFORM_ROOT_PATH = "/usr/share/sonic/device"
     PMON_JSON_PATH = "/usr/share/sonic/platform"
     PMON_HWSKU_PATH = '/usr/share/sonic/hwsku'
+    SFP_ERROR_DESCRIPTION_HIGH_VCC = "High VCC detected"
+    SFP_ERROR_DESCRIPTION_LOW_VCC = "Low VCC detected"
 
     # Port number
     PORT_START = 1
@@ -328,3 +330,36 @@ class Sfp(SfpOptoeBase):
         """
         return True
 
+    def get_error_description(self):
+        """
+        Get error description
+
+        Args:
+            None
+
+        Returns:
+            The error description
+        """
+        if not self.get_presence():
+            return self.SFP_STATUS_UNPLUGGED
+
+        api = SfpOptoeBase.get_xcvr_api(self)
+        flags = api.get_module_level_flag()
+        case_temp = flags.get("case_temp_flags")
+        case_voltage = flags.get("voltage_flags")
+        if case_temp.get("case_temp_high_alarm_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_HIGH_TEMP
+        elif case_temp.get("case_temp_high_warn_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_HIGH_TEMP
+        elif case_voltage.get("voltage_high_alarm_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_HIGH_VCC
+        elif case_voltage.get("voltage_high_warn_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_HIGH_VCC
+        elif case_voltage.get("voltage_low_alarm_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_LOW_VCC
+        elif case_voltage.get("voltage_low_warn_flag"):
+            error_description = self.SFP_ERROR_DESCRIPTION_LOW_VCC
+        else:
+            error_description = self.SFP_STATUS_OK
+
+        return error_description
