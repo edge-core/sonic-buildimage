@@ -320,3 +320,11 @@ class Sfp(SfpOptoeBase):
         """
         return self.get_presence() and not self.get_reset_status()
 
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True
+
