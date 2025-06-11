@@ -163,22 +163,122 @@ class SwitchPolicyAction(ThermalPolicyActionBase):
 
 @thermal_json_object('update.cool.level')
 class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
+    """
+    Action to update the fan speed based on the system temperature
+    """
     from .thermal import Thermal
-    previous_cooling_stage = -1
-    thermal_policy_pause_countdown = 0
-    MINIMAL_TEMPERATURE = -127
+    THERMAL_X48_IDX = 0
+    THERMAL_X49_IDX = 1
+    THERMAL_X4A_IDX = 2
+    THERMAL_ASIC_IDX = Thermal.ASIC_CALCULATED_TEMP_OFFSET
+    THERMAL_XCVR_OFFSET = Thermal.XCVR_TEMP_SENSORS_OFFSET
+    THERMAL_DATA_IDX_FAN_SPEED = 2
     MINIMAL_COOLING_LEVEL = 4
-    THERMAL_X48 = 0
-    THERMAL_X49 = 1
-    THERMAL_X4A = 2
-    THERMAL_ASIC = Thermal.ASIC_CALCULATED_TEMP_OFFSET
-    WARNING_COOLING_STAGE = 1
+    COOL_LEVEL_IDX_0 = 0
+    COOL_LEVEL_IDX_1 = 1
+    COOL_LEVEL_IDX_2 = 2
+    COOL_LEVEL_IDX_3 = 3
 
     # JSON field definition
     JSON_FIELD_MIN_COOL_LEVEL = 'min_cool_level'
 
+    class HysteresisMonitor:
+        """
+        A class per sensor to manage and update its hysteresis state
+
+        Attributes:
+            thresholds: This is a list containing three string elements, where each
+                        element follows this format:
+                        "low hysteresis threshold : high hysteresis threshold : fan cooling level"
+                        For example:
+                            thresholds = ["64:69:10", "70:75:10", "80:85:10"]
+                            parameter                       value
+                            ---------                       -----
+                            low hysteresis threshold 1      64
+                            high hysteresis threshold 1     69
+                            fan cooling level 1             10
+                            low hysteresis threshold 2      70
+                            high hysteresis threshold 2     75
+                            fan cooling level 2             10
+                            low hysteresis threshold 3      80
+                            high hysteresis threshold 3     85
+                            fan cooling level 3             10
+        """
+        THERMAL_DATA_IDX_LOW_TH = 0
+        THERMAL_DATA_IDX_HIGH_TH = 1
+
+        def __init__(self, thresholds):
+            self.thresholds = thresholds
+
+            # Track the current hysteresis state of each instance (True = high hyst, False = low hyst)
+            self.hyst_state_list = [False] * len(thresholds)
+
+        def update(self, value):
+            """Update the hysteresis state based on the new input temperature value
+
+            Args:
+                value: integer value of the input temperature used to update the hysteresis state
+
+            Returns:
+                An integer representing the cool level index used to determine the actual fan speed
+            """
+            cool_lvl_idx = 0
+            for idx, thresholds in enumerate(self.thresholds):
+                low = int(thresholds.split(':')[self.THERMAL_DATA_IDX_LOW_TH])
+                high = int(thresholds.split(':')[self.THERMAL_DATA_IDX_HIGH_TH])
+
+                # If the sensor is in the low state and the value crosses the high threshold
+                if not self.hyst_state_list[idx] and value > high:
+                    self.hyst_state_list[idx] = True
+                # If the sensor is in the high state and the value crosses below or equals the low threshold
+                elif self.hyst_state_list[idx] and value <= low:
+                    self.hyst_state_list[idx] = False
+
+                # Record the highest index crossed, which represents the cool level
+                if self.hyst_state_list[idx]:
+                    cool_lvl_idx = idx + 1
+
+            return cool_lvl_idx
+
     def __init__(self):
-        self.min_cool_level = ChangeMinCoolingLevelAction.MINIMAL_COOLING_LEVEL
+        from .thermal import Thermal
+        from .thermal_device_data import DEVICE_DATA
+
+        self.min_cool_level = self.MINIMAL_COOLING_LEVEL
+        self.last_cool_lvl_idx = self.COOL_LEVEL_IDX_0
+
+        api_helper = APIHelper()
+        thermal_thresh_list = []
+        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x48'])
+        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x49'])
+        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x4A'])
+        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['asic_average'])
+
+        # Add transceiver thermal thresholds
+        self.xcvrs_temp_list = Thermal.TRANSCEIVER_TEMP_LIST
+        for idx in range(0, len(self.xcvrs_temp_list)):
+            lst = ["{}:{}:10".format(self.xcvrs_temp_list[idx][1] - 3, self.xcvrs_temp_list[idx][1] - 2),
+                   "{}:{}:10".format(self.xcvrs_temp_list[idx][1] - 2, self.xcvrs_temp_list[idx][1]),
+                   "{}:{}:10".format(self.xcvrs_temp_list[idx][2] - 2, self.xcvrs_temp_list[idx][2])]
+            thermal_thresh_list.append(lst)
+            logger.log_debug("{}: Added transceiver {} temperatures: {}".format(self.__class__.__name__, idx, lst))
+
+        self.hyst_monitor_list = []
+        for idx in range(0, len(thermal_thresh_list)):
+            self.hyst_monitor_list.append(self.HysteresisMonitor(thermal_thresh_list[idx]))
+
+        # Create a mapping based solely on the `asic_average` sensor that maps
+        # each `fan cooling level index` to its corresponding `fan cooling level`,
+        # which represents the actual fan speed value.
+        # Note: The `fan cooling level` retrieved from the `DEVICE_DATA` dictionary
+        # represents the fan speed divided by 10. For example, a fan cooling level
+        # of 3 corresponds to a fan speed of 30%.
+        asic_temp_data = DEVICE_DATA['thermal']['thresholds']['asic_average']
+        self.cool_lvl_map = []
+        self.cool_lvl_map.append(self.min_cool_level)
+        self.cool_lvl_map.append(int(asic_temp_data[0].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
+        self.cool_lvl_map.append(int(asic_temp_data[1].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
+        self.cool_lvl_map.append(int(asic_temp_data[2].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
 
     def load_from_json(self, json_obj):
         """
@@ -195,83 +295,55 @@ class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
             raise ValueError('{} missing mandatory field {} in JSON policy file'.
                              format(type(self).__name__, self.JSON_FIELD_MIN_COOL_LEVEL))
 
-    @staticmethod
-    def set_previous_cooling_stage(stage):
-        ChangeMinCoolingLevelAction.previous_cooling_stage = stage
-
-    def process_sensor_data(self, temperature_table, sensor_index):
-        temp_min = ChangeMinCoolingLevelAction.MINIMAL_TEMPERATURE
-        for indx in range(0, len(temperature_table)):
-            temp_range = temperature_table[indx].split(':')
-            temp_threshold = float(temp_range[0].strip())
-            temp_max = float(temp_range[1].strip())
-            cool_lvl = float(temp_range[2].strip())
-            logger.log_debug('threshold: {} to {}; hyst: {}'.format(temp_min, temp_max, temp_threshold))
-            if temp_min <= float(self.temperatures[sensor_index]) <= temp_max:
-                if self.cooling_stage < indx:
-                    self.cooling_stage = indx
-                break
-            temp_min = temp_max
-        if (temp_threshold > float(self.temperatures[sensor_index])):
-            self.cooling_stage_decrease += 1
-            logger.log_debug('cooling_stage {} cooling_stage_decrease {}'.format(self.cooling_stage, self.cooling_stage_decrease))
-
     def execute(self, thermal_info_dict):
-        from sonic_platform import platform
-        from .thermal_device_data import DEVICE_DATA
-        from .thermal import Thermal
+        """
+        Check the hysteresis state of the specified temperature sensors and set
+        the fan speed accordingly.
+        :param thermal_info_dict: A dictionary stores all thermal information.
+        :return:
+        """
         from .fan import Fan
         from .thermal_conditions import MinCoolingLevelChangeCondition
-        from .helper import APIHelper
-
-        api_helper = APIHelper()
-        thermal_x48 = DEVICE_DATA['thermal']['thresholds']['thermal_x48']
-        thermal_x49 = DEVICE_DATA['thermal']['thresholds']['thermal_x49']
-        thermal_x4A = DEVICE_DATA['thermal']['thresholds']['thermal_x4A']
-        thermal_asic = DEVICE_DATA['thermal']['thresholds']['asic_average']
-        # Add all transceivers thermal sensors and limits
-        thermal_xcvr_list = []
-        for i in range(0, len(Thermal.TRANSCEIVER_TEMP_LIST)):
-            thermal_xcvr_list.append(["{}:{}:10".format(Thermal.TRANSCEIVER_TEMP_LIST[i][1] - 3, Thermal.TRANSCEIVER_TEMP_LIST[i][1] - 2),
-                                      "{}:{}:10".format(Thermal.TRANSCEIVER_TEMP_LIST[i][1] - 2, Thermal.TRANSCEIVER_TEMP_LIST[i][1]),
-                                      "{}:{}:10".format(Thermal.TRANSCEIVER_TEMP_LIST[i][2] - 2, Thermal.TRANSCEIVER_TEMP_LIST[i][2])])
-            logger.log_debug("added transceiver {} temperatures: {}".format(i, thermal_xcvr_list[i]))
 
         self.temperatures = MinCoolingLevelChangeCondition.temperatures
-        self.cooling_stage_decrease = 0
-        self.cooling_stage = 0
-        min_cooling_level = 5
 
-        self.process_sensor_data(thermal_x48, ChangeMinCoolingLevelAction.THERMAL_X48)
-        self.process_sensor_data(thermal_x49, ChangeMinCoolingLevelAction.THERMAL_X49)
-        self.process_sensor_data(thermal_x4A, ChangeMinCoolingLevelAction.THERMAL_X4A)
-        self.process_sensor_data(thermal_asic, ChangeMinCoolingLevelAction.THERMAL_ASIC)
-        # Process all transceivers sensor
-        for i in range(0, len(thermal_xcvr_list)):
-            self.process_sensor_data(thermal_xcvr_list[i], Thermal.XCVR_TEMP_SENSORS_OFFSET + i)
+        # The indices of `thermal_samp_list` should match those of `thermal_thresh_list`
+        # as used in the `__init__` function
+        thermal_samp_list = []
+        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X48_IDX]))
+        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X49_IDX]))
+        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X4A_IDX]))
+        thermal_samp_list.append(float(self.temperatures[self.THERMAL_ASIC_IDX]))
 
-        if (ChangeMinCoolingLevelAction.previous_cooling_stage <= self.cooling_stage):
-            if 0 == self.cooling_stage:
-                cool_lvl = self.min_cool_level
-            else:
-                temp_range = thermal_asic[self.cooling_stage].split(':')
-                cool_lvl = int(temp_range[2].strip())
-        min_cooling_level = cool_lvl
-        logger.log_debug("ChangeMinCoolingLevelAction: prev.stage: {} current: {}".format(
-            ChangeMinCoolingLevelAction.previous_cooling_stage, self.cooling_stage))
+        # Collect samples from transceiver thermal sensors
+        for idx in range(0, len(self.xcvrs_temp_list)):
+            thermal_samp_list.append(float(self.temperatures[self.THERMAL_XCVR_OFFSET + idx]))
 
-        if (ChangeMinCoolingLevelAction.previous_cooling_stage > self.cooling_stage):
-            if (self.cooling_stage_decrease == len(thermal_asic) and 0 < ChangeMinCoolingLevelAction.previous_cooling_stage):
-                self.cooling_stage = ChangeMinCoolingLevelAction.previous_cooling_stage - 1
+        # Determine the maximum cool level index from all sensors
+        try:
+            cool_lvl_idx = self.COOL_LEVEL_IDX_0
+            for idx in range(0, len(thermal_samp_list)):
+                cool_lvl_idx = max(cool_lvl_idx, self.hyst_monitor_list[idx].update(thermal_samp_list[idx]))
+        except:
+            cool_lvl_idx = self.COOL_LEVEL_IDX_1
+            logger.log_error("{}: Failure occurred while calculating the cool level index, " \
+            "forced cool level index to {}".format(self.__class__.__name__, cool_lvl_idx))
 
-        if ((ChangeMinCoolingLevelAction.previous_cooling_stage != ChangeMinCoolingLevelAction.WARNING_COOLING_STAGE) and
-            (self.cooling_stage == ChangeMinCoolingLevelAction.WARNING_COOLING_STAGE)):
-            logger.log_notice("ChangeMinCoolingLevelAction: Colling stage has changed from {} to {}".format(
-                ChangeMinCoolingLevelAction.previous_cooling_stage, ChangeMinCoolingLevelAction.WARNING_COOLING_STAGE))
+        if cool_lvl_idx != self.last_cool_lvl_idx:
+            logger.log_notice("{}: The cool level index has changed from {} to {}".format(
+                self.__class__.__name__, self.last_cool_lvl_idx, cool_lvl_idx))
 
-        ChangeMinCoolingLevelAction.set_previous_cooling_stage(self.cooling_stage)
+        if self.last_cool_lvl_idx < self.COOL_LEVEL_IDX_2 and cool_lvl_idx == self.COOL_LEVEL_IDX_2:
+            logger.log_notice("{}: Thermal warning detected".format(self.__class__.__name__))
 
-        logger.log_debug("ChangeMinCoolingLevelAction: {}; Current level: {}; Next level: {} ".format(
-            self.temperatures, Fan.get_cooling_level(), min_cooling_level))
-        Fan.set_cooling_level(min_cooling_level, Fan.min_cooling_level)
+        if self.last_cool_lvl_idx > self.COOL_LEVEL_IDX_1 and cool_lvl_idx == self.COOL_LEVEL_IDX_1:
+            logger.log_notice("{}: Thermal warning cleared".format(self.__class__.__name__))
+
+        self.last_cool_lvl_idx = cool_lvl_idx
+        cool_lvl = self.cool_lvl_map[cool_lvl_idx]
+
+        logger.log_debug("{}: Temperatures: {}; Current level: {}; Next level: {}".format(
+            self.__class__.__name__, self.temperatures, Fan.get_cooling_level(), cool_lvl))
+
+        Fan.set_cooling_level(cool_lvl, Fan.min_cooling_level)
 
