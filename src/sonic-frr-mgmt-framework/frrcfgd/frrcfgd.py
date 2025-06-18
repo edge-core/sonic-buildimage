@@ -15,6 +15,7 @@ import logging
 import netaddr
 import io
 import struct
+import json
 
 class CachedDataWithOp:
     OP_NONE = 0
@@ -2339,6 +2340,25 @@ class BGPConfigDaemon:
                 command = command + " -c 'no vni {}'".format(self.vrf_vni_map[key_params[0]])
                 del self.vrf_vni_map[key_params[0]]
                 self.__run_command(table, command)
+            else:
+                # Fetch the VNI using 'show vrf <vrf_name> vni json'
+                vrf_name = key_params[0]
+                syslog.syslog(syslog.LOG_DEBUG, "There was no vrf_vni_map entry. Attempting to fetch VNI for VRF {} from FRR".format(vrf_name))
+                show_command = "vtysh -c 'show vrf {} vni json'".format(vrf_name)
+                process = subprocess.Popen(show_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                if process.returncode == 0:
+                    syslog.syslog(syslog.LOG_DEBUG, "Successfully executed command to fetch VNI for VRF {}: {}".format(vrf_name, stdout.decode()))
+                    try:
+                        vrf_data = json.loads(stdout)
+                        vni = vrf_data.get("vrfs", [{}])[0].get("vni")
+                        if vni:
+                            command += " -c 'no vni {}'".format(vni)
+                            self.__run_command(table, command)
+                    except (json.JSONDecodeError, KeyError) as e:
+                        syslog.syslog(syslog.LOG_DEBUG, "Failed to parse VNI for VRF {}: {}".format(vrf_name, str(e)))
+                else:
+                    syslog.syslog(syslog.LOG_DEBUG, "Failed to fetch VNI for VRF {}: {}".format(vrf_name, stderr.decode()))
         else:
             #create/update case
             command = "vtysh -c 'configure terminal' -c '{}'".format(cmd)
