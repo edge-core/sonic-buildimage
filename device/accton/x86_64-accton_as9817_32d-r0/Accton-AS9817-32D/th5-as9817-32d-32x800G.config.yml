@@ -38,7 +38,7 @@ bcm_device:
   0:
     global:
       dport_map_direct: 1
-      dport_map_enable: 1
+      dport_map_enable: 0
       dport_map_indexed: 1
     port:
       "264":
