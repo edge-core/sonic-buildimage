@@ -1,0 +1,8 @@
+# /etc/systemd/system/rename-eth2.service
+[Unit]
+Description=Rename eth2 to eth0 via udev
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/rename_nic.sh
+
