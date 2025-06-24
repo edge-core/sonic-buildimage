@@ -1,0 +1,13 @@
+# Enable monitor, monitor-fan, monitor-psu 
+# Retrigger eth0-eth2 renumbering
+
+depmod -a
+systemctl enable as4630-54npe-platform-monitor.service
+systemctl start as4630-54npe-platform-monitor.service
+systemctl enable as4630-54npe-platform-monitor-fan.service
+systemctl start as4630-54npe-platform-monitor-fan.service
+systemctl enable as4630-54npe-platform-monitor-psu.service
+systemctl start as4630-54npe-platform-monitor-psu.service
+
+/usr/local/bin/rename-nic-postinst.sh
+
