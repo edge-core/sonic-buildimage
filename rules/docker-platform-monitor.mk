@@ -53,6 +53,7 @@ $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /etc/timezone:/etc/timezone:ro 
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /var/run/platform_cache:/var/run/platform_cache:ro
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /usr/share/sonic/device/pddf:/usr/share/sonic/device/pddf:ro
+$(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /var/lock/pddf-locks:/var/lock/pddf-locks:rw
 
 # Mount Arista python library on Aboot images to be used by plugins
 $(DOCKER_PLATFORM_MONITOR)_aboot_RUN_OPT += -v /usr/lib/libsfp-eeprom.so:/usr/lib/libsfp-eeprom.so:ro
