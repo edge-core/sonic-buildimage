@@ -30,6 +30,7 @@
 #include <linux/slab.h>
 #include <linux/dmi.h>
 #include <linux/platform_device.h>
+#include <linux/version.h>
 
 #define DRVNAME "es9618xx_fan"
 #define MAX_FAN_SPEED_RPM	31000
@@ -638,12 +639,20 @@ exit:
     return status;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+static int es9618xx_fan_remove(struct i2c_client *client)
+#else
 static void es9618xx_fan_remove(struct i2c_client *client)
+#endif
 {
     struct es9618xx_fan_data *data = i2c_get_clientdata(client);
 
     sysfs_remove_group(&client->dev.kobj, &es9618xx_fan_group);
     kfree(data);
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+    return 0;
+#endif
 }
 
 /* Addresses to scan */

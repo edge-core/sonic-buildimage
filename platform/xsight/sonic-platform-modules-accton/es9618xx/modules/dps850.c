@@ -262,12 +262,20 @@ exit:
 	return status;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+static int dps850_remove(struct i2c_client *client)
+#else
 static void dps850_remove(struct i2c_client *client)
+#endif
 {
 	struct dps850_data *data = i2c_get_clientdata(client);
 
 	sysfs_remove_group(&client->dev.kobj, &dps850_group);
 	kfree(data);
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+	return 0;
+#endif
 }
 
 static const struct i2c_device_id dps850_id[] = {
