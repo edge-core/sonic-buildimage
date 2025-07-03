@@ -81,9 +81,15 @@ function startplatform() {
         fi
     fi
 
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
-        if [ x$sonic_asic_platform == x'cavium' ]; then
-            /etc/init.d/xpnet.sh start
+    if [[ x"$sonic_asic_platform" == x"xsight" ]]; then
+        /opt/xlx/start.sh
+    fi
+
+    if [[ x"$sonic_asic_platform" == x"nvidia-bluefield" ]]; then
+        /usr/bin/bfnet.sh start
+        if [[ $? != "0" ]]; then
+            debug "Failed to start Nvidia Bluefield"
+            exit 1
         fi
     fi
 }
@@ -142,9 +148,10 @@ function stopplatform2() {
         if [ x$sonic_asic_platform == x'mellanox' ]; then
             /etc/init.d/sxdkernel stop
             /usr/bin/mst stop
-        elif [ x$sonic_asic_platform == x'cavium' ]; then
-            /etc/init.d/xpnet.sh stop
-            /etc/init.d/xpnet.sh start
+        elif [ x"$sonic_asic_platform" == x"nvidia-bluefield" ]; then
+            /usr/bin/bfnet.sh stop
+        elif [ x$sonic_asic_platform == x'xsight' ]; then
+            /opt/xlx/down.sh $DEBUGLOG
         fi
     fi
 }
