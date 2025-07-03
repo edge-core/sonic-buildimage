@@ -1,0 +1,134 @@
+From 2f568137f07dc57b480fd953319df0f778030557 Mon Sep 17 00:00:00 2001
+From: Borys Barkauskas <bbarkauskas@larch-networks.net>
+Date: Tue, 3 Jun 2025 11:52:23 +0000
+Subject: [PATCH 1/2] es9618xx: Fix build kernel 5.10.
+
+---
+ .../es9618xx/modules/dps850.c                          |  8 ++++++++
+ .../es9618xx/modules/x86-64-es9618xx-cpld.c            |  8 ++++++++
+ .../es9618xx/modules/x86-64-es9618xx-fan.c             |  9 +++++++++
+ .../es9618xx/modules/x86-64-es9618xx-psu.c             | 10 +++++++++-
+ 4 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/dps850.c b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/dps850.c
+index 6a9536af8..42588abd2 100644
+--- a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/dps850.c
++++ b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/dps850.c
+@@ -262,12 +262,20 @@ exit:
+ 	return status;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++static int dps850_remove(struct i2c_client *client)
++#else
+ static void dps850_remove(struct i2c_client *client)
++#endif
+ {
+ 	struct dps850_data *data = i2c_get_clientdata(client);
+ 
+ 	sysfs_remove_group(&client->dev.kobj, &dps850_group);
+ 	kfree(data);
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++	return 0;
++#endif
+ }
+ 
+ static const struct i2c_device_id dps850_id[] = {
+diff --git a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-cpld.c b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-cpld.c
+index 35d9cff63..d248afaf9 100644
+--- a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-cpld.c
++++ b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-cpld.c
+@@ -562,7 +562,11 @@ exit:
+ 	return ret;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++static int es9618xx_cpld_remove(struct i2c_client *client)
++#else
+ static void es9618xx_cpld_remove(struct i2c_client *client)
++#endif
+ {
+     struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+     const struct attribute_group *group = NULL;
+@@ -586,6 +590,10 @@ static void es9618xx_cpld_remove(struct i2c_client *client)
+     }
+ 
+     kfree(data);
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++    return 0;
++#endif
+ }
+ 
+ static int es9618xx_cpld_read_internal(struct i2c_client *client, u8 reg)
+diff --git a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-fan.c b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-fan.c
+index 5147f7942..e88429066 100644
+--- a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-fan.c
++++ b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-fan.c
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/dmi.h>
+ #include <linux/platform_device.h>
++#include <linux/version.h>
+ 
+ #define DRVNAME "es9618xx_fan"
+ #define MAX_FAN_SPEED_RPM	31000
+@@ -638,12 +639,20 @@ exit:
+     return status;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++static int es9618xx_fan_remove(struct i2c_client *client)
++#else
+ static void es9618xx_fan_remove(struct i2c_client *client)
++#endif
+ {
+     struct es9618xx_fan_data *data = i2c_get_clientdata(client);
+ 
+     sysfs_remove_group(&client->dev.kobj, &es9618xx_fan_group);
+     kfree(data);
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++    return 0;
++#endif
+ }
+ 
+ /* Addresses to scan */
+diff --git a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-psu.c b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-psu.c
+index 31490ec15..8cad6b481 100644
+--- a/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-psu.c
++++ b/platform/xsight/sonic-platform-modules-accton/es9618xx/modules/x86-64-es9618xx-psu.c
+@@ -33,7 +33,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/dmi.h>
+-
++#include <linux/version.h>
+ 
+ #define PSU_STATUS_I2C_ADDR			0x68
+ #define PSU_STATUS_I2C_REG_OFFSET	0x3
+@@ -188,12 +188,20 @@ exit:
+ 	return status;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++static int es9618xx_psu_remove(struct i2c_client *client)
++#else
+ static void es9618xx_psu_remove(struct i2c_client *client)
++#endif
+ {
+ 	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
+ 
+ 	sysfs_remove_group(&client->dev.kobj, &es9618xx_psu_group);
+ 	kfree(data);
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
++	return 0;
++#endif
+ }
+ 
+ enum psu_index
+-- 
+2.17.1
+

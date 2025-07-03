@@ -562,7 +562,11 @@ exit:
 	return ret;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+static int es9618xx_cpld_remove(struct i2c_client *client)
+#else
 static void es9618xx_cpld_remove(struct i2c_client *client)
+#endif
 {
     struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
     const struct attribute_group *group = NULL;
@@ -586,6 +590,10 @@ static void es9618xx_cpld_remove(struct i2c_client *client)
     }
 
     kfree(data);
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+    return 0;
+#endif
 }
 
 static int es9618xx_cpld_read_internal(struct i2c_client *client, u8 reg)
