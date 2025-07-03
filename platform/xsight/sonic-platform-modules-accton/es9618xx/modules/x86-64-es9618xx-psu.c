@@ -33,7 +33,7 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/dmi.h>
-
+#include <linux/version.h>
 
 #define PSU_STATUS_I2C_ADDR			0x68
 #define PSU_STATUS_I2C_REG_OFFSET	0x3
@@ -188,12 +188,20 @@ exit:
 	return status;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+static int es9618xx_psu_remove(struct i2c_client *client)
+#else
 static void es9618xx_psu_remove(struct i2c_client *client)
+#endif
 {
 	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
 
 	sysfs_remove_group(&client->dev.kobj, &es9618xx_psu_group);
 	kfree(data);
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+	return 0;
+#endif
 }
 
 enum psu_index
