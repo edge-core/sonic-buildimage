@@ -361,6 +361,18 @@ sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/memory_checker
 sudo cp $IMAGE_CONFIGS/monit/restart_service $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/restart_service
 
+# Patch /etc/init.d/monit to remove stale pid/sock in start)
+sudo sed -i '/^\s*start)/a\
+    # Remove stale monit.pid and monit.sock before start\n\
+    if [ -e /var/run/monit.pid ]; then rm -f /var/run/monit.pid; fi\n\
+    if [ -e /var/run/monit.sock ]; then rm -f /var/run/monit.sock; fi' $FILESYSTEM_ROOT/etc/init.d/monit
+
+# Patch /etc/init.d/monit to remove stale pid/sock in restart|force-reload)
+sudo sed -i '/^\s*restart|force-reload)/a\
+    # Remove stale monit.pid and monit.sock before restart\n\
+    if [ -e /var/run/monit.pid ]; then rm -f /var/run/monit.pid; fi\n\
+    if [ -e /var/run/monit.sock ]; then rm -f /var/run/monit.sock; fi' $FILESYSTEM_ROOT/etc/init.d/monit
+
 # Installed smartmontools version should match installed smartmontools in docker-platform-monitor Dockerfile
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install smartmontools=7.2-1
 
