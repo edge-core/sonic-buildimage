@@ -30,6 +30,7 @@
         },
         "std_kos":
         [
+	    "ixgbe",
             "i2c-i801",
             "i2c-ismt",
             "i2c_dev",
