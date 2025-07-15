@@ -155,6 +155,7 @@ def driver_check():
 
 
 kos = [
+'modprobe ixgbe',
 'modprobe i2c_dev',
 'modprobe i2c_mux_pca954x force_deselect_on_exit=1',
 'modprobe accton_as5835_54t_cpld'  ,
@@ -162,7 +163,8 @@ kos = [
 'modprobe accton_as5835_54t_fan'     ,
 'modprobe optoe'      ,
 'modprobe accton_as5835_54t_leds'      ,
-'modprobe accton_as5835_54t_psu' ]
+'modprobe accton_as5835_54t_psu'
+]
 
 def driver_install():
     global FORCE
