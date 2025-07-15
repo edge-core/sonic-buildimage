@@ -136,7 +136,8 @@ kos = [
 'modprobe accton_as5835_54x_fan'     ,
 'modprobe optoe'      ,
 'modprobe accton_as5835_54x_leds'      ,
-'modprobe accton_as5835_54x_psu' ]
+'modprobe accton_as5835_54x_psu' ,
+'modprobe ixgbe' ]
 
 def driver_install():
     global FORCE

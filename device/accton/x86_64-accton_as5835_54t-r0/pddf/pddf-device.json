@@ -34,7 +34,8 @@
             "i2c-ismt",
             "i2c_dev",
             "i2c_mux_pca954x",
-            "optoe"
+            "optoe",
+	    "ixgbe"
         ],
         "pddf_kos":
         [
