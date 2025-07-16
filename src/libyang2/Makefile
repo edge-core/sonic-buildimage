@@ -20,9 +20,9 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -fr ./libyang2-$(LIBYANG2_VERSION)
 
 	# download debian libyang
-        cp $(DSC_FILE_URL) ./
-        cp $(ORIG_FILE_URL) ./
-        cp $(DEBIAN_FILE_URL) ./
+	cp $(DSC_FILE_URL) ./
+	cp $(ORIG_FILE_URL) ./
+	cp $(DEBIAN_FILE_URL) ./
 	dpkg-source -x libyang2_$(LIBYANG2_FULLVERSION).dsc
 
 	pushd libyang2-$(LIBYANG2_VERSION)
