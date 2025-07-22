@@ -413,8 +413,11 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
 	sysstat
 
 # default rsyslog version is 8.2110.0 which has a bug on log rate limit,
-# use backport version
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -t bullseye-backports -y install rsyslog
+# use backport version rsyslog_8.2302.0-1~bpo11+1
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/rsyslog.deb -fsSL \
+        http://ftp.de.debian.org/debian/pool/main/r/rsyslog/rsyslog_8.2302.0-1~bpo11+1_${CONFIGURED_ARCH}.deb
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install -f /tmp/rsyslog.deb
+sudo LANG=C chroot $FILESYSTEM_ROOT rm -f /tmp/rsyslog.deb
 
 # Have systemd create the auditd log directory
 sudo mkdir -p ${FILESYSTEM_ROOT}/etc/systemd/system/auditd.service.d
