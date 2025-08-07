@@ -23,11 +23,6 @@ NUM_THERMAL = 10
 NUM_PORT = 33
 NUM_COMPONENT = 5
 
-HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
-PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
-REBOOT_CAUSE_FILE = "reboot-cause.txt"
-PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
-
 class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
 
@@ -173,38 +168,21 @@ class Chassis(ChassisBase):
             to pass a description of the reboot cause.
         """
         description = 'None'
+        reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
+        try:
+            err, res = getstatusoutput_noshell(['ipmitool', 'raw', '0x34', '0x22', '0x21', '0x30'])
+            if err != 0 or res is None:
+                return (reboot_cause, description)
 
-        reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + REBOOT_CAUSE_FILE) \
-            if self.is_host \
-            else (PMON_REBOOT_CAUSE_PATH + REBOOT_CAUSE_FILE)
-        prev_reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE) \
-            if self.is_host \
-            else (PMON_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE)
+            code = int(res.strip(), 16)
+            for (key, value) in self.CPU_RESET_REASON.items():
+                if code & key:
+                    reboot_cause = value[0]
+                    description = value[1]
+                    break
 
-        sw_reboot_cause      = self._api_helper.read_txt_file(reboot_cause_path) or "Unknown"
-        prev_sw_reboot_cause = self._api_helper.read_txt_file(prev_reboot_cause_path) or "Unknown"
-
-        if sw_reboot_cause != "Unknown":
-            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
-            description = sw_reboot_cause
-        elif prev_sw_reboot_cause != "Unknown":
-            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
-            description = prev_sw_reboot_cause
-        else: # Try to get reboot cause from BMC
-            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
-            description = 'Unknown'
-            try:
-                err, res = getstatusoutput_noshell(['ipmitool', 'raw', '0x34', '0x22', '0x21', '0x30'])
-                if err != 0 or res is None:
-                    return (reboot_cause, description)
-
-                code = int(res.strip(), 16)
-                for (key, value) in self.CPU_RESET_REASON.items():
-                    if code & key:
-                        reboot_cause = value[0]
-                        description = value[1]
-            except Exception:
-                pass
+        except Exception:
+            pass
 
         return (reboot_cause, description)
 
@@ -259,7 +237,7 @@ class Chassis(ChassisBase):
         from sonic_platform_base.sfp_base import SfpBase
 
         if index in range(1, 33):
-            return (SfpBase.SFP_PORT_TYPE_BIT_QSFP | SfpBase.SFP_PORT_TYPE_BIT_QSFP_PLUS | 
+            return (SfpBase.SFP_PORT_TYPE_BIT_QSFP | SfpBase.SFP_PORT_TYPE_BIT_QSFP_PLUS |
                     SfpBase.SFP_PORT_TYPE_BIT_QSFP28 | SfpBase.SFP_PORT_TYPE_BIT_QSFPDD)
         elif index == 33:
             return SfpBase.SFP_PORT_TYPE_BIT_SFP | SfpBase.SFP_PORT_TYPE_BIT_SFP_PLUS
