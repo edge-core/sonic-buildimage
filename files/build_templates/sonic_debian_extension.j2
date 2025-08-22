@@ -375,6 +375,8 @@ sudo sed -i '/^\s*restart|force-reload)/a\
 
 # Installed smartmontools version should match installed smartmontools in docker-platform-monitor Dockerfile
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install smartmontools=7.2-1
+# Remove '-m root -M exec /usr/share/smartmontools/smartd-runner' from smartd.conf to disable notification to root
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT sed -E -i -e 's/\s*-m root//' -e 's#\s*-M exec /usr/share/smartmontools/smartd-runner##' /etc/smartd.conf
 
 # Install custom-built openssh sshd
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/openssh-server_${OPENSSH_VERSION}_*.deb $debs_path/openssh-client_${OPENSSH_VERSION}_*.deb $debs_path/openssh-sftp-server_${OPENSSH_VERSION}_*.deb
