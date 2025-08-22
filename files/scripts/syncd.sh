@@ -82,6 +82,10 @@ function startplatform() {
     fi
 
     if [[ x"$sonic_asic_platform" == x"xsight" ]]; then
+        BOOT_TYPE=`getBootType`
+        if [[ x"$BOOT_TYPE" == x"fast" ]]; then
+            touch /tmp/xbooted
+        fi
         /opt/xlx/start.sh
     fi
 
