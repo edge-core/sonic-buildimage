@@ -40,6 +40,13 @@ net.ipv4.neigh.default.gc_thresh2=32768
 net.ipv6.neigh.default.gc_thresh2=16384
 net.ipv4.neigh.default.gc_thresh3=32768
 net.ipv6.neigh.default.gc_thresh3=16384
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS4630-54NPE", "Accton-AS4630-54PE", "Accton-AS4630-54TE"] %}
+net.ipv4.neigh.default.gc_thresh1=24576
+net.ipv6.neigh.default.gc_thresh1=12288
+net.ipv4.neigh.default.gc_thresh2=24576
+net.ipv6.neigh.default.gc_thresh2=12288
+net.ipv4.neigh.default.gc_thresh3=24576
+net.ipv6.neigh.default.gc_thresh3=12288
 {% else %}
 net.ipv4.neigh.default.gc_thresh1=16384
 net.ipv6.neigh.default.gc_thresh1=8192
