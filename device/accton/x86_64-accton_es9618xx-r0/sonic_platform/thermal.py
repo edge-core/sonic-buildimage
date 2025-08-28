@@ -12,6 +12,8 @@ import glob
 try:
     from .chassis import *
     from sonic_platform_base.thermal_base import ThermalBase
+    from .thermal_device_data import DEVICE_DATA
+    from .helper import APIHelper
     from sonic_py_common.logger import Logger
     from swsscommon.swsscommon import SonicV2Connector
 except ImportError as e:
@@ -20,6 +22,23 @@ except ImportError as e:
 logger = Logger()
 # To enable messages of log_debug verbosity, uncomment the below line
 # logger.set_min_log_priority_debug()
+
+DEVICE_DATA_LIST = [
+    "thermal_x48",
+    "thermal_x49",
+    "thermal_x4A",
+    "thermal_x4B",
+    "thermal_x4C",
+    "thermal_x4D",
+    "thermal_x4E",
+    "thermal_x4F",
+    "asic_diode",
+    "asic_sensor_1",
+    "asic_sensor_2",
+    "asic_sensor_3",
+    "asic_average",
+    "asic_maximum"
+]
 
 class Thermal(ThermalBase):
     """Platform-specific Thermal class"""
@@ -65,6 +84,7 @@ class Thermal(ThermalBase):
     NUMBER_OF_THERMALS += len(TRANSCEIVER_TEMP_LIST)
 
     def __init__(self, thermal_index=0):
+        self._api_helper = APIHelper()
         self.index = thermal_index
         # Add thermal name
         self.THERMAL_NAME_LIST.append("Temp sensor 1")
@@ -247,6 +267,48 @@ class Thermal(ThermalBase):
             temperature = temperature * 1000
             self.__set_threshold(temp_file, temperature)
         return True
+
+
+    def get_high_critical_threshold(self):
+        """
+        Retrieves the high critical threshold temperature of thermal
+
+        Returns:
+            A float number, the high critical threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
+            temp_idx = 2
+            thresh_idx = 1
+            temp_list = DEVICE_DATA[self._api_helper.platform] \
+                ['thermal']['threshold_table'][DEVICE_DATA_LIST[self.index]]
+            thresh_list = temp_list[temp_idx].split(':')
+            return float(thresh_list[thresh_idx])
+        elif self.index >= Thermal.XCVR_TEMP_SENSORS_OFFSET:
+            return None
+        else:
+            return None
+
+    def set_high_critical_threshold(self, temperature):
+        """
+        Sets the critical high threshold temperature of thermal
+
+        Args :
+            temperature: A float number up to nearest thousandth of one degree Celsius,
+            e.g. 30.125
+
+        Returns:
+            A boolean, True if threshold is set successfully, False if not
+        """
+        if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
+            temp_idx = 2
+            thresh_idx = 1
+            temp_list = DEVICE_DATA[self._api_helper.platform] \
+                ['thermal']['threshold_table'][DEVICE_DATA_LIST[self.index]]
+            thresh_list = temp_list[temp_idx].split(':')
+            thresh_list[thresh_idx] = str(temperature)
+            return True
+        return False
 
     def get_name(self):
         """
