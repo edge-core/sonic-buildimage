@@ -1,0 +1,103 @@
+{
+    "thermal_control_algorithm": {
+        "run_at_boot_up": "true",
+        "fan_speed_when_suspend": "50"
+    },
+    "info_types": [
+        {
+            "type": "fan_info"
+        },
+        {
+            "type": "psu_info"
+        },
+        {
+            "type": "thermal_info"
+        },
+        {
+            "type": "chassis_info"
+        }
+    ],
+    "policies": [
+        {
+            "name": "dynamic fan speed control",
+            "conditions": [
+                {
+                    "type": "thermal.any.change"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "update.cool.level",
+                    "min_cool_level": "3"
+                }
+            ]
+        },
+        {
+            "name": "any fan absence",
+            "conditions": [
+                {
+                    "type": "fan.any.absence"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal_control.control",
+                    "status": "true"
+                },
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                }
+            ]
+        },
+        {
+            "name": "any fan broken",
+            "conditions": [
+                {
+                    "type": "fan.any.fault"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal_control.control",
+                    "status": "true"
+                },
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                }
+            ]
+        },
+        {
+            "name": "temp over high critical threshold",
+            "conditions": [
+                {
+                    "type": "thermal.over.high_critical_threshold"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "switch.power_cycling"
+                }
+            ]
+        },
+        {
+            "name": "all fans are present and good",
+            "conditions": [
+                {
+                    "type": "fan.all.presence"
+                },
+                {
+                    "type": "fan.all.good"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal_control.control",
+                    "status": "true"
+                }
+            ]
+        }
+    ]
+}
+
