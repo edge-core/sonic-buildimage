@@ -17,8 +17,8 @@ except ImportError as e:
 
 I2C_PATH ="/sys/bus/i2c/devices/{0}-00{1}/"
 
-PSULED_FNODES= ["/sys/class/leds/es9618xx_led::psu1/brightness",
-                "/sys/class/leds/es9618xx_led::psu2/brightness"]
+PSULED_FNODES= ["/sys/class/leds/as9647_32d_led::psu1/brightness",
+                "/sys/class/leds/as9647_32d_led::psu2/brightness"]
 
 PSU_NAME_LIST = ["PSU-1", "PSU-2"]
 PSU_NUM_FAN = [1, 1]

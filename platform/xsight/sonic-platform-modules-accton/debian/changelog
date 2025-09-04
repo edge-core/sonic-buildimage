@@ -4,3 +4,9 @@ sonic-accton-platform-modules (1.1) unstable; urgency=low
   * Initial release
 
  -- Xsight Labs <support@xsightlabs.com>  Wed, 14 Apr 2021 12:52:27 +0000
+
+sonic-accton-platform-modules (1.1) unstable; urgency=low
+
+  * Add support for Accton AS9647-32D
+
+ -- Xsight Labs <support@xsightlabs.com>  Wed, 3 Sep 2025 10:50:30 +0000

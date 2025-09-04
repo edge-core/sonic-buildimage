@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2024 Accton Technology Corporation.
+ * Copyright (C) 2025 Accton Technology Corporation.
  * Phani Karanam <phani_karanam@accton.com>
  *
  * This module supports the accton cpld that hold the channel select
  * mechanism for other i2c slave devices, such as SFP.
  * This includes the:
- *	 Accton es9618xx CPLD1/CPLD2
+ *	 Accton as9647_32d CPLD1/CPLD2/CPLD3
  *
  * Based on:
  *	es9632xx-cpld.c from Brandon Chuang <brandon_chuang@accton.com.tw>
@@ -52,28 +52,30 @@ struct cpld_client_node {
 };
 
 enum cpld_type {
-    es9618xx_cpld1,
-    es9618xx_cpld2
+    as9647_32d_cpld1,
+    as9647_32d_cpld2,
+    as9647_32d_cpld3,
 };
 
-struct es9618xx_cpld_data {
+struct as9647_32d_cpld_data {
     enum cpld_type   type;
     struct device   *hwmon_dev;
     struct mutex     update_lock;
 };
 
-static const struct i2c_device_id es9618xx_cpld_id[] = {
-    { "es9618xx_cpld1", es9618xx_cpld1 },
-    { "es9618xx_cpld2", es9618xx_cpld2 },
+static const struct i2c_device_id as9647_32d_cpld_id[] = {
+    { "as9647_32d_cpld1", as9647_32d_cpld1 },
+    { "as9647_32d_cpld2", as9647_32d_cpld2 },
+    { "as9647_32d_cpld3", as9647_32d_cpld3 },
     { }
 };
-MODULE_DEVICE_TABLE(i2c, es9618xx_cpld_id);
+MODULE_DEVICE_TABLE(i2c, as9647_32d_cpld_id);
 
 #define TRANSCEIVER_PRESENT_ATTR_ID(index)   	MODULE_PRESENT_##index
 #define TRANSCEIVER_RESET_ATTR_ID(index)        MODULE_RESET_##index
 #define TRANSCEIVER_LPMODE_ATTR_ID(index)        MODULE_LPMODE_##index
 
-enum es9618xx_cpld_sysfs_attributes {
+enum as9647_32d_cpld_sysfs_attributes {
 	BOARD_ID,
 	CPLD_VERSION,
 	ACCESS,
@@ -96,6 +98,22 @@ enum es9618xx_cpld_sysfs_attributes {
 	TRANSCEIVER_PRESENT_ATTR_ID(14),
 	TRANSCEIVER_PRESENT_ATTR_ID(15),
 	TRANSCEIVER_PRESENT_ATTR_ID(16),
+	TRANSCEIVER_PRESENT_ATTR_ID(17),
+	TRANSCEIVER_PRESENT_ATTR_ID(18),
+	TRANSCEIVER_PRESENT_ATTR_ID(19),
+	TRANSCEIVER_PRESENT_ATTR_ID(20),
+	TRANSCEIVER_PRESENT_ATTR_ID(21),
+	TRANSCEIVER_PRESENT_ATTR_ID(22),
+	TRANSCEIVER_PRESENT_ATTR_ID(23),
+	TRANSCEIVER_PRESENT_ATTR_ID(24),
+	TRANSCEIVER_PRESENT_ATTR_ID(25),
+	TRANSCEIVER_PRESENT_ATTR_ID(26),
+	TRANSCEIVER_PRESENT_ATTR_ID(27),
+	TRANSCEIVER_PRESENT_ATTR_ID(28),
+	TRANSCEIVER_PRESENT_ATTR_ID(29),
+	TRANSCEIVER_PRESENT_ATTR_ID(30),
+	TRANSCEIVER_PRESENT_ATTR_ID(31),
+	TRANSCEIVER_PRESENT_ATTR_ID(32),
 	TRANSCEIVER_RESET_ATTR_ID(1),
 	TRANSCEIVER_RESET_ATTR_ID(2),
 	TRANSCEIVER_RESET_ATTR_ID(3),
@@ -112,6 +130,22 @@ enum es9618xx_cpld_sysfs_attributes {
 	TRANSCEIVER_RESET_ATTR_ID(14),
 	TRANSCEIVER_RESET_ATTR_ID(15),
 	TRANSCEIVER_RESET_ATTR_ID(16),
+	TRANSCEIVER_RESET_ATTR_ID(17),
+	TRANSCEIVER_RESET_ATTR_ID(18),
+	TRANSCEIVER_RESET_ATTR_ID(19),
+	TRANSCEIVER_RESET_ATTR_ID(20),
+	TRANSCEIVER_RESET_ATTR_ID(21),
+	TRANSCEIVER_RESET_ATTR_ID(22),
+	TRANSCEIVER_RESET_ATTR_ID(23),
+	TRANSCEIVER_RESET_ATTR_ID(24),
+	TRANSCEIVER_RESET_ATTR_ID(25),
+	TRANSCEIVER_RESET_ATTR_ID(26),
+	TRANSCEIVER_RESET_ATTR_ID(27),
+	TRANSCEIVER_RESET_ATTR_ID(28),
+	TRANSCEIVER_RESET_ATTR_ID(29),
+	TRANSCEIVER_RESET_ATTR_ID(30),
+	TRANSCEIVER_RESET_ATTR_ID(31),
+	TRANSCEIVER_RESET_ATTR_ID(32),
 	TRANSCEIVER_LPMODE_ATTR_ID(1),
 	TRANSCEIVER_LPMODE_ATTR_ID(2),
 	TRANSCEIVER_LPMODE_ATTR_ID(3),
@@ -127,7 +161,23 @@ enum es9618xx_cpld_sysfs_attributes {
 	TRANSCEIVER_LPMODE_ATTR_ID(13),
 	TRANSCEIVER_LPMODE_ATTR_ID(14),
 	TRANSCEIVER_LPMODE_ATTR_ID(15),
-	TRANSCEIVER_LPMODE_ATTR_ID(16)
+	TRANSCEIVER_LPMODE_ATTR_ID(16),
+	TRANSCEIVER_LPMODE_ATTR_ID(17),
+	TRANSCEIVER_LPMODE_ATTR_ID(18),
+	TRANSCEIVER_LPMODE_ATTR_ID(19),
+	TRANSCEIVER_LPMODE_ATTR_ID(20),
+	TRANSCEIVER_LPMODE_ATTR_ID(21),
+	TRANSCEIVER_LPMODE_ATTR_ID(22),
+	TRANSCEIVER_LPMODE_ATTR_ID(23),
+	TRANSCEIVER_LPMODE_ATTR_ID(24),
+	TRANSCEIVER_LPMODE_ATTR_ID(25),
+	TRANSCEIVER_LPMODE_ATTR_ID(26),
+	TRANSCEIVER_LPMODE_ATTR_ID(27),
+	TRANSCEIVER_LPMODE_ATTR_ID(28),
+	TRANSCEIVER_LPMODE_ATTR_ID(29),
+	TRANSCEIVER_LPMODE_ATTR_ID(30),
+	TRANSCEIVER_LPMODE_ATTR_ID(31),
+	TRANSCEIVER_LPMODE_ATTR_ID(32)
 };
 
 /* sysfs attributes for hwmon
@@ -144,8 +194,8 @@ static ssize_t show_version(struct device *dev, struct device_attribute *da,
              char *buf);
 static ssize_t show_board_id(struct device *dev, struct device_attribute *da,
              char *buf);
-static int es9618xx_cpld_read_internal(struct i2c_client *client, u8 reg);
-static int es9618xx_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value);
+static int as9647_32d_cpld_read_internal(struct i2c_client *client, u8 reg);
+static int as9647_32d_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value);
 
 /* transceiver attributes */
 #define DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(index) \
@@ -180,19 +230,35 @@ DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(13);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(14);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(15);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(16);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(17);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(18);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(19);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(20);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(21);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(22);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(23);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(24);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(25);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(26);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(27);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(28);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(29);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(30);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(31);
+DECLARE_TRANSCEIVER_SENSOR_DEVICE_ATTR(32);
 
-static struct attribute *es9618xx_cpld1_attributes[] = {
+static struct attribute *as9647_32d_cpld1_attributes[] = {
     &sensor_dev_attr_board_id.dev_attr.attr,
     &sensor_dev_attr_version.dev_attr.attr,
     &sensor_dev_attr_access.dev_attr.attr,
 	NULL
 };
 
-static const struct attribute_group es9618xx_cpld1_group = {
-	.attrs = es9618xx_cpld1_attributes,
+static const struct attribute_group as9647_32d_cpld1_group = {
+	.attrs = as9647_32d_cpld1_attributes,
 };
 
-static struct attribute *es9618xx_cpld2_attributes[] = {
+static struct attribute *as9647_32d_cpld2_attributes[] = {
     &sensor_dev_attr_version.dev_attr.attr,
     &sensor_dev_attr_access.dev_attr.attr,
 	/* transceiver attributes */
@@ -248,8 +314,69 @@ static struct attribute *es9618xx_cpld2_attributes[] = {
 	NULL
 };
 
-static const struct attribute_group es9618xx_cpld2_group = {
-	.attrs = es9618xx_cpld2_attributes,
+static const struct attribute_group as9647_32d_cpld2_group = {
+	.attrs = as9647_32d_cpld2_attributes,
+};
+
+
+static struct attribute *as9647_32d_cpld3_attributes[] = {
+	&sensor_dev_attr_version.dev_attr.attr,
+	&sensor_dev_attr_access.dev_attr.attr,
+	/* transceiver attributes */
+	&sensor_dev_attr_module_present_all.dev_attr.attr,
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(17),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(18),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(19),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(20),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(21),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(22),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(23),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(24),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(25),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(26),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(27),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(28),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(29),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(30),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(31),
+	DECLARE_TRANSCEIVER_PRESENT_ATTR(32),
+	DECLARE_TRANSCEIVER_RESET_ATTR(17),
+	DECLARE_TRANSCEIVER_RESET_ATTR(18),
+	DECLARE_TRANSCEIVER_RESET_ATTR(19),
+	DECLARE_TRANSCEIVER_RESET_ATTR(20),
+	DECLARE_TRANSCEIVER_RESET_ATTR(21),
+	DECLARE_TRANSCEIVER_RESET_ATTR(22),
+	DECLARE_TRANSCEIVER_RESET_ATTR(23),
+	DECLARE_TRANSCEIVER_RESET_ATTR(24),
+	DECLARE_TRANSCEIVER_RESET_ATTR(25),
+	DECLARE_TRANSCEIVER_RESET_ATTR(26),
+	DECLARE_TRANSCEIVER_RESET_ATTR(27),
+	DECLARE_TRANSCEIVER_RESET_ATTR(28),
+	DECLARE_TRANSCEIVER_RESET_ATTR(29),
+	DECLARE_TRANSCEIVER_RESET_ATTR(30),
+	DECLARE_TRANSCEIVER_RESET_ATTR(31),
+	DECLARE_TRANSCEIVER_RESET_ATTR(32),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(17),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(18),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(19),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(20),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(21),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(22),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(23),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(24),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(25),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(26),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(27),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(28),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(29),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(30),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(31),
+	DECLARE_TRANSCEIVER_LPMODE_ATTR(32),
+	NULL
+};
+
+static const struct attribute_group as9647_32d_cpld3_group = {
+	.attrs = as9647_32d_cpld3_attributes,
 };
 
 
@@ -262,12 +389,12 @@ static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
     u8 *regs[] = {NULL, regs_cpld2, NULL};
     u8  size[] = {0, ARRAY_SIZE(regs_cpld2), 0};
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
 
 	mutex_lock(&data->update_lock);
 
     for (i = 0; i < size[data->type]; i++) {
-        status = es9618xx_cpld_read_internal(client, regs[data->type][i]);
+        status = as9647_32d_cpld_read_internal(client, regs[data->type][i]);
         if (status < 0) {
             goto exit;
         }
@@ -290,7 +417,7 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
     struct i2c_client *client = to_i2c_client(dev);
-    struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+    struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
 	int status = 0;
 	u8 reg = 0, mask = 0, invert = 1;
 
@@ -303,6 +430,14 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 		reg  = 0x15;
 		mask = 0x1 << (attr->index - MODULE_PRESENT_9);
 		break;
+	case MODULE_PRESENT_17 ... MODULE_PRESENT_24:
+		reg  = 0x14;
+		mask = 0x1 << (attr->index - MODULE_PRESENT_17);
+		break;
+	case MODULE_PRESENT_25 ... MODULE_PRESENT_32:
+		reg  = 0x15;
+		mask = 0x1 << (attr->index - MODULE_PRESENT_25);
+		break;
 	case MODULE_RESET_1 ... MODULE_RESET_8:
 		reg  = 0x60;
 		mask = 0x1 << (attr->index - MODULE_RESET_1);
@@ -311,20 +446,40 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 		reg  = 0x61;
 		mask = 0x1 << (attr->index - MODULE_RESET_9);
 		break;
+	case MODULE_RESET_17 ... MODULE_RESET_24:
+		reg  = 0x60;
+		mask = 0x1 << (attr->index - MODULE_RESET_17);
+		break;
+	case MODULE_RESET_25 ... MODULE_RESET_32:
+		reg  = 0x61;
+		mask = 0x1 << (attr->index - MODULE_RESET_25);
+		break;
 	case MODULE_LPMODE_1 ... MODULE_LPMODE_8:
 		reg  = 0x64;
 		mask = 0x1 << (attr->index - MODULE_LPMODE_1);
+		invert = 0;
 		break;
 	case MODULE_LPMODE_9 ... MODULE_LPMODE_16:
 		reg  = 0x65;
 		mask = 0x1 << (attr->index - MODULE_LPMODE_9);
+		invert = 0;
+		break;
+	case MODULE_LPMODE_17 ... MODULE_LPMODE_24:
+		reg  = 0x64;
+		mask = 0x1 << (attr->index - MODULE_LPMODE_17);
+		invert = 0;
+		break;
+	case MODULE_LPMODE_25 ... MODULE_LPMODE_32:
+		reg  = 0x65;
+		mask = 0x1 << (attr->index - MODULE_LPMODE_25);
+		invert = 0;
 		break;
 	default:
 		return 0;
 	}
 
     mutex_lock(&data->update_lock);
-	status = es9618xx_cpld_read_internal(client, reg);
+	status = as9647_32d_cpld_read_internal(client, reg);
 	if (unlikely(status < 0)) {
 		goto exit;
 	}
@@ -342,7 +497,7 @@ static ssize_t set_control(struct device *dev, struct device_attribute *da,
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
 	long value;
 	int status;
     u8 reg = 0, mask = 0;
@@ -361,6 +516,14 @@ static ssize_t set_control(struct device *dev, struct device_attribute *da,
 		reg  = 0x61;
 		mask = 0x1 << (attr->index - MODULE_RESET_9);
 		break;
+	case MODULE_RESET_17 ... MODULE_RESET_24:
+		reg  = 0x60;
+		mask = 0x1 << (attr->index - MODULE_RESET_17);
+		break;
+	case MODULE_RESET_25 ... MODULE_RESET_32:
+		reg  = 0x61;
+		mask = 0x1 << (attr->index - MODULE_RESET_25);
+		break;
 	case MODULE_LPMODE_1 ... MODULE_LPMODE_8:
 		reg  = 0x64;
 		mask = 0x1 << (attr->index - MODULE_LPMODE_1);
@@ -369,19 +532,29 @@ static ssize_t set_control(struct device *dev, struct device_attribute *da,
 		reg  = 0x65;
 		mask = 0x1 << (attr->index - MODULE_LPMODE_9);
 		break;
+	case MODULE_LPMODE_17 ... MODULE_LPMODE_24:
+		reg  = 0x64;
+		mask = 0x1 << (attr->index - MODULE_LPMODE_17);
+		break;
+	case MODULE_LPMODE_25 ... MODULE_LPMODE_32:
+		reg  = 0x65;
+		mask = 0x1 << (attr->index - MODULE_LPMODE_25);
+		break;
 	default:
 		return 0;
 	}
 
     /* Read current status */
     mutex_lock(&data->update_lock);
-	status = es9618xx_cpld_read_internal(client, reg);
+	status = as9647_32d_cpld_read_internal(client, reg);
 	if (unlikely(status < 0)) {
 		goto exit;
 	}
 
-	/* Update reset/lpmode status */
-    value = !value; /* reset/lpmode value is inverted in CPLD */
+	/* Update reset status. Since reset is active low, revert it */
+	if ((attr->index >= MODULE_RESET_1 && attr->index <= MODULE_RESET_32)) {
+		value = !value;
+	}
 
 	if (value) {
 		status |= mask;
@@ -390,7 +563,7 @@ static ssize_t set_control(struct device *dev, struct device_attribute *da,
 		status &= ~mask;
 	}
 
-    status = es9618xx_cpld_write_internal(client, reg, status);
+    status = as9647_32d_cpld_write_internal(client, reg, status);
 	if (unlikely(status < 0)) {
 		goto exit;
 	}
@@ -409,7 +582,7 @@ static ssize_t access(struct device *dev, struct device_attribute *da,
 	int status;
 	u32 addr, val;
     struct i2c_client *client = to_i2c_client(dev);
-    struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+    struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
 
 	if (sscanf(buf, "0x%x 0x%x", &addr, &val) != 2) {
 		return -EINVAL;
@@ -420,7 +593,7 @@ static ssize_t access(struct device *dev, struct device_attribute *da,
 	}
 
 	mutex_lock(&data->update_lock);
-	status = es9618xx_cpld_write_internal(client, addr, val);
+	status = as9647_32d_cpld_write_internal(client, addr, val);
 	if (unlikely(status < 0)) {
 		goto exit;
 	}
@@ -432,7 +605,7 @@ exit:
 	return status;
 }
 
-static void es9618xx_cpld_add_client(struct i2c_client *client)
+static void as9647_32d_cpld_add_client(struct i2c_client *client)
 {
     struct cpld_client_node *node = kzalloc(sizeof(struct cpld_client_node), GFP_KERNEL);
 
@@ -448,7 +621,7 @@ static void es9618xx_cpld_add_client(struct i2c_client *client)
 	mutex_unlock(&list_lock);
 }
 
-static void es9618xx_cpld_remove_client(struct i2c_client *client)
+static void as9647_32d_cpld_remove_client(struct i2c_client *client)
 {
     struct list_head    *list_node = NULL;
     struct cpld_client_node *cpld_node = NULL;
@@ -478,7 +651,7 @@ static ssize_t show_version(struct device *dev, struct device_attribute *attr, c
 {
 	int ver = 0;
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
 
 	ver = i2c_smbus_read_byte_data(client, 0x1);
 
@@ -487,7 +660,7 @@ static ssize_t show_version(struct device *dev, struct device_attribute *attr, c
 		return ver;
 	}
 
-	if (data->type == es9618xx_cpld1) {
+	if (data->type == as9647_32d_cpld1) {
 		int subver = i2c_smbus_read_byte_data(client, 0x2);
 
 		if (subver < 0) {
@@ -518,18 +691,18 @@ static ssize_t show_board_id(struct device *dev, struct device_attribute *attr, 
 /*
  * I2C init/probing/exit functions
  */
-static int es9618xx_cpld_probe(struct i2c_client *client,
+static int as9647_32d_cpld_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-	struct es9618xx_cpld_data *data;
+	struct as9647_32d_cpld_data *data;
 	int ret = -ENODEV;
 	const struct attribute_group *group = NULL;
 
 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
 		goto exit;
 
-	data = kzalloc(sizeof(struct es9618xx_cpld_data), GFP_KERNEL);
+	data = kzalloc(sizeof(struct as9647_32d_cpld_data), GFP_KERNEL);
 	if (!data) {
 		ret = -ENOMEM;
 		goto exit;
@@ -541,11 +714,14 @@ static int es9618xx_cpld_probe(struct i2c_client *client,
 
     /* Register sysfs hooks */
     switch (data->type) {
-    case es9618xx_cpld1:
-        group = &es9618xx_cpld1_group;
+    case as9647_32d_cpld1:
+        group = &as9647_32d_cpld1_group;
         break;
-    case es9618xx_cpld2:
-        group = &es9618xx_cpld2_group;
+    case as9647_32d_cpld2:
+        group = &as9647_32d_cpld2_group;
+        break;
+    case as9647_32d_cpld3:
+        group = &as9647_32d_cpld3_group;
         break;
     default:
         break;
@@ -558,7 +734,7 @@ static int es9618xx_cpld_probe(struct i2c_client *client,
         }
     }
 
-    es9618xx_cpld_add_client(client);
+    as9647_32d_cpld_add_client(client);
     return 0;
 
 exit_free:
@@ -567,20 +743,23 @@ exit:
 	return ret;
 }
 
-static int es9618xx_cpld_remove(struct i2c_client *client)
+static int as9647_32d_cpld_remove(struct i2c_client *client)
 {
-    struct es9618xx_cpld_data *data = i2c_get_clientdata(client);
+    struct as9647_32d_cpld_data *data = i2c_get_clientdata(client);
     const struct attribute_group *group = NULL;
 
-    es9618xx_cpld_remove_client(client);
+    as9647_32d_cpld_remove_client(client);
 
     /* Remove sysfs hooks */
     switch (data->type) {
-    case es9618xx_cpld1:
-        group = &es9618xx_cpld1_group;
+    case as9647_32d_cpld1:
+        group = &as9647_32d_cpld1_group;
         break;
-    case es9618xx_cpld2:
-        group = &es9618xx_cpld2_group;
+    case as9647_32d_cpld2:
+        group = &as9647_32d_cpld2_group;
+        break;
+    case as9647_32d_cpld3:
+        group = &as9647_32d_cpld3_group;
         break;
     default:
         break;
@@ -595,7 +774,7 @@ static int es9618xx_cpld_remove(struct i2c_client *client)
     return 0;
 }
 
-static int es9618xx_cpld_read_internal(struct i2c_client *client, u8 reg)
+static int as9647_32d_cpld_read_internal(struct i2c_client *client, u8 reg)
 {
 	int status = 0, retry = I2C_RW_RETRY_COUNT;
 
@@ -613,7 +792,7 @@ static int es9618xx_cpld_read_internal(struct i2c_client *client, u8 reg)
     return status;
 }
 
-static int es9618xx_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value)
+static int as9647_32d_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value)
 {
 	int status = 0, retry = I2C_RW_RETRY_COUNT;
 
@@ -631,7 +810,7 @@ static int es9618xx_cpld_write_internal(struct i2c_client *client, u8 reg, u8 va
     return status;
 }
 
-int es9618xx_cpld_read(unsigned short cpld_addr, u8 reg)
+int as9647_32d_cpld_read(unsigned short cpld_addr, u8 reg)
 {
     struct list_head   *list_node = NULL;
     struct cpld_client_node *cpld_node = NULL;
@@ -644,8 +823,8 @@ int es9618xx_cpld_read(unsigned short cpld_addr, u8 reg)
         cpld_node = list_entry(list_node, struct cpld_client_node, list);
 
         if (cpld_node->client->addr == cpld_addr) {
-            ret = es9618xx_cpld_read_internal(cpld_node->client, reg);
-    		break;
+            ret = as9647_32d_cpld_read_internal(cpld_node->client, reg);
+            break;
         }
     }
 
@@ -653,9 +832,9 @@ int es9618xx_cpld_read(unsigned short cpld_addr, u8 reg)
 
     return ret;
 }
-EXPORT_SYMBOL(es9618xx_cpld_read);
+EXPORT_SYMBOL(as9647_32d_cpld_read);
 
-int es9618xx_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
+int as9647_32d_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
 {
     struct list_head   *list_node = NULL;
     struct cpld_client_node *cpld_node = NULL;
@@ -668,7 +847,7 @@ int es9618xx_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
         cpld_node = list_entry(list_node, struct cpld_client_node, list);
 
         if (cpld_node->client->addr == cpld_addr) {
-            ret = es9618xx_cpld_write_internal(cpld_node->client, reg, value);
+            ret = as9647_32d_cpld_write_internal(cpld_node->client, reg, value);
             break;
         }
     }
@@ -677,32 +856,32 @@ int es9618xx_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
 
     return ret;
 }
-EXPORT_SYMBOL(es9618xx_cpld_write);
+EXPORT_SYMBOL(as9647_32d_cpld_write);
 
-static struct i2c_driver es9618xx_cpld_driver = {
+static struct i2c_driver as9647_32d_cpld_driver = {
 	.driver		= {
-		.name	= "es9618xx_cpld",
+		.name	= "as9647_32d_cpld",
 		.owner	= THIS_MODULE,
 	},
-	.probe		= es9618xx_cpld_probe,
-	.remove		= es9618xx_cpld_remove,
-	.id_table	= es9618xx_cpld_id,
+	.probe		= as9647_32d_cpld_probe,
+	.remove		= as9647_32d_cpld_remove,
+	.id_table	= as9647_32d_cpld_id,
 };
 
-static int __init es9618xx_cpld_init(void)
+static int __init as9647_32d_cpld_init(void)
 {
     mutex_init(&list_lock);
-    return i2c_add_driver(&es9618xx_cpld_driver);
+    return i2c_add_driver(&as9647_32d_cpld_driver);
 }
 
-static void __exit es9618xx_cpld_exit(void)
+static void __exit as9647_32d_cpld_exit(void)
 {
-    i2c_del_driver(&es9618xx_cpld_driver);
+    i2c_del_driver(&as9647_32d_cpld_driver);
 }
 
-MODULE_AUTHOR("Phani Karanam <phani_karanam@accton.com>");
-MODULE_DESCRIPTION("Accton es9618xx CPLD driver");
+MODULE_AUTHOR("Brandon Chuang <brandon_chuang@accton.com>");
+MODULE_DESCRIPTION("Accton as9647_32d CPLD driver");
 MODULE_LICENSE("GPL");
 
-module_init(es9618xx_cpld_init);
-module_exit(es9618xx_cpld_exit);
+module_init(as9647_32d_cpld_init);
+module_exit(as9647_32d_cpld_exit);

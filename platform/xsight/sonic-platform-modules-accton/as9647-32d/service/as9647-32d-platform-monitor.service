@@ -1,12 +1,12 @@
 [Unit]
-Description=Accton ES9618XX Platform Monitoring service
+Description=Accton AS9647-32D Platform Monitoring service
 Before=pmon.service
 After=sysinit.target
 DefaultDependencies=no
 
 [Service]
-ExecStartPre=/usr/local/bin/es9618xx_util.py install
-ExecStart=/usr/local/bin/es9618xx_monitor.py
+ExecStartPre=/usr/local/bin/as9647_32d_util.py install
+ExecStart=/usr/local/bin/as9647_32d_monitor.py
 KillSignal=SIGKILL
 SuccessExitStatus=SIGKILL
 

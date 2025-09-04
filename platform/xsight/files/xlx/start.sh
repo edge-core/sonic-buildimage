@@ -47,7 +47,7 @@ fname=$(basename $0)
 #   sonic systemd-udevd[380]: eth1: Failed to rename network interface 3 from 'eth1' to 'eth0': File exists
 #   sonic kernel: ice 0000:f4:00.0 eth10g0: renamed from eth0
 # As a workaround, we reload the igb driver when the eth0 was busy during the igb probe.
-if [[ ${ONIE_MACHINE,,} == *"es9618"* ]]; then
+if [[ ${ONIE_MACHINE,,} == *"es9618"* || ${ONIE_MACHINE,,} == *"as9647"* ]]; then
     out=$(ip a l eth0 | grep "UP")
     res=$?
     echo "$fname: eth0 link UP check result=$res, output=$out" | tee /dev/kmsg
@@ -123,7 +123,11 @@ if [[ ${ONIE_MACHINE,,} != *"kvm"* ]]; then
         XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/es9632x_reset_x1.sh
     elif [[ "${XSIGHT_DEVICE}" == "X2" ]]; then
 	sleep 12
-        XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/es9618x_reset_x2.sh
+        if [[ ${ONIE_MACHINE,,} == *"es9618"* ]]; then
+            XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/es9618x_reset_x2.sh
+        else
+            XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/x2_reset.sh
+        fi
     fi
 
     # Reset switch chip and PCI bus

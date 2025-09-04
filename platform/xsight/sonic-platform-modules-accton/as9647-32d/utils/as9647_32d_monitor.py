@@ -15,7 +15,7 @@ try:
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
-FUNCTION_NAME = 'es9618xx_monitor'
+FUNCTION_NAME = 'as9647_32d_monitor'
 SHUTDOWN_FILE = '/usr/share/sonic/firmware/pmon_system_shutdown'
 SHUTDOWN_OVERHEAT_CODE = "overheat"
 
@@ -66,7 +66,7 @@ def main(argv):
                             logger.error("Failed to run command: {}".format(cmd))
 
                         # Reset X2 chip
-                        cmd = "/opt/xplt/utils/es9618x_reset_x2.sh"
+                        cmd = "/opt/xplt/utils/reset_x2.sh"
                         logger.info("Reset X2 chip")
                         sts, res = run_command(cmd)
                         if sts == False:

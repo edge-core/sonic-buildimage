@@ -21,16 +21,18 @@ except ImportError as e:
 CPLD_ADDR_MAPPING = {
     "CPLD1": "1-0068",
     "CPLD2": "13-0061",
-    "CPLD3": "10-0066",
+    "CPLD3": "15-0062",
+    "CPLD4": "10-0066",
 }
 SYSFS_PATH = "/sys/bus/i2c/devices/"
 BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 COMPONENT_LIST= [
    ("BIOS", "Basic Input/Output System"),
    ("ONIE", "Open Network Install Environment"),
-   ("CPLD1", "CPLD 1"),
-   ("CPLD2", "CPLD 2"),
-   ("CPLD3", "CPLD 3")
+   ("CPLD1", "FPGA Board Control"),
+   ("CPLD2", "QSFP Ports 1-16 Pins and LEDs"),
+   ("CPLD3", "QSFP Ports 17-32 Pins and LEDs"),
+   ("CPLD4", "Fans Control"),
 ]
 
 SYSLOG_IDENTIFIER = "component"
