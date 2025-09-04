@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * A LED driver for the es9618xx_led
+ * A LED driver for the as9647_32d_led
  *
  * Copyright (C) 2024 Accton Technology Corporation.
  * Phani Karanam <phani_karanam@accton.com>
@@ -31,7 +31,7 @@
 #include <linux/leds.h>
 #include <linux/slab.h>
 
-#define DRVNAME "es9618xx_led"
+#define DRVNAME "as9647_32d_led"
 
 #define DEBUG_MODE 0
 
@@ -42,10 +42,10 @@
     #define DEBUG_PRINT(fmt, args...)
 #endif
 
-extern int es9618xx_cpld_read(unsigned short cpld_addr, u8 reg);
-extern int es9618xx_cpld_write(unsigned short cpld_addr, u8 reg, u8 value);
+extern int as9647_32d_cpld_read(unsigned short cpld_addr, u8 reg);
+extern int as9647_32d_cpld_write(unsigned short cpld_addr, u8 reg, u8 value);
 
-struct es9618xx_led_data {
+struct as9647_32d_led_data {
     struct platform_device *pdev;
     struct mutex    update_lock;
     char            valid;          /* != 0 if registers are valid */
@@ -55,7 +55,7 @@ struct es9618xx_led_data {
                                                         */
 };
 
-static struct es9618xx_led_data  *ledctl = NULL;
+static struct as9647_32d_led_data  *ledctl = NULL;
 
 #define LED_CNTRLER_I2C_ADDRESS          (0x61)
 
@@ -179,17 +179,17 @@ static u8 led_light_mode_to_reg_val(enum led_type type,
     return reg_val;
 }
 
-static int es9618xx_led_read_value(u8 reg)
+static int as9647_32d_led_read_value(u8 reg)
 {
-    return es9618xx_cpld_read(LED_CNTRLER_I2C_ADDRESS, reg);
+    return as9647_32d_cpld_read(LED_CNTRLER_I2C_ADDRESS, reg);
 }
 
-static int es9618xx_led_write_value(u8 reg, u8 value)
+static int as9647_32d_led_write_value(u8 reg, u8 value)
 {
-    return es9618xx_cpld_write(LED_CNTRLER_I2C_ADDRESS, reg, value);
+    return as9647_32d_cpld_write(LED_CNTRLER_I2C_ADDRESS, reg, value);
 }
 
-static void es9618xx_led_update(void)
+static void as9647_32d_led_update(void)
 {
     mutex_lock(&ledctl->update_lock);
 
@@ -197,13 +197,13 @@ static void es9618xx_led_update(void)
         || !ledctl->valid) {
         int i;
 
-        dev_dbg(&ledctl->pdev->dev, "Starting es9618xx_led update\n");
+        dev_dbg(&ledctl->pdev->dev, "Starting as9647_32d_led update\n");
         ledctl->valid = 0;
 
         /* Update LED data
          */
         for (i = 0; i < ARRAY_SIZE(ledctl->reg_val); i++) {
-            int status = es9618xx_led_read_value(led_reg[i]);
+            int status = as9647_32d_led_read_value(led_reg[i]);
 
             if (status < 0) {
                 dev_dbg(&ledctl->pdev->dev, "reg %d, err %d\n", led_reg[i], status);
@@ -221,14 +221,14 @@ exit:
     mutex_unlock(&ledctl->update_lock);
 }
 
-static void es9618xx_led_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_set(struct led_classdev *led_cdev,
                                       enum led_brightness led_light_mode,
                                       u8 reg, enum led_type type)
 {
     int reg_val;
 
     mutex_lock(&ledctl->update_lock);
-    reg_val = es9618xx_led_read_value(reg);
+    reg_val = as9647_32d_led_read_value(reg);
 
     if (reg_val < 0) {
         dev_dbg(&ledctl->pdev->dev, "reg %d, err %d\n", reg, reg_val);
@@ -236,117 +236,117 @@ static void es9618xx_led_set(struct led_classdev *led_cdev,
     }
 
     reg_val = led_light_mode_to_reg_val(type, led_light_mode, reg_val);
-    es9618xx_led_write_value(reg, reg_val);
+    as9647_32d_led_write_value(reg, reg_val);
     ledctl->valid = 0;
 
 exit:
     mutex_unlock(&ledctl->update_lock);
 }
 
-static void es9618xx_led_fan_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_fan_set(struct led_classdev *led_cdev,
                                            enum led_brightness led_light_mode)
 {
-    es9618xx_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_FAN);
+    as9647_32d_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_FAN);
 }
 
-static enum led_brightness es9618xx_led_fan_get(struct led_classdev *cdev)
+static enum led_brightness as9647_32d_led_fan_get(struct led_classdev *cdev)
 {
-    es9618xx_led_update();
+    as9647_32d_led_update();
     return led_reg_val_to_light_mode(LED_TYPE_FAN, ledctl->reg_val[0]);
 }
 
-static void es9618xx_led_psu1_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_psu1_set(struct led_classdev *led_cdev,
                                            enum led_brightness led_light_mode)
 {
-    es9618xx_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_PSU1);
+    as9647_32d_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_PSU1);
 }
 
-static enum led_brightness es9618xx_led_psu1_get(struct led_classdev *cdev)
+static enum led_brightness as9647_32d_led_psu1_get(struct led_classdev *cdev)
 {
-    es9618xx_led_update();
+    as9647_32d_led_update();
     return led_reg_val_to_light_mode(LED_TYPE_PSU1, ledctl->reg_val[0]);
 }
 
-static void es9618xx_led_psu2_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_psu2_set(struct led_classdev *led_cdev,
                                            enum led_brightness led_light_mode)
 {
-    es9618xx_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_PSU2);
+    as9647_32d_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_PSU2);
 }
 
-static enum led_brightness es9618xx_led_psu2_get(struct led_classdev *cdev)
+static enum led_brightness as9647_32d_led_psu2_get(struct led_classdev *cdev)
 {
-    es9618xx_led_update();
+    as9647_32d_led_update();
     return led_reg_val_to_light_mode(LED_TYPE_PSU2, ledctl->reg_val[0]);
 }
 
-static void es9618xx_led_diag_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_diag_set(struct led_classdev *led_cdev,
                                            enum led_brightness led_light_mode)
 {
-    es9618xx_led_set(led_cdev, led_light_mode, led_reg[1], LED_TYPE_DIAG);
+    as9647_32d_led_set(led_cdev, led_light_mode, led_reg[1], LED_TYPE_DIAG);
 }
 
-static enum led_brightness es9618xx_led_diag_get(struct led_classdev *cdev)
+static enum led_brightness as9647_32d_led_diag_get(struct led_classdev *cdev)
 {
-    es9618xx_led_update();
+    as9647_32d_led_update();
     return led_reg_val_to_light_mode(LED_TYPE_DIAG, ledctl->reg_val[1]);
 }
 
-static enum led_brightness es9618xx_led_loc_get(struct led_classdev *cdev)
+static enum led_brightness as9647_32d_led_loc_get(struct led_classdev *cdev)
 {
-    es9618xx_led_update();
+    as9647_32d_led_update();
     return led_reg_val_to_light_mode(LED_TYPE_LOC, ledctl->reg_val[0]);
 }
 
-static void es9618xx_led_loc_set(struct led_classdev *led_cdev,
+static void as9647_32d_led_loc_set(struct led_classdev *led_cdev,
                                            enum led_brightness led_light_mode)
 {
-    es9618xx_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_LOC);
+    as9647_32d_led_set(led_cdev, led_light_mode, led_reg[0], LED_TYPE_LOC);
 }
 
-static struct led_classdev es9618xx_leds[] = {
+static struct led_classdev as9647_32d_leds[] = {
     [LED_TYPE_LOC] = {
-        .name             = "es9618xx_led::loc",
+        .name             = "as9647_32d_led::loc",
         .default_trigger = "unused",
-        .brightness_set     = es9618xx_led_loc_set,
-        .brightness_get  = es9618xx_led_loc_get,
+        .brightness_set     = as9647_32d_led_loc_set,
+        .brightness_get  = as9647_32d_led_loc_get,
         .max_brightness  = LED_MODE_AMBER_BLINK,
     },
     [LED_TYPE_DIAG] = {
-        .name             = "es9618xx_led::diag",
+        .name             = "as9647_32d_led::diag",
         .default_trigger = "unused",
-        .brightness_set     = es9618xx_led_diag_set,
-        .brightness_get  = es9618xx_led_diag_get,
+        .brightness_set     = as9647_32d_led_diag_set,
+        .brightness_get  = as9647_32d_led_diag_get,
         .max_brightness  = LED_MODE_AMBER_BLINK,
     },
     [LED_TYPE_PSU1] = {
-        .name             = "es9618xx_led::psu1",
+        .name             = "as9647_32d_led::psu1",
         .default_trigger = "unused",
-        .brightness_set     = es9618xx_led_psu1_set,
-        .brightness_get  = es9618xx_led_psu1_get,
+        .brightness_set     = as9647_32d_led_psu1_set,
+        .brightness_get  = as9647_32d_led_psu1_get,
         .max_brightness  = LED_MODE_AMBER,
     },
     [LED_TYPE_PSU2] = {
-        .name             = "es9618xx_led::psu2",
+        .name             = "as9647_32d_led::psu2",
         .default_trigger = "unused",
-        .brightness_set     = es9618xx_led_psu2_set,
-        .brightness_get  = es9618xx_led_psu2_get,
+        .brightness_set     = as9647_32d_led_psu2_set,
+        .brightness_get  = as9647_32d_led_psu2_get,
         .max_brightness  = LED_MODE_AMBER,
     },
     [LED_TYPE_FAN] = {
-        .name             = "es9618xx_led::fan",
+        .name             = "as9647_32d_led::fan",
         .default_trigger = "unused",
-        .brightness_set     = es9618xx_led_fan_set,
-        .brightness_get  = es9618xx_led_fan_get,
+        .brightness_set     = as9647_32d_led_fan_set,
+        .brightness_get  = as9647_32d_led_fan_get,
         .max_brightness  = LED_MODE_AMBER,
     },
 };
 
-static int es9618xx_led_probe(struct platform_device *pdev)
+static int as9647_32d_led_probe(struct platform_device *pdev)
 {
     int ret, i;
 
-    for (i = 0; i < ARRAY_SIZE(es9618xx_leds); i++) {
-        ret = led_classdev_register(&pdev->dev, &es9618xx_leds[i]);
+    for (i = 0; i < ARRAY_SIZE(as9647_32d_leds); i++) {
+        ret = led_classdev_register(&pdev->dev, &as9647_32d_leds[i]);
 
         if (ret < 0) {
             break;
@@ -354,48 +354,48 @@ static int es9618xx_led_probe(struct platform_device *pdev)
     }
 
     /* Check if all LEDs were successfully registered */
-    if (i != ARRAY_SIZE(es9618xx_leds)){
+    if (i != ARRAY_SIZE(as9647_32d_leds)){
         int j;
 
         /* only unregister the LEDs that were successfully registered */
         for (j = 0; j < i; j++) {
-            led_classdev_unregister(&es9618xx_leds[i]);
+            led_classdev_unregister(&as9647_32d_leds[i]);
         }
     }
 
     return ret;
 }
 
-static int es9618xx_led_remove(struct platform_device *pdev)
+static int as9647_32d_led_remove(struct platform_device *pdev)
 {
     int i;
 
-    for (i = 0; i < ARRAY_SIZE(es9618xx_leds); i++) {
-        led_classdev_unregister(&es9618xx_leds[i]);
+    for (i = 0; i < ARRAY_SIZE(as9647_32d_leds); i++) {
+        led_classdev_unregister(&as9647_32d_leds[i]);
     }
 
     return 0;
 }
 
-static struct platform_driver es9618xx_led_driver = {
-    .probe    = es9618xx_led_probe,
-    .remove    = es9618xx_led_remove,
+static struct platform_driver as9647_32d_led_driver = {
+    .probe    = as9647_32d_led_probe,
+    .remove    = as9647_32d_led_remove,
     .driver = {
         .name   = DRVNAME,
         .owner  = THIS_MODULE,
     },
 };
 
-static int __init es9618xx_led_init(void)
+static int __init as9647_32d_led_init(void)
 {
     int ret;
 
-    ret = platform_driver_register(&es9618xx_led_driver);
+    ret = platform_driver_register(&as9647_32d_led_driver);
     if (ret < 0) {
         goto exit;
     }
 
-    ledctl = kzalloc(sizeof(struct es9618xx_led_data), GFP_KERNEL);
+    ledctl = kzalloc(sizeof(struct as9647_32d_led_data), GFP_KERNEL);
     if (!ledctl) {
         ret = -ENOMEM;
         goto exit_driver;
@@ -414,21 +414,21 @@ static int __init es9618xx_led_init(void)
 exit_free:
     kfree(ledctl);
 exit_driver:
-    platform_driver_unregister(&es9618xx_led_driver);
+    platform_driver_unregister(&as9647_32d_led_driver);
 exit:
     return ret;
 }
 
-static void __exit es9618xx_led_exit(void)
+static void __exit as9647_32d_led_exit(void)
 {
     platform_device_unregister(ledctl->pdev);
-    platform_driver_unregister(&es9618xx_led_driver);
+    platform_driver_unregister(&as9647_32d_led_driver);
     kfree(ledctl);
 }
 
-late_initcall(es9618xx_led_init);
-module_exit(es9618xx_led_exit);
+late_initcall(as9647_32d_led_init);
+module_exit(as9647_32d_led_exit);
 
 MODULE_AUTHOR("Phani Karanam <phani_karanam@accton.com>");
-MODULE_DESCRIPTION("es9618xx_led driver");
+MODULE_DESCRIPTION("as9647_32d_led driver");
 MODULE_LICENSE("GPL");

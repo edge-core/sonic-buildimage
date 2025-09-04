@@ -22,7 +22,7 @@ TRAY_REAR_FAN_MAX_RPM = 28000
 # which occurs at the minimum fan speed of 40% RPM.
 TRAY_FANSPEED_TOLERANCE = 15
 
-FP_FAN_LED_FILE = "/sys/class/leds/es9618xx_led::fan/brightness"
+FP_FAN_LED_FILE = "/sys/class/leds/as9647_32d_led::fan/brightness"
 CPLD_I2C_PATH = "/sys/bus/i2c/devices/10-0066/fan"
 FAN_LED_MODE = CPLD_I2C_PATH + "_led_mode"
 FAN_PERCENTAGE = CPLD_I2C_PATH + "_duty_cycle_percentage"

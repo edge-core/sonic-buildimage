@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * An hwmon driver for accton es9618xx Power Module
+ * An hwmon driver for accton as9647_32d Power Module
  *
  * Copyright (C) 2024 Accton Technology Corporation.
  * Phani Karanam <phani_karanam@accton.com>
@@ -54,7 +54,7 @@
 
 static ssize_t show_status(struct device *dev, struct device_attribute *da, char *buf);
 static ssize_t show_string(struct device *dev, struct device_attribute *da, char *buf);
-extern int es9618xx_cpld_read(unsigned short cpld_addr, u8 reg);
+extern int as9647_32d_cpld_read(unsigned short cpld_addr, u8 reg);
 
 /* Addresses scanned
  */
@@ -62,7 +62,7 @@ static const unsigned short normal_i2c[] = { I2C_CLIENT_END };
 
 /* Each client has this additional data
  */
-struct es9618xx_psu_data {
+struct as9647_32d_psu_data {
 	struct device	  *hwmon_dev;
 	struct mutex		update_lock;
 	char				valid;		   /* !=0 if registers are valid */
@@ -73,9 +73,9 @@ struct es9618xx_psu_data {
 	char serial[SERIAL_NUM_LEN+1];		/* Serial number, read from eeprom*/
 };
 
-static struct es9618xx_psu_data *es9618xx_psu_update_device(struct device *dev);
+static struct as9647_32d_psu_data *as9647_32d_psu_update_device(struct device *dev);
 
-enum es9618xx_psu_sysfs_attributes {
+enum as9647_32d_psu_sysfs_attributes {
 	PSU_PRESENT,
 	PSU_MODEL_NAME,
 	PSU_POWER_GOOD,
@@ -89,7 +89,7 @@ static SENSOR_DEVICE_ATTR(psu_model_name, S_IRUGO, show_string,	NULL, PSU_MODEL_
 static SENSOR_DEVICE_ATTR(psu_power_good, S_IRUGO, show_status,	NULL, PSU_POWER_GOOD);
 static SENSOR_DEVICE_ATTR(psu_serial_number, S_IRUGO, show_string,	NULL, PSU_SERIAL_NUMBER);
 
-static struct attribute *es9618xx_psu_attributes[] = {
+static struct attribute *as9647_32d_psu_attributes[] = {
 	&sensor_dev_attr_psu_present.dev_attr.attr,
 	&sensor_dev_attr_psu_model_name.dev_attr.attr,
 	&sensor_dev_attr_psu_power_good.dev_attr.attr,
@@ -101,13 +101,13 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 			 char *buf)
 {
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_psu_data *data = i2c_get_clientdata(client);
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	u8 status = 0;
 
     mutex_lock(&data->update_lock);
 
-    data = es9618xx_psu_update_device(dev);
+    data = as9647_32d_psu_update_device(dev);
 	if (!data->valid) {
         mutex_unlock(&data->update_lock);
 		return sprintf(buf, "0\n");
@@ -128,13 +128,13 @@ static ssize_t show_string(struct device *dev, struct device_attribute *da,
 			 char *buf)
 {
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_psu_data *data = i2c_get_clientdata(client);
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	char *str = NULL;
 
     mutex_lock(&data->update_lock);
 
-    data = es9618xx_psu_update_device(dev);
+    data = as9647_32d_psu_update_device(dev);
 	if (!data->valid) {
         mutex_unlock(&data->update_lock);
 		return 0;
@@ -151,14 +151,14 @@ static ssize_t show_string(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%s\n", str);
 }
 
-static const struct attribute_group es9618xx_psu_group = {
-	.attrs = es9618xx_psu_attributes,
+static const struct attribute_group as9647_32d_psu_group = {
+	.attrs = as9647_32d_psu_attributes,
 };
 
-static int es9618xx_psu_probe(struct i2c_client *client,
+static int as9647_32d_psu_probe(struct i2c_client *client,
 			const struct i2c_device_id *dev_id)
 {
-	struct es9618xx_psu_data *data;
+	struct as9647_32d_psu_data *data;
 	int status;
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
@@ -166,7 +166,7 @@ static int es9618xx_psu_probe(struct i2c_client *client,
 		goto exit;
 	}
 
-	data = kzalloc(sizeof(struct es9618xx_psu_data), GFP_KERNEL);
+	data = kzalloc(sizeof(struct as9647_32d_psu_data), GFP_KERNEL);
 	if (!data) {
 		status = -ENOMEM;
 		goto exit;
@@ -180,12 +180,12 @@ static int es9618xx_psu_probe(struct i2c_client *client,
 	dev_info(&client->dev, "chip found\n");
 
 	/* Register sysfs hooks */
-	status = sysfs_create_group(&client->dev.kobj, &es9618xx_psu_group);
+	status = sysfs_create_group(&client->dev.kobj, &as9647_32d_psu_group);
 	if (status) {
 		goto exit_free;
 	}
 
-    data->hwmon_dev = hwmon_device_register_with_info(&client->dev, "es9618xx_psu",
+    data->hwmon_dev = hwmon_device_register_with_info(&client->dev, "as9647_32d_psu",
                                                       NULL, NULL, NULL);
 	if (IS_ERR(data->hwmon_dev)) {
 		status = PTR_ERR(data->hwmon_dev);
@@ -198,7 +198,7 @@ static int es9618xx_psu_probe(struct i2c_client *client,
 	return 0;
 
 exit_remove:
-	sysfs_remove_group(&client->dev.kobj, &es9618xx_psu_group);
+	sysfs_remove_group(&client->dev.kobj, &as9647_32d_psu_group);
 exit_free:
 	kfree(data);
 exit:
@@ -206,12 +206,12 @@ exit:
 	return status;
 }
 
-static int es9618xx_psu_remove(struct i2c_client *client)
+static int as9647_32d_psu_remove(struct i2c_client *client)
 {
-	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_psu_data *data = i2c_get_clientdata(client);
 
 	hwmon_device_unregister(data->hwmon_dev);
-	sysfs_remove_group(&client->dev.kobj, &es9618xx_psu_group);
+	sysfs_remove_group(&client->dev.kobj, &as9647_32d_psu_group);
 	kfree(data);
 
 	return 0;
@@ -219,29 +219,29 @@ static int es9618xx_psu_remove(struct i2c_client *client)
 
 enum psu_index
 {
-	es9618xx_psu1,
-	es9618xx_psu2
+	as9647_32d_psu1,
+	as9647_32d_psu2
 };
 
-static const struct i2c_device_id es9618xx_psu_id[] = {
-	{ "es9618xx_psu1", es9618xx_psu1 },
-	{ "es9618xx_psu2", es9618xx_psu2 },
+static const struct i2c_device_id as9647_32d_psu_id[] = {
+	{ "as9647_32d_psu1", as9647_32d_psu1 },
+	{ "as9647_32d_psu2", as9647_32d_psu2 },
 	{}
 };
-MODULE_DEVICE_TABLE(i2c, es9618xx_psu_id);
+MODULE_DEVICE_TABLE(i2c, as9647_32d_psu_id);
 
-static struct i2c_driver es9618xx_psu_driver = {
+static struct i2c_driver as9647_32d_psu_driver = {
 	.class		= I2C_CLASS_HWMON,
 	.driver = {
-		.name	 = "es9618xx_psu",
+		.name	 = "as9647_32d_psu",
 	},
-	.probe		= es9618xx_psu_probe,
-	.remove	   = es9618xx_psu_remove,
-	.id_table	 = es9618xx_psu_id,
+	.probe		= as9647_32d_psu_probe,
+	.remove	   = as9647_32d_psu_remove,
+	.id_table	 = as9647_32d_psu_id,
 	.address_list = normal_i2c,
 };
 
-static int es9618xx_psu_read_byte(struct i2c_client *client, u8 command, u8 *data)
+static int as9647_32d_psu_read_byte(struct i2c_client *client, u8 command, u8 *data)
 {
 	int status = 0;
 	int retry_count = 5;
@@ -268,7 +268,7 @@ abort:
 	return status;
 }
 
-static int es9618xx_psu_read_bytes(struct i2c_client *client, u8 command, u8 *data,
+static int as9647_32d_psu_read_bytes(struct i2c_client *client, u8 command, u8 *data,
 			  int data_len)
 {
     int ret = 0;
@@ -276,7 +276,7 @@ static int es9618xx_psu_read_bytes(struct i2c_client *client, u8 command, u8 *da
 	while (data_len) {
 		ssize_t status;
 
-		status = es9618xx_psu_read_byte(client, command, data);
+		status = as9647_32d_psu_read_byte(client, command, data);
 		if (status <= 0) {
             ret = status;
 			break;
@@ -290,20 +290,20 @@ static int es9618xx_psu_read_bytes(struct i2c_client *client, u8 command, u8 *da
     return ret;
 }
 
-static struct es9618xx_psu_data *es9618xx_psu_update_device(struct device *dev)
+static struct as9647_32d_psu_data *as9647_32d_psu_update_device(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
-	struct es9618xx_psu_data *data = i2c_get_clientdata(client);
+	struct as9647_32d_psu_data *data = i2c_get_clientdata(client);
 
 	if (time_after(jiffies, data->last_updated + HZ + HZ / 2)
 		|| !data->valid) {
 		int status;
 
-		dev_dbg(&client->dev, "Starting es9618xx update\n");
+		dev_dbg(&client->dev, "Starting as9647_32d update\n");
 		data->valid = 0;
 
 		/* Read psu status */
-		status = es9618xx_cpld_read(PSU_STATUS_I2C_ADDR, PSU_STATUS_I2C_REG_OFFSET);
+		status = as9647_32d_cpld_read(PSU_STATUS_I2C_ADDR, PSU_STATUS_I2C_REG_OFFSET);
 
 		if (status < 0) {
 			dev_dbg(&client->dev, "cpld reg (0x%x) err %d\n", PSU_STATUS_I2C_ADDR, status);
@@ -319,7 +319,7 @@ static struct es9618xx_psu_data *es9618xx_psu_update_device(struct device *dev)
 
 		if (IS_PRESENT(data->index, data->status)) {
 			/* Read model name */
-            status = es9618xx_psu_read_bytes(client, MODEL_NAME_REG_OFFSET, data->model_name,
+            status = as9647_32d_psu_read_bytes(client, MODEL_NAME_REG_OFFSET, data->model_name,
 											   ARRAY_SIZE(data->model_name)-1);
 			if (status < 0) {
 				data->model_name[0] = '\0';
@@ -337,7 +337,7 @@ static struct es9618xx_psu_data *es9618xx_psu_update_device(struct device *dev)
 			}
 
 			/* Read serial number */
-			status = es9618xx_psu_read_bytes(client, SERIAL_NUM_REG_OFFSET, data->serial,
+			status = as9647_32d_psu_read_bytes(client, SERIAL_NUM_REG_OFFSET, data->serial,
 											   ARRAY_SIZE(data->serial)-1);
 			if (status < 0) {
 				data->serial[0] = '\0';
@@ -357,9 +357,9 @@ exit:
 	return data;
 }
 
-module_i2c_driver(es9618xx_psu_driver);
+module_i2c_driver(as9647_32d_psu_driver);
 
 MODULE_AUTHOR("Phani Karanam <phani_karanam@accton.com>");
-MODULE_DESCRIPTION("Accton es9618x PSU driver");
+MODULE_DESCRIPTION("Accton as9647_32d PSU driver");
 MODULE_LICENSE("GPL");
 

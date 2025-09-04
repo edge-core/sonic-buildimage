@@ -49,31 +49,14 @@ class Sfp(SfpOptoeBase):
 
     # Port number
     PORT_START = 1
-    PORT_END = 16
+    PORT_END = 32
 
     _cpld_mapping = {
         0:  "13-0061",
+        1:  "15-0062",
     }
 
-    _port_to_i2c_mapping = {
-        1:  18,
-        2:  19,
-        3:  20,
-        4:  21,
-        5:  22,
-        6:  23,
-        7:  24,
-        8:  25,
-        9:  26,
-        10: 27,
-        11: 28,
-        12: 29,
-        13: 30,
-        14: 31,
-        15: 32,
-        16: 33,
-    }
-
+    _port_to_i2c_mapping = list(range(18, 50))
     _sfp_port = range(PORT_START, PORT_END + 1)
 
 
@@ -85,11 +68,18 @@ class Sfp(SfpOptoeBase):
         self._api_helper = APIHelper()
         self.data = {'present': False}
 
-        self.eeprom_path = self.EEPROM_PATH.format(self._port_to_i2c_mapping[self._port_num])
-        self.reset_path = "{}{}{}{}".format(self.CPLD_I2C_PATH, self._cpld_mapping[0], '/module_reset_', self._port_num)
-        self.present_path = "{}{}{}{}".format(self.CPLD_I2C_PATH, self._cpld_mapping[0], '/module_present_', self._port_num)
-        self.lpmode_path = "{}{}{}{}".format(self.CPLD_I2C_PATH, self._cpld_mapping[0], '/module_lpmode_', self._port_num)
+        self.eeprom_path = self.EEPROM_PATH.format(Sfp._port_to_i2c_mapping[self._index])
 
+        if self._index <= 15:
+            cpld_index = 0
+            port_num = self._port_num
+        else:
+            cpld_index = 1
+            port_num = self._port_num - 16
+
+        self.reset_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_reset_{port_num}"
+        self.present_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_present_{port_num}"
+        self.lpmode_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_lpmode_{port_num}"
 
     def __is_host():
         try:

@@ -19,15 +19,15 @@ except ImportError as e:
 NUM_FAN_TRAY = 6
 NUM_FAN = 2
 NUM_PSU = 2
-PORT_END = 16
-NUM_COMPONENT = 5
+PORT_END = 32
+NUM_COMPONENT = 6
 POSITION_INDEX = 1
 HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
 PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
 REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
 HOST_CHK_CMD = "docker > /dev/null 2>&1"
-SYSLED_FNODE= "/sys/class/leds/es9618xx_led::diag/brightness"
+SYSLED_FNODE= "/sys/class/leds/as9647_32d_led::diag/brightness"
 SYSLED_MODES = {
     "0" : "STATUS_LED_COLOR_OFF",
     "1" : "STATUS_LED_COLOR_GREEN",

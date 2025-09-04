@@ -40,7 +40,7 @@ import re
 import time
 import os
 
-PROJECT_NAME = 'es9618xx'
+PROJECT_NAME = 'as9647_32d'
 version = '0.1.0'
 verbose = False
 DEBUG = False
@@ -51,7 +51,7 @@ DEVICE_NO = {
     'fan': 6,
     'thermal': 8,
     'psu': 2,
-    'sfp': 16,
+    'sfp': 32,
     }
 FORCE = 0
 
@@ -147,7 +147,7 @@ def show_set_help():
 
 def show_eeprom_help():
     cmd = sys.argv[0].split('/')[-1] + ' ' + ARGS[0]
-    print('    use "' + cmd + ' 1-16" to dump sfp# eeprom')
+    print('    use "' + cmd + ' 1-32" to dump sfp# eeprom')
     sys.exit(0)
 
 
@@ -204,8 +204,8 @@ def echo_to_file(value, filepath, use_sudo=True):
         return (1, str(e))
 
 
-def list_es9618xx_modules():
-    matches = glob.glob('/sys/module/*es9618xx*')
+def list_modules():
+    matches = glob.glob('/sys/module/*as9647*')
     if matches:
         return (0, '\n'.join(matches))
     else:
@@ -224,7 +224,7 @@ def grep_file_for_string(filepath, pattern):
 
 
 def driver_check():
-    ret, out = list_es9618xx_modules()
+    ret, out = list_modules()
     if ret:
         logging.info("Modules: None found")
         return False
@@ -246,10 +246,10 @@ kos = [
     'modprobe i2c_mux_pca954x',
     'modprobe dps850',
     'modprobe optoe',
-    'modprobe x86-64-es9618xx-cpld',
-    'modprobe x86-64-es9618xx-fan',
-    'modprobe x86-64-es9618xx-leds',
-    'modprobe x86-64-es9618xx-psu',
+    'modprobe x86-64-as9647-32d-cpld',
+    'modprobe x86-64-as9647-32d-fan',
+    'modprobe x86-64-as9647-32d-leds',
+    'modprobe x86-64-as9647-32d-psu',
     'modprobe at24',
     'modprobe lm75',
     'modprobe tmp401'
@@ -306,12 +306,15 @@ mknod_entries = [
     ("pca9548", "0x73", "1"),
     ("pca9548", "0x74", "1"),
     ("pca9548", "0x75", "1"),
+    ("pca9548", "0x70", "1"),
+    ("pca9548", "0x71", "1"),
     ("pca9548", "0x76", "1"),
-    ("es9618xx_cpld1", "0x68", "1"),
-    ("es9618xx_cpld2", "0x61", "13"),
-    ("es9618xx_psu1", "0x51", "3"),
-    ("es9618xx_psu2", "0x50", "2"),
-    ("es9618xx_fan", "0x66", "10"),
+    ("as9647_32d_cpld1", "0x68", "1"),
+    ("as9647_32d_cpld2", "0x61", "13"),
+    ("as9647_32d_cpld3", "0x62", "15"),
+    ("as9647_32d_psu1", "0x51", "3"),
+    ("as9647_32d_psu2", "0x50", "2"),
+    ("as9647_32d_fan", "0x66", "10"),
     ("dps850", "0x58", "2"),
     ("dps850", "0x59", "3"),
     ("lm75", "0x48", "11"),
@@ -326,7 +329,7 @@ mknod_entries = [
     ("24c256", "0x55", "16"),
 ]
 
-sfp_map = list(range(18, 34))
+sfp_map = list(range(18, 50))
 
 
 def device_install():
