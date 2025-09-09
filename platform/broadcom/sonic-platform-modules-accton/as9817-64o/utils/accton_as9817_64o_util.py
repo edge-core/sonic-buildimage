@@ -52,6 +52,8 @@ FORCE = 0
 #logging.basicConfig(filename= PROJECT_NAME+'.log', filemode='w',level=logging.DEBUG)
 #logging.basicConfig(level=logging.INFO)
 
+BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
+PCIE_YAML_AIS800_64O = "pcie.yaml.ais800"
 
 if DEBUG == True:
     print(sys.argv[0])
@@ -439,24 +441,6 @@ def do_sonic_platform_clean():
 
     return
 
-device_path = f"{PLATFORM_ROOT_PATH}/x86_64-accton_{PROJECT_NAME}-r0"
-apply_ais800_cmds = [
-    f"cp -f {device_path}/platform.json.ais800 {device_path}/platform.json",
-    f"cp -f {device_path}/platform_components.json.ais800 {device_path}/platform_components.json",
-    f"cp -f {device_path}/pcie.yaml.ais800 {device_path}/pcie.yaml",
-]
-apply_as9817_cmds = [
-    f"cp -f {device_path}/platform.json.as9817 {device_path}/platform.json",
-    f"cp -f {device_path}/platform_components.json.as9817 {device_path}/platform_components.json",
-    f"cp -f {device_path}/pcie.yaml.as9817 {device_path}/pcie.yaml",
-]
-apply_cmd_sets = {
-    0x00 : apply_as9817_cmds, # OSFP
-    0x01 : apply_as9817_cmds, # QDD
-    0x02 : apply_ais800_cmds, # OSFP_ROT  ==> AIS800-64O
-    0x03 : apply_ais800_cmds  # QDD_ROT   ==> AIS800-64D
-}
-
 def get_pcb_id():
     id = None
     status, output = getstatusoutput_noshell("i2cget -f -y 0 0x60 0x00".split())
@@ -470,6 +454,32 @@ def get_pcb_id():
     return id
 
 def apply_product_conf():
+    pcie_yaml_ais800 = PCIE_YAML_AIS800_64O
+    cmd = ["cat", BIOS_VERSION_PATH]
+    status, bios_version = getstatusoutput_noshell(cmd)
+    if bios_version == "v51.01.11.01":
+        pcie_yaml_ais800 = pcie_yaml_ais800+"_"+bios_version
+        print(f"Using {pcie_yaml_ais800} for BIOS {bios_version}")
+    else:
+        print(f"Using default {pcie_yaml_ais800}")
+
+    device_path = f"{PLATFORM_ROOT_PATH}/x86_64-accton_{PROJECT_NAME}-r0"
+    apply_ais800_cmds = [
+        f"sed -i 's/\"name\":\ \"AS9817-64O\"/\"name\":\ \"AIS800-64O\"/g' {device_path}/platform.json",
+        f"cp -f {device_path}/platform_components.json.ais800 {device_path}/platform_components.json",
+        f"cp -f {device_path}/{pcie_yaml_ais800} {device_path}/pcie.yaml",
+    ]
+    apply_as9817_cmds = [
+        f"sed -i 's/\"name\":\ \"AIS800-64O\"/\"name\":\ \"AS9817-64O\"/g' {device_path}/platform.json",
+        f"cp -f {device_path}/platform_components.json.as9817 {device_path}/platform_components.json",
+        f"cp -f {device_path}/pcie.yaml.as9817 {device_path}/pcie.yaml",
+    ]
+    apply_cmd_sets = {
+        0x00 : apply_as9817_cmds, # OSFP
+        0x01 : apply_as9817_cmds, # QDD
+        0x02 : apply_ais800_cmds, # OSFP_ROT  ==> AIS800-64O
+        0x03 : apply_ais800_cmds  # QDD_ROT   ==> AIS800-64D
+}
     pcb_id = get_pcb_id()
     if pcb_id is None:
         print("Invalid PCB ID.")
