@@ -94,7 +94,7 @@ class Sfp(SfpOptoeBase):
 
         return True
 
-    def __is_host(self):
+    def __is_host():
         try:
             result = subprocess.run(
                 ["docker", "info"],
