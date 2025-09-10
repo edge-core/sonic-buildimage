@@ -1,6 +1,6 @@
 from sonic_platform_base.sonic_thermal_control.thermal_info_base import ThermalPolicyInfoBase
 from sonic_platform_base.sonic_thermal_control.thermal_json_object import thermal_json_object
-
+from .thermal import logger
 
 @thermal_json_object('fan_info')
 class FanInfo(ThermalPolicyInfoBase):
@@ -126,6 +126,46 @@ class PsuInfo(ThermalPolicyInfoBase):
         :return: True if status changed else False
         """
         return self._status_changed
+
+
+@thermal_json_object('thermal_info')
+class ThermalInfo(ThermalPolicyInfoBase):
+    """
+    Thermal information needed by thermal policy
+    """
+
+    # Fan information name
+    INFO_NAME = 'thermal_info'
+
+    def collect(self, chassis):
+        """
+        Collect thermal sensor temperature change status
+        :param chassis: The chassis object
+        :return:
+        """
+        self._over_high_critical_threshold = False
+
+        # Calculate average temp within the device
+        temp = 0
+        num_of_thermals = chassis.get_num_thermals()
+        for index in range(num_of_thermals):
+            thermal = chassis.get_thermal(index)
+            if thermal.get_name() in ["ASIC  average", "ASIC  maximum"]:
+                continue
+            temp = thermal.get_temperature()
+            high_critical_threshold = thermal.get_high_critical_threshold()
+
+            if temp and high_critical_threshold and temp > high_critical_threshold:
+                self._over_high_critical_threshold = True
+                logger.log_notice("Overheat detected by '{}' sensor, temp = {}, thresh = {}".format(
+                    thermal.get_name(), temp, high_critical_threshold))
+
+    def is_over_high_critical_threshold(self):
+        """
+        Retrieves if the temperature is over high critical threshold
+        :return: True if the temperature is over high critical threshold else False
+        """
+        return self._over_high_critical_threshold
 
 
 @thermal_json_object('chassis_info')

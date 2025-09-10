@@ -14,12 +14,10 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + " - required module not found")
 
-# Global variables
-read_fan_fault = 0
-is_fan_all_OK = 0
-read_power_status = 0
-is_power_all_OK = 0
-is_thermal_high = 0
+is_fan_all_OK = False
+is_power_all_OK = False
+is_thermal_high = False
+is_thermal_crit_high = False
 
 def logprint(str):
     syslog.openlog("ledctrl")
@@ -27,28 +25,35 @@ def logprint(str):
     syslog.closelog()
 
 def system_led_check():
-    global read_fan_fault, read_power_status, is_fan_all_OK, is_power_all_OK, is_thermal_high
-    is_fan_all_OK = 1
-    is_power_all_OK = 1
-    is_thermal_high = 0
+    global is_fan_all_OK, is_power_all_OK, is_thermal_high, is_thermal_crit_high
+    is_fan_all_OK = True
+    is_power_all_OK = True
+    is_thermal_high = False
+    is_thermal_crit_high = False
 
-    # Check Fans status
     for fan in sonic_platform.chassis.Chassis().get_all_fans():
         if fan.is_under_speed() or fan.is_over_speed():
-            is_fan_all_OK = 0
+            is_fan_all_OK = False
 
     for psu in sonic_platform.chassis.Chassis().get_all_psus():
         if not True == psu.get_status():
-            is_power_all_OK = 0
+            is_power_all_OK = False
 
     for thermal in sonic_platform.chassis.Chassis().get_all_thermals():
         temperature = thermal.get_temperature()
         high_threshold = thermal.get_high_threshold()
         if temperature is not None and high_threshold is not None:
             if temperature > high_threshold:
-                is_thermal_high = 1
+                is_thermal_high = True
 
-    if is_fan_all_OK == 1 and is_power_all_OK == 1 and is_thermal_high == 0:
+        # Duplicated logic from thermal policy condition `thermal.over.high_critical_threshold`
+        if thermal.get_name() not in ["ASIC  average", "ASIC  maximum"]:
+            high_critical_threshold = thermal.get_high_critical_threshold()
+            if temperature is not None and high_critical_threshold is not None:
+                if temperature > high_critical_threshold:
+                    is_thermal_crit_high = True
+
+    if is_fan_all_OK and is_power_all_OK and not is_thermal_high and not is_thermal_crit_high:
         sonic_platform.chassis.Chassis().set_status_led("STATUS_LED_COLOR_GREEN")
     else:
         sonic_platform.chassis.Chassis().set_status_led("STATUS_LED_COLOR_AMBER")
