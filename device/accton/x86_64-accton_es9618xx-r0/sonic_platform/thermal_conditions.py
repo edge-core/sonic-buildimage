@@ -18,13 +18,6 @@ class AnyFanAbsenceCondition(FanCondition):
         return len(fan_info_obj.get_absence_fans()) > 0 if fan_info_obj else False
 
 
-@thermal_json_object('fan.all.absence')
-class AllFanAbsenceCondition(FanCondition):
-    def is_match(self, thermal_info_dict):
-        fan_info_obj = self.get_fan_info(thermal_info_dict)
-        return len(fan_info_obj.get_presence_fans()) == 0 if fan_info_obj else False
-
-
 @thermal_json_object('fan.all.presence')
 class AllFanPresenceCondition(FanCondition):
     def is_match(self, thermal_info_dict):
@@ -55,27 +48,29 @@ class PsuCondition(ThermalPolicyConditionBase):
             return None
 
 
-@thermal_json_object('psu.any.absence')
-class AnyPsuAbsenceCondition(PsuCondition):
+class ThermalCondition(ThermalPolicyConditionBase):
+    def get_thermal_info(self, thermal_info_dict):
+        from .thermal_infos import ThermalInfo
+        if ThermalInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[ThermalInfo.INFO_NAME], ThermalInfo):
+            return thermal_info_dict[ThermalInfo.INFO_NAME]
+        else:
+            return None
+
+
+@thermal_json_object('thermal.over.high_critical_threshold')
+class ThermalOverHighCriticalCondition(ThermalCondition):
     def is_match(self, thermal_info_dict):
-        psu_info_obj = self.get_psu_info(thermal_info_dict)
-        return len(psu_info_obj.get_absence_psus()) > 0 if psu_info_obj else False
+        thermal_info_obj = self.get_thermal_info(thermal_info_dict)
+        if thermal_info_obj:
+            res = thermal_info_obj.is_over_high_critical_threshold()
+            if res == True:
+                logger.log_notice("Thermal policy condition 'thermal.over.high_critical_threshold' was matched")
+            return res
+        else:
+            return False
 
 
-@thermal_json_object('psu.all.absence')
-class AllPsuAbsenceCondition(PsuCondition):
-    def is_match(self, thermal_info_dict):
-        psu_info_obj = self.get_psu_info(thermal_info_dict)
-        return len(psu_info_obj.get_presence_psus()) == 0 if psu_info_obj else False
-
-
-@thermal_json_object('psu.all.presence')
-class AllPsuPresenceCondition(PsuCondition):
-    def is_match(self, thermal_info_dict):
-        psu_info_obj = self.get_psu_info(thermal_info_dict)
-        return len(psu_info_obj.get_absence_psus()) == 0 if psu_info_obj else False
-
-
+@thermal_json_object('thermal.any.change')
 class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
     trust_state = None
     previous_temperatures = None
@@ -100,34 +95,7 @@ class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
         else:
             change_cooling_level = True
 
-        # MinCoolingLevelChangeCondition.previous_temperatures = MinCoolingLevelChangeCondition.temperatures
+        MinCoolingLevelChangeCondition.previous_temperatures = MinCoolingLevelChangeCondition.temperatures
         logger.log_debug("MinCoolingLevelChangeCondition: temperatures {} change_cooling_level {}".format(
             str(MinCoolingLevelChangeCondition.temperatures), change_cooling_level))
         return change_cooling_level
-
-
-class CoolingLevelChangeCondition(ThermalPolicyConditionBase):
-    cooling_level = None
-
-    def is_match(self, thermal_info_dict):
-        from .fan import Fan
-        current_cooling_level = Fan.get_cooling_level()
-        if current_cooling_level != CoolingLevelChangeCondition.cooling_level:
-            CoolingLevelChangeCondition.cooling_level = current_cooling_level
-            return True
-        else:
-            return False
-
-
-class UpdateCoolingLevelToMinCondition(ThermalPolicyConditionBase):
-    enable = False
-    def is_match(self, thermal_info_dict):
-        if not UpdateCoolingLevelToMinCondition.enable:
-            return False
-
-        from .fan import Fan
-        current_cooling_level = Fan.get_cooling_level()
-        if current_cooling_level == Fan.min_cooling_level:
-            UpdateCoolingLevelToMinCondition.enable = False
-            return False
-        return True

@@ -17,7 +17,6 @@ class ThermalManager(ThermalManagerBase):
         and any other vendor specific initialization.
         :return:
         """
-        cls._add_private_thermal_policy()
         _api_helper = APIHelper()
         _api_helper.write_txt_file(FAN_LED_MODE, 0) # Disable LED debug mode
 
@@ -53,33 +52,3 @@ class ThermalManager(ThermalManagerBase):
         """
         from .thermal import Thermal
         return Thermal.set_thermal_algorithm_status(False)
-
-    @classmethod
-    def pause_thermal_algorithm(cls, timeout_minutes=1):
-        """
-        Pause thermal policy with timeout in minutes
-
-        Returns:
-            bool: True, if succeeded to place pause request. False - if failed.
-        """
-        _api_helper = APIHelper()
-        command = "echo {} > /tmp/thermal_manager_pause_policy".format(timeout_minutes)
-        status, result = _api_helper.run_command(command)
-        return status
-
-    @classmethod
-    def _add_private_thermal_policy(cls):
-        dynamic_min_speed_policy = ThermalPolicy()
-        dynamic_min_speed_policy.conditions[MinCoolingLevelChangeCondition] = MinCoolingLevelChangeCondition()
-        dynamic_min_speed_policy.actions[ChangeMinCoolingLevelAction] = ChangeMinCoolingLevelAction()
-        cls._policy_dict['DynamicMinCoolingLevelPolicy'] = dynamic_min_speed_policy
-
-        update_psu_fan_speed_policy = ThermalPolicy()
-        update_psu_fan_speed_policy.conditions[CoolingLevelChangeCondition] = CoolingLevelChangeCondition()
-        update_psu_fan_speed_policy.actions[UpdatePsuFanSpeedAction] = UpdatePsuFanSpeedAction()
-        cls._policy_dict['UpdatePsuFanSpeedPolicy'] = update_psu_fan_speed_policy
-
-        update_cooling_level_policy = ThermalPolicy()
-        update_cooling_level_policy.conditions[UpdateCoolingLevelToMinCondition] = UpdateCoolingLevelToMinCondition()
-        update_cooling_level_policy.actions[UpdateCoolingLevelToMinAction] = UpdateCoolingLevelToMinAction()
-        cls._policy_dict['UpdateCoolingLevelPolicy'] = update_cooling_level_policy

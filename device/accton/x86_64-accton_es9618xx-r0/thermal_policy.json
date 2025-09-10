@@ -11,10 +11,27 @@
             "type": "psu_info"
         },
         {
+            "type": "thermal_info"
+        },
+        {
             "type": "chassis_info"
         }
     ],
     "policies": [
+        {
+            "name": "dynamic fan speed control",
+            "conditions": [
+                {
+                    "type": "thermal.any.change"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "update.cool.level",
+                    "min_cool_level": "3"
+                }
+            ]
+        },
         {
             "name": "any fan absence",
             "conditions": [
@@ -52,7 +69,20 @@
             ]
         },
         {
-            "name": "all fan and psu presence",
+            "name": "temp over high critical threshold",
+            "conditions": [
+                {
+                    "type": "thermal.over.high_critical_threshold"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "switch.power_cycling"
+                }
+            ]
+        },
+        {
+            "name": "all fans are present and good",
             "conditions": [
                 {
                     "type": "fan.all.presence"
