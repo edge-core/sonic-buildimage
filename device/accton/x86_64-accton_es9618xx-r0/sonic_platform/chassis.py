@@ -57,6 +57,9 @@ class Chassis(ChassisBase):
         for index in range(0, PORT_END):
             sfp = Sfp(index)
             self._sfp_list.append(sfp)
+            api = sfp.get_xcvr_api()
+            if api is not None:
+                api.set_lpmode(False)
         self.sfp_module_initialized = True
 
     def __initialize_fan(self):
