@@ -27,9 +27,9 @@ BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 COMPONENT_LIST= [
    ("BIOS", "Basic Input/Output System"),
    ("ONIE", "Open Network Install Environment"),
-   ("CPLD1", "CPLD 1"),
-   ("CPLD2", "CPLD 2"),
-   ("CPLD3", "CPLD 3")
+   ("CPLD1", "FPGA Board Control"),
+   ("CPLD2", "OSFP pins and LEDs"),
+   ("CPLD3", "FANs contol")
 ]
 
 SYSLOG_IDENTIFIER = "component"
