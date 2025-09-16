@@ -734,7 +734,7 @@ def device_exist():
 def update_vddh_for_r0b():
     script_path = '/opt/xplt/utils/update_vddh_for_r0b.sh'
     if os.path.exists(script_path):
-        (status, output) = log_os_system(script_path, 1)
+        status, output = run_command(script_path)
         if status:
             print(output)
             if FORCE == 0:
