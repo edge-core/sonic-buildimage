@@ -140,3 +140,16 @@ class I2CHealthManager:
     def restore_state_db_records(self, stop_event):
         self.i2c_devices_checker.restore_state_db_records(stop_event)
 
+
+    def reset_i2c_master(self):
+        """
+        Attempt to reset the I2C master through the platform API.
+
+        Raises:
+            RuntimeError: If the reset operation fails.
+        """
+        result = self.plat_api.reset_i2c_master()
+
+        if not result:
+            raise RuntimeError("Failed to reset I2C master via platform API")
+

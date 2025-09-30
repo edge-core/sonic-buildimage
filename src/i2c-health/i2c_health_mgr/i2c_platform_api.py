@@ -70,3 +70,21 @@ class I2CPlatformAPI:
                 return False
 
         return False
+
+
+    def reset_i2c_master(self):
+        """
+        Reset all Intel SMBus controllers via the chassis object.
+
+        This method attempts to reset the I2C master for all SMBus controllers
+        managed by the chassis. Any exceptions raised during the reset are logged
+        and propagated to the caller.
+
+        Returns:
+            bool: True if the reset succeeds, False otherwise.
+        """
+        if self.chassis is None:
+            return False
+
+        self.chassis.reset_i2c_master()
+        return True
