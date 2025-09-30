@@ -31,6 +31,8 @@ i2c_health_msg_list = [
     "Failed to remove {}({}:{}) into the isolation list.", # 024(ERROR): device name, region id, device addr. Example: "Failed to remove Ethernet1(77-2-72-1:25-0050) into the isolation list."
     "Abnormal condition in handling cached_data during the STATE DB restore operation. ", # 025(WARNING)
     "These devices are unfinished during the restoration: {}.", # 025(NOTICE): Uncleared cached device names, Example: "These devices are unfinished during the restoration: ['Ethernet24', 'Ethernet144', 'Ethernet64, ...]."
+    "After reset mux, the I2C bus lock is still detected", # 026(ERROR)
+    "After reset I2C master, the I2C bus lock is still detected", # 027(ERROR)
 ]
 
 def get_i2c_health_msg(msg_idx):
