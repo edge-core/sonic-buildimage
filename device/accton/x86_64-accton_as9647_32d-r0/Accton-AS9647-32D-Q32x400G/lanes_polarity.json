@@ -232,7 +232,7 @@
             "offset": 1
         },
         {
-            "rx_inverse": true,
+            "rx_inverse": false,
             "lane": "4_1",
             "fp_port": 11,
             "tx_inverse": true,
@@ -274,7 +274,7 @@
             "offset": 7
         },
         {
-            "rx_inverse": true,
+            "rx_inverse": false,
             "lane": "4_7",
             "fp_port": 11,
             "tx_inverse": true,
