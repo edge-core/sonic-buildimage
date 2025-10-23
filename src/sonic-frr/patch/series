@@ -39,3 +39,4 @@ cross-compile-changes.patch
 0040-bgpd-some-safi-s-do-not-mix-with-bgp-suppress-fib.patch
 0041-zebra-Check-if-ifp-is-not-NULL-in-zebra_if_update_ct.patch
 0042-Nexthop-compare-function-include-vxlan-encap-info.patch
+0043-bfdd-Fix_malformed-session-with-vrf.patch
