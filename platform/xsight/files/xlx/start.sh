@@ -32,7 +32,7 @@ if [ "false" = "$ASIC_POLLER_SECTION" ]; then
         echo "Merging $CUSTOM_JSON into config_db.json ..."
         sonic-cfggen --from-db -j "$CUSTOM_JSON" --print-data > "$TMP_CONFIG"
         mv "$TMP_CONFIG" /etc/sonic/config_db.json
-        config reload -y
+        sonic-cfggen -j "$CUSTOM_JSON" --write-to-db
     else
         echo "custom.json not found for platform $PLATFORM" >&2
     fi
