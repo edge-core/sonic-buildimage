@@ -358,6 +358,17 @@ def device_install():
         if ret and FORCE == 0:
             return ret
 
+        path = f"/sys/bus/i2c/devices/{bus}-0050/write_timeout"
+        ret, msg = echo_to_file("250", path)
+        if ret and FORCE == 0:
+            return ret
+
+        path = f"/sys/bus/i2c/devices/13-0061/module_lpmode_{count}"
+        ret, msg = echo_to_file("0", path)
+        if ret and FORCE == 0:
+            return ret
+    update_vddh_for_r0b()
+
 
 def device_uninstall():
     global FORCE
@@ -729,6 +740,15 @@ def device_traversal():
 
 def device_exist():
     return os.path.exists("{}1-0072".format(i2c_prefix))
+
+def update_vddh_for_r0b():
+    script_path = '/opt/xplt/utils/update_vddh_for_r0b.sh'
+    if os.path.exists(script_path):
+        status, output = run_command(script_path)
+        if status:
+            print(output)
+            if FORCE == 0:
+                return status
 
 if __name__ == '__main__':
     main()

@@ -18,15 +18,23 @@ XPLT_UTL="/opt/xplt/utils"
 XSIGHT_PCI_SIG="1e6c"
 XSIGHT_PCI_ID=""
 XSIGHT_DEVICE=""
-FIRSTBOOT="/tmp/notify_firstboot_to_platform"
 
-if [ -f $FIRSTBOOT ]; then
-    PLATFORM=$(sed -n 's/onie_platform=\(.*\)/\1/p' /host/machine.conf)
-
-    # update default config from custom.json
-    if [ -f /usr/share/sonic/device/$PLATFORM/custom.json ]; then
-        sonic-cfggen --from-db -j /usr/share/sonic/device/$PLATFORM/custom.json --print-data > /etc/sonic/config_db.json
-        sonic-cfggen -j /usr/share/sonic/device/$PLATFORM/custom.json --write-to-db
+# Adding the custom.json content at runtime is a workaround introduced in the 202311 code.
+# Ideally, this should be handled via platform.json, but the necessary infrastructure
+# was added later in 202411 (PR #20826: "[asic_sensors] Generate the ASIC sensor polling
+# configuration based on platform.json").
+ASIC_POLLER_SECTION=$(sonic-cfggen --from-db -j /etc/sonic/config_db.json --print-data | jq 'has("ASIC_SENSORS")')
+PLATFORM=$(sed -n 's/onie_platform=\(.*\)/\1/p' /host/machine.conf)
+CUSTOM_JSON="/usr/share/sonic/device/$PLATFORM/custom.json"
+TMP_CONFIG="/etc/sonic/config_db.json.tmp"
+if [ "false" = "$ASIC_POLLER_SECTION" ]; then
+    if [ -f "$CUSTOM_JSON" ]; then
+        echo "Merging $CUSTOM_JSON into config_db.json ..."
+        sonic-cfggen --from-db -j "$CUSTOM_JSON" --print-data > "$TMP_CONFIG"
+        mv "$TMP_CONFIG" /etc/sonic/config_db.json
+        sonic-cfggen -j "$CUSTOM_JSON" --write-to-db
+    else
+        echo "custom.json not found for platform $PLATFORM" >&2
     fi
 fi
 
@@ -149,14 +157,6 @@ echo ">>> Sleeping 5"
 sleep 5
 
 if [ ! -f /tmp/xbooted ]; then
-    if [ ${SYS_MODE,,} != "xbm" ]; then
-        if [ -d $XPLT_UTL ]; then
-            echo ">>> Configure xcvrs"
-            cd $XPLT_UTL/xcvrs && ./config.py -m 2
-        else
-            echo "ERROR: No $XPLT_UTL found!"
-        fi
-    fi
     touch /tmp/xbooted
 fi
 
