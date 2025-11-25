@@ -289,19 +289,19 @@
         },
 
         "Ethernet48": {
-            "default_brkout_mode": "1x25G[10G,1G]"
+            "default_brkout_mode": "1x10G"
         },
 
         "Ethernet49": {
-            "default_brkout_mode": "1x25G[10G,1G]"
+            "default_brkout_mode": "1x10G"
         },
 
         "Ethernet50": {
-            "default_brkout_mode": "1x25G[10G,1G]"
+            "default_brkout_mode": "1x10G"
         },
 
         "Ethernet51": {
-            "default_brkout_mode": "1x25G[10G,1G]"
+            "default_brkout_mode": "1x10G"
         },
 
         "Ethernet52": {

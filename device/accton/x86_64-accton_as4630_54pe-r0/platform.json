@@ -606,7 +606,7 @@
             "index": "49",
             "lanes": "67",
             "breakout_modes": {
-                "1x25G[10G,1G]": ["Eth49(Port49)"]
+                "1x10G": ["Eth49(Port49)"]
             }
         },
 
@@ -614,7 +614,7 @@
             "index": "50",
             "lanes": "66",
             "breakout_modes": {
-                "1x25G[10G,1G]": ["Eth50(Port50)"]
+                "1x10G": ["Eth50(Port50)"]
             }
         },
 
@@ -622,7 +622,7 @@
             "index": "51",
             "lanes": "65",
             "breakout_modes": {
-                "1x25G[10G,1G]": ["Eth51(Port51)"]
+                "1x10G": ["Eth51(Port51)"]
             }
         },
 
@@ -630,7 +630,7 @@
             "index": "52",
             "lanes": "68",
             "breakout_modes": {
-                "1x25G[10G,1G]": ["Eth52(Port52)"]
+                "1x10G": ["Eth52(Port52)"]
             }
         },
         "Ethernet52": {
