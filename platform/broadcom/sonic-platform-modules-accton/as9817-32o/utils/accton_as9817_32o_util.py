@@ -58,6 +58,8 @@ TI_MUX_I2C_ADDR = '0x1b'
 #logging.basicConfig(filename= PROJECT_NAME+'.log', filemode='w',level=logging.DEBUG)
 #logging.basicConfig(level=logging.INFO)
 
+BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
+PCIE_YAML_AIS800_32O = "pcie.yaml.ais800"
 
 if DEBUG == True:
     print(sys.argv[0])
@@ -620,23 +622,6 @@ def do_sonic_platform_clean():
 
     return
 
-device_path = f"{PLATFORM_ROOT_PATH}/x86_64-accton_{PROJECT_NAME}-r0"
-apply_ais800_cmds = [
-    f"sed -i 's/\"name\":\ \"AS9817-32O\"/\"name\":\ \"AIS800-32O\"/g' {device_path}/platform.json",
-    f"cp -f {device_path}/platform_components.json.ais800 {device_path}/platform_components.json",
-    f"cp -f {device_path}/pcie.yaml.ais800 {device_path}/pcie.yaml",
-]
-apply_as9817_cmds = [
-    f"sed -i 's/\"name\":\ \"AIS800-32O\"/\"name\":\ \"AS9817-32O\"/g' {device_path}/platform.json",
-    f"cp -f {device_path}/platform_components.json.as9817 {device_path}/platform_components.json",
-    f"cp -f {device_path}/pcie.yaml.as9817 {device_path}/pcie.yaml",
-]
-apply_cmd_sets = {
-    0x00 : apply_as9817_cmds, # OSFP
-    0x01 : apply_as9817_cmds, # QDD
-    0x02 : apply_ais800_cmds, # OSFP DC-SCM  ==> AIS800-32O
-    0x03 : apply_ais800_cmds  # QDD DC-SCM   ==> AIS800-32D
-}
 
 def get_pcb_id():
     id = None
@@ -651,20 +636,19 @@ def get_pcb_id():
     return id
 
 def apply_product_conf():
-    pcb_id = get_pcb_id()
-    if pcb_id is None:
-        print("Invalid PCB ID.")
-        return
+    pcie_yaml = PCIE_YAML_AIS800_32O
+    cmd = ["cat", BIOS_VERSION_PATH]
+    status, bios_version = getstatusoutput_noshell(cmd)
+    if bios_version == "v51.01.11.01":
+        pcie_yaml = pcie_yaml+"_"+bios_version
+        print(f"Using {pcie_yaml} for BIOS {bios_version}")
+    else:
+        print(f"Using default {pcie_yaml}")
 
-    apply_cmds = apply_cmd_sets.get((pcb_id >> 2) & 0x03, [])
-    if apply_cmds == []:
-        print("No matching commands found for the PCB ID.")
-        return
-
-    if apply_cmds == apply_ais800_cmds:
-        print("Apply AIS800 Configuration")
-    elif apply_cmds == apply_as9817_cmds:
-        print("Apply AS9817 Configuration")
+    device_path = f"{PLATFORM_ROOT_PATH}/x86_64-accton_{PROJECT_NAME}-r0"
+    apply_cmds = [
+        f"cp -f {device_path}/{pcie_yaml} {device_path}/pcie.yaml",
+    ]
 
     for cmd in apply_cmds:
         status, output = log_os_system(cmd, 1)
@@ -704,7 +688,7 @@ def do_install():
         except IOError as e:
             pass
 
-    # apply_product_conf()
+    apply_product_conf()
 
     do_sonic_platform_install()
 
