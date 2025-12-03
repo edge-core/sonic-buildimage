@@ -20,7 +20,10 @@ RUN apt-get update   && \
         python3-dev     \
         gcc             \
         make            \
-        ipmitool
+        ipmitool        \
+        libpci3         \
+        libsensors5     \
+        libpcap0.8
 
 {% if docker_snmp_debs.strip() -%}
 # Copy locally-built Debian package dependencies
