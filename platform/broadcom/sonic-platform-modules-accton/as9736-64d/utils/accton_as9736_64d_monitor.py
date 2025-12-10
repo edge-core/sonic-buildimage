@@ -241,7 +241,7 @@ class device_monitor(object):
     def __init__(self, platform_chassis, log_file, log_level):
         """Needs a logger and a logger level."""
 
-        self.fan_timer_start = 0
+        self.fan_timer_start = time.time()
         self.thermal = ThermalUtil()
         self.fan = FanUtil()
 
