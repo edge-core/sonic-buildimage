@@ -18,7 +18,8 @@
 #    mm/dd/yyyy (A.D.)#
 #    07/12/2022: Michael_Shih create for as9736_64d thermal plan
 #    12/12/2023: Add detect temp of xcvr, and implement shutdown function.
-#    23/01/2024: Sync the log buffer to the disk before powering off the DUT.
+#    01/23/2024: Sync the log buffer to the disk before powering off the DUT.
+#    12/04/2025: Richard_KUO Add the flag to control the tolerance
 # ------------------------------------------------------------------
 
 try:
@@ -43,6 +44,11 @@ FUNCTION_NAME = '/usr/local/bin/accton_as9736_64d_monitor'
 STATE_DB = 'STATE_DB'
 TRANSCEIVER_DOM_SENSOR_TABLE = 'TRANSCEIVER_DOM_SENSOR'
 TEMPERATURE_FIELD_NAME = 'temperature'
+
+# Time in seconds to wait for fan speed to settle after a duty cycle change
+# before re-enabling tolerance checking. Set to 40s to allow fans to reach
+# target speed and stabilize.
+FAN_SPEED_SETTLE_TIMEOUT_S = 40
 
 class switch(object):
     def __init__(self, value):
@@ -177,8 +183,6 @@ send_cpu_shutdown_warning = 0
 
 thermal_min_to_mid_waring_flag = [0]
 
-platform_chassis= None
-
 int_port_mapping = []
 
 def stop_syncd_service():
@@ -234,12 +238,15 @@ class device_monitor(object):
     new_duty_cycle = 0
     ori_duty_cycle = 0
 
-    def __init__(self, log_file, log_level):
+    def __init__(self, platform_chassis, log_file, log_level):
         """Needs a logger and a logger level."""
 
+        self.fan_timer_start = time.time()
         self.thermal = ThermalUtil()
         self.fan = FanUtil()
 
+        self.platform_chassis = platform_chassis
+        self.fan_list = self.platform_chassis.get_all_fans()
         # set up logging to file
         logging.basicConfig(
             filename=log_file,
@@ -262,9 +269,26 @@ class device_monitor(object):
         #logging.debug('SET. logfile:%s / loglevel:%d', log_file, log_level)
 
         self.transceiver_dom_sensor_table = None
+        self.set_fans_tolerance_mode("on")
+
+    def set_fans_tolerance_mode(self, mode):
+        """
+        Set the tolerance mode for all fans in this group.
+        Args:
+            mode: "on" or "off"
+        """
+        if mode in ["on", "off"]:
+            for fan in self.fan_list:
+                fan.set_tolerance_mode(mode)
+
+    def is_timer_expired(self):
+        return (time.time() - self.fan_timer_start) >= FAN_SPEED_SETTLE_TIMEOUT_S
 
     def set_fan_duty_cycle(self, fan_level, duty_cycle_percentage):
         logging.debug("- [Fan]: fan_policy_state = %d, set new_duty_cycle = %d", fan_level, duty_cycle_percentage)
+
+        # Refresh Timer
+        self.fan_timer_start = time.time()
         self.fan.set_fan_duty_cycle(duty_cycle_percentage)
 
     def get_transceiver_temperature(self, iface_name):
@@ -281,8 +305,6 @@ class device_monitor(object):
         return 0.0
 
     def manage_fans(self):
-
-        global platform_chassis
         global fan_policy_state
         global fan_fail
         global count_check
@@ -346,6 +368,9 @@ class device_monitor(object):
         cpucore_thermal_val = [0, 0, 0, 0, 0, 0, 0, 0]
         mactemp_thermal_val = [0]
 
+        if self.is_timer_expired():
+            self.set_fans_tolerance_mode("on")
+
         # After booting, the database might not be ready for
         # connection. So, it should try to connect to the database
         # if self.transceiver_dom_sensor_table is None.
@@ -363,7 +388,7 @@ class device_monitor(object):
 
             # Record port mapping to interface
             for port_num in range(TRANSCEIVER_NUM_MAX):
-                sfp = platform_chassis.get_sfp(port_num+1)
+                sfp = self.platform_chassis.get_sfp(port_num+1)
                 int_port_mapping.append( (port_num+1, sfp, sfp.get_name()) )
 
             self.init_duty_cycle = fan.get_fan_duty_cycle()
@@ -381,6 +406,7 @@ class device_monitor(object):
                 else:
                     fan_policy_state =  FAN_LEVEL_1
 
+                self.set_fans_tolerance_mode("off")
                 self.set_fan_duty_cycle(fan_policy_state, fan_speed_policy[fan_policy_state][0])
 
             return
@@ -422,6 +448,7 @@ class device_monitor(object):
                 self.new_duty_cycle = fan_speed_policy[fan_policy_state][0]
 
             if self.new_duty_cycle != self.ori_duty_cycle:
+                self.set_fans_tolerance_mode("off")
                 self.set_fan_duty_cycle(fan_policy_state, fan_speed_policy[fan_policy_state][0])
                 return True
 
@@ -570,10 +597,12 @@ class device_monitor(object):
             self.new_duty_cycle = fan_speed_policy[fan_policy_state][0]
 
             if self.new_duty_cycle != self.ori_duty_cycle:
+                self.set_fans_tolerance_mode("off")
                 self.set_fan_duty_cycle(fan_policy_state, fan_speed_policy[fan_policy_state][0])
                 return True
 
             if self.new_duty_cycle == 0 :
+                self.set_fans_tolerance_mode("off")
                 self.set_fan_duty_cycle(FAN_LEVEL_3, fan_speed_policy[FAN_LEVEL_3][0])
 
         return True
@@ -589,7 +618,6 @@ def signal_handler(sig, frame):
 def main(argv):
     log_file = '%s.log' % FUNCTION_NAME
     log_level = logging.INFO
-    global test_temp
     global exit_by_sigterm
     signal.signal(signal.SIGTERM, signal_handler)
     if len(sys.argv) != 1:
@@ -607,10 +635,8 @@ def main(argv):
             elif opt in ('-l', '--lfile'):
                 log_file = arg
 
-    monitor = device_monitor(log_file, log_level)
-
-    global platform_chassis
     platform_chassis = platform.Platform().get_chassis()
+    monitor = device_monitor(platform_chassis, log_file, log_level)
 
     # Loop forever, doing something useful hopefully:
     while True:
