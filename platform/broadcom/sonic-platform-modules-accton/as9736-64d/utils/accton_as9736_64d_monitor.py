@@ -45,6 +45,9 @@ STATE_DB = 'STATE_DB'
 TRANSCEIVER_DOM_SENSOR_TABLE = 'TRANSCEIVER_DOM_SENSOR'
 TEMPERATURE_FIELD_NAME = 'temperature'
 
+# Time in seconds to wait for fan speed to settle after a duty cycle change
+# before re-enabling tolerance checking. Set to 40s to allow fans to reach
+# target speed and stabilize.
 FAN_SPEED_SETTLE_TIMEOUT_S = 40
 
 class switch(object):
