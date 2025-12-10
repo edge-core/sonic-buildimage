@@ -166,8 +166,10 @@ class Fan(FanBase):
             if mode == "off":
                 open(self.tolerance_flag, "a").close()
             elif mode == "on":
-                if os.path.exists(self.tolerance_flag):
+                try:
                     os.remove(self.tolerance_flag)
+                except FileNotFoundError:
+                    pass  # File already removed, which is the desired state
             else:
                 return False
             return True
