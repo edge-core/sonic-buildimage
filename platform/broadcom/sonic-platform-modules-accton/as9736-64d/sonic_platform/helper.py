@@ -110,11 +110,14 @@ class APIHelper():
     def get_platform(self):
         platform = None
 
-        with open(MACHINE_CONF_FILE, 'r') as file:
-            for line in file:
-                if 'onie_platform=' in line:
-                    platform = line.strip().split('=')[1]
-                    break
+        try:
+            with open(MACHINE_CONF_FILE, 'r') as file:
+                for line in file:
+                    if 'onie_platform=' in line:
+                        platform = line.strip().split('=')[1]
+                        break
+        except (IOError, OSError):
+            pass
 
         return platform
 
