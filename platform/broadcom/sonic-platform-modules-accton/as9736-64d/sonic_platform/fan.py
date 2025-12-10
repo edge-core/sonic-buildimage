@@ -157,8 +157,8 @@ class Fan(FanBase):
         Set the fan tolerance mode using a flag file.
         Args:
             mode:
-                - "off":  tolerance off      → create flag file
-                - "on": tolerance activate   → delete flag file
+                - "off":  tolerance off      - create flag file
+                - "on": tolerance activate   - delete flag file
         Returns:
             bool: True if the operation succeeded, False otherwise.
         """
