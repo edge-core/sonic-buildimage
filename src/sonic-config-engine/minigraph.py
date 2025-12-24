@@ -2103,11 +2103,6 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     if len(acl_table_types) > 0:
         results['ACL_TABLE_TYPE'] = acl_table_types
     results['ACL_TABLE'] = filter_acl_table_bindings(acls, neighbors, pcs, pc_members, sub_role, current_device['type'] if current_device else None, is_storage_device, vlan_members)
-    results['FEATURE'] = {
-        'telemetry': {
-            'state': 'disabled'
-        }
-    }
     results['TELEMETRY'] = {
         'gnmi': {
             'client_auth': 'true',
