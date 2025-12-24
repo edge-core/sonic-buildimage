@@ -11,6 +11,7 @@ from sonic_py_common.general import getstatusoutput_noshell
 from sonic_py_common.general import getstatusoutput_noshell_pipe
 
 HOST_CHK_CMD = ["docker"]
+MACHINE_CONF_FILE = "/host/machine.conf"
 EMPTY_STRING = ""
 
 
@@ -57,6 +58,18 @@ class APIHelper():
         except IOError:
             return False
         return True
+
+    def get_platform(self):
+        platform = None
+
+        with open(MACHINE_CONF_FILE, 'r') as file:
+            for line in file:
+                if 'onie_platform=' in line:
+                    platform = line.strip().split('=')[1]
+                    break
+
+        return platform
+
 class FileLock:
 
    def __init__(self, lock_file):
