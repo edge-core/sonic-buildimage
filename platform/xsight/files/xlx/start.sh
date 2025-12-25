@@ -126,7 +126,7 @@ if [[ ${ONIE_MACHINE,,} != *"kvm"* ]]; then
         if [[ ${ONIE_MACHINE,,} == *"es9618"* ]]; then
             XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/es9618x_reset_x2.sh
         else
-            XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/x2_reset.sh
+            XPLT_SWITCH_CHIP_RESET=$XPLT_UTL/reset_x2.sh
         fi
     fi
 
