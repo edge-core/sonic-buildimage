@@ -25,6 +25,7 @@
 #              2. Change the decision of FAN direction
 #              3. Enhance test data
 #   12/05/2025: Richard_KUO Add the flag to control the tolerance
+#   01/05/2026: Richard_KUO Use fan speed to check for state change
 # ------------------------------------------------------------------
 
 try:
@@ -629,9 +630,10 @@ class device_monitor(object):
                     self.fan_timer_start = time.time()
 
                     break
-        if current_state != ori_state:
-            fan_policy_state = current_state
-            new_duty_cycle = fan_policy[current_state][0]
+
+        fan_policy_state = current_state
+        new_duty_cycle = fan_policy[current_state][0]
+        if new_duty_cycle != ori_duty_cycle:
             logging.debug("fan_policy_state=%d, new_duty_cycle=%d", fan_policy_state, new_duty_cycle)
             if new_duty_cycle != ori_duty_cycle and fan_fail == 0:
                 self.set_fans_tolerance_mode("off")
