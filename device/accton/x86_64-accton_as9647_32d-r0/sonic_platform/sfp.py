@@ -72,14 +72,12 @@ class Sfp(SfpOptoeBase):
 
         if self._index <= 15:
             cpld_index = 0
-            port_num = self._port_num
         else:
             cpld_index = 1
-            port_num = self._port_num - 16
 
-        self.reset_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_reset_{port_num}"
-        self.present_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_present_{port_num}"
-        self.lpmode_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_lpmode_{port_num}"
+        self.reset_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_reset_{self._port_num}"
+        self.present_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_present_{self._port_num}"
+        self.lpmode_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_lpmode_{self._port_num}"
 
     def __is_host():
         try:
