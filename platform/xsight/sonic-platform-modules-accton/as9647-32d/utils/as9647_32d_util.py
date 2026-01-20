@@ -329,6 +329,7 @@ mknod_entries = [
     ("24c256", "0x55", "16"),
 ]
 
+sfp_bus_list = ["13-0061", "15-0062"]
 sfp_map = list(range(18, 50))
 
 
@@ -360,6 +361,22 @@ def device_install():
         ret, msg = echo_to_file(f"port{count}", path)
         if ret and FORCE == 0:
             return ret
+
+        # Increase write_timeout value to 250ms to get rid of:
+        # error: optoe XX-0050: Restore page register to 0 failed:-110!
+        path = f"/sys/bus/i2c/devices/{bus}-0050/write_timeout"
+        ret, msg = echo_to_file("250", path)
+        if ret and FORCE == 0:
+            return ret
+
+        sfp_bus = sfp_bus_list[count // 17]
+        path = f"/sys/bus/i2c/devices/{sfp_bus}/module_lpmode_{count}"
+        ret, msg = echo_to_file("0", path)
+        if ret and FORCE == 0:
+            return ret
+
+        # Bring up modules gradually to reduce the power spike at startup
+        time.sleep(0.1)
 
 
 def device_uninstall():
