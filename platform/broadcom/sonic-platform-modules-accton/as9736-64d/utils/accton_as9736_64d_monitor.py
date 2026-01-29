@@ -20,6 +20,7 @@
 #    12/12/2023: Add detect temp of xcvr, and implement shutdown function.
 #    01/23/2024: Sync the log buffer to the disk before powering off the DUT.
 #    12/04/2025: Richard_KUO Add the flag to control the tolerance
+#    01/05/2026: Richard_KUO Use fan speed to check for state change
 # ------------------------------------------------------------------
 
 try:
@@ -591,19 +592,18 @@ class device_monitor(object):
                 current_state = FAN_LEVEL_1
 
         #4 Setting new duty-cyle:
-        if current_state != ori_state:
-            fan_policy_state = current_state
+        fan_policy_state = current_state
+        self.new_duty_cycle = fan_speed_policy[fan_policy_state][0]
 
-            self.new_duty_cycle = fan_speed_policy[fan_policy_state][0]
+        if self.new_duty_cycle != self.ori_duty_cycle or self.new_duty_cycle == 0:
 
-            if self.new_duty_cycle != self.ori_duty_cycle:
-                self.set_fans_tolerance_mode("off")
-                self.set_fan_duty_cycle(fan_policy_state, fan_speed_policy[fan_policy_state][0])
-                return True
+            target_level = fan_policy_state
+            if self.new_duty_cycle == 0:
+                target_level = FAN_LEVEL_3
+                self.new_duty_cycle = fan_speed_policy[target_level][0]
 
-            if self.new_duty_cycle == 0 :
-                self.set_fans_tolerance_mode("off")
-                self.set_fan_duty_cycle(FAN_LEVEL_3, fan_speed_policy[FAN_LEVEL_3][0])
+            self.set_fans_tolerance_mode("off")
+            self.set_fan_duty_cycle(target_level, self.new_duty_cycle)
 
         return True
 
