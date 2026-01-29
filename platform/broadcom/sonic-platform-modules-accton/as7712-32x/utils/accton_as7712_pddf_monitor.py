@@ -19,6 +19,7 @@
 # HISTORY:
 #    mm/dd/yyyy (A.D.)
 #    11/13/2017: Polly Hsu, Create
+#    12/05/2025: Richard_KUO Add the flag to control the tolerance
 # ------------------------------------------------------------------
 
 try:
@@ -38,6 +39,8 @@ except ImportError as e:
 VERSION = '1.0'
 FUNCTION_NAME = 'accton_as7712_monitor'
 DUTY_MAX = 100
+
+FAN_SPEED_SETTLE_TIMEOUT_S = 40
 
 fan_state = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]  # init state=2, insert=1, remove=0
 # For AC power Front to Back :
@@ -95,6 +98,9 @@ class accton_as7712_monitor(object):
 
     def __init__(self, log_console, log_file):
         """Needs a logger and a logger level."""
+        self.fan_timer_start = time.time()
+        global platform_chassis
+        self.fan_list = platform_chassis.get_all_fans()
 
         formatter = logging.Formatter('%(name)s %(message)s')
         sys_handler = logging.handlers.SysLogHandler(address='/dev/log')
@@ -119,6 +125,24 @@ class accton_as7712_monitor(object):
             console.setFormatter(formatter)
             self.llog.addHandler(console)
 
+        # Set any sample speed of 100%
+        self.set_fans_tolerance_mode("off")
+        as7712_set_fan_duty_cycle(100)
+        self.fan_timer_start = time.time()
+
+    def set_fans_tolerance_mode(self, mode):
+        """
+        Set the tolerance mode for all fans in this group.
+        Args:
+            mode: "on" or "off"
+        """
+        if mode in ["on", "off"]:
+            for fan in self.fan_list:
+                fan.set_tolerance_mode(mode)
+
+    def is_timer_expired(self):
+        return (time.time() - self.fan_timer_start) >= FAN_SPEED_SETTLE_TIMEOUT_S
+
     def manage_fans(self):
         fan_policy_f2b = {
             0: [32, 0,      174000],
@@ -137,7 +161,10 @@ class accton_as7712_monitor(object):
         global platform_chassis
         FAN_STATE_REMOVE = 0
         FAN_STATE_INSERT = 1
-       
+
+        if self.is_timer_expired():
+            self.set_fans_tolerance_mode("on")
+
         get_temp = 0
         for t in range(0, 3):
             get_temp = get_temp + platform_chassis.get_thermal(t).get_temperature()*1000
@@ -159,17 +186,21 @@ class accton_as7712_monitor(object):
 
             if fan_status is None:
                 self.llog.warning('SET new_perc to %d (FAN stauts is None. fan_num:%d)', DUTY_MAX, x)
+                self.set_fans_tolerance_mode("off")
                 as7712_set_fan_duty_cycle(DUTY_MAX)
+                self.fan_timer_start = time.time()
 
             if fan_status is False:
                 self.llog.warning('SET new_perc to %d (FAN fault. fan_num:%d)', DUTY_MAX, x)
+                self.set_fans_tolerance_mode("off")
                 as7712_set_fan_duty_cycle(DUTY_MAX)
+                self.fan_timer_start = time.time()
 
             #self.llog.debug('INFO. fan_status is True (fan_num:%d)', x)
 
             # Determine the current fan duty cycle from a working fan
             if not cur_duty_cycle:
-                cur_duty_cycle = platform_chassis.get_fan(x).get_speed()
+                cur_duty_cycle = platform_chassis.get_fan(x).get_target_speed()
 
         if fan_status is not None and fan_status is not False:
             # Assuming all the fans have the same direction
@@ -183,7 +214,9 @@ class accton_as7712_monitor(object):
 
             for x in range(0, 4):
                 if x == 4:
+                    self.set_fans_tolerance_mode("off")
                     as7712_set_fan_duty_cycle(policy[0][0])
+                    self.fan_timer_start = time.time()
                     break
                 
                 if get_temp > policy[x][2] and x != 3:
@@ -207,7 +240,9 @@ class accton_as7712_monitor(object):
                     pass
 
                 self.llog.debug('set new_duty_cycle=%d (old dc: %d)', new_duty_cycle, cur_duty_cycle)
+                self.set_fans_tolerance_mode("off")
                 as7712_set_fan_duty_cycle(new_duty_cycle)
+                self.fan_timer_start = time.time()
 
             return True
 
@@ -248,9 +283,6 @@ def main(argv):
     status, output = subprocess.getstatusoutput('i2cset -f -y 2 0x66 0x33 0x0')
     if status:
         print("Error: Unable to disable fan speed watchdog")
-
-    # Set any smaple speed of 100%
-    as7712_set_fan_duty_cycle(100)
 
     # Start the monitoring
     monitor = accton_as7712_monitor(log_console, log_file)

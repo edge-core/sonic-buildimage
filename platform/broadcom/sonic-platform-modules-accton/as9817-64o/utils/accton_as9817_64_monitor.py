@@ -21,6 +21,7 @@
 #                        max port temperature, and its port number.
 #    12/10/2025: [Roger] Refactored to modular class-based architecture
 #                        with dual BMC/CPU thermal control paths.
+#    01/05/2026: Richard_KUO Add the flag to control the tolerance
 # ----------------------------------------------------------------------------------------
 # ARCHITECTURE OVERVIEW:
 #
@@ -246,6 +247,9 @@ XCVR_FAILURE_TEMPERATURE = 0.0
 TEMPERATURE_COMPENSATION = 5.0
 TRANSCEIVER_NUM_MAX = 64
 THERMAL_NUM_MAX = 2  # CPU + MAC
+
+DEFAULT_SPEED_TOLERANCE = 20
+FAN_SPEED_SETTLE_TIMEOUT_S = 40
 
 # Global retry settings
 DEFAULT_RETRIES = 3           # Number of retry attempts
@@ -817,7 +821,7 @@ class FanPolicyEngine(object):
                     max_to_mid += 1
 
         # Transition from MID back to MIN:
-        if (old_state == LEVEL_FAN_MID and 
+        if (old_state == LEVEL_FAN_MID and
                 mid_to_min == THERMAL_NUM_MAX and
                 snapshot.sfp_present_count == 0):
             current_state = LEVEL_FAN_MIN
@@ -1021,7 +1025,13 @@ class DeviceMonitor(object):
         # Cache CPU thermal index for faster lookup.
         self._cpu_thermal_index = self._find_cpu_thermal_index()
 
+        # Dynamically adjust tolerance
+        self.fan_timer_start = time.time()
+        self.pre_target_speed = [fan.get_target_speed() for fan in self.fans]
+
         self.logger.info("Device monitor initialized")
+
+        self.set_fans_tolerance_mode("off")
 
     def is_stopping(self):
         """
@@ -1035,6 +1045,40 @@ class DeviceMonitor(object):
         finish gracefully.
         """
         self.stop_flag = True
+
+    def set_fans_tolerance_mode(self, mode):
+        """
+        Set the tolerance mode for all fans in this group.
+        Args:
+            mode: "on" or "off"
+        """
+        if mode in ["on", "off"]:
+            for fan in self.fans:
+                fan.set_tolerance_mode(mode)
+
+    def is_timer_expired(self):
+        """
+        Calculates if the timer has expired based on the fan speed settle timeout.
+        """
+        return (time.time() - self.fan_timer_start) >= FAN_SPEED_SETTLE_TIMEOUT_S
+
+    def is_under_speed(self, fan):
+        """
+        Calculates if the fan speed is under the tolerated low speed threshold
+        """
+        speed = fan.get_speed()
+        target_speed = fan.get_target_speed()
+        tolerance = DEFAULT_SPEED_TOLERANCE
+        return speed * 100 < target_speed * (100 - tolerance)
+
+    def is_over_speed(self, fan):
+        """
+        Calculates if the fan speed is over the tolerated high speed threshold
+        """
+        speed = fan.get_speed()
+        target_speed = fan.get_target_speed()
+        tolerance = DEFAULT_SPEED_TOLERANCE
+        return speed * 100 > target_speed * (100 + tolerance)
 
     def power_off_dut(self):
         """
@@ -1607,6 +1651,24 @@ class DeviceMonitor(object):
         self.logger.debug("Fallback to CPU-based thermal control.")
         self._control_thermal_policy_via_cpu(snapshot)
 
+        speed_normal = True
+        for i, fan in enumerate(self.fans):
+            curr_target_speed = fan.get_target_speed()
+            if curr_target_speed != self.pre_target_speed[i]:
+                self.set_fans_tolerance_mode("off")
+                self.fan_timer_start = time.time()
+
+            elif self.is_under_speed(fan) or self.is_over_speed(fan):
+                speed_normal = False
+
+            self.pre_target_speed[i] = curr_target_speed
+
+        if speed_normal:
+            self.set_fans_tolerance_mode("off")
+            self.fan_timer_start = time.time()
+
+        if self.is_timer_expired():
+            self.set_fans_tolerance_mode("on")
 
 def is_database_ready():
     """
