@@ -92,7 +92,12 @@ class Fan(FanBase):
                 direction=self.FAN_DIRECTION_EXHAUST
 
         else: #For PSU
-            dir_str = "{}{}".format(self.psu_hwmon_path,'psu_fan_dir')
+            psu_path = "{}{}".format(self.psu_cpld_path, 'psu_power_good')
+            val = self._api_helper.read_txt_file(psu_path)
+            if val is None or int(val, 10)==0:
+                return self.FAN_DIRECTION_NOT_APPLICABLE
+
+            dir_str = "{}{}".format(self.psu_cpld_path, 'psu_fan_dir')
             val=self._api_helper.read_txt_file(dir_str)
             if val is not None:
                 if val=='F2B':
