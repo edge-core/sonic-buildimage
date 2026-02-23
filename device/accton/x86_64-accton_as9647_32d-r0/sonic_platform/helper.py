@@ -1,8 +1,6 @@
 import os
 import shlex
-import struct
 import subprocess
-from mmap import *
 from sonic_py_common import device_info
 
 HOST_CHK_CMD = "docker > /dev/null 2>&1"
@@ -20,19 +18,6 @@ class APIHelper():
     def is_sonic(self):
         return os.path.exists("/etc/sonic/config_db.json")
 
-    def pci_get_value(self, resource, offset):
-        status = True
-        result = ""
-        try:
-            fd = os.open(resource, os.O_RDWR)
-            mm = mmap(fd, 0)
-            mm.seek(int(offset))
-            read_data_stream = mm.read(4)
-            result = struct.unpack('I', read_data_stream)
-        except Exception:
-            status = False
-        return status, result
-
     def run_command(self, cmd):
         status = True
         result = ""
@@ -49,14 +34,6 @@ class APIHelper():
         except Exception:
             status = False
         return status, result
-
-    def run_interactive_command(self, cmd):
-        try:
-            args = shlex.split(cmd)
-            subprocess.run(args, check=True)
-        except Exception:
-            return False
-        return True
 
     def read_txt_file(self, file_path):
         try:

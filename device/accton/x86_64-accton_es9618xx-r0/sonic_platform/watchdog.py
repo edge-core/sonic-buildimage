@@ -11,7 +11,7 @@ import array
 import time
 from sonic_platform_base.watchdog_base import WatchdogBase
 from sonic_py_common import logger
-from . import utils
+from .helper import APIHelper
 
 """ ioctl constants """
 IO_READ = 0x80000000
@@ -56,6 +56,7 @@ class WatchdogImplBase(WatchdogBase):
 
         self.watchdog_path = wd_device_path
         self._watchdog = None
+        self._api_helper = APIHelper()
         self.timeout = self._gettimeout()
 
     @property
@@ -124,7 +125,8 @@ class WatchdogImplBase(WatchdogBase):
         """
 
         file_path = WD_SYSFS_PATH + 'timeout'
-        return utils.fread_int(file_path)
+        val = self._api_helper.read_txt_file(file_path)
+        return int(val) if val is not None else 0
 
     def _gettimeleft(self):
         """
@@ -133,7 +135,8 @@ class WatchdogImplBase(WatchdogBase):
         """
 
         file_path = WD_SYSFS_PATH + 'timeleft'
-        return utils.fread_int(file_path)
+        val = self._api_helper.read_txt_file(file_path)
+        return int(val) if val is not None else 0
 
 
     def arm(self, seconds):
@@ -186,7 +189,7 @@ class WatchdogImplBase(WatchdogBase):
         """
 
         file_path = WD_SYSFS_PATH + 'state'
-        return utils.fread_str(file_path) == 'active'
+        return self._api_helper.read_txt_file(file_path) == 'active'
 
     def get_remaining_time(self):
         """

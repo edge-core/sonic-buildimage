@@ -94,14 +94,6 @@ class Chassis(ChassisBase):
     def __is_host(self):
         return os.system(HOST_CHK_CMD) == 0
 
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                return fd.read().strip()
-        except IOError:
-            pass
-        return None
-
     def get_name(self):
         """
         Retrieves the name of the device

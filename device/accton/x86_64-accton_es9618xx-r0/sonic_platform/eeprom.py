@@ -2,10 +2,7 @@ try:
     import os
     import sys
     import re
-    if sys.version_info[0] >= 3:
-        from io import StringIO
-    else:
-        from cStringIO import StringIO
+    from io import StringIO
     
     from sonic_platform_base.sonic_eeprom import eeprom_tlvinfo
 except ImportError as e:
