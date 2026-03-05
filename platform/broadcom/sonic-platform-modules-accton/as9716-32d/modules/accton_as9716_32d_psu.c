@@ -44,6 +44,8 @@ const char FAN_DIR_UNKNOWN[] = "";
 
 static ssize_t show_status(struct device *dev, struct device_attribute *da, char *buf);
 static ssize_t show_string(struct device *dev, struct device_attribute *da, char *buf);
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count);
 static int as9716_32d_psu_read_block(struct i2c_client *client, u8 command, u8 *data,int data_len);
 extern int as9716_32d_cpld_read(unsigned short cpld_addr, u8 reg);
 
@@ -56,6 +58,7 @@ static const unsigned short normal_i2c[] = { 0x50, 0x51, I2C_CLIENT_END };
 struct as9716_32d_psu_data {
     struct device      *hwmon_dev;
     struct mutex        update_lock;
+    char                faulty_device;
     char                valid;           /* !=0 if registers are valid */
     unsigned long       last_updated;    /* In jiffies */
     u8  index;           /* PSU index */
@@ -72,7 +75,8 @@ enum as9716_32d_psu_sysfs_attributes {
     PSU_MODEL_NAME,
     PSU_POWER_GOOD,
     PSU_SERIAL_NUMBER,
-    PSU_FAN_DIR
+    PSU_FAN_DIR,
+    PSU_FAULTY_DEVICE
 };
 
 /* sysfs attributes for hwmon
@@ -82,6 +86,7 @@ static SENSOR_DEVICE_ATTR(psu_model_name, S_IRUGO, show_string,    NULL, PSU_MOD
 static SENSOR_DEVICE_ATTR(psu_power_good, S_IRUGO, show_status,    NULL, PSU_POWER_GOOD);
 static SENSOR_DEVICE_ATTR(psu_serial_number, S_IRUGO, show_string, NULL, PSU_SERIAL_NUMBER);
 static SENSOR_DEVICE_ATTR(psu_fan_dir, S_IRUGO, show_string, NULL, PSU_FAN_DIR);
+static SENSOR_DEVICE_ATTR(psu_faulty_device, S_IWUSR | S_IRUGO, show_status, set_faulty_device, PSU_FAULTY_DEVICE);
 
 static struct attribute *as9716_32d_psu_attributes[] = {
     &sensor_dev_attr_psu_present.dev_attr.attr,
@@ -89,6 +94,7 @@ static struct attribute *as9716_32d_psu_attributes[] = {
     &sensor_dev_attr_psu_power_good.dev_attr.attr,
     &sensor_dev_attr_psu_serial_number.dev_attr.attr,
     &sensor_dev_attr_psu_fan_dir.dev_attr.attr,
+    &sensor_dev_attr_psu_faulty_device.dev_attr.attr,
     NULL
 };
 
@@ -96,8 +102,19 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
                            char *buf)
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
-    struct as9716_32d_psu_data *data = as9716_32d_psu_update_device(dev);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_psu_data *data = i2c_get_clientdata(client);
     u8 status = 0;
+
+    if (attr->index == PSU_FAULTY_DEVICE) {
+       return sprintf(buf, "%d\n", data->faulty_device);
+    }
+
+    if (data->faulty_device) {
+        return -EIO;
+    }
+
+    data = as9716_32d_psu_update_device(dev);
 
     if (attr->index == PSU_PRESENT) {
         status = !(data->status >> (1-data->index) & 0x1);
@@ -112,9 +129,16 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 static ssize_t show_string(struct device *dev, struct device_attribute *da,
                                char *buf)
 {
-   struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
-    struct as9716_32d_psu_data *data = as9716_32d_psu_update_device(dev);
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_psu_data *data = i2c_get_clientdata(client);
     const char *ptr = NULL;
+
+    if (data->faulty_device) {
+        return -EIO;
+    }
+
+    data = as9716_32d_psu_update_device(dev);
 
     if (!data->valid) {
         return -EIO;
@@ -136,6 +160,27 @@ static ssize_t show_string(struct device *dev, struct device_attribute *da,
 
     return sprintf(buf, "%s\n", ptr);
 }
+
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count)
+{
+    int error, value;
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_psu_data *data = i2c_get_clientdata(client);
+
+    error = kstrtoint(buf, 10, &value);
+    if (error)
+        return error;
+
+    if (value != 0 && value != 1)
+        return -EINVAL;
+
+    mutex_lock(&data->update_lock);
+    data->faulty_device = value;
+    mutex_unlock(&data->update_lock);
+    return count;
+}
+
 
 static const struct attribute_group as9716_32d_psu_group = {
     .attrs = as9716_32d_psu_attributes,
@@ -160,6 +205,7 @@ static int as9716_32d_psu_probe(struct i2c_client *client,
 
     i2c_set_clientdata(client, data);
     data->valid = 0;
+    data->faulty_device = 0;
     data->index = dev_id->driver_data;
     mutex_init(&data->update_lock);
 
@@ -327,6 +373,13 @@ static struct as9716_32d_psu_data *as9716_32d_psu_update_device(struct device *d
 
         if (power_good) {
             for (i = 0; i < ARRAY_SIZE(models); i++) {
+                if ((models[i].length+1) > ARRAY_SIZE(data->model_name)) {
+                    dev_dbg(&client->dev,
+                            "invalid models[%d].length(%d), should not exceed the size of data->model_name(%d)\n",
+                            i, models[i].length, ARRAY_SIZE(data->model_name));
+                    continue;
+                }
+
                 memset(data->model_name, 0, sizeof(data->model_name));
                 memset(data->serial_number, 0, sizeof(data->serial_number));
 
@@ -345,13 +398,18 @@ static struct as9716_32d_psu_data *as9716_32d_psu_update_device(struct device *d
                 /* Determine if the model name is known, if not, read next index
                 */
                 if (strncmp(data->model_name, models[i].model_name, models[i].chk_length) == 0) {
+                    if ((serials[i].length+1) > ARRAY_SIZE(data->serial_number)) {
+                        dev_dbg(&client->dev,
+                                "invalid serials[%d].length(%d), should not exceed the size of data->serial_number(%d)\n",
+                                i, serials[i].length, ARRAY_SIZE(data->serial_number));
+                        continue;
+                    }
+
                     status = as9716_32d_psu_read_block(client, serials[i].offset,
                                                 data->serial_number, serials[i].length);
                     if (models[i].type == PSU_TYPE_3Y_YESM1300AM) {
                         // Adjust model name for PSU_TYPE_3Y_YESM1300AM
-                        char buf[10] = {0};
-                        memcpy(buf, &data->model_name[9], 10);
-                        memcpy(&data->model_name[8], buf, 10);
+                        memmove(&data->model_name[8], &data->model_name[9], models[i].length-9);
                         data->model_name[models[i].length-1] = '\0';
 
                         if (data->model_name[12] == 'A')
@@ -363,9 +421,7 @@ static struct as9716_32d_psu_data *as9716_32d_psu_update_device(struct device *d
                              (models[i].type == PSU_TYPE_AC_ACBEL_FSH095_B2F) ||
                              (models[i].type == PSU_TYPE_AC_ACBEL_FSF019_F2B)) {
                         // Adjust model name for FSH082 / FSH095 / FSF019
-                        char buf[4] = {0};
-                        memcpy(buf, &data->model_name[9], 4);
-                        memcpy(&data->model_name[7], buf, 4);
+                        memmove(&data->model_name[7], &data->model_name[9], models[i].length-9);
                         data->model_name[6] = '-';
                         data->model_name[11] = '\0';
                         data->fan_dir = models[i].fan_dir;

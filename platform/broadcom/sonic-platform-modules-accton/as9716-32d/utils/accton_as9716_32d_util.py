@@ -16,28 +16,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-usage: accton_as9716_32d_util.py [-h] [-d] [-f] {install,clean,threshold} ...
+Usage: %(scriptName)s [options] command object
 
-AS9716-32D Platform Utility
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d, --debug           run with debug mode
-  -f, --force           ignore error during installation or clean
-
-Utility Command:
-  {install,clean,threshold}
-    install             : install drivers and generate related sysfs nodes
-    clean               : uninstall drivers and remove related sysfs nodes
-    threshold           : modify thermal threshold
+options:
+    -h | --help     : this help message
+    -d | --debug    : run with debug mode
+    -f | --force    : ignore error during installation or clean
+command:
+    install     : install drivers and generate related sysfs nodes
+    clean       : uninstall drivers and remove related sysfs nodes
 """
 import subprocess
+import getopt
 import sys
 import logging
 import re
 import time
-import argparse
-from sonic_py_common.general import getstatusoutput_noshell
+import os
 
 PROJECT_NAME = 'as9716_32d'
 version = '0.0.1'
@@ -106,74 +101,88 @@ eeprom_mknod =[
 'echo 24c02 0x56 > /sys/bus/i2c/devices/i2c-0/new_device',
 ]
 
+
+#SET WANPLL freerun mode
+wanpll_freerun_cmd =[
+'i2cset -f -y 14 0x51 0x7f 0x03',
+'i2cset -f -y 14 0x51 0x20 0x01',
+]
+
+#Set OCP to 65A
+ocp_65a_cmd =[
+'i2cset -f -y 11 0x62 0xd2 0x1',
+'i2cset -f -y 11 0x62 0xda 0x41',
+'i2cset -f -y 11 0x66 0xd2 0x1',
+'i2cset -f -y 11 0x66 0xda 0x41',
+]
+
 FORCE = 0
 logging.basicConfig(filename= PROJECT_NAME+'.log', filemode='w',level=logging.DEBUG)
 logging.basicConfig(level=logging.INFO)
 
 
 if DEBUG == True:
-    print((sys.argv[0]))
-    print(('ARGV      :', sys.argv[1:]))
+    print(sys.argv[0])
+    print('ARGV      :', sys.argv[1:])
 
 
 def main():
     global DEBUG
     global args
     global FORCE
-    global THRESHOLD_RANGE_LOW, THRESHOLD_RANGE_HIGH
 
-    util_parser = argparse.ArgumentParser(description="AS9716-32D Platform Utility")
-    util_parser.add_argument("-d", "--debug", dest='debug', action='store_true', default=False,
-                             help="run with debug mode")
-    util_parser.add_argument("-f", "--force", dest='force', action='store_true', default=False,
-                             help="ignore error during installation or clean")
-    subcommand = util_parser.add_subparsers(dest='cmd', title='Utility Command', required=True)
-    subcommand.add_parser('install', help=': install drivers and generate related sysfs nodes')
-    subcommand.add_parser('clean', help=': uninstall drivers and remove related sysfs nodes')
-    threshold_parser = subcommand.add_parser('threshold', help=': modify thermal threshold')
-    threshold_parser.add_argument("-l", dest='list', action='store_true', default=False,
-                                  help="list avaliable thermal")
-    threshold_parser.add_argument("-t", dest='thermal', type=str, metavar='THERMAL_NAME',
-                                  help="thermal name, ex: -t 'Temp sensor 1'")
-    threshold_parser.add_argument("-ht", dest='high_threshold', type=restricted_float,
-                                  metavar='THRESHOLD_VALUE',
-                                  help="high threshold: %.1f ~ %.1f" % (THRESHOLD_RANGE_LOW, THRESHOLD_RANGE_HIGH))
-    threshold_parser.add_argument("-hct", dest='high_crit_threshold', type=restricted_float,
-                                  metavar='THRESHOLD_VALUE',
-                                  help="high critical threshold : %.1f ~ %.1f" % (THRESHOLD_RANGE_LOW, THRESHOLD_RANGE_HIGH))
-    args = util_parser.parse_args()
+    if len(sys.argv)<2:
+        show_help()
 
+    options, args = getopt.getopt(sys.argv[1:], 'hdf', ['help',
+                                                       'debug',
+                                                       'force',
+                                                          ])
     if DEBUG == True:
+        print(options)
         print(args)
-        print((len(sys.argv)))
+        print(len(sys.argv))
 
-    DEBUG = args.debug
-    FORCE = 1 if args.force else 0
+    for opt, arg in options:
+        if opt in ('-h', '--help'):
+            show_help()
+        elif opt in ('-d', '--debug'):
+            DEBUG = True
+            logging.basicConfig(level=logging.INFO)
+        elif opt in ('-f', '--force'):
+            FORCE = 1
+        else:
+            logging.info('no option')
+    for arg in args:
+        if arg == 'install':
+           do_install()
+        elif arg == 'clean':
+           do_uninstall()
+        elif arg == 'api':
+           do_sonic_platform_install()
+        elif arg == 'api_clean':   
+           do_sonic_platform_clean()
+        else:
+            show_help()
 
-    if args.cmd == 'install':
-        do_install()
-    elif args.cmd == 'clean':
-        do_uninstall()
-    elif args.cmd == 'threshold':
-        do_threshold()
 
     return 0
 
 def show_help():
-    print(( __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]}))
+    print( __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]})
     sys.exit(0)
 
 def dis_i2c_ir3570a(addr):
-    cmd = ["i2cset", "-y", "0", "0x"+"%x"%addr, "0xE5", "0x01"]
-    status, output = getstatusoutput_noshell(cmd)
-    cmd = ["i2cset", "-y", "0", "0x"+"%x"%addr, "0x12", "0x02"]
-    status, output = getstatusoutput_noshell(cmd)
+    cmd = "i2cset -y -a 0 0x%x 0xE5 0x01" % addr
+    status, output = subprocess.getstatusoutput(cmd)
+    cmd = "i2cset -y -a 0 0x%x 0x12 0x02" % addr
+    status, output = subprocess.getstatusoutput(cmd)
     return status
 
 def ir3570_check():
-    cmd = ["i2cdump", "-y", "0", "0x42", "s", "0x9a"]
+    cmd = "i2cdump -y 0 0x42 s 0x9a"
     try:
-        status, output = getstatusoutput_noshell(cmd)
+        status, output = subprocess.getstatusoutput(cmd)
         lines = output.split('\n')
         hn = re.findall(r'\w+', lines[-1])
         version = int(hn[1], 16)
@@ -182,14 +191,48 @@ def ir3570_check():
         else:
             ret = 0
     except Exception as e:
-        print(( "Error on ir3570_check() e:" + str(e)))
+        print( "Error on ir3570_check() e:" + str(e))
         return -1
     return ret
 
+def config_ocp_65a():
+    for i in range(0,len(ocp_65a_cmd)):
+        status, output = subprocess.getstatusoutput(ocp_65a_cmd[i])
+        if status != 0 :
+            print( "Error on config ocp value to 65A")
+            return status
+    return 0
+
+def config_wanpll():
+    for i in range(0,len(wanpll_freerun_cmd)):
+        status, output = subprocess.getstatusoutput(wanpll_freerun_cmd[i])
+        if status !=0 :
+            print( "Error on config wanpll freerun mode")
+            return status
+    return 0
+
+def config_sfp_retimer():
+    cmd_list = [
+        "i2cset -f -y 22 {} 0x7 0x3",   # Set Mux(retimer) to 2x10G XFI
+        "i2cset -f -y 22 {} 0xff 0x05", # Set channel B
+        "i2cset -f -y 22 {} 0x2d 0x82", # Write output voltage to 800mV
+        "i2cset -f -y 22 {} 0x15 0x12", # Write de-emphasis to -3.5dB
+        "i2cset -f -y 22 {} 0x1f 0xd5", # Invert the polarity of the driver
+        "i2cset -f -y 22 {} 0xff 0x00"  # Clear channel B
+    ]
+
+    for cmd in cmd_list:
+        retimer_chips = [ "0x18", "0x19", "0x1a", "0x1b" ]
+
+        for chip in retimer_chips:
+            status, output = subprocess.getstatusoutput(cmd.format(chip))
+            if status != 0:
+                return False
+    return True
 
 def my_log(txt):
     if DEBUG == True:
-        print(("[ACCTON DBG]: "+txt))
+        print("[ACCTON DBG]: "+txt)
     return
 
 def log_os_system(cmd, show):
@@ -203,7 +246,7 @@ def log_os_system(cmd, show):
     if status:
         logging.info('Failed :'+cmd)
         if show:
-            print(('Failed :'+cmd))
+            print('Failed :'+cmd)
     return  status, output
 
 def driver_inserted():
@@ -218,12 +261,13 @@ def driver_inserted():
 kos = [
 'depmod -ae',
 'modprobe i2c_dev',
-'modprobe i2c_mux_pca954x force_deselect_on_exit=1',
+'modprobe i2c_mux_pca954x',
 'modprobe accton_i2c_psu',
 'modprobe accton_as9716_32d_cpld',
 'modprobe accton_as9716_32d_fan',
 'modprobe accton_as9716_32d_leds',
 'modprobe accton_as9716_32d_psu',
+'modprobe accton_as9716_32d_ioport',
 'modprobe optoe',
 'modprobe lm75']
 
@@ -269,25 +313,46 @@ def device_install():
         #for pca954x need times to built new i2c buses
         if mknod[i].find('pca954') != -1:
             time.sleep(2)
-        #print("init i2c device instance")
-        status, output = log_os_system(mknod[i], 1)        
+
+        print("init i2c device instance")
+        for _ in range(3):
+            status, output = log_os_system(mknod[i], 1)
+            if status:
+                print(output)
+                time.sleep(2)
+            else:
+                break
+
         if status:
-            print(output)
             if FORCE == 0:
                 return status
-    
+
+    # set all pca954x idle_disconnect
+    cmd = 'echo -2 | tee /sys/bus/i2c/drivers/pca954x/*-00*/idle_state'
+    status, output = log_os_system(cmd, 1)
+    if status:
+        print(output)
+        if FORCE == 0:
+            return status
+
+    config_wanpll()
+    config_ocp_65a()
+    config_sfp_retimer()
+
     ret=eeprom_check()
     if ret==0:
         log_os_system(eeprom_mknod[0], 1) #new board, 0x57 eeprom
     else:
         log_os_system(eeprom_mknod[1], 1) #old board, 0x56 eeprom
-        
+
     for i in range(0,len(sfp_map)):
         status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
         if status:
             print(output)
             if FORCE == 0:
                 return status
+
+    for i in range(0,len(sfp_map)):
         status, output =log_os_system("echo port"+str(i)+" > /sys/bus/i2c/devices/"+str(sfp_map[i])+"-0050/port_name", 1)
         if status:
             print(output)
@@ -349,6 +414,43 @@ def system_ready():
         return False
     return True
 
+PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
+PLATFORM_API2_WHL_FILE_PY3 ='sonic_platform-1.0-py3-none-any.whl'
+def do_sonic_platform_install():
+    device_path = "{}{}{}{}".format(PLATFORM_ROOT_PATH, '/x86_64-accton_', PROJECT_NAME, '-r0')
+    SONIC_PLATFORM_BSP_WHL_PKG_PY3 = "/".join([device_path, PLATFORM_API2_WHL_FILE_PY3])
+        
+    #Check API2.0 on py whl file
+    status, output = log_os_system("pip3 show sonic-platform > /dev/null 2>&1", 0)
+    if status:
+        if os.path.exists(SONIC_PLATFORM_BSP_WHL_PKG_PY3): 
+            status, output = log_os_system("pip3 install "+ SONIC_PLATFORM_BSP_WHL_PKG_PY3, 1)
+            if status:
+                print("Error: Failed to install {}".format(PLATFORM_API2_WHL_FILE_PY3))
+                return status
+            else:
+                print("Successfully installed {} package".format(PLATFORM_API2_WHL_FILE_PY3))
+        else:
+            print('{} is not found'.format(PLATFORM_API2_WHL_FILE_PY3))
+    else:        
+        print('{} has installed'.format(PLATFORM_API2_WHL_FILE_PY3))
+     
+    return 
+     
+def do_sonic_platform_clean():
+    status, output = log_os_system("pip3 show sonic-platform > /dev/null 2>&1", 0)   
+    if status:
+        print('{} does not install, not need to uninstall'.format(PLATFORM_API2_WHL_FILE_PY3))
+        
+    else:        
+        status, output = log_os_system("pip3 uninstall sonic-platform -y", 0)
+        if status:
+            print('Error: Failed to uninstall {}'.format(PLATFORM_API2_WHL_FILE_PY3))
+            return status
+        else:
+            print('{} is uninstalled'.format(PLATFORM_API2_WHL_FILE_PY3))
+
+    return
 def do_install():
     if driver_inserted() == False:
         status = driver_install()
@@ -356,7 +458,7 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print((PROJECT_NAME.upper()+" drivers detected...."))
+        print(PROJECT_NAME.upper()+" drivers detected....")
 
     ir3570_check()
 
@@ -366,12 +468,15 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print((PROJECT_NAME.upper()+" devices detected...."))
+        print(PROJECT_NAME.upper()+" devices detected....")
+
+    do_sonic_platform_install()
+
     return
 
 def do_uninstall():
     if not device_exist():
-        print((PROJECT_NAME.upper()+" has no device installed...."))
+        print(PROJECT_NAME.upper()+" has no device installed....")
     else:
         print("Removing device....")
         status = device_uninstall()
@@ -380,177 +485,19 @@ def do_uninstall():
                 return  status
 
     if driver_inserted()== False :
-        print((PROJECT_NAME.upper()+" has no driver installed...."))
+        print(PROJECT_NAME.upper()+" has no driver installed....")
     else:
         print("Removing installed driver....")
         status = driver_uninstall()
         if status:
             if FORCE == 0:
                 return  status
-
     return
 
 def device_exist():
     ret1, log = log_os_system("ls "+i2c_prefix+"*0077", 0)
     ret2, log = log_os_system("ls "+i2c_prefix+"i2c-2", 0)
     return not(ret1 or ret2)
-
-THRESHOLD_RANGE_LOW = 30.0
-THRESHOLD_RANGE_HIGH = 110.0
-# Code to initialize chassis object
-init_chassis_code = \
-    "import sonic_platform.platform\n"\
-    "platform = sonic_platform.platform.Platform()\n"\
-    "chassis = platform.get_chassis()\n\n"
-
-# Looking for thermal
-looking_for_thermal_code = \
-    "thermal = None\n"\
-    "all_thermals = chassis.get_all_thermals()\n"\
-    "for psu in chassis.get_all_psus():\n"\
-    "    all_thermals += psu.get_all_thermals()\n"\
-    "for tmp in all_thermals:\n"\
-    "    if '{}' == tmp.get_name():\n"\
-    "        thermal = tmp\n"\
-    "        break\n"\
-    "if thermal == None:\n"\
-    "    print('{} not found!')\n"\
-    "    exit(1)\n\n"
-
-def avaliable_thermals():
-    global init_chassis_code
-
-    get_all_thermal_name_code = \
-        "thermal_list = []\n"\
-        "all_thermals = chassis.get_all_thermals()\n"\
-        "for psu in chassis.get_all_psus():\n"\
-        "    all_thermals += psu.get_all_thermals()\n"\
-        "for tmp in all_thermals:\n"\
-        "    thermal_list.append(tmp.get_name())\n"\
-        "print(str(thermal_list)[1:-1])\n"
-
-    all_code = "{}{}".format(init_chassis_code, get_all_thermal_name_code)
-
-    status, output = getstatusoutput_noshell(["docker", "exec", "pmon", "python3", "-c", all_code])
-    if status != 0:
-        return ""
-    return output
-
-def restricted_float(x):
-    global THRESHOLD_RANGE_LOW, THRESHOLD_RANGE_HIGH
-
-    try:
-        x = float(x)
-    except ValueError:
-        raise argparse.ArgumentTypeError("%r not a floating-point literal" % (x,))
-
-    if x < THRESHOLD_RANGE_LOW or x > THRESHOLD_RANGE_HIGH:
-        raise argparse.ArgumentTypeError("%r not in range [%.1f ~ %.1f]" % 
-                                         (x, THRESHOLD_RANGE_LOW, THRESHOLD_RANGE_HIGH))
-
-    return x
-
-def get_high_threshold(name):
-    global init_chassis_code, looking_for_thermal_code
-
-    get_high_threshold_code = \
-        "try:\n"\
-        "    print(thermal.get_high_threshold())\n"\
-        "    exit(0)\n"\
-        "except NotImplementedError:\n"\
-        "    print('Not implement the get_high_threshold method!')\n"\
-        "    exit(1)"
-
-    all_code = "{}{}{}".format(init_chassis_code, looking_for_thermal_code.format(name, name),
-                               get_high_threshold_code)
-
-    status, output = getstatusoutput_noshell(["docker", "exec", "pmon", "python3", "-c", all_code])
-    if status == 1:
-        return None
-
-    return float(output)
-
-def get_high_crit_threshold(name):
-    global init_chassis_code, looking_for_thermal_code
-
-    get_high_crit_threshold_code = \
-        "try:\n"\
-        "    print(thermal.get_high_critical_threshold())\n"\
-        "    exit(0)\n"\
-        "except NotImplementedError:\n"\
-        "    print('Not implement the get_high_critical_threshold method!')\n"\
-        "    exit(1)"
-
-    all_code = "{}{}{}".format(init_chassis_code, looking_for_thermal_code.format(name, name),
-                               get_high_crit_threshold_code)
-
-    status, output = getstatusoutput_noshell(["docker", "exec", "pmon", "python3", "-c", all_code])
-    if status == 1:
-        return None
-
-    return float(output)
-
-def do_threshold():
-    global args, init_chassis_code, looking_for_thermal_code
-
-    if args.list:
-        print("Thermals: " + avaliable_thermals())
-        return
-
-    if args.thermal is None:
-        print("The following arguments are required: -t")
-        return
-
-    set_threshold_code = ""
-    if args.high_threshold is not None:
-        if args.high_crit_threshold is not None and \
-            args.high_threshold >= args.high_crit_threshold:
-           print("Invalid Threshold!(High threshold can not be more than " \
-                 "or equal to high critical threshold.)")
-           exit(1)
-
-        high_crit = get_high_crit_threshold(args.thermal)
-        if high_crit is not None and \
-           args.high_threshold >= high_crit:
-           print("Invalid Threshold!(High threshold can not be more than " \
-                 "or equal to high critical threshold.)")
-           exit(1)
-
-        set_threshold_code += \
-            "try:\n"\
-            "    if thermal.set_high_threshold({}) is False:\n"\
-            "        print('{}: set_high_threshold failure!')\n"\
-            "        exit(1)\n"\
-            "except NotImplementedError:\n"\
-            "    print('Not implement the set_high_threshold method!')\n"\
-            "print('Apply the new high threshold successfully.')\n"\
-            "\n".format(args.high_threshold, args.thermal)
-
-    if args.high_crit_threshold is not None:
-        high = get_high_threshold(args.thermal)
-        if high is not None and \
-            args.high_crit_threshold <= high:
-            print("Invalid Threshold!(High critical threshold can not " \
-                  "be less than or equal to high threshold.)")
-            exit(1)
-
-        set_threshold_code += \
-            "try:\n"\
-            "    if thermal.set_high_critical_threshold({}) is False:\n"\
-            "        print('{}: set_high_critical_threshold failure!')\n"\
-            "        exit(1)\n"\
-            "except NotImplementedError:\n"\
-            "    print('Not implement the set_high_critical_threshold method!')\n"\
-            "print('Apply the new high critical threshold successfully.')\n"\
-            "\n".format(args.high_crit_threshold, args.thermal)
-
-    if set_threshold_code == "":
-        return
-
-    all_code = "{}{}{}".format(init_chassis_code, looking_for_thermal_code.format(args.thermal, args.thermal), set_threshold_code)
-
-    status, output = getstatusoutput_noshell(["docker", "exec", "pmon", "python3", "-c", all_code])
-    print(output)
 
 if __name__ == "__main__":
     main()

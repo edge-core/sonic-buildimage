@@ -56,6 +56,7 @@ struct as9716_32d_cpld_data {
     enum cpld_type   type;
     struct device   *hwmon_dev;
     struct mutex     update_lock;
+    uint64_t         faulty_device;
 };
 
 static const struct i2c_device_id as9716_32d_cpld_id[] = {
@@ -73,6 +74,7 @@ MODULE_DEVICE_TABLE(i2c, as9716_32d_cpld_id);
 #define TRANSCEIVER_TXFAULT_ATTR_ID(index)   	MODULE_TXFAULT_##index
 #define TRANSCEIVER_RESET_ATTR_ID(index)   	    MODULE_RESET_##index
 #define CPLD_INTR_ATTR_ID(index)   	            CPLD_INTR_##index
+#define FAULTY_DEVICE_ATTR_ID(index)                FAULTY_DEVICE_##index
 
 enum as9716_32d_cpld_sysfs_attributes {
 	CPLD_VERSION,
@@ -154,7 +156,40 @@ enum as9716_32d_cpld_sysfs_attributes {
 	CPLD_INTR_ATTR_ID(2),
 	CPLD_INTR_ATTR_ID(3),
 	CPLD_INTR_ATTR_ID(4),
-	
+        FAULTY_DEVICE_ATTR_ID(1),
+        FAULTY_DEVICE_ATTR_ID(2),
+        FAULTY_DEVICE_ATTR_ID(3),
+        FAULTY_DEVICE_ATTR_ID(4),
+        FAULTY_DEVICE_ATTR_ID(5),
+        FAULTY_DEVICE_ATTR_ID(6),
+        FAULTY_DEVICE_ATTR_ID(7),
+        FAULTY_DEVICE_ATTR_ID(8),
+        FAULTY_DEVICE_ATTR_ID(9),
+        FAULTY_DEVICE_ATTR_ID(10),
+        FAULTY_DEVICE_ATTR_ID(11),
+        FAULTY_DEVICE_ATTR_ID(12),
+        FAULTY_DEVICE_ATTR_ID(13),
+        FAULTY_DEVICE_ATTR_ID(14),
+        FAULTY_DEVICE_ATTR_ID(15),
+        FAULTY_DEVICE_ATTR_ID(16),
+        FAULTY_DEVICE_ATTR_ID(17),
+        FAULTY_DEVICE_ATTR_ID(18),
+        FAULTY_DEVICE_ATTR_ID(19),
+        FAULTY_DEVICE_ATTR_ID(20),
+        FAULTY_DEVICE_ATTR_ID(21),
+        FAULTY_DEVICE_ATTR_ID(22),
+        FAULTY_DEVICE_ATTR_ID(23),
+        FAULTY_DEVICE_ATTR_ID(24),
+        FAULTY_DEVICE_ATTR_ID(25),
+        FAULTY_DEVICE_ATTR_ID(26),
+        FAULTY_DEVICE_ATTR_ID(27),
+        FAULTY_DEVICE_ATTR_ID(28),
+        FAULTY_DEVICE_ATTR_ID(29),
+        FAULTY_DEVICE_ATTR_ID(30),
+        FAULTY_DEVICE_ATTR_ID(31),
+        FAULTY_DEVICE_ATTR_ID(32),
+        FAULTY_DEVICE_ATTR_ID(33),
+        FAULTY_DEVICE_ATTR_ID(34),
 };
 
 /* sysfs attributes for hwmon 
@@ -173,6 +208,8 @@ static ssize_t get_mode_reset(struct device *dev, struct device_attribute *da,
 			char *buf);
 static ssize_t set_mode_reset(struct device *dev, struct device_attribute *da,
 			const char *buf, size_t count);
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                        const char *buf, size_t count);
 static int as9716_32d_cpld_read_internal(struct i2c_client *client, u8 reg);
 static int as9716_32d_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value);
 
@@ -201,6 +238,10 @@ static int as9716_32d_cpld_write_internal(struct i2c_client *client, u8 reg, u8 
 	static SENSOR_DEVICE_ATTR(cpld_intr_##index, S_IRUGO, show_interrupt, NULL, CPLD_INTR_##index)
 #define DECLARE_CPLD_INTR_ATTR(index)  &sensor_dev_attr_cpld_intr_##index.dev_attr.attr
 
+/*faulty device*/
+#define DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(index) \
+       static SENSOR_DEVICE_ATTR(faulty_device_##index, S_IWUSR | S_IRUGO, show_status, set_faulty_device, FAULTY_DEVICE_##index)
+#define DECLARE_FAULTY_DEVICE_ATTR(index)  &sensor_dev_attr_faulty_device_##index.dev_attr.attr
 
 
 static SENSOR_DEVICE_ATTR(version, S_IRUGO, show_version, NULL, CPLD_VERSION);
@@ -278,6 +319,40 @@ DECLARE_CPLD_DEVICE_INTR_ATTR(1);
 DECLARE_CPLD_DEVICE_INTR_ATTR(2);
 DECLARE_CPLD_DEVICE_INTR_ATTR(3);
 DECLARE_CPLD_DEVICE_INTR_ATTR(4);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(1);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(2);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(3);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(4);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(5);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(6);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(7);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(8);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(9);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(10);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(11);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(12);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(13);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(14);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(15);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(16);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(17);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(18);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(19);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(20);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(21);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(22);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(23);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(24);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(25);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(26);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(27);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(28);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(29);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(30);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(31);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(32);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(33);
+DECLARE_FAULTY_DEVICE_SENSOR_DEVICE_ATTR(34);
 
 
 
@@ -328,6 +403,22 @@ static struct attribute *as9716_32d_cpld1_attributes[] = {
 	DECLARE_TRANSCEIVER_RESET_ATTR(16),
 	DECLARE_CPLD_INTR_ATTR(1),
 	DECLARE_CPLD_INTR_ATTR(2),
+        DECLARE_FAULTY_DEVICE_ATTR(1),
+        DECLARE_FAULTY_DEVICE_ATTR(2),
+        DECLARE_FAULTY_DEVICE_ATTR(3),
+        DECLARE_FAULTY_DEVICE_ATTR(4),
+        DECLARE_FAULTY_DEVICE_ATTR(5),
+        DECLARE_FAULTY_DEVICE_ATTR(6),
+        DECLARE_FAULTY_DEVICE_ATTR(7),
+        DECLARE_FAULTY_DEVICE_ATTR(8),
+        DECLARE_FAULTY_DEVICE_ATTR(9),
+        DECLARE_FAULTY_DEVICE_ATTR(10),
+        DECLARE_FAULTY_DEVICE_ATTR(11),
+        DECLARE_FAULTY_DEVICE_ATTR(12),
+        DECLARE_FAULTY_DEVICE_ATTR(13),
+        DECLARE_FAULTY_DEVICE_ATTR(14),
+        DECLARE_FAULTY_DEVICE_ATTR(15),
+        DECLARE_FAULTY_DEVICE_ATTR(16),
 	NULL
 };
 
@@ -376,6 +467,24 @@ static struct attribute *as9716_32d_cpld2_attributes[] = {
 	DECLARE_TRANSCEIVER_RESET_ATTR(32),
 	DECLARE_CPLD_INTR_ATTR(3),
 	DECLARE_CPLD_INTR_ATTR(4),
+        DECLARE_FAULTY_DEVICE_ATTR(17),
+        DECLARE_FAULTY_DEVICE_ATTR(18),
+        DECLARE_FAULTY_DEVICE_ATTR(19),
+        DECLARE_FAULTY_DEVICE_ATTR(20),
+        DECLARE_FAULTY_DEVICE_ATTR(21),
+        DECLARE_FAULTY_DEVICE_ATTR(22),
+        DECLARE_FAULTY_DEVICE_ATTR(23),
+        DECLARE_FAULTY_DEVICE_ATTR(24),
+        DECLARE_FAULTY_DEVICE_ATTR(25),
+        DECLARE_FAULTY_DEVICE_ATTR(26),
+        DECLARE_FAULTY_DEVICE_ATTR(27),
+        DECLARE_FAULTY_DEVICE_ATTR(28),
+        DECLARE_FAULTY_DEVICE_ATTR(29),
+        DECLARE_FAULTY_DEVICE_ATTR(30),
+        DECLARE_FAULTY_DEVICE_ATTR(31),
+        DECLARE_FAULTY_DEVICE_ATTR(32),
+        DECLARE_FAULTY_DEVICE_ATTR(33),
+        DECLARE_FAULTY_DEVICE_ATTR(34),
 	NULL
 };
 
@@ -383,6 +492,14 @@ static const struct attribute_group as9716_32d_cpld2_group = {
 	.attrs = as9716_32d_cpld2_attributes,
 };
 
+static struct attribute *as9716_32d_cpld_cpu_attributes[] = {
+    &sensor_dev_attr_version.dev_attr.attr,
+	NULL
+};
+
+static const struct attribute_group as9716_32d_cpld_cpu_group = {
+	.attrs = as9716_32d_cpld_cpu_attributes,
+};
 
 static  ssize_t show_interrupt(struct device *dev, struct device_attribute *da,
              char *buf)
@@ -475,7 +592,8 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
 		reg  = 0x21;
 		mask = 0x2;
 		break;	
-	
+        case FAULTY_DEVICE_1 ... FAULTY_DEVICE_34:
+                return sprintf(buf, "%d\n", (data->faulty_device & BIT_64(FAULTY_DEVICE_34 - attr->index - 1)) ? 1 : 0);	
 	default:
 		return 0;
 	}
@@ -554,6 +672,31 @@ exit:
 	return status;
 }
 
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                       const char *buf, size_t count)
+{
+   struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+   struct i2c_client *client = to_i2c_client(dev);
+   struct as9716_32d_cpld_data *data = i2c_get_clientdata(client);
+   long val;
+   int status;
+
+   status = kstrtol(buf, 10, &val);
+   if (status) {
+       return status;
+   }
+
+   mutex_lock(&data->update_lock);
+   if (val == 0) {
+       data->faulty_device &= ~BIT_64(FAULTY_DEVICE_34 - attr->index - 1);
+   } else if (val == 1) {
+       data->faulty_device |= BIT_64(FAULTY_DEVICE_34 - attr->index - 1);
+   }
+   mutex_unlock(&data->update_lock);
+
+   return count;
+}
+
 static ssize_t access(struct device *dev, struct device_attribute *da,
 			const char *buf, size_t count)
 {
@@ -561,7 +704,7 @@ static ssize_t access(struct device *dev, struct device_attribute *da,
 	u32 addr, val;
     struct i2c_client *client = to_i2c_client(dev);
     struct as9716_32d_cpld_data *data = i2c_get_clientdata(client);
-    
+
 	if (sscanf(buf, "0x%x 0x%x", &addr, &val) != 2) {
 		return -EINVAL;
 	}
@@ -776,7 +919,7 @@ static int as9716_32d_cpld_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, data);
     mutex_init(&data->update_lock);
 	data->type = id->driver_data;
-
+        data->faulty_device = 0;
    
     /* Register sysfs hooks */
     switch (data->type) {
@@ -804,6 +947,7 @@ static int as9716_32d_cpld_probe(struct i2c_client *client,
      case as9716_32d_cpld_cpu:
          /* Disable CPLD reset to avoid DUT will be reset.
           */
+	 group =&as9716_32d_cpld_cpu_group;
          status=as9716_32d_cpld_write_internal(client, 0x3, 0x0); 
          if (status < 0)
          {
@@ -847,6 +991,8 @@ static int as9716_32d_cpld_remove(struct i2c_client *client)
     case as9716_32d_cpld2:
         group = &as9716_32d_cpld2_group;
         break;
+    case as9716_32d_cpld_cpu:
+        group = &as9716_32d_cpld_cpu_group;
     default:
         break;
     }
