@@ -42,10 +42,13 @@ static struct as9716_32d_fan_data *as9716_32d_fan_update_device(struct device *d
 static ssize_t fan_show_value(struct device *dev, struct device_attribute *da, char *buf);
 static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
                               const char *buf, size_t count);
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count);
 
 /* fan related data, the index should match sysfs_fan_attributes
  */
 static const u8 fan_reg[] = {
+    0x01,       /* fan cpld version */
     0x0F,       /* fan 1-6 present status */
     0x10,	    /* fan 1-6 direction(0:F2B 1:B2F) */
     0x11,       /* fan PWM(for all fan) */
@@ -67,6 +70,7 @@ static const u8 fan_reg[] = {
 struct as9716_32d_fan_data {
     struct device   *hwmon_dev;
     struct mutex     update_lock;
+    char             faulty_device;
     char             valid;           /* != 0 if registers are valid */
     unsigned long    last_updated;    /* In jiffies */
     u8               reg_val[ARRAY_SIZE(fan_reg)]; /* Register value */
@@ -84,6 +88,7 @@ enum fan_id {
 };
 
 enum sysfs_fan_attributes {
+    FAN_VERSION,
     FAN_PRESENT_REG,
     FAN_DIRECTION_REG,
     FAN_DUTY_CYCLE_PERCENTAGE, /* Only one CPLD register to control duty cycle for all fans */
@@ -116,7 +121,8 @@ enum sysfs_fan_attributes {
     FAN3_FAULT,
     FAN4_FAULT,
     FAN5_FAULT,
-    FAN6_FAULT
+    FAN6_FAULT,
+    FAN_FAULTY_DEVICE
 };
 
 /* Define attributes
@@ -137,6 +143,9 @@ enum sysfs_fan_attributes {
     static SENSOR_DEVICE_ATTR(fan##index##_duty_cycle_percentage, S_IWUSR | S_IRUGO, fan_show_value, set_duty_cycle, FAN##index##_DUTY_CYCLE_PERCENTAGE)
 #define DECLARE_FAN_DUTY_CYCLE_ATTR(index) &sensor_dev_attr_fan##index##_duty_cycle_percentage.dev_attr.attr
 
+#define DECLARE_FAN_FAULTY_DEVICE_SENSOR_DEV_ATTR(index) \
+    static SENSOR_DEVICE_ATTR(fan##index##_faulty_device, S_IWUSR | S_IRUGO, fan_show_value, set_faulty_device, FAN##index##_FAULTY_DEVICE)
+#define DECLARE_FAN_FAULTY_DEVICE_ATTR(index) &sensor_dev_attr_fan##index##_faulty_device.dev_attr.attr
 
 #define DECLARE_FAN_PRESENT_SENSOR_DEV_ATTR(index) \
     static SENSOR_DEVICE_ATTR(fan##index##_present, S_IRUGO, fan_show_value, NULL, FAN##index##_PRESENT)
@@ -151,6 +160,10 @@ enum sysfs_fan_attributes {
                                            &sensor_dev_attr_fan##index##_rear_speed_rpm.dev_attr.attr, \
                                            &sensor_dev_attr_fan##index##_input.dev_attr.attr, \
                                            &sensor_dev_attr_fan##index2##_input.dev_attr.attr
+
+#define DECLARE_FAN_VERSION_SENSOR_DEV_ATTR() \
+    static SENSOR_DEVICE_ATTR(version, S_IRUGO, fan_show_value, NULL, FAN_VERSION)
+#define DECLARE_FAN_VERSION_ATTR()      &sensor_dev_attr_version.dev_attr.attr
 
 /* 6 fan fault attributes in this platform */
 DECLARE_FAN_FAULT_SENSOR_DEV_ATTR(1,11);
@@ -183,6 +196,8 @@ DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(5);
 DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(6);
 /* 1 fan duty cycle attribute in this platform */
 DECLARE_FAN_DUTY_CYCLE_SENSOR_DEV_ATTR();
+DECLARE_FAN_VERSION_SENSOR_DEV_ATTR();
+DECLARE_FAN_FAULTY_DEVICE_SENSOR_DEV_ATTR();
 /* System temperature for fancontrol */
 
 static struct attribute *as9716_32d_fan_attributes[] = {
@@ -211,7 +226,9 @@ static struct attribute *as9716_32d_fan_attributes[] = {
     DECLARE_FAN_DIRECTION_ATTR(4),
     DECLARE_FAN_DIRECTION_ATTR(5),
     DECLARE_FAN_DIRECTION_ATTR(6),
-    DECLARE_FAN_DUTY_CYCLE_ATTR(),    
+    DECLARE_FAN_DUTY_CYCLE_ATTR(),
+    DECLARE_FAN_VERSION_ATTR(),
+    DECLARE_FAN_FAULTY_DEVICE_ATTR(),    
     NULL
 };
 
@@ -239,7 +256,15 @@ static u32 reg_val_to_duty_cycle(u8 reg_val)
 
 static u8 duty_cycle_to_reg_val(u8 duty_cycle)
 {
-    return ((u32)duty_cycle * 100 / 625) - 1;
+    u32 tmp = ((u32)duty_cycle * 100 / 625);
+    if (tmp >= 1)
+    {
+        return (tmp - 1);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 static u32 reg_val_to_speed_rpm(u8 reg_val)
@@ -285,12 +310,13 @@ static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
 {
     int error, value;
     struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_fan_data *data = i2c_get_clientdata(client);
 
     error = kstrtoint(buf, 10, &value);
     if (error)
         return error;
 
-    if (value < 0 || value > FAN_MAX_DUTY_CYCLE)
+    if (value < 0 || value > FAN_MAX_DUTY_CYCLE || data->faulty_device)
         return -EINVAL;
 
     as9716_32d_fan_write_value(client, 0x33, 0); /* Disable fan speed watch dog */
@@ -303,11 +329,27 @@ static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
                               char *buf)
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
-    struct as9716_32d_fan_data *data = as9716_32d_fan_update_device(dev);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_fan_data *data = i2c_get_clientdata(client);
     ssize_t ret = 0;
 
+    if (attr->index == FAN_FAULTY_DEVICE) {
+        ret = sprintf(buf, "%d\n", data->faulty_device);
+        return ret;
+    }
+
+    if (data->faulty_device) {
+        return -EIO;
+    }
+
+    data = as9716_32d_fan_update_device(dev);
     if (data->valid) {
         switch (attr->index) {
+        case FAN_VERSION:
+        {
+            ret = sprintf(buf, "%u\n", data->reg_val[FAN_VERSION]);
+            break;
+        }
         case FAN_DUTY_CYCLE_PERCENTAGE:
         {
             u32 duty_cycle = reg_val_to_duty_cycle(data->reg_val[FAN_DUTY_CYCLE_PERCENTAGE]);
@@ -362,6 +404,26 @@ static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
     }
 
     return ret;
+}
+
+static ssize_t set_faulty_device(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count)
+{
+    int error, value;
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_fan_data *data = i2c_get_clientdata(client);
+
+    error = kstrtoint(buf, 10, &value);
+    if (error)
+        return error;
+
+    if (value != 0 && value != 1)
+        return -EINVAL;
+
+    mutex_lock(&data->update_lock);
+    data->faulty_device = value;
+    mutex_unlock(&data->update_lock);
+    return count;
 }
 
 static const struct attribute_group as9716_32d_fan_group = {
@@ -425,6 +487,7 @@ static int as9716_32d_fan_probe(struct i2c_client *client,
 
     i2c_set_clientdata(client, data);
     data->valid = 0;
+    data->faulty_device = 0;
     mutex_init(&data->update_lock);
 
     dev_info(&client->dev, "chip found\n");

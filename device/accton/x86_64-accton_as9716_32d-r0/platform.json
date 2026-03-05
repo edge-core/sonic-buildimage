@@ -24,6 +24,9 @@
             },
             {
                 "name": "BIOS"
+            },
+            {
+                "name": "SSD"
             }
         ],
         "fans": [
@@ -392,7 +395,9 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "MB_RightCenter_temp(0x49)",
@@ -400,87 +405,109 @@
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
-                "name": "MB_LeftCenter_temp(0x4a)",
+                "name": "MB_LeftCenter_temp(0x4A)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
-                "name": "CB_temp(0x4b)",
+                "name": "CB_temp(0x4B)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
-                "name": "OCXO_temp(0x4c)",
+                "name": "OCXO_temp(0x4C)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
-                "name": "FB_1_temp(0x4e)",
+                "name": "FB_1_temp(0x4E)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
-                "name": "FB_2_temp(0x4f)",
+                "name": "FB_2_temp(0x4F)",
                 "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": false
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU_Package_temp",
-                "controllable": false,
+                "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": true,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU_Core_0_temp",
-                "controllable": false,
+                "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": true,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU_Core_1_temp",
-                "controllable": false,
+                "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": true,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU_Core_2_temp",
-                "controllable": false,
+                "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": true,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU_Core_3_temp",
-                "controllable": false,
+                "controllable": true,
                 "low-threshold": false,
                 "high-threshold": true,
                 "low-crit-threshold": false,
-                "high-crit-threshold": true
+                "high-crit-threshold": true,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             }
         ],
         "sfps": [

@@ -181,8 +181,18 @@ class FanUtil(object):
 
         content = val_file.readline().rstrip()
         val_file.close()
-        
-        return int(content)
+
+        duty_cycle = 0
+        try:
+            if len(content) > 0:
+                duty_cycle=int(content)
+            else:
+                print(f"Invalid content for duty cycle: '{content}'")
+        except ValueError as e:
+            print(f"Error converting content to int: {e} (content: '{content}')")
+
+        return duty_cycle
+
        
     def set_fan_duty_cycle(self, val):
         try:
