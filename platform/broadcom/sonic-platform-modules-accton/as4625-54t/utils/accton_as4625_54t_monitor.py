@@ -32,7 +32,7 @@ FUNCTION_NAME = '/usr/local/bin/accton_as4625_54t_monitor'
 I2C_PATH = "/sys/bus/i2c/devices/{}-00{}/"
 
 FAN_SPEED_DEFAULT_F2B = 38
-FAN_SPEED_DEFAULT_B2F = 25
+FAN_SPEED_DEFAULT_B2F = 31
 FAN_SPEED_MAX = 100
 
 ERROR_CONFIG_LOGGING = 1

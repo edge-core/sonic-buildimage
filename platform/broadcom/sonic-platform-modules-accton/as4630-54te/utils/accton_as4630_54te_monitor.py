@@ -163,10 +163,10 @@ class device_monitor(object):
         LEVEL_FAN_HIGH = 3
         LEVEL_TEMP_CRITICAL = 4
         fan_policy = {
-            LEVEL_FAN_MIN: [50, 8, 0, 140000],
-            LEVEL_FAN_NORMAL: [62, 10, 140000, 150000],
-            LEVEL_FAN_MID: [75, 12, 150000, 160000],
-            LEVEL_FAN_HIGH: [88, 14, 160000, 240000],
+            LEVEL_FAN_MIN:       [50,   8, 0,      140000],
+            LEVEL_FAN_NORMAL:    [63,  10, 140000, 150000],
+            LEVEL_FAN_MID:       [75,  12, 150000, 160000],
+            LEVEL_FAN_HIGH:      [88,  14, 160000, 240000],
             LEVEL_TEMP_CRITICAL: [100, 16, 240000, 300000],
         }
         temp = [0, 0, 0]
