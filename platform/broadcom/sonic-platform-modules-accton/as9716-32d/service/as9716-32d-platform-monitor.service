@@ -1,14 +1,13 @@
 [Unit]
 Description=Accton AS9716-32D Platform Monitoring service
-Before=pmon.service system-health.service
-After=sysinit.target
-DefaultDependencies=no
+Before=pmon.service
+After=as9716-32d-platform-init.service
+Requires=as9716-32d-platform-init.service
 
 [Service]
-ExecStartPre=/usr/local/bin/accton_as9716_32d_util.py install
 ExecStart=/usr/local/bin/accton_as9716_32d_monitor.py
-KillSignal=SIGKILL
-SuccessExitStatus=SIGKILL
+KillSignal=SIGTERM
+SuccessExitStatus=SIGTERM SIGKILL
 #StandardOutput=tty
 
 # Resource Limitations
