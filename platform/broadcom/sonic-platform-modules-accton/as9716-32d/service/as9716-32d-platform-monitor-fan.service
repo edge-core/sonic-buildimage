@@ -1,8 +1,8 @@
 [Unit]
 Description=Accton AS9716-32D Platform Monitoring FAN service
 Before=pmon.service
-After=as9716-32d-platform-monitor.service
-DefaultDependencies=no
+After=as9716-32d-platform-init.service
+Requires=as9716-32d-platform-init.service
 
 [Service]
 ExecStart=/usr/local/bin/accton_as9716_32d_monitor_fan.py

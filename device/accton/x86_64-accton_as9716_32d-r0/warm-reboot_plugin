@@ -1,3 +1,3 @@
 #!/bin/bash
 
-systemctl stop pddf-platform-init.service
+systemctl stop as9716-32d-platform-init.service
