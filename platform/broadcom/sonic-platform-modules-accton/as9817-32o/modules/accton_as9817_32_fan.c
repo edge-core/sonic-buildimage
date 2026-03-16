@@ -165,7 +165,9 @@ enum as9817_32_fan_sysfs_attrs {
     FAN_RPM_THRESHOLD_ATTR(11),
     FAN_RPM_THRESHOLD_ATTR(12),
     FAN_RPM_THRESHOLD_ATTR(13),
-    FAN_RPM_THRESHOLD_ATTR(14)
+    FAN_RPM_THRESHOLD_ATTR(14),
+    NUM_OF_FAN_RPM_THRESHOLD_ATTR,
+    NUM_OF_PER_FAN_RPM_THRESHOLD_ATTR = ((NUM_OF_FAN_RPM_THRESHOLD_ATTR-NUM_OF_PER_FAN_ATTR)/NUM_OF_FAN),
 };
 
 /* fan attributes */
@@ -522,7 +524,9 @@ static ssize_t show_threshold(struct device *dev, struct device_attribute *da,
             char *buf)
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    unsigned char fid;
     int value = 0;
+    int index = 0;
     int error = 0;
 
     mutex_lock(&data->update_lock);
@@ -548,8 +552,10 @@ static ssize_t show_threshold(struct device *dev, struct device_attribute *da,
     case FAN12_TARGET:
     case FAN13_TARGET:
     case FAN14_TARGET:
-        value = (int)data->ipmi_resp_speed[FAN_TARGET_SPEED0] |
-                (int)data->ipmi_resp_speed[FAN_TARGET_SPEED1] << 8;
+        fid = (attr->index - FAN1_TARGET) / NUM_OF_PER_FAN_RPM_THRESHOLD_ATTR;
+        index = fid * FAN_SPEED_DATA_COUNT;
+        value = (int)data->ipmi_resp_speed[index + FAN_TARGET_SPEED0] |
+                (int)data->ipmi_resp_speed[index + FAN_TARGET_SPEED1] << 8;
         break;
     case FAN1_TOLERANCE:
     case FAN2_TOLERANCE:
@@ -565,7 +571,9 @@ static ssize_t show_threshold(struct device *dev, struct device_attribute *da,
     case FAN12_TOLERANCE:
     case FAN13_TOLERANCE:
     case FAN14_TOLERANCE:
-        value = (int)data->ipmi_resp_speed[FAN_SPEED_TOLERANCE];
+        fid = (attr->index - FAN1_TOLERANCE) / NUM_OF_PER_FAN_RPM_THRESHOLD_ATTR;
+        index = fid * FAN_SPEED_DATA_COUNT;
+        value = (int)data->ipmi_resp_speed[index + FAN_SPEED_TOLERANCE];
         break;
     default:
         error = -EINVAL;
