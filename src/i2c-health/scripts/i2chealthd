@@ -51,16 +51,18 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
             i2c_mgr = I2CHealthManager(self)
             # Polling i2c devices task
             while True:
-                if self.stop_event.wait(self.interval):
+                if self.stop_event.is_set():
                     break
 
-                i2c_mgr.handle_device_removal_event(self.stop_event)
+                i2c_mgr.handle_device_removal_event(self.stop_event, self.interval)
 
                 if i2c_mgr.is_bus_lock() is False:
                     continue
                 else:
                     msg = get_i2c_health_msg(1)
                     self.log_error(msg)
+
+                i2c_mgr.cache_state_db_records()
 
                 if i2c_mgr.stop_i2c_services() is False:
                     msg = get_i2c_health_msg(11)
@@ -92,6 +94,8 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                 i2c_mgr.scan_faulty_devices()
                 msg = get_i2c_health_msg(9)
                 self.log_notice(msg)
+
+                i2c_mgr.restore_state_db_records(self.stop_event)
 
                 msg = get_i2c_health_msg(10)
                 self.log_notice(msg)
