@@ -55,13 +55,13 @@ class AllFanGoodCondition(FanCondition):
 class ThermalWarningCondition(ThermalCondition):
     """
     A thermal condition class that checks and indicates whether there is a
-    thermal warning overheat.
+    thermal warning overheat (chassis or XCVR).
     """
     def is_match(self, thermal_info_dict):
         result = False
         thermal_info_obj = self.get_thermal_info(thermal_info_dict)
         if thermal_info_obj:
-            result = thermal_info_obj.is_warning_overheat()
+            result = thermal_info_obj.is_warning_overheat() or thermal_info_obj.is_xcvr_warning_overheat()
         return result
 
 
@@ -69,13 +69,13 @@ class ThermalWarningCondition(ThermalCondition):
 class ThermalCriticalCondition(ThermalCondition):
     """
     A thermal condition class that checks and indicates whether there is a
-    thermal critical overheat.
+    thermal critical overheat (chassis or XCVR).
     """
     def is_match(self, thermal_info_dict):
         result = False
         thermal_info_obj = self.get_thermal_info(thermal_info_dict)
         if thermal_info_obj:
-            result = thermal_info_obj.is_critical_overheat()
+            result = thermal_info_obj.is_critical_overheat() or thermal_info_obj.is_xcvr_critical_overheat()
         return result
 
 

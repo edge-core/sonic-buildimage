@@ -40,11 +40,11 @@
             ],
             "actions": [
                 {
-                    "type": "thermal.warning.overheat"
-                },
-                {
                     "type": "fan.all.set_speed",
                     "speed": "100"
+                },
+                {
+                    "type": "thermal.warning.overheat"
                 }
             ]
         },
@@ -56,6 +56,10 @@
                 }
             ],
             "actions": [
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                },
                 {
                     "type": "thermal.critical.overheat"
                 }
