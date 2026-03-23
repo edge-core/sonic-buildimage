@@ -27,8 +27,8 @@ FP_FAN_LED_FILE = "/sys/class/leds/as9647_32d_led::fan/brightness"
 CPLD_I2C_PATH = "/sys/bus/i2c/devices/10-0066/fan"
 FAN_LED_MODE = CPLD_I2C_PATH + "_led_mode"
 FAN_PERCENTAGE = CPLD_I2C_PATH + "_duty_cycle_percentage"
-FAN_REQUESTED_PERCENTAGE = "/tmp/fan_requested_rpm_percentage"
-FAN_CONFIGURED_PERCENTAGE = "/tmp/fan_configured_rpm_percentage"
+FAN_REQUESTED_PERCENTAGE = "/var/run/fan_requested_rpm_percentage"
+FAN_CONFIGURED_PERCENTAGE = "/var/run/fan_configured_rpm_percentage"
 PSU_I2C_PATH ="/sys/bus/i2c/devices/{}-00{}/"
 PSU_HWMON_I2C_MAPPING = {
     0: {
@@ -77,11 +77,6 @@ FAN_PWM_CODE_SPEED_LIST = [
 
 class Fan(FanBase):
     """Platform-specific Fan class"""
-    
-    MIN_VALID_COOLING_LEVEL = 1
-    MAX_VALID_COOLING_LEVEL = 10
-    min_cooling_level = 2
-    current_cooling_level = min_cooling_level
 
     def __init__(self, fan_tray_index, fan_index=0, is_psu_fan=False, psu_index=0):
         # Front panel fan LED
@@ -133,7 +128,6 @@ class Fan(FanBase):
         Retrieves the fan model
         Returns:
             string: The model of the device
-
         """
         return "R40W12BGNL9-07T17"
 
@@ -142,7 +136,6 @@ class Fan(FanBase):
         Retrieves the fan serial
         Returns:
             string: The serial of the device
-
         """
         return "N/A"
 
@@ -183,7 +176,6 @@ class Fan(FanBase):
         Returns:
             An integer, the percentage of full fan speed, in the range 0 (off)
                  to 100 (full speed)
-
         """
         speed = 0
         if self.is_psu_fan:
@@ -222,19 +214,17 @@ class Fan(FanBase):
             An integer, the percentage of full fan speed, in the range 0 (off)
                  to 100 (full speed)
         """
+        speed = 0
         if self.is_psu_fan:
-            return 100
-        elif self.get_presence():
             speed = 100
+        elif self.get_presence():
             try:
                 speed = int(self._api_helper.read_txt_file(FAN_REQUESTED_PERCENTAGE))
             except:
                 pass
-            return speed
-        else:
-            return None
+        return int(speed)
 
-    def get_configured_speed(self):
+    def _get_configured_speed(self):
         """
         Retrieves the configured speed of the fan.
         Returns:
@@ -245,17 +235,15 @@ class Fan(FanBase):
             This function was created to check speed tolerances against the configured
             speed supported by the fan, rather than the requested target speed.
         """
+        speed = 0
         if self.is_psu_fan:
-            return 100
-        elif self.get_presence():
             speed = 100
+        elif self.get_presence():
             try:
                 speed = int(self._api_helper.read_txt_file(FAN_CONFIGURED_PERCENTAGE))
             except:
                 pass
-            return speed
-        else:
-            return None
+        return int(speed)
 
     def get_speed_tolerance(self):
         """
@@ -287,13 +275,15 @@ class Fan(FanBase):
         if self.is_psu_fan:
             target_speed = self.get_target_speed()
         else:
-            target_speed = self.get_configured_speed()
+            target_speed = self._get_configured_speed()
 
         for param, value in (('speed', speed), ('target speed', target_speed), ('speed tolerance', tolerance)):
             if not isinstance(value, int):
-                raise TypeError(f'Fan {param} is not an integer value: {param}={value}')
+                logger.log_error(f'Fan {param} is not an integer value: {param}={value}')
+                return True
             if value < 0 or value > 100:
-                raise ValueError(f'Fan {param} is not a valid percentage value: {param}={value}')
+                logger.log_error(f'Fan {param} is not a valid percentage value: {param}={value}')
+                return True
 
         return speed * 100 < target_speed * (100 - tolerance)
 
@@ -314,13 +304,15 @@ class Fan(FanBase):
         if self.is_psu_fan:
             target_speed = self.get_target_speed()
         else:
-            target_speed = self.get_configured_speed()
+            target_speed = self._get_configured_speed()
 
         for param, value in (('speed', speed), ('target speed', target_speed), ('speed tolerance', tolerance)):
             if not isinstance(value, int):
-                raise TypeError(f'Fan {param} is not an integer value: {param}={value}')
+                logger.log_error(f'Fan {param} is not an integer value: {param}={value}')
+                return True
             if value < 0 or value > 100:
-                raise ValueError(f'Fan {param} is not a valid percentage value: {param}={value}')
+                logger.log_error(f'Fan {param} is not a valid percentage value: {param}={value}')
+                return True
 
         return speed * 100 > target_speed * (100 + tolerance)
 
@@ -508,44 +500,6 @@ class Fan(FanBase):
             else:
                 return False
 
-    @classmethod
-    def get_cooling_level(cls):
-        """
-        Class method
-        Returns:
-            int: Current cooling level in range 1..10, means cooling level number * 10%
-        """
-        return cls.current_cooling_level
-
-    @classmethod
-    def set_cooling_level(cls, level, cur_state):
-        """
-        Changes cooling level. The input level should be an integer value 1..10.
-        1 means 10%, 2 means 20%, 10 means 100%.
-        """
-        if not isinstance(level, int):
-            raise RuntimeError("Failed to set cooling level, input parameter must be integer")
-
-        if level < cls.MIN_VALID_COOLING_LEVEL or level > cls.MAX_VALID_COOLING_LEVEL:
-            raise RuntimeError("Failed to set cooling level, level value must be in range [{}, {}], got {}".format(
-                cls.MIN_VALID_COOLING_LEVEL,
-                cls.MAX_VALID_COOLING_LEVEL,
-                level
-                ))
-        try:
-            from sonic_platform import platform
-            platform_chassis = platform.Platform().get_chassis()
-            if platform_chassis is not None:
-                cls.current_cooling_level = level
-                fans_num = platform_chassis.get_num_fans()
-                for fan_ins in platform_chassis.get_all_fans():
-                    fan_ins.set_speed(level * 10)
-            else:
-                logger.log_error("Fan: Chassis is not available !")
-            # See on top of thermal.py how to enable log_debug
-            logger.log_debug("Fan:set_cooling_level: {} x10%".format(str(level)))
-        except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to set cooling level - {}".format(e))
 
     def get_position_in_parent(self):
         """

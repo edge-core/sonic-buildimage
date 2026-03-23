@@ -17,6 +17,9 @@ class APIHelper():
     def is_host(self):
         return os.system(HOST_CHK_CMD) == 0
 
+    def is_sonic(self):
+        return os.path.exists("/etc/sonic/config_db.json")
+
     def pci_get_value(self, resource, offset):
         status = True
         result = ""

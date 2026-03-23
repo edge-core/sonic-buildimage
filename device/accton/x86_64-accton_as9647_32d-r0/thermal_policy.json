@@ -19,7 +19,7 @@
     ],
     "policies": [
         {
-            "name": "dynamic fan speed control",
+            "name": "fan speed control",
             "conditions": [
                 {
                     "type": "thermal.any.change"
@@ -27,8 +27,37 @@
             ],
             "actions": [
                 {
-                    "type": "update.cool.level",
-                    "min_cool_level": "3"
+                    "type": "update.cooling.level"
+                }
+            ]
+        },
+        {
+            "name": "thermal warning overheat",
+            "conditions": [
+                {
+                    "type": "thermal.any.warning"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal.warning.overheat"
+                },
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                }
+            ]
+        },
+        {
+            "name": "thermal critical overheat",
+            "conditions": [
+                {
+                    "type": "thermal.any.critical"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal.critical.overheat"
                 }
             ]
         },
@@ -42,7 +71,7 @@
             "actions": [
                 {
                     "type": "thermal_control.control",
-                    "status": "true"
+                    "status": "false"
                 },
                 {
                     "type": "fan.all.set_speed",
@@ -60,7 +89,7 @@
             "actions": [
                 {
                     "type": "thermal_control.control",
-                    "status": "true"
+                    "status": "false"
                 },
                 {
                     "type": "fan.all.set_speed",
@@ -69,15 +98,16 @@
             ]
         },
         {
-            "name": "temp over high critical threshold",
+            "name": "thermal faulty sensor",
             "conditions": [
                 {
-                    "type": "thermal.over.high_critical_threshold"
+                    "type": "thermal.faulty.sensor"
                 }
             ],
             "actions": [
                 {
-                    "type": "switch.power_cycling"
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
                 }
             ]
         },

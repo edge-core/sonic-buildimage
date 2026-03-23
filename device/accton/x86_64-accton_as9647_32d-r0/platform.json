@@ -213,59 +213,51 @@
       ],
       "thermals": [
         {
-          "name": "Temp sensor 1",
+          "name": "PCB VDD_Core",
           "controllable": false
         },
         {
-          "name": "Temp sensor 2",
+          "name": "PCB FP Hotspot",
           "controllable": false
         },
         {
-          "name": "Temp sensor 3",
+          "name": "PCB Top Front",
           "controllable": false
         },
         {
-          "name": "Temp sensor 4",
+          "name": "PCB Bottom Front",
           "controllable": false
         },
         {
-          "name": "Temp sensor 5",
+          "name": "PCB Bottom Rear",
           "controllable": false
         },
         {
-          "name": "Temp sensor 6",
+          "name": "PCB OCXO",
           "controllable": false
         },
         {
-          "name": "Temp sensor 7",
+          "name": "PCB ASIC",
           "controllable": false
         },
         {
-          "name": "Temp sensor 8",
+          "name": "PCB Top Rear",
           "controllable": false
         },
         {
-          "name": "ASIC  Core X2",
+          "name": "ASIC Temp 1",
           "controllable": false
         },
         {
-          "name": "ASIC sensor 1",
+          "name": "ASIC Temp 2",
           "controllable": false
         },
         {
-          "name": "ASIC sensor 2",
+          "name": "ASIC Temp 3",
           "controllable": false
         },
         {
-          "name": "ASIC sensor 3",
-          "controllable": false
-        },
-        {
-          "name": "ASIC  average",
-          "controllable": false
-        },
-        {
-          "name": "ASIC  maximum",
+          "name": "CPU Temp",
           "controllable": false
         }
       ],
@@ -471,100 +463,292 @@
       ],
       "sfps": [
         {
-            "name": "Ethernet0"
+            "name": "Ethernet0",
+            "thermals": [
+                {
+                    "name": "QSFP 1",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet4"
+            "name": "Ethernet4",
+            "thermals": [
+                {
+                    "name": "QSFP 2",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet8"
+            "name": "Ethernet8",
+            "thermals": [
+                {
+                    "name": "QSFP 3",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet12"
+            "name": "Ethernet12",
+            "thermals": [
+                {
+                    "name": "QSFP 4",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet16"
+            "name": "Ethernet16",
+            "thermals": [
+                {
+                    "name": "QSFP 5",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet20"
+            "name": "Ethernet20",
+            "thermals": [
+                {
+                    "name": "QSFP 6",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet24"
+            "name": "Ethernet24",
+            "thermals": [
+                {
+                    "name": "QSFP 7",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet28"
+            "name": "Ethernet28",
+            "thermals": [
+                {
+                    "name": "QSFP 8",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet32"
+            "name": "Ethernet32",
+            "thermals": [
+                {
+                    "name": "QSFP 9",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet36"
+            "name": "Ethernet36",
+            "thermals": [
+                {
+                    "name": "QSFP 10",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet40"
+            "name": "Ethernet40",
+            "thermals": [
+                {
+                    "name": "QSFP 11",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet44"
+            "name": "Ethernet44",
+            "thermals": [
+                {
+                    "name": "QSFP 12",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet48"
+            "name": "Ethernet48",
+            "thermals": [
+                {
+                    "name": "QSFP 13",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet52"
+            "name": "Ethernet52",
+            "thermals": [
+                {
+                    "name": "QSFP 14",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet56"
+            "name": "Ethernet56",
+            "thermals": [
+                {
+                    "name": "QSFP 15",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet60"
+            "name": "Ethernet60",
+            "thermals": [
+                {
+                    "name": "QSFP 16",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet64"
+            "name": "Ethernet64",
+            "thermals": [
+                {
+                    "name": "QSFP 17",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet68"
+            "name": "Ethernet68",
+            "thermals": [
+                {
+                    "name": "QSFP 18",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet72"
+            "name": "Ethernet72",
+            "thermals": [
+                {
+                    "name": "QSFP 19",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet76"
+            "name": "Ethernet76",
+            "thermals": [
+                {
+                    "name": "QSFP 20",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet80"
+            "name": "Ethernet80",
+            "thermals": [
+                {
+                    "name": "QSFP 21",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet84"
+            "name": "Ethernet84",
+            "thermals": [
+                {
+                    "name": "QSFP 22",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet88"
+            "name": "Ethernet88",
+            "thermals": [
+                {
+                    "name": "QSFP 23",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet92"
+            "name": "Ethernet92",
+            "thermals": [
+                {
+                    "name": "QSFP 24",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet96"
+            "name": "Ethernet96",
+            "thermals": [
+                {
+                    "name": "QSFP 25",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet100"
+            "name": "Ethernet100",
+            "thermals": [
+                {
+                    "name": "QSFP 26",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet104"
+            "name": "Ethernet104",
+            "thermals": [
+                {
+                    "name": "QSFP 27",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet108"
+            "name": "Ethernet108",
+            "thermals": [
+                {
+                    "name": "QSFP 28",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet112"
+            "name": "Ethernet112",
+            "thermals": [
+                {
+                    "name": "QSFP 29",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet116"
+            "name": "Ethernet116",
+            "thermals": [
+                {
+                    "name": "QSFP 30",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet120"
+            "name": "Ethernet120",
+            "thermals": [
+                {
+                    "name": "QSFP 31",
+                    "controllable": false
+                }
+            ]
         },
         {
-            "name": "Ethernet124"
+            "name": "Ethernet124",
+            "thermals": [
+                {
+                    "name": "QSFP 32",
+                    "controllable": false
+                }
+            ]
         }
       ]
     },

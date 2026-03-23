@@ -1,12 +1,32 @@
 from sonic_platform_base.sonic_thermal_control.thermal_action_base import ThermalPolicyActionBase
 from sonic_platform_base.sonic_thermal_control.thermal_json_object import thermal_json_object
-from sonic_platform import platform
 from .helper import APIHelper
 from .thermal import logger
+import getpass
 import time
-import os
 
-class SetFanSpeedAction(ThermalPolicyActionBase):
+class FanAction(ThermalPolicyActionBase):
+    def get_fan_info(self, thermal_info_dict):
+        from .thermal_infos import FanInfo
+        fan_info_obj = None
+        if FanInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[FanInfo.INFO_NAME], FanInfo):
+            fan_info_obj = thermal_info_dict[FanInfo.INFO_NAME]
+        else:
+            logger.log_error("Failed to get fans information")
+        return fan_info_obj
+
+class ThermalAction(ThermalPolicyActionBase):
+    def get_thermal_info(self, thermal_info_dict):
+        from .thermal_infos import ThermalInfo
+        thermal_info_obj = None
+        if ThermalInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[ThermalInfo.INFO_NAME], ThermalInfo):
+            thermal_info_obj = thermal_info_dict[ThermalInfo.INFO_NAME]
+        else:
+            logger.log_error("Failed to get thermals information")
+        return thermal_info_obj
+
+
+class SetFanSpeedAction(FanAction):
     """
     Base thermal action class to set speed for fans
     """
@@ -29,16 +49,17 @@ class SetFanSpeedAction(ThermalPolicyActionBase):
         :param json_obj: A JSON object representing a SetFanSpeedAction action.
         :return:
         """
+        self.speed = 100
         if SetFanSpeedAction.JSON_FIELD_SPEED in json_obj:
             speed = float(json_obj[SetFanSpeedAction.JSON_FIELD_SPEED])
-            if speed < 0 or speed > 100:
-                raise ValueError('SetFanSpeedAction invalid speed value {} in JSON policy file, valid value should be [0, 100]'.
-                                 format(speed))
-            self.speed = float(json_obj[SetFanSpeedAction.JSON_FIELD_SPEED])
+            if speed >= 0 and speed <= 100:
+                self.speed = speed
+            else:
+                logger.log_error('{}: Invalid speed value {} in JSON policy file, value should be in range [0, 100]. ' \
+                'Forcing speed to 100%.'.format(self.__class__.__name__, speed))
         else:
-            raise ValueError('SetFanSpeedAction missing mandatory field {} in JSON policy file'.
-                             format(SetFanSpeedAction.JSON_FIELD_SPEED))
-
+            logger.log_error('{}: Missing mandatory field `{}` in JSON policy file. Forcing speed to 100%.'.
+                             format(self.__class__.__name__, SetFanSpeedAction.JSON_FIELD_SPEED))
 
 @thermal_json_object('fan.all.set_speed')
 class SetAllFanSpeedAction(SetFanSpeedAction):
@@ -51,25 +72,11 @@ class SetAllFanSpeedAction(SetFanSpeedAction):
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
-        from .thermal_infos import FanInfo
-        if FanInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[FanInfo.INFO_NAME], FanInfo):
-            fan_info_obj = thermal_info_dict[FanInfo.INFO_NAME]
+        fan_info_obj = self.get_fan_info(thermal_info_dict)
+        if fan_info_obj:
+            logger.log_notice("Set all Fan\'s speed to {}%".format(self.speed))
             for fan in fan_info_obj.get_presence_fans():
                 fan.set_speed(self.speed)
-        # See on top of thermal.py how to enable log_debug
-        logger.log_debug('thermal_actions:SetAllFanSpeedAction: Set all Fan\'s speed to {}%'.format(self.speed))
-
-        SetAllFanSpeedAction.set_psu_fan_speed(thermal_info_dict, self.speed)
-
-    @classmethod
-    def set_psu_fan_speed(cls, thermal_info_dict, speed):
-        from .thermal_infos import ChassisInfo
-        if ChassisInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[ChassisInfo.INFO_NAME], ChassisInfo):
-            chassis = thermal_info_dict[ChassisInfo.INFO_NAME].get_chassis()
-            for psu in chassis.get_all_psus():
-                for psu_fan in psu.get_all_fans():
-                    psu_fan.set_speed(speed)
- 
 
 @thermal_json_object('thermal_control.control')
 class ControlThermalAlgoAction(ThermalPolicyActionBase):
@@ -92,19 +99,17 @@ class ControlThermalAlgoAction(ThermalPolicyActionBase):
         :param json_obj: A JSON object representing a ControlThermalAlgoAction action.
         :return:
         """
+        self.status = False
         if ControlThermalAlgoAction.JSON_FIELD_STATUS in json_obj:
             status_str = json_obj[ControlThermalAlgoAction.JSON_FIELD_STATUS].lower()
-            if status_str == 'true':
-                self.status = True
-            elif status_str == 'false':
-                self.status = False
+            if status_str in ['true', 'false']:
+                self.status = status_str
             else:
-                raise ValueError('Invalid {} field value, please specify true of false'.
-                                 format(ControlThermalAlgoAction.JSON_FIELD_STATUS))
+                logger.log_error('{}: Invalid `{}` field value ({}), value should be true or false. Forcing false.'.
+                                 format(self.__class__.__name__, ControlThermalAlgoAction.JSON_FIELD_STATUS, status_str))
         else:
-            raise ValueError('ControlThermalAlgoAction '
-                             'missing mandatory field {} in JSON policy file'.
-                             format(ControlThermalAlgoAction.JSON_FIELD_STATUS))
+            logger.log_error('{}: Missing mandatory field `{}` in JSON policy file. Forcing false.'.
+                             format(self.__class__.__name__, ControlThermalAlgoAction.JSON_FIELD_STATUS))
 
     def execute(self, thermal_info_dict):
         """
@@ -112,238 +117,113 @@ class ControlThermalAlgoAction(ThermalPolicyActionBase):
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
-        from .thermal import Thermal
-        status_changed = Thermal.set_thermal_algorithm_status(self.status, False)
+        from .thermal_infos import ChassisInfo
+        chassis_info_obj = None
+        if ChassisInfo.INFO_NAME in thermal_info_dict and isinstance(thermal_info_dict[ChassisInfo.INFO_NAME], ChassisInfo):
+            chassis_info_obj = thermal_info_dict[ChassisInfo.INFO_NAME]
+            chassis = chassis_info_obj.get_chassis()
+            thermal_manager = chassis.get_thermal_manager()
+            if self.status:
+                thermal_manager.start_thermal_control_algorithm()
+            else:
+                thermal_manager.stop_thermal_control_algorithm()
 
-        if status_changed:
-            logger.log_info('Changed thermal algorithm status to {}'.format(self.status))
-
-
-@thermal_json_object('switch.power_cycling')
-class SwitchPolicyAction(ThermalPolicyActionBase):
+@thermal_json_object('thermal.warning.overheat')
+class ThermalWarningAction(ThermalAction):
     """
-    Class for thermal action. Once all thermal conditions in a thermal policy are matched,
-    all predefined thermal action will be executed.
+    Action for handling thermal warning overheat.
     """
 
     def execute(self, thermal_info_dict):
         """
-        Take action when thermal condition matches.
+        Perform thermal warning logic.
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
-        logger.log_notice("Thermal policy action: switch.power_cycling")
+        thermal_info_obj = self.get_thermal_info(thermal_info_dict)
+        if thermal_info_obj:
+            temp_list = thermal_info_obj.get_temperatures()
+            thermal_list = thermal_info_obj.get_thermal_list()
+            sensor_idx_list = thermal_info_obj.get_warning_overheat_sensor_idx_list()
+            for sensor_idx in sensor_idx_list:
+                thermal = thermal_list[sensor_idx]
+                logger.log_warning("Thermal warning overheat detected by '{}' sensor: temperature = {}, threshold = {}".
+                                    format(thermal.get_name(), temp_list[sensor_idx],
+                                        thermal.get_high_threshold()))
 
-        # 1. Indicate thermal overheating by setting the diag LED to amber,
-        #    It's done in the `led_control` plugin
-
-        # 2. Stop the `SWSS` Docker container, followed by a reset of the X2 chip,
-        #    It's done by the `as9647_32d_monitor` service
-        SHUTDOWN_FILE = '/usr/share/sonic/firmware/pmon_system_shutdown'
-        SHUTDOWN_OVERHEAT_CODE = "overheat"
-        api_helper = APIHelper()
-        api_helper.write_txt_file(SHUTDOWN_FILE, "{}".format(SHUTDOWN_OVERHEAT_CODE))
-        # Wait up to 120 seconds for the `SHUTDOWN_FILE` file to be deleted, which
-        # signals the completion of the above operation
-        for index in range(120):
-            time.sleep(1)
-            if not os.path.exists(SHUTDOWN_FILE):
-                break
-        if os.path.exists(SHUTDOWN_FILE):
-            logger.log_error("Timeout expired while waiting for the SWSS Docker container " \
-            "to stop and the X2 chip to reset")
-
-        # 3. Set all transceivers to LPM (Low Power Mode) mode
-        sfps = platform.Platform().get_chassis().get_all_sfps()
-        for sfp in sfps:
-            if sfp.get_lpmode() == False:
-                logger.log_notice("Set transceiver {} to LPM mode".format(sfp.get_name()))
-                sfp.set_lpmode(True)
-
-
-@thermal_json_object('update.cool.level')
-class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
+@thermal_json_object('thermal.critical.overheat')
+class ThermalCriticalAction(ThermalAction):
     """
-    Action to update the fan speed based on the system temperature
+    Action for handling thermal critical overheat, also known as thermal shutdown logic.
     """
-    from .thermal import Thermal
-    THERMAL_X48_IDX = 0
-    THERMAL_X49_IDX = 1
-    THERMAL_X4A_IDX = 2
-    THERMAL_ASIC_IDX = Thermal.ASIC_CALCULATED_TEMP_OFFSET
-    THERMAL_XCVR_OFFSET = Thermal.XCVR_TEMP_SENSORS_OFFSET
-    THERMAL_DATA_IDX_FAN_SPEED = 2
-    MINIMAL_COOLING_LEVEL = 4
-    COOL_LEVEL_IDX_0 = 0
-    COOL_LEVEL_IDX_1 = 1
-    COOL_LEVEL_IDX_2 = 2
-    COOL_LEVEL_IDX_3 = 3
+    def __init__(self):
+        super().__init__()
+        self.api_helper = APIHelper()
 
-    # JSON field definition
-    JSON_FIELD_MIN_COOL_LEVEL = 'min_cool_level'
+    def reboot_device(self):
+        from .chassis import HOST_REBOOT_CAUSE_PATH, REBOOT_CAUSE_FILE
 
-    class HysteresisMonitor:
+        reboot_user = getpass.getuser()
+        reboot_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + REBOOT_CAUSE_FILE)
+        msg = "User issued 'Thermal Overload' command [User: {}, Time: {}]".format(reboot_user, reboot_time)
+        sts = self.api_helper.write_txt_file(reboot_cause_path, msg)
+        if not sts:
+            logger.log_error("Failed to write reboot cause to the file: {}".format(reboot_cause_path))
+
+        sts, res = self.api_helper.run_command("sync")
+        if not (sts and res == ''):
+            logger.log_error("Failed to run sync command")
+        time.sleep(3)
+
+        sts, res = self.api_helper.run_command("/opt/xplt/utils/pwcycle_box.sh")
+        if not sts:
+            logger.log_error("Failed to reboot device: {}".format(res))
+
+    def execute(self, thermal_info_dict):
         """
-        A class per sensor to manage and update its hysteresis state
-
-        Attributes:
-            thresholds: This is a list containing three string elements, where each
-                        element follows this format:
-                        "low hysteresis threshold : high hysteresis threshold : fan cooling level"
-                        For example:
-                            thresholds = ["64:69:10", "70:75:10", "80:85:10"]
-                            parameter                       value
-                            ---------                       -----
-                            low hysteresis threshold 1      64
-                            high hysteresis threshold 1     69
-                            fan cooling level 1             10
-                            low hysteresis threshold 2      70
-                            high hysteresis threshold 2     75
-                            fan cooling level 2             10
-                            low hysteresis threshold 3      80
-                            high hysteresis threshold 3     85
-                            fan cooling level 3             10
+        Perform thermal shutdown logic based on whether the sensor is a chassis or xcvr sensor.
+        :param thermal_info_dict: A dictionary stores all thermal information.
+        :return:
         """
-        THERMAL_DATA_IDX_LOW_TH = 0
-        THERMAL_DATA_IDX_HIGH_TH = 1
+        thermal_info_obj = self.get_thermal_info(thermal_info_dict)
+        if thermal_info_obj:
+            temp_list = thermal_info_obj.get_temperatures()
+            thermal_list = thermal_info_obj.get_thermal_list()
+            sensor_idx_list = thermal_info_obj.get_critical_overheat_sensor_idx_list()
+            for sensor_idx in sensor_idx_list:
+                thermal = thermal_list[sensor_idx]
+                logger.log_error("Thermal critical overheat detected by '{}' sensor: temperature = {}, threshold = {}".
+                                    format(thermal.get_name(), temp_list[sensor_idx],
+                                        thermal.get_high_critical_threshold()))
+            logger.log_error("Thermal critical overheat detected. Rebooting the device.")
+            self.reboot_device()
 
-        def __init__(self, thresholds):
-            self.thresholds = thresholds
-
-            # Track the current hysteresis state of each instance (True = high hyst, False = low hyst)
-            self.hyst_state_list = [False] * len(thresholds)
-
-        def update(self, value):
-            """Update the hysteresis state based on the new input temperature value
-
-            Args:
-                value: integer value of the input temperature used to update the hysteresis state
-
-            Returns:
-                An integer representing the cool level index used to determine the actual fan speed
-            """
-            cool_lvl_idx = 0
-            for idx, thresholds in enumerate(self.thresholds):
-                low = int(thresholds.split(':')[self.THERMAL_DATA_IDX_LOW_TH])
-                high = int(thresholds.split(':')[self.THERMAL_DATA_IDX_HIGH_TH])
-
-                # If the sensor is in the low state and the value crosses the high threshold
-                if not self.hyst_state_list[idx] and value > high:
-                    self.hyst_state_list[idx] = True
-                # If the sensor is in the high state and the value crosses below or equals the low threshold
-                elif self.hyst_state_list[idx] and value <= low:
-                    self.hyst_state_list[idx] = False
-
-                # Record the highest index crossed, which represents the cool level
-                if self.hyst_state_list[idx]:
-                    cool_lvl_idx = idx + 1
-
-            return cool_lvl_idx
+@thermal_json_object('update.cooling.level')
+class ThermalCoolLevelUpdateAction(ThermalAction, FanAction):
+    """
+    Action to adjust fan speed according to the current system cooling level.
+    """
 
     def __init__(self):
-        from .thermal import Thermal
         from .thermal_device_data import DEVICE_DATA
 
-        self.min_cool_level = self.MINIMAL_COOLING_LEVEL
-        self.last_cool_lvl_idx = self.COOL_LEVEL_IDX_0
-
-        api_helper = APIHelper()
-        thermal_thresh_list = []
-        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x48'])
-        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x49'])
-        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['thermal_x4A'])
-        thermal_thresh_list.append(DEVICE_DATA['thermal']['thresholds']['asic_average'])
-
-        # Add transceiver thermal thresholds
-        self.xcvrs_temp_list = Thermal.TRANSCEIVER_TEMP_LIST
-        for idx in range(0, len(self.xcvrs_temp_list)):
-            lst = ["{}:{}:10".format(self.xcvrs_temp_list[idx][1] - 3, self.xcvrs_temp_list[idx][1] - 2),
-                   "{}:{}:10".format(self.xcvrs_temp_list[idx][1] - 2, self.xcvrs_temp_list[idx][1]),
-                   "{}:{}:10".format(self.xcvrs_temp_list[idx][2] - 2, self.xcvrs_temp_list[idx][2])]
-            thermal_thresh_list.append(lst)
-            logger.log_debug("{}: Added transceiver {} temperatures: {}".format(self.__class__.__name__, idx, lst))
-
-        self.hyst_monitor_list = []
-        for idx in range(0, len(thermal_thresh_list)):
-            self.hyst_monitor_list.append(self.HysteresisMonitor(thermal_thresh_list[idx]))
-
-        # Create a mapping based solely on the `asic_average` sensor that maps
-        # each `fan cooling level index` to its corresponding `fan cooling level`,
-        # which represents the actual fan speed value.
-        # Note: The `fan cooling level` retrieved from the `DEVICE_DATA` dictionary
-        # represents the fan speed divided by 10. For example, a fan cooling level
-        # of 3 corresponds to a fan speed of 30%.
-        asic_temp_data = DEVICE_DATA['thermal']['thresholds']['asic_average']
-        self.cool_lvl_map = []
-        self.cool_lvl_map.append(self.min_cool_level)
-        self.cool_lvl_map.append(int(asic_temp_data[0].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
-        self.cool_lvl_map.append(int(asic_temp_data[1].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
-        self.cool_lvl_map.append(int(asic_temp_data[2].split(':')[self.THERMAL_DATA_IDX_FAN_SPEED]))
-
-    def load_from_json(self, json_obj):
-        """
-        :param json_obj: A JSON object representing a ChangeMinCoolingLevelAction action.
-        :return:
-        """
-        if self.JSON_FIELD_MIN_COOL_LEVEL in json_obj:
-            min_cool_level = int(json_obj[self.JSON_FIELD_MIN_COOL_LEVEL])
-            if min_cool_level < 0 or min_cool_level > 10:
-                raise ValueError('{} invalid min_cool_level value {} in JSON policy file, valid value should be [0, 10]'.
-                                 format(type(self).__name__, min_cool_level))
-            self.min_cool_level = min_cool_level
-        else:
-            raise ValueError('{} missing mandatory field {} in JSON policy file'.
-                             format(type(self).__name__, self.JSON_FIELD_MIN_COOL_LEVEL))
+        # Get the list of fan speeds, where each index corresponds to a specific
+        # cooling level index.
+        self.cool_lvl_map = DEVICE_DATA['fan_speed']
 
     def execute(self, thermal_info_dict):
         """
-        Check the hysteresis state of the specified temperature sensors and set
-        the fan speed accordingly.
+        Adjust the fan speed according to the current system cooling level.
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
-        from .fan import Fan
-        from .thermal_conditions import MinCoolingLevelChangeCondition
-
-        self.temperatures = MinCoolingLevelChangeCondition.temperatures
-
-        # The indices of `thermal_samp_list` should match those of `thermal_thresh_list`
-        # as used in the `__init__` function
-        thermal_samp_list = []
-        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X48_IDX]))
-        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X49_IDX]))
-        thermal_samp_list.append(float(self.temperatures[self.THERMAL_X4A_IDX]))
-        thermal_samp_list.append(float(self.temperatures[self.THERMAL_ASIC_IDX]))
-
-        # Collect samples from transceiver thermal sensors
-        for idx in range(0, len(self.xcvrs_temp_list)):
-            thermal_samp_list.append(float(self.temperatures[self.THERMAL_XCVR_OFFSET + idx]))
-
-        # Determine the maximum cool level index from all sensors
-        try:
-            cool_lvl_idx = self.COOL_LEVEL_IDX_0
-            for idx in range(0, len(thermal_samp_list)):
-                cool_lvl_idx = max(cool_lvl_idx, self.hyst_monitor_list[idx].update(thermal_samp_list[idx]))
-        except:
-            cool_lvl_idx = self.COOL_LEVEL_IDX_1
-            logger.log_error("{}: Failure occurred while calculating the cool level index, " \
-            "forced cool level index to {}".format(self.__class__.__name__, cool_lvl_idx))
-
-        if cool_lvl_idx != self.last_cool_lvl_idx:
-            logger.log_notice("{}: The cool level index has changed from {} to {}".format(
-                self.__class__.__name__, self.last_cool_lvl_idx, cool_lvl_idx))
-
-        if self.last_cool_lvl_idx < self.COOL_LEVEL_IDX_2 and cool_lvl_idx == self.COOL_LEVEL_IDX_2:
-            logger.log_notice("{}: Thermal warning detected".format(self.__class__.__name__))
-
-        if self.last_cool_lvl_idx > self.COOL_LEVEL_IDX_1 and cool_lvl_idx == self.COOL_LEVEL_IDX_1:
-            logger.log_notice("{}: Thermal warning cleared".format(self.__class__.__name__))
-
-        self.last_cool_lvl_idx = cool_lvl_idx
-        cool_lvl = self.cool_lvl_map[cool_lvl_idx]
-
-        logger.log_debug("{}: Temperatures: {}; Current level: {}; Next level: {}".format(
-            self.__class__.__name__, self.temperatures, Fan.get_cooling_level(), cool_lvl))
-
-        Fan.set_cooling_level(cool_lvl, Fan.min_cooling_level)
-
+        thermal_info_obj = self.get_thermal_info(thermal_info_dict)
+        fan_info_obj = self.get_fan_info(thermal_info_dict)
+        if thermal_info_obj and fan_info_obj:
+            cool_lvl_idx = thermal_info_obj.get_cooling_level_idx()
+            if cool_lvl_idx in range(len(self.cool_lvl_map)):
+                for fan in fan_info_obj.get_presence_fans():
+                    fan.set_speed(self.cool_lvl_map[cool_lvl_idx])
+            else:
+                logger.log_error("Invalid cooling level index: {}".format(cool_lvl_idx))
