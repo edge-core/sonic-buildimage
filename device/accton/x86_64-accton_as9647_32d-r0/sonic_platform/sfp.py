@@ -14,6 +14,7 @@ import subprocess
 from ctypes import create_string_buffer
 
 try:
+    from .thermal import SfpThermal
     from sonic_py_common import logger
     from sonic_platform_base.sonic_xcvr.sfp_optoe_base import SfpOptoeBase
     from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
@@ -35,6 +36,25 @@ SYSFS_RESET_ENABLE = 1
 
 SYSFS_LPM_MODE_DISABLE = 0
 SYSFS_LPM_MODE_ENABLE = 1
+
+XCVR_TYPE_OFFSET = 0
+XCVR_TYPE_WIDTH = 1
+
+SFP_TYPE = 'SFP'
+OSFP_TYPE = 'OSFP'
+QSFP_TYPE = 'QSFP'
+
+SFP_TYPE_CODE_LIST = [
+    '03' # SFP/SFP+/SFP28
+]
+QSFP_TYPE_CODE_LIST = [
+    '0d', # QSFP+ or later
+    '11' # QSFP28 or later
+]
+OSFP_TYPE_CODE_LIST = [
+    '18', # QSFP-DD Double Density 8X Pluggable Transceiver
+    '19' # OSFP 8X Pluggable Transceiver
+]
 
 class Sfp(SfpOptoeBase):
     """Platform-specific Sfp class"""
@@ -79,6 +99,29 @@ class Sfp(SfpOptoeBase):
         self.present_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_present_{self._port_num}"
         self.lpmode_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_lpmode_{self._port_num}"
 
+        self._sfp_type = None
+        self._thermal_list.append(SfpThermal(self))
+
+    @property
+    def sfp_type(self):
+        if self._sfp_type is None:
+            self._sfp_type = self._detect_sfp_type()
+
+        return self._sfp_type
+
+    def _detect_sfp_type(self):
+        sfp_type_raw = self.read_eeprom(XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH)
+        sfp_type = self._slot.getXcvr().getType().upper()
+        if sfp_type_raw:
+            sfp_type_code = self._format_bytes(sfp_type_raw)[0]
+            if sfp_type_code in SFP_TYPE_CODE_LIST:
+                sfp_type = SFP_TYPE
+            elif sfp_type_code in QSFP_TYPE_CODE_LIST:
+                sfp_type = QSFP_TYPE
+            elif sfp_type_code in OSFP_TYPE_CODE_LIST:
+                sfp_type = OSFP_TYPE
+        return sfp_type
+
     def __is_host(self):
         try:
             result = subprocess.run(
@@ -100,6 +143,10 @@ class Sfp(SfpOptoeBase):
 
     def get_eeprom_path(self):
         return self.eeprom_path
+
+
+    def get_id(self):
+       return self._index
 
 
     def get_name(self):
@@ -280,3 +327,7 @@ class Sfp(SfpOptoeBase):
             error_description = self.SFP_STATUS_OK
 
         return error_description
+
+    def get_temperature(self):
+        bulkStatus = self.get_transceiver_bulk_status()
+        return bulkStatus["temperature"] if bulkStatus else 0.0
