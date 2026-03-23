@@ -22,8 +22,7 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-SYSLOG_IDENTIFIER = "sfp"
-logger = logger.Logger(SYSLOG_IDENTIFIER)
+logger = logger.Logger()
 logger.set_min_log_priority_debug()
 logger.log_debug("Load {} module".format(__name__))
 
