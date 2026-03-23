@@ -9,6 +9,7 @@
 import os
 import os.path
 import glob
+import time
 
 try:
     from .chassis import *
@@ -545,7 +546,7 @@ class SfpThermal(ThermalBase):
         self._cachedThreshInfoTime = 0
 
     def get_name(self):
-        return "%s %s temp sensor" % (self._sfp.sfp_type, self._sfp.get_id())
+        return "{} {}".format(self._sfp.sfp_type, self._sfp.get_id() + 1)
 
     def get_presence(self):
         return self._sfp.get_presence()
@@ -567,8 +568,8 @@ class SfpThermal(ThermalBase):
 
     def get_temperature(self):
         value = self._sfp.get_temperature()
-        if value == 'N/A':
-            raise NotImplementedError
+        if not isinstance(value, float):
+            return None
         if self._minimum is None or self._minimum > value:
             self._minimum = value
         if self._maximum is None or self._maximum < value:
@@ -576,7 +577,7 @@ class SfpThermal(ThermalBase):
         return value
 
     def _get_threshold_info(self):
-        currTime = monotonicRaw()
+        currTime = time.time()
         if currTime - self._cachedThreshInfoTime > self.THRESH_DELAY:
             self._cachedThreshInfoTime = currTime
             self._cachedThreshInfo = self._sfp.get_transceiver_threshold_info()
@@ -587,18 +588,15 @@ class SfpThermal(ThermalBase):
         if threshInfo:
             lowThreshold = threshInfo.get("templowwarning")
         if not threshInfo or lowThreshold == "N/A":
-            raise NotImplementedError
+            return None
         return lowThreshold
-
-    def set_low_threshold(self, temperature):
-        return False
 
     def get_low_critical_threshold(self):
         threshInfo = self._get_threshold_info()
         if threshInfo:
             lowCritThreshold = threshInfo.get("templowalarm")
         if not threshInfo or lowCritThreshold == "N/A":
-            raise NotImplementedError
+            return None
         return lowCritThreshold
 
     def get_high_threshold(self):
@@ -606,18 +604,15 @@ class SfpThermal(ThermalBase):
         if threshInfo:
             highThreshold = threshInfo.get("temphighwarning")
         if not threshInfo or highThreshold == "N/A":
-            raise NotImplementedError
+            return None
         return highThreshold
-
-    def set_high_threshold(self, temperature):
-        return False
 
     def get_high_critical_threshold(self):
         threshInfo = self._get_threshold_info()
         if threshInfo:
             highCritThreshold = threshInfo.get("temphighalarm")
         if not threshInfo or highCritThreshold == "N/A":
-            raise NotImplementedError
+            return None
         return highCritThreshold
 
     def get_minimum_recorded(self):
