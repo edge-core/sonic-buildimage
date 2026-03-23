@@ -70,6 +70,7 @@
               "name": "FanTray 0 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -82,6 +83,7 @@
               "name": "FanTray 0 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -94,6 +96,7 @@
               "name": "FanTray 1 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -106,6 +109,7 @@
               "name": "FanTray 1 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -118,6 +122,7 @@
               "name": "FanTray 2 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -130,6 +135,7 @@
               "name": "FanTray 2 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -142,6 +148,7 @@
               "name": "FanTray 3 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -154,6 +161,7 @@
               "name": "FanTray 3 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -166,6 +174,7 @@
               "name": "FanTray 4 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -178,6 +187,7 @@
               "name": "FanTray 4 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -190,6 +200,7 @@
               "name": "FanTray 5 fan 0",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -202,6 +213,7 @@
               "name": "FanTray 5 fan 1",
               "speed": {
                   "controllable": true,
+                  "delay": 10,
                   "minimum": 50,
                   "maximum": 100
               },
@@ -266,21 +278,23 @@
           "name": "FanTray 0",
           "fans": [
             {
-            "name": "FanTray 0 fan 0",
-            "speed": {
-              "controllable": true,
-              "minimum": 50,
-              "maximum": 100
-            },
-            "status_led": {
-              "controllable": true,
-              "colors": ["off", "green", "red"]
-            }
+              "name": "FanTray 0 fan 0",
+              "speed": {
+                "controllable": true,
+                "delay": 10,
+                "minimum": 50,
+                "maximum": 100
+              },
+              "status_led": {
+                "controllable": true,
+                "colors": ["off", "green", "red"]
+              }
             },
             {
               "name": "FanTray 0 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -302,6 +316,7 @@
               "name": "FanTray 1 fan 0",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -314,6 +329,7 @@
               "name": "FanTray 1 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -335,6 +351,7 @@
               "name": "FanTray 2 fan 0",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -347,6 +364,7 @@
               "name": "FanTray 2 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -368,6 +386,7 @@
               "name": "FanTray 3 fan 0",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -380,6 +399,7 @@
               "name": "FanTray 3 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -401,6 +421,7 @@
               "name": "FanTray 4 fan 0",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -413,6 +434,7 @@
               "name": "FanTray 4 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -434,6 +456,7 @@
               "name": "FanTray 5 fan 0",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
@@ -446,6 +469,7 @@
               "name": "FanTray 5 fan 1",
               "speed": {
                 "controllable": true,
+                "delay": 10,
                 "minimum": 50,
                 "maximum": 100
               },
