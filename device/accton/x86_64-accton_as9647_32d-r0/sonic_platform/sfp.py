@@ -44,15 +44,12 @@ SFP_TYPE = 'SFP'
 OSFP_TYPE = 'OSFP'
 QSFP_TYPE = 'QSFP'
 
-SFP_TYPE_CODE_LIST = [
-    '03' # SFP/SFP+/SFP28
-]
 QSFP_TYPE_CODE_LIST = [
-    '0d', # QSFP+ or later
-    '11' # QSFP28 or later
+    '0d', # QSFP+ or later with SFF-8636
+    '11', # QSFP28 or later with SFF-8636
+    '1E', # QSFP+ or later with CMIS
 ]
 OSFP_TYPE_CODE_LIST = [
-    '18', # QSFP-DD Double Density 8X Pluggable Transceiver
     '19' # OSFP 8X Pluggable Transceiver
 ]
 
@@ -111,12 +108,10 @@ class Sfp(SfpOptoeBase):
 
     def _detect_sfp_type(self):
         sfp_type_raw = self.read_eeprom(XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH)
-        sfp_type = self._slot.getXcvr().getType().upper()
+        sfp_type = SFP_TYPE
         if sfp_type_raw:
-            sfp_type_code = self._format_bytes(sfp_type_raw)[0]
-            if sfp_type_code in SFP_TYPE_CODE_LIST:
-                sfp_type = SFP_TYPE
-            elif sfp_type_code in QSFP_TYPE_CODE_LIST:
+            sfp_type_code = [f'{x:02x}' for x in sfp_type_raw][0]
+            if sfp_type_code in QSFP_TYPE_CODE_LIST:
                 sfp_type = QSFP_TYPE
             elif sfp_type_code in OSFP_TYPE_CODE_LIST:
                 sfp_type = OSFP_TYPE
@@ -330,4 +325,7 @@ class Sfp(SfpOptoeBase):
 
     def get_temperature(self):
         bulkStatus = self.get_transceiver_bulk_status()
-        return bulkStatus["temperature"] if bulkStatus else 0.0
+        temp = bulkStatus["temperature"] if bulkStatus else 0.0
+        if isinstance(temp, float):
+            temp = round(temp, 1)
+        return temp
