@@ -18,9 +18,10 @@ PSU_FAN_MAX_RPM = 30000 # Taken from SPEC FSH082-610G Rev A12 at "9. Fans Contro
 TRAY_FRONT_FAN_MAX_RPM = 31000
 TRAY_REAR_FAN_MAX_RPM = 28000
 
-# The tolerance was set to 15% RPM to cover the worst-case deviation of 13.15% RPM,
-# which occurs at the minimum fan speed of 40% RPM.
-TRAY_FANSPEED_TOLERANCE = 15
+# The tolerance was initially set to 15% RPM to cover the worst-case deviation of 13.15% RPM,
+# which occurs at the minimum fan speed of 40% RPM. Later, it was increased to 20% to
+# accommodate possible fan series–related speed variations.
+TRAY_FANSPEED_TOLERANCE = 20
 
 FP_FAN_LED_FILE = "/sys/class/leds/as9647_32d_led::fan/brightness"
 CPLD_I2C_PATH = "/sys/bus/i2c/devices/10-0066/fan"
