@@ -261,10 +261,16 @@ class ThermalInfo(ThermalPolicyInfoBase):
         self._faulty_average = None
 
         self._warn_oh = False
-        self._warn_oh_sensor_idx_list = []
+        self._warn_oh_data = []
 
         self._crit_oh = False
-        self._crit_oh_sensor_idx_list = []
+        self._crit_oh_data = []
+
+        self._xcvr_warn_oh = False
+        self._xcvr_warn_oh_data = []
+
+        self._xcvr_crit_oh = False
+        self._xcvr_crit_oh_data = []
 
         # Create a list of HysteresisMonitor classes, one per sensor, to track
         # the threshold state of each sensor.
@@ -285,10 +291,10 @@ class ThermalInfo(ThermalPolicyInfoBase):
         self._faulty_average = None
 
         self._warn_oh = False
-        self._warn_oh_sensor_idx_list = []
+        self._warn_oh_data = []
 
         self._crit_oh = False
-        self._crit_oh_sensor_idx_list = []
+        self._crit_oh_data = []
 
         # Collect all thermal class instances and temperature samples
         self._thermal_list = chassis.get_all_thermals()
@@ -327,10 +333,14 @@ class ThermalInfo(ThermalPolicyInfoBase):
                 for idx, sensor_idx in enumerate(self.TC_SENSOR_IDX_LIST):
                     cool_level = self.hyst_monitor_list[idx].get_cool_level()
                     if cool_level == self.CoolingLevel.LEVEL_5.value:
-                        self._crit_oh_sensor_idx_list.append(sensor_idx)
+                        thermal = self._thermal_list[sensor_idx]
+                        self._crit_oh_data.append((thermal.get_name(), temp_list[sensor_idx],
+                                                   thermal.get_high_critical_threshold()))
                         self._crit_oh = True
                     elif cool_level == self.CoolingLevel.LEVEL_4.value:
-                        self._warn_oh_sensor_idx_list.append(sensor_idx)
+                        thermal = self._thermal_list[sensor_idx]
+                        self._warn_oh_data.append((thermal.get_name(), temp_list[sensor_idx],
+                                                   thermal.get_high_threshold()))
                         self._warn_oh = True
             except Exception as e:
                 logger.log_error("Failure in cooling level index calculation: {}".format(str(e)))
@@ -350,12 +360,70 @@ class ThermalInfo(ThermalPolicyInfoBase):
 
         self._temp_list = temp_list
 
-    def get_critical_overheat_sensor_idx_list(self):
+        # Evaluate XCVR temperatures against their per-module EEPROM thresholds.
+        # Each module is evaluated in its own try/except so that a transient
+        # failure on one port does not prevent evaluation of the remaining ports.
+        # The outer try/except guards against chassis-level failures (e.g.
+        # get_all_sfps() raising) so the collect() method always completes.
+        #
+        # Fail-safe: if any evaluation fails, the previous overheat state is
+        # retained (OR'd in) so that a read failure on a module that was
+        # previously overheating is not misinterpreted as recovery.
+        prev_xcvr_warn = self._xcvr_warn_oh
+        prev_xcvr_warn_data = self._xcvr_warn_oh_data[:]
+        prev_xcvr_crit = self._xcvr_crit_oh
+        prev_xcvr_crit_data = self._xcvr_crit_oh_data[:]
+        self._xcvr_warn_oh = False
+        self._xcvr_warn_oh_data = []
+        self._xcvr_crit_oh = False
+        self._xcvr_crit_oh_data = []
+        xcvr_eval_failed = False
+        try:
+            for sfp in chassis.get_all_sfps():
+                try:
+                    if not sfp.get_presence():
+                        continue
+                    sfp_thermal = sfp.get_thermal(0)
+                    if sfp_thermal is None:
+                        continue
+                    temp = sfp_thermal.get_temperature()
+                    if not isinstance(temp, (int, float)):
+                        continue
+                    name = sfp_thermal.get_name()
+                    warn_th = sfp_thermal.get_high_threshold()
+                    crit_th = sfp_thermal.get_high_critical_threshold()
+                    if isinstance(crit_th, (int, float)) and temp > crit_th:
+                        self._xcvr_crit_oh = True
+                        self._xcvr_crit_oh_data.append((name, temp, crit_th))
+                    if isinstance(warn_th, (int, float)) and temp > warn_th:
+                        self._xcvr_warn_oh = True
+                        self._xcvr_warn_oh_data.append((name, temp, warn_th))
+                except Exception as e:
+                    xcvr_eval_failed = True
+                    logger.log_error("Failure in XCVR temperature evaluation: {}".format(str(e)))
+        except Exception as e:
+            xcvr_eval_failed = True
+            logger.log_error("Failure in XCVR temperature evaluation: {}".format(str(e)))
+
+        if xcvr_eval_failed:
+            self._xcvr_warn_oh = self._xcvr_warn_oh or prev_xcvr_warn
+            self._xcvr_crit_oh = self._xcvr_crit_oh or prev_xcvr_crit
+            if not self._xcvr_warn_oh_data and prev_xcvr_warn:
+                self._xcvr_warn_oh_data = prev_xcvr_warn_data
+            if not self._xcvr_crit_oh_data and prev_xcvr_crit:
+                self._xcvr_crit_oh_data = prev_xcvr_crit_data
+
+        # Signal state change when XCVR overheat state transitions (onset or
+        # recovery) so the fan-speed-control policy can recalculate.
+        if self._xcvr_warn_oh != prev_xcvr_warn or self._xcvr_crit_oh != prev_xcvr_crit:
+            self._tc_temps_changed = True
+
+    def get_critical_overheat_data(self):
         """
-        Retrieves a list of sensor indices that caused the critical overheat.
-        :return: List of sensor indices.
+        Retrieves a list of (name, temp, threshold) tuples for chassis sensors
+        that caused the critical overheat.
         """
-        return self._crit_oh_sensor_idx_list
+        return self._crit_oh_data
 
     def is_critical_overheat(self):
         """
@@ -364,12 +432,12 @@ class ThermalInfo(ThermalPolicyInfoBase):
         """
         return self._crit_oh
 
-    def get_warning_overheat_sensor_idx_list(self):
+    def get_warning_overheat_data(self):
         """
-        Retrieves a list of sensor indices that caused the warning overheat.
-        :return: List of sensor indices.
+        Retrieves a list of (name, temp, threshold) tuples for chassis sensors
+        that caused the warning overheat.
         """
-        return self._warn_oh_sensor_idx_list
+        return self._warn_oh_data
 
     def is_warning_overheat(self):
         """
@@ -377,6 +445,34 @@ class ThermalInfo(ThermalPolicyInfoBase):
         :return: True if a warning overheat was detected, otherwise False
         """
         return self._warn_oh
+
+    def is_xcvr_warning_overheat(self):
+        """
+        Get an indication if an XCVR warning overheat condition has occurred.
+        :return: True if an XCVR warning overheat was detected, otherwise False
+        """
+        return self._xcvr_warn_oh
+
+    def get_xcvr_warning_overheat_data(self):
+        """
+        Retrieves a list of (name, temp, threshold) tuples for XCVR modules
+        that exceeded their warning threshold.
+        """
+        return self._xcvr_warn_oh_data
+
+    def is_xcvr_critical_overheat(self):
+        """
+        Get an indication if an XCVR critical overheat condition has occurred.
+        :return: True if an XCVR critical overheat was detected, otherwise False
+        """
+        return self._xcvr_crit_oh
+
+    def get_xcvr_critical_overheat_data(self):
+        """
+        Retrieves a list of (name, temp, threshold) tuples for XCVR modules
+        that exceeded their critical threshold.
+        """
+        return self._xcvr_crit_oh_data
 
     def is_tc_temperatures_changed(self):
         """

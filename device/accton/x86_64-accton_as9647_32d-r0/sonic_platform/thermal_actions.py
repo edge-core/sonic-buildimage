@@ -131,30 +131,33 @@ class ControlThermalAlgoAction(ThermalPolicyActionBase):
 @thermal_json_object('thermal.warning.overheat')
 class ThermalWarningAction(ThermalAction):
     """
-    Action for handling thermal warning overheat.
+    Action for handling thermal warning overheat (chassis and XCVR).
+    Fan speed is forced to 100% by the fan.all.set_speed action in the policy.
     """
 
     def execute(self, thermal_info_dict):
         """
-        Perform thermal warning logic.
+        Log warning overheat for chassis and XCVR sensors.
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
         thermal_info_obj = self.get_thermal_info(thermal_info_dict)
         if thermal_info_obj:
-            temp_list = thermal_info_obj.get_temperatures()
-            thermal_list = thermal_info_obj.get_thermal_list()
-            sensor_idx_list = thermal_info_obj.get_warning_overheat_sensor_idx_list()
-            for sensor_idx in sensor_idx_list:
-                thermal = thermal_list[sensor_idx]
+            for name, temp, threshold in thermal_info_obj.get_warning_overheat_data():
                 logger.log_warning("Thermal warning overheat detected by '{}' sensor: temperature = {}, threshold = {}".
-                                    format(thermal.get_name(), temp_list[sensor_idx],
-                                        thermal.get_high_threshold()))
+                                    format(name, temp, threshold))
+
+            for name, temp, threshold in thermal_info_obj.get_xcvr_warning_overheat_data():
+                logger.log_warning("XCVR warning overheat: '{}' temperature = {}, threshold = {}".format(
+                    name, temp, threshold))
 
 @thermal_json_object('thermal.critical.overheat')
 class ThermalCriticalAction(ThermalAction):
     """
-    Action for handling thermal critical overheat, also known as thermal shutdown logic.
+    Action for handling thermal critical overheat.
+    Chassis critical: log + thermal shutdown (reboot).
+    XCVR critical: log per module (no reboot).
+    Fan speed is forced to 100% by the fan.all.set_speed action in the policy.
     """
     def __init__(self):
         super().__init__()
@@ -182,22 +185,24 @@ class ThermalCriticalAction(ThermalAction):
 
     def execute(self, thermal_info_dict):
         """
-        Perform thermal shutdown logic based on whether the sensor is a chassis or xcvr sensor.
+        Perform thermal critical overheat logic.
+        For chassis sensors: log and reboot.
+        For XCVR sensors: log per module (no reboot).
         :param thermal_info_dict: A dictionary stores all thermal information.
         :return:
         """
         thermal_info_obj = self.get_thermal_info(thermal_info_dict)
         if thermal_info_obj:
-            temp_list = thermal_info_obj.get_temperatures()
-            thermal_list = thermal_info_obj.get_thermal_list()
-            sensor_idx_list = thermal_info_obj.get_critical_overheat_sensor_idx_list()
-            for sensor_idx in sensor_idx_list:
-                thermal = thermal_list[sensor_idx]
-                logger.log_error("Thermal critical overheat detected by '{}' sensor: temperature = {}, threshold = {}".
-                                    format(thermal.get_name(), temp_list[sensor_idx],
-                                        thermal.get_high_critical_threshold()))
-            logger.log_error("Thermal critical overheat detected. Rebooting the device.")
-            self.reboot_device()
+            if thermal_info_obj.is_critical_overheat():
+                for name, temp, threshold in thermal_info_obj.get_critical_overheat_data():
+                    logger.log_error("Thermal critical overheat detected by '{}' sensor: temperature = {}, threshold = {}".
+                                        format(name, temp, threshold))
+                logger.log_error("Thermal critical overheat detected. Rebooting the device.")
+                self.reboot_device()
+
+            for name, temp, threshold in thermal_info_obj.get_xcvr_critical_overheat_data():
+                logger.log_error("XCVR critical overheat: '{}' temperature = {}, threshold = {}".format(
+                    name, temp, threshold))
 
 @thermal_json_object('update.cooling.level')
 class ThermalCoolLevelUpdateAction(ThermalAction, FanAction):
