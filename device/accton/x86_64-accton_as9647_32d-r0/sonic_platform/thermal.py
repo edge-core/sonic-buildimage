@@ -7,36 +7,17 @@
 #############################################################################
 
 import os
-import os.path
 import glob
 import time
+import threading
 
 try:
-    from .chassis import *
-    from .thermal_device_data import DEVICE_DATA
-    from .helper import APIHelper
     from sonic_platform_base.thermal_base import ThermalBase
     from sonic_py_common.logger import Logger
-    from swsscommon.swsscommon import SonicV2Connector
+    from .thermal_device_data import DEVICE_DATA
+    from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
-
-DEVICE_DATA_LIST = [
-    "thermal_x48",
-    "thermal_x49",
-    "thermal_x4A",
-    "thermal_x4B",
-    "thermal_x4C",
-    "thermal_x4D",
-    "thermal_x4E",
-    "thermal_x4F",
-    "asic_diode",
-    "asic_sensor_1",
-    "asic_sensor_2",
-    "asic_sensor_3",
-    "asic_average",
-    "asic_maximum"
-]
 
 logger = Logger()
 # To enable messages of log_debug verbosity, uncomment the below line
@@ -44,71 +25,33 @@ logger = Logger()
 
 class Thermal(ThermalBase):
     """Platform-specific Thermal class"""
-    NUMBER_OF_THERMALS = 14
-    ASIC_TEMP_SENSORS_OFFSET = 9
-    ASIC_CALCULATED_TEMP_OFFSET = 12
-    ASIC_TEMP_HIGH_THRESHOLD = 115
-    XCVR_TEMP_SENSORS_OFFSET = NUMBER_OF_THERMALS
-    THERMAL_NAME_LIST = []
-    TRANSCEIVER_LIST = []
-    TRANSCEIVER_TEMP_LIST = []
+    NUMBER_OF_THERMALS = 12
+    CPU_TEMP_SENSORS_OFFSET = 11
+    ASIC_TEMP_SENSORS_OFFSET = 8
     SYSFS_PATH = "/sys/bus/i2c/devices"
-    try:
-        Thermals_db = SonicV2Connector()
-        Thermals_db.connect(Thermals_db.STATE_DB)
-    except:
-        Thermals_db = None
-
-    # Find all transceivers in DB
-    for i in range(0, PORT_END):
-        db_field_temp = None
-        db_field_warn = None
-        db_field_alarm = None
-        try:
-            if Thermals_db is not None:
-                db_key = Thermals_db.get_all(Thermals_db.STATE_DB, 'TRANSCEIVER_DOM_SENSOR|Ethernet{}'.format(i * 8))
-            else:
-                db_key = {}
-            db_field = db_key.get("temperature", None)
-            db_field_temp = float(db_field)
-            db_field = db_key.get("temphighwarning", None)
-            db_field_warn = float(db_field)
-            db_field = db_key.get("temphighalarm", None)
-            db_field_alarm = float(db_field)
-        except Exception as e:
-            pass
-        TRANSCEIVER_LIST.append([db_field_temp, db_field_warn, db_field_alarm, i])
-
-    for i in range(0, len(TRANSCEIVER_LIST)):
-        if isinstance(TRANSCEIVER_LIST[i][1], float):
-            TRANSCEIVER_TEMP_LIST.append(TRANSCEIVER_LIST[i])
-
-    NUMBER_OF_THERMALS += len(TRANSCEIVER_TEMP_LIST)
+    _db_thermals = None
+    _db_lock = threading.Lock()
 
     def __init__(self, thermal_index=0):
         self._api_helper = APIHelper()
+
         self.index = thermal_index
         # Add thermal name
-        self.THERMAL_NAME_LIST.append("Temp sensor 1")
-        self.THERMAL_NAME_LIST.append("Temp sensor 2")
-        self.THERMAL_NAME_LIST.append("Temp sensor 3")
-        self.THERMAL_NAME_LIST.append("Temp sensor 4")
-        self.THERMAL_NAME_LIST.append("Temp sensor 5")
-        self.THERMAL_NAME_LIST.append("Temp sensor 6")
-        self.THERMAL_NAME_LIST.append("Temp sensor 7")
-        self.THERMAL_NAME_LIST.append("Temp sensor 8")
-        self.THERMAL_NAME_LIST.append("ASIC  Core X2")
-        self.THERMAL_NAME_LIST.append("ASIC sensor 1")
-        self.THERMAL_NAME_LIST.append("ASIC sensor 2")
-        self.THERMAL_NAME_LIST.append("ASIC sensor 3")
-        self.THERMAL_NAME_LIST.append("ASIC  average")
-        self.THERMAL_NAME_LIST.append("ASIC  maximum")
-        # append transceiver names
-        for i in range(0, len(Thermal.TRANSCEIVER_TEMP_LIST)):
-            self.THERMAL_NAME_LIST.append("Temp xcvr  {:02d}".format(Thermal.TRANSCEIVER_TEMP_LIST[i][3]))
+        self.THERMAL_NAME_LIST = []
+        self.THERMAL_NAME_LIST.append("PCB VDD_Core")
+        self.THERMAL_NAME_LIST.append("PCB FP Hotspot")
+        self.THERMAL_NAME_LIST.append("PCB Top Front")
+        self.THERMAL_NAME_LIST.append("PCB Bottom Front")
+        self.THERMAL_NAME_LIST.append("PCB Bottom Rear")
+        self.THERMAL_NAME_LIST.append("PCB OCXO")
+        self.THERMAL_NAME_LIST.append("PCB ASIC")
+        self.THERMAL_NAME_LIST.append("PCB Top Rear")
+        self.THERMAL_NAME_LIST.append("ASIC Temp 1")
+        self.THERMAL_NAME_LIST.append("ASIC Temp 2")
+        self.THERMAL_NAME_LIST.append("ASIC Temp 3")
+        self.THERMAL_NAME_LIST.append("CPU Temp")
 
         if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            # Set hwmon path
             i2c_path = {
                 0: "11-0048/hwmon/hwmon*/",
                 1: "11-0049/hwmon/hwmon*/",
@@ -118,57 +61,68 @@ class Thermal(ThermalBase):
                 5: "11-004d/hwmon/hwmon*/",
                 6: "11-004e/hwmon/hwmon*/",
                 7: "11-004f/hwmon/hwmon*/",
-                8: "8-004c/hwmon/hwmon*/",
             }.get(self.index, None)
 
             self.hwmon_path = "{}/{}".format(self.SYSFS_PATH, i2c_path)
 
-        self.ss_key = self.THERMAL_NAME_LIST[self.index]
         self.ss_index = 1
 
-        if Thermal.Thermals_db is not None:
-            self.tbl = Thermal.Thermals_db.get_all(Thermal.Thermals_db.STATE_DB, 'ASIC_TEMPERATURE_INFO')
-        else:
-            self.tbl = {}
+        self.minimum_thermal = None
+        self.maximum_thermal = None
 
-        self.minimum_thermal = self.get_temperature()
-        self.maximum_thermal = self.get_temperature()
-
-    def __read_txt_file(self, file_path):
+    def __read_txt_file_with_glob(self, file_path):
+        data = None
         for filename in glob.glob(file_path):
             try:
                 with open(filename, 'r') as fd:
-                    data =fd.readline().rstrip()
-                    return data
+                    data = fd.readline().rstrip()
+                    break
             except IOError as e:
                 pass
 
-        return None
+        return data
 
-    def __get_temp(self, temp_file):
-        if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            temp_file_path = os.path.join(self.hwmon_path, temp_file)
-            raw_temp = self.__read_txt_file(temp_file_path)
-            if raw_temp is not None:
-                return float(raw_temp) / 1000
-            else:
-                return 0
-        else:
-            return 0
+    def __get_round_temp(self, temp, divisor):
+        round_temp = None
+        try:
+            round_temp = round(float(temp) / divisor, 1)
+        except (ValueError, TypeError) as e:
+            logger.log_error("Failed to read temperature sensor {}: {}".format(self.get_name(), e))
+        return round_temp
 
-    def __set_threshold(self, file_name, temperature):
-        if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            temp_file_path = os.path.join(self.hwmon_path, file_name)
-            for filename in glob.glob(temp_file_path):
-                try:
-                    with open(filename, 'w') as fd:
-                        fd.write(str(temperature))
-                    return True
-                except IOError as e:
-                    print("IOError: {} in file: {}".format(e, self.hwmon_path))
-        else:
-            return False
+    def __get_pcb_temp(self):
+        temp_file = "temp{}_input".format(self.ss_index)
+        temp_file_path = os.path.join(self.hwmon_path, temp_file)
+        temp = self.__read_txt_file_with_glob(temp_file_path)
+        return self.__get_round_temp(temp, 1000)
 
+    def __get_asic_temp(self):
+        temp = None
+
+        if Thermal._db_thermals is None:
+            with Thermal._db_lock:
+               if Thermal._db_thermals is None:
+                    try:
+                        from swsscommon.swsscommon import SonicV2Connector
+                        db = SonicV2Connector()
+                        db.connect(db.STATE_DB)
+                        Thermal._db_thermals = db
+                    except Exception as e:
+                        logger.log_error("Failed to connect to STATE_DB: {}".format(e))
+
+        if Thermal._db_thermals is not None:
+            try:
+                tbl = Thermal._db_thermals.get_all(Thermal._db_thermals.STATE_DB, 'ASIC_TEMPERATURE_INFO')
+                temp = tbl.get("temperature_{}".format(self.index - Thermal.ASIC_TEMP_SENSORS_OFFSET), None)
+            except Exception as e:
+                logger.log_error("Failed to get ASIC temperature from DB: {}".format(e))
+
+        return self.__get_round_temp(temp, 1)
+
+    def __get_cpu_temp(self):
+        temp_file_path = "/sys/class/hwmon/hwmon2/temp1_input"
+        temp = self._api_helper.read_txt_file(temp_file_path)
+        return self.__get_round_temp(temp, 1000)
 
     def get_temperature(self):
         """
@@ -177,36 +131,18 @@ class Thermal(ThermalBase):
             A float number of current temperature in Celsius up to nearest thousandth
             of one degree Celsius, e.g. 30.125
         """
+        temp = None
         try:
-            if Thermal.Thermals_db is None:
-                try:
-                    Thermal.Thermals_db = SonicV2Connector()
-                    Thermal.Thermals_db.connect(Thermal.Thermals_db.STATE_DB)
-                except:
-                    Thermal.Thermals_db = None
-
-            if Thermal.Thermals_db is not None:
-                self.tbl = Thermal.Thermals_db.get_all(Thermal.Thermals_db.STATE_DB, 'ASIC_TEMPERATURE_INFO')
-            else:
-                self.tbl = {}
-
             if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-                temp_file = "temp{}_input".format(self.ss_index)
-                return round(float(self.__get_temp(temp_file)), 1)
-            elif self.index >= Thermal.ASIC_TEMP_SENSORS_OFFSET and self.index < Thermal.ASIC_CALCULATED_TEMP_OFFSET:
-                return round(float(self.tbl.get("temperature_{}".format(self.index - Thermal.ASIC_TEMP_SENSORS_OFFSET), None)), 1)
-            elif self.index == Thermal.ASIC_CALCULATED_TEMP_OFFSET:
-                return round(float(self.tbl.get("average_temperature", None)), 1)
-            elif self.index == Thermal.ASIC_CALCULATED_TEMP_OFFSET + 1:
-                return round(float(self.tbl.get("maximum_temperature", None)), 1)
-            elif self.index >= Thermal.XCVR_TEMP_SENSORS_OFFSET:
-                return round(float(Thermal.TRANSCEIVER_TEMP_LIST[self.index - Thermal.XCVR_TEMP_SENSORS_OFFSET][0]), 1)
-            else:
-                return None
-        except (TypeError, ValueError):
-            pass
+                temp = self.__get_pcb_temp()
+            elif self.index < Thermal.CPU_TEMP_SENSORS_OFFSET:
+                temp = self.__get_asic_temp()
+            elif self.index < Thermal.NUMBER_OF_THERMALS:
+                temp = self.__get_cpu_temp()
+        except Exception as e:
+            logger.log_error("Failed to get temperature for thermal index {}: {}".format(self.index, e))
 
-        return None
+        return temp
 
     def get_high_threshold(self):
         """
@@ -215,27 +151,12 @@ class Thermal(ThermalBase):
             A float number, the high threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
+        threshold = None
         if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
-            temp_idx = 1
-            thresh_idx = 1
-            temp_list = DEVICE_DATA['thermal']['thresholds'][DEVICE_DATA_LIST[self.index]]
-            thresh_list = temp_list[temp_idx].split(':')
-            return float(thresh_list[thresh_idx])
-        elif self.index >= Thermal.XCVR_TEMP_SENSORS_OFFSET:
-            return Thermal.TRANSCEIVER_TEMP_LIST[self.index - Thermal.XCVR_TEMP_SENSORS_OFFSET][2]
-        else:
-            return None
-
-    def set_low_threshold(self, temperature):
-        """
-        Sets the low threshold temperature of thermal
-        Args :
-            temperature: A float number up to nearest thousandth of one degree Celsius,
-            e.g. 30.125
-        Returns:
-            A boolean, True if threshold is set successfully, False if not
-        """
-        return False
+            temp_list = DEVICE_DATA['thresholds'][self.index]
+            thresh_list = temp_list[len(temp_list) - 2].split(':')
+            threshold = float(thresh_list[1])
+        return threshold
 
     def get_low_threshold(self):
         """
@@ -255,24 +176,6 @@ class Thermal(ThermalBase):
         """
         return 0.1
 
-    def set_high_threshold(self, temperature):
-        """
-        Sets the high threshold temperature of thermal
-        Args :
-            temperature: A float number up to nearest thousandth of one degree Celsius,
-            e.g. 30.125
-        Returns:
-            A boolean, True if threshold is set successfully, False if not
-        """
-        if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
-            temp_idx = 1
-            thresh_idx = 1
-            temp_list = DEVICE_DATA['thermal']['thresholds'][DEVICE_DATA_LIST[self.index]]
-            thresh_list = temp_list[temp_idx].split(':')
-            thresh_list[thresh_idx] = str(temperature)
-            return True
-        return False
-
     def get_high_critical_threshold(self):
         """
         Retrieves the high critical threshold temperature of thermal
@@ -281,36 +184,12 @@ class Thermal(ThermalBase):
             A float number, the high critical threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
+        threshold = None
         if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
-            temp_idx = 2
-            thresh_idx = 1
-            temp_list = DEVICE_DATA['thermal']['thresholds'][DEVICE_DATA_LIST[self.index]]
-            thresh_list = temp_list[temp_idx].split(':')
-            return float(thresh_list[thresh_idx])
-        elif self.index >= Thermal.XCVR_TEMP_SENSORS_OFFSET:
-            return None
-        else:
-            return None
-
-    def set_high_critical_threshold(self, temperature):
-        """
-        Sets the critical high threshold temperature of thermal
-
-        Args :
-            temperature: A float number up to nearest thousandth of one degree Celsius,
-            e.g. 30.125
-
-        Returns:
-            A boolean, True if threshold is set successfully, False if not
-        """
-        if self.index >= 0 and self.index < Thermal.NUMBER_OF_THERMALS:
-            temp_idx = 2
-            thresh_idx = 1
-            temp_list = DEVICE_DATA['thermal']['thresholds'][DEVICE_DATA_LIST[self.index]]
-            thresh_list = temp_list[temp_idx].split(':')
-            thresh_list[thresh_idx] = str(temperature)
-            return True
-        return False
+            temp_list = DEVICE_DATA['thresholds'][self.index]
+            thresh_list = temp_list[len(temp_list) - 1].split(':')
+            threshold = float(thresh_list[1])
+        return threshold
 
     def get_name(self):
         """
@@ -326,10 +205,14 @@ class Thermal(ThermalBase):
             Returns:
             string: The model of the thermal device
         """
+        model = None
         if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            return "lm75"
-        else:
-            return "XSight ASIC"
+            model = "LM75BD"
+        elif self.index < Thermal.CPU_TEMP_SENSORS_OFFSET:
+            model = "Xsight ASIC"
+        elif self.index < Thermal.NUMBER_OF_THERMALS:
+            model = "Host CPU"
+        return model
 
     def get_serial(self):
         """
@@ -353,16 +236,14 @@ class Thermal(ThermalBase):
         Returns:
             bool: True if Thermal is present, False if not
         """
+        presence = False
         if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            temp_file = "temp{}_input".format(self.ss_index)
-            temp_file_path = os.path.join(self.hwmon_path, temp_file)
-            raw_txt = self.__read_txt_file(temp_file_path)
-            if raw_txt is not None:
-                return True
-            else:
-                return False
+            temp = self.__get_pcb_temp()
+            if temp is not None:
+                presence = True
         else:
-            return True
+            presence = True
+        return presence
 
     def get_status(self):
         """
@@ -370,15 +251,7 @@ class Thermal(ThermalBase):
         Returns:
             A boolean value, True if device is operating properly, False if not
         """
-        if self.index < Thermal.ASIC_TEMP_SENSORS_OFFSET:
-            file_str = "temp{}_input".format(self.ss_index)
-            file_path = os.path.join(self.hwmon_path, file_str)
-            raw_txt = self.__read_txt_file(file_path)
-            if raw_txt is None:
-                return False
-            else:
-                return int(raw_txt) != 0
-        return True
+        return self.get_presence()
 
     def get_minimum_recorded(self):
         """
@@ -388,8 +261,9 @@ class Thermal(ThermalBase):
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
         tmp = self.get_temperature()
-        if tmp < self.minimum_thermal:
-            self.minimum_thermal = tmp
+        if isinstance(tmp, float):
+            if self.minimum_thermal is None or tmp < self.minimum_thermal:
+                self.minimum_thermal = tmp
         return self.minimum_thermal
 
     def get_maximum_recorded(self):
@@ -400,130 +274,10 @@ class Thermal(ThermalBase):
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
         tmp = self.get_temperature()
-        if tmp > self.maximum_thermal:
-            self.maximum_thermal = tmp
+        if isinstance(tmp, float):
+            if self.maximum_thermal is None or tmp > self.maximum_thermal:
+                self.maximum_thermal = tmp
         return self.maximum_thermal
-
-    @classmethod
-    def set_thermal_algorithm_status(cls, status, force=True):
-        """
-        Thermal policy activation/deactivation
-        Returns:
-            True if thermal algorithm status changed.
-        """
-        if not force and cls.thermal_algorithm_status == status:
-            return False
-
-        cls.thermal_algorithm_status = status
-        logger.log_debug("Thermal:set_thermal_algorithm_status - {}".format(str(cls.thermal_algorithm_status)))
-        return True
-
-    @classmethod
-    def check_module_temperature_trustable(cls):
-        return 'untrust'
-
-    @classmethod
-    def get_temperatures(cls):
-        """
-        Representing important temperatures in device
-        Returns:
-            array of temperatures
-        """
-        from sonic_platform import platform
-        if True == Thermal.get_transceiver_temperatures(True):
-            logger.log_info("Detected changes in transceivers. Required reload of thermalctld")
-            os.system("supervisorctl restart thermalctld")
-        temperatures = []
-        platform_chassis = platform.Platform().get_chassis()
-        if platform_chassis is not None:
-            indX = 0
-            for thermal_ins in platform_chassis.get_all_thermals():
-                temperatures.append(thermal_ins.get_temperature())
-                indX += 1
-        else:
-            logger.log_error("Thermal: Chassis is not available !")
-        logger.log_debug("Thermal:get_temperatures {}".format(temperatures))
-        return temperatures
-
-    @classmethod
-    def check_thermal_zone_temperature(cls):
-        """
-        Compare thermal zone temperature to the threshold
-
-        Returns:
-            True if all thermal zones temperatures are below the high threshold.
-        TODO: Check temperature of modules
-        """
-        # Check Inbox thermperatures
-        from sonic_platform import platform
-        platform_chassis = platform.Platform().get_chassis()
-        if platform_chassis is not None:
-            thermals_num = platform_chassis.get_num_thermals()
-            logger.log_debug("Thermal:check_thermal_zone_temperature: Got {} Thermal Objects".format(thermals_num))
-            for thermal_ins in platform_chassis.get_all_thermals():
-                if (thermal_ins.get_high_threshold() <= thermal_ins.get_temperature()):
-                    logger.log_warning("Thermal: Critical temperature on {}".format(thermal_ins.get_name()))
-                    return False
-        else:
-            logger.log_error("Thermal: Chassis is not available !")
-        logger.log_debug("Thermal:check_thermal_zone_temperature: All temperatures looks OK")
-        return True
-
-    @staticmethod
-    def get_transceiver_temperatures(update_class_list = False):
-        """
-        The function getting transceiver parameters from DB
-        Args :
-            update_class_list: A Boolean indicates if TRANSCEIVER_LIST should be updated.
-        Returns:
-            True if there was a change in plugged transceivers.
-            (changed | removed | added transceiver)
-            False if there is no change.
-        """
-        is_settings_changed = False
-        xcvr_list = []
-        # Find all transceivers in DB
-        for i in range(0, PORT_END):
-            db_field_temp = None
-            db_field_warn = None
-            db_field_alarm = None
-            try:
-                if Thermal.Thermals_db is None:
-                    try:
-                        Thermal.Thermals_db = SonicV2Connector()
-                        Thermal.Thermals_db.connect(Thermal.Thermals_db.STATE_DB)
-                    except:
-                        Thermal.Thermals_db = None
-
-                if Thermal.Thermals_db is not None:
-                    db_key = Thermal.Thermals_db.get_all(Thermal.Thermals_db.STATE_DB, 'TRANSCEIVER_DOM_SENSOR|Ethernet{}'.format(i * 8))
-                else:
-                    db_key = {}
-
-                db_field = db_key.get("temperature", None)
-                db_field_temp = float(db_field)
-                db_field = db_key.get("temphighwarning", None)
-                db_field_warn = float(db_field)
-                db_field = db_key.get("temphighalarm", None)
-                db_field_alarm = float(db_field)
-            except (TypeError, ValueError):
-                pass
-
-            if Thermal.TRANSCEIVER_LIST[i][1] != db_field_warn or Thermal.TRANSCEIVER_LIST[i][2] != db_field_alarm:
-                is_settings_changed = True
-
-            xcvr_list.append([db_field_temp, db_field_warn, db_field_alarm])
-
-        # Update temperatures
-        if True == update_class_list:
-            Thermal.TRANSCEIVER_LIST = xcvr_list
-        indx = 0
-        for i in range(0, len(Thermal.TRANSCEIVER_LIST)):
-            if isinstance(Thermal.TRANSCEIVER_LIST[i][1], float):
-                Thermal.TRANSCEIVER_TEMP_LIST[indx][0] = xcvr_list[i][0]
-                indx += 1
-
-        return is_settings_changed
 
     def get_position_in_parent(self):
         """

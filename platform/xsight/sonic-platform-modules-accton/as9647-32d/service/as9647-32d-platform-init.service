@@ -1,0 +1,13 @@
+[Unit]
+Description=Accton AS9647-32D Platform initialization service
+Before=pmon.service
+After=sysinit.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/as9647_32d_util.py install
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

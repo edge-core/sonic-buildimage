@@ -211,7 +211,6 @@ class Chassis(ChassisBase):
             self.__initialize_sfp()
 
         try:
-            # The index will start from 1
             sfp = self._sfp_list[index-1]
         except IndexError:
             sys.stderr.write("SFP index {} out of range (1-{})\n".format(
@@ -225,14 +224,6 @@ class Chassis(ChassisBase):
         """
         from .thermal_manager import ThermalManager
         return ThermalManager
-
-    def set_thermal_policy_pause(self, timeout_minutes):
-        """
-        Returns:
-            True|False
-        """
-        from .thermal_manager import ThermalManager
-        return ThermalManager.pause_thermal_algorithm(timeout_minutes)
 
     def get_change_event(self, timeout=0):
         """
