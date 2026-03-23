@@ -79,7 +79,7 @@ class Sfp(SfpOptoeBase):
         self.present_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_present_{self._port_num}"
         self.lpmode_path = f"{Sfp.CPLD_I2C_PATH}{Sfp._cpld_mapping[cpld_index]}/module_lpmode_{self._port_num}"
 
-    def __is_host():
+    def __is_host(self):
         try:
             result = subprocess.run(
                 ["docker", "info"],
