@@ -363,20 +363,9 @@ static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
 
     mutex_lock(&data->update_lock);
 
-	/* Disable the watchdog timer
-	 */
-	error = as9647_32d_fan_write_value(client, 0x33, 0);
-
-	if (error != 0) {
-		dev_dbg(&client->dev, "Unable to disable the watchdog timer\n");
-		count = error;
-        goto exit;
-	}
-
     as9647_32d_fan_write_value(client, fan_reg[FAN_DUTY_CYCLE_PERCENTAGE], duty_cycle_to_reg_val(value));
 	data->valid = 0;
 
-exit:
     mutex_unlock(&data->update_lock);
 	return count;
 }

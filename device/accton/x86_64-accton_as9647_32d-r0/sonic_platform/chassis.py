@@ -13,6 +13,7 @@ import sys
 try:
     from sonic_platform_base.chassis_base import ChassisBase
     from .helper import APIHelper
+    from .thermal import logger
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -43,6 +44,7 @@ class Chassis(ChassisBase):
         self._api_helper = APIHelper()
         self.is_host = self._api_helper.is_host()
         self._watchdog = None
+        self._fan_watchdog = None
 
         self.config_data = {}
 
@@ -340,7 +342,23 @@ class Chassis(ChassisBase):
                 watchdog_device_path = "/dev/watchdog0"
                 self._watchdog = WatchdogImplBase(watchdog_device_path)
         except Exception as e:
-            sonic_logger.log_warning(" Fail to load watchdog {}".format(repr(e)))
+            logger.log_error("Failed to load watchdog: {}".format(e))
 
         return self._watchdog
+
+    def get_fan_watchdog(self):
+        """
+        Retrieves fan watchdog class
+        Returns:
+            An object derived from WatchdogBase representing the fan watchdog device
+        """
+        try:
+            if self._fan_watchdog is None:
+                from .fan_watchdog import Watchdog
+                self._fan_watchdog = Watchdog()
+        except Exception as e:
+            logger.log_error("Failed to load fan watchdog: {}".format(e))
+            return None
+
+        return self._fan_watchdog
 
