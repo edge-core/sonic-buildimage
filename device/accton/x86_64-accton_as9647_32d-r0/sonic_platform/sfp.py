@@ -46,7 +46,7 @@ QSFP_TYPE = 'QSFP'
 QSFP_TYPE_CODE_LIST = [
     '0d', # QSFP+ or later with SFF-8636
     '11', # QSFP28 or later with SFF-8636
-    '1E', # QSFP+ or later with CMIS
+    '1e', # QSFP+ or later with CMIS
 ]
 OSFP_TYPE_CODE_LIST = [
     '19' # OSFP 8X Pluggable Transceiver
