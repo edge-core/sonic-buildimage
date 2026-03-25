@@ -1624,33 +1624,7 @@ class DeviceMonitor(object):
 
         return True
 
-    def manage_fans(self):
-        """
-        Main entry point called by the scheduler every MONITOR_INTERVAL
-        seconds.
-
-        This method collects temperatures, attempts to use BMC-based
-        thermal control, and if that fails, falls back to CPU-based
-        control.
-        """
-        snapshot = self.collect_temperature()
-
-        try:
-            if self._control_thermal_policy_via_bmc(snapshot):
-                self.logger.debug(
-                    "Thermal control handled by BMC this iteration."
-                )
-                return
-        except Exception as e:
-            self.logger.error(
-                "BMC thermal control failed with exception: %s, "
-                "falling back to CPU-based control.",
-                e
-            )
-
-        self.logger.debug("Fallback to CPU-based thermal control.")
-        self._control_thermal_policy_via_cpu(snapshot)
-
+    def adjust_tolerance(self):
         speed_normal = True
         for i, fan in enumerate(self.fans):
             curr_target_speed = fan.get_target_speed()
@@ -1669,6 +1643,35 @@ class DeviceMonitor(object):
 
         if self.is_timer_expired():
             self.set_fans_tolerance_mode("on")
+
+    def manage_fans(self):
+        """
+        Main entry point called by the scheduler every MONITOR_INTERVAL
+        seconds.
+
+        This method collects temperatures, attempts to use BMC-based
+        thermal control, and if that fails, falls back to CPU-based
+        control.
+        """
+        snapshot = self.collect_temperature()
+
+        try:
+            if self._control_thermal_policy_via_bmc(snapshot):
+                self.logger.debug(
+                    "Thermal control handled by BMC this iteration."
+                )
+                self.adjust_tolerance()
+                return
+        except Exception as e:
+            self.logger.error(
+                "BMC thermal control failed with exception: %s, "
+                "falling back to CPU-based control.",
+                e
+            )
+
+        self.logger.debug("Fallback to CPU-based thermal control.")
+        self._control_thermal_policy_via_cpu(snapshot)
+        self.adjust_tolerance()
 
 def is_database_ready():
     """
