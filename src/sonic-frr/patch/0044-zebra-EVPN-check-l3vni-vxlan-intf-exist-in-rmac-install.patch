@@ -1,0 +1,40 @@
+From 2db879a05cdef85ba4230a9d0793539d3e62f541 Mon Sep 17 00:00:00 2001
+From: Chirag Shah <chiragshah6@gmail.com>
+Date: Wed, 16 Jan 2026 10:00:00 +0000
+Subject: [PATCH 1/2] zebra: EVPN check l3vni vxlan intf exist in rmac install
+
+When a VXLAN interface goes down, the L3VNI may be cleaned up while
+associated routes are still being processed. During RMAC uninstallation,
+the code attempts to access the VXLAN interface pointer without verifying
+it still exists, causing a null pointer dereference.
+
+Add a check to verify the VXLAN interface exists before proceeding with
+RMAC operations.
+
+(cherry picked from FRR PR #20494, backported for sonic-buildimage 8.5.1-sonic)
+
+---
+ zebra/zebra_vxlan.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/zebra/zebra_vxlan.c b/zebra/zebra_vxlan.c
+index c6ff5089ca..a1aaa2b0e8 100644
+--- a/zebra/zebra_vxlan.c
++++ b/zebra/zebra_vxlan.c
+@@ -1229,6 +1229,14 @@ static int zl3vni_rmac_install(struct zebra_l3vni *zl3vni,
+ 	    || !(CHECK_FLAG(zrmac->flags, ZEBRA_MAC_REMOTE_RMAC)))
+ 		return 0;
+ 
++	if (!zl3vni->vxlan_if) {
++		if (IS_ZEBRA_DEBUG_VXLAN)
++			zlog_debug(
++				"RMAC %pEA on L3-VNI %u hash %p couldn't be installed - no vxlan_if",
++				&zrmac->macaddr, zl3vni->vni, zl3vni);
++		return -1;
++	}
++
+ 	zif = zl3vni->vxlan_if->info;
+ 	if (!zif)
+ 		return -1;
+-- 
+2.17.1
