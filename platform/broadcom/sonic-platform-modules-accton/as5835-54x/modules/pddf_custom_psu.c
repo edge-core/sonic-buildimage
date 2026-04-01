@@ -155,12 +155,14 @@ static struct i2c_client *find_psu_eeprom_client(struct i2c_client *pmbus_client
 const char *fan_b2f_models[] = {
     "YM-2401H-DR",
     "YM-1401A-CR",
+    "DPS400AB-34A",
     NULL
 };
 
 const char *fan_f2b_models[] = {
     "YM-2401H-CR",
     "YM-1401A-BR",
+    "DPS400AB-33A",
     NULL
 };
 
