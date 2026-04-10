@@ -483,7 +483,7 @@ RUN export VERSION=1.15.15 \
  && wget https://storage.googleapis.com/golang/go$VERSION.linux-arm64.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-arm64.tar.gz \
 {%- else %}
- && wget https://storage.googleapis.com/golang/go$VERSION.linux-amd64.tar.gz \
+ && wget https://dl.google.com/go/go$VERSION.linux-amd64.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz \
 {%- endif %}
  && echo 'export GOROOT=/usr/local/go' >> /etc/bash.bashrc \
@@ -637,7 +637,7 @@ RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs {{ DOCKER_EXTRA_OPTS
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 # Install m2crypto package, needed by SWI tools
-RUN pip2 install m2crypto==0.36.0
+RUN pip3 install m2crypto==0.36.0
 
 # Install swi tools
 RUN pip3 install git+https://github.com/aristanetworks/swi-tools.git@bead66bf261770237f7dd21ace3774ba04a017e9
