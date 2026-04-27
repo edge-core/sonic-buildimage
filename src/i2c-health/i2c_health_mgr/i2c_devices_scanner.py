@@ -150,6 +150,21 @@ class I2CDevicesScanner:
                 self.sel.addSelectable(device_tbl)
         return
 
+    def _drain_stale_events(self):
+        """
+        Drain any leftover subscription events from a prior restore_state_db_records() call
+        that did not fully flush, so they are not misinterpreted as real device events.
+        """
+        while True:
+            (state, _) = self.sel.select(SELECT_TIMEOUT_MSECS)
+            if state != swsscommon.Select.OBJECT:
+                break
+            for device_tbl in self.asic_context.keys():
+                while True:
+                    (key, op, fvp) = device_tbl.pop()
+                    if not key:
+                        break
+
     def handle_device_removal_event(self, stop_event, interval):
         """
         Select device removal events, notify the observers upon a device removed in STATE_DB
@@ -215,6 +230,7 @@ class I2CDevicesScanner:
         """
         Restoring the STATE_DB tables in the list SUBSCRIBE_DEVICE_TABLES
         """
+
         for table_name, per_asic_id_data in self.cached_data.items():
             for asic_id, data in per_asic_id_data.items():
                 table = swsscommon.Table(self.state_db_connector[asic_id], table_name)
@@ -258,6 +274,8 @@ class I2CDevicesScanner:
                         unfinish_restore_devices.append(device)
             self.logger.log_notice(msg.format(str(unfinish_restore_devices)))
             self.cached_data = {}
+
+        self._drain_stale_events()
 
         return
 
