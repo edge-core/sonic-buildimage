@@ -1,22 +1,42 @@
 #!/usr/bin/env python3
 
-
 import sys
 import subprocess
 import syslog
+import time
 from sonic_py_common import device_info
-
 
 SUPPORT_PLATFORM = [
     'x86_64-accton_as9716_32d-r0'
 ]
 
-
 def is_platform_support():
     platform = device_info.get_platform()
-
     return True if platform in SUPPORT_PLATFORM else False, platform
 
+def wait_for_pmon_ready(timeout=120, interval=5):
+    """Wait for pmon container's dependent-startup to complete"""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            result = subprocess.run(
+                ['docker', 'exec', 'pmon', 'supervisorctl', 'status', 'dependent-startup'],
+                capture_output=True, text=True, timeout=10
+            )
+            if 'EXITED' in result.stdout:
+                syslog.syslog(syslog.LOG_NOTICE,
+                    "pmon dependent-startup completed, proceeding to start i2c-health service")
+                return True
+        except Exception:
+            pass
+
+        syslog.syslog(syslog.LOG_NOTICE,
+            f"Waiting for pmon dependent-startup to complete, retrying in {interval}s...")
+        time.sleep(interval)
+
+    syslog.syslog(syslog.LOG_ERR,
+        f"pmon dependent-startup not completed after {timeout}s timeout")
+    return False
 
 def start_i2c_health_service():
     service = 'i2c-health'
@@ -32,7 +52,6 @@ def start_i2c_health_service():
         syslog.syslog(syslog.LOG_ERR, f"Error: {e.stderr}")
         return 1
 
-
 if __name__ == '__main__':
 
     syslog.syslog(syslog.LOG_NOTICE, f"Starting i2c-health-launcher service")
@@ -41,7 +60,12 @@ if __name__ == '__main__':
 
     if is_supported:
         syslog.syslog(syslog.LOG_NOTICE, f"The i2c-health service is supported on Platform {platform}")
-        sys.exit(start_i2c_health_service())
+        if wait_for_pmon_ready():
+            sys.exit(start_i2c_health_service())
+        else:
+            syslog.syslog(syslog.LOG_ERR,
+                "Skipping i2c-health service start due to pmon not ready")
+            sys.exit(1)
     else:
         syslog.syslog(syslog.LOG_NOTICE, f"The i2c-health service is not supported on Platform {platform}")
 
