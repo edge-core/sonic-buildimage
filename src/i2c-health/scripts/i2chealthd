@@ -84,7 +84,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                     # After resetting the mux, the I2C bus remains locked.
                     # This indicates the lock is on the master side.
                     # Proceed to reset the I2C master.
-                    msg = get_i2c_health_msg(26)
+                    msg = get_i2c_health_msg(27)
                     self.log_error(msg)
                     try:
                         i2c_mgr.reset_i2c_master()
@@ -98,7 +98,7 @@ class I2CHealthDaemon(daemon_base.DaemonBase):
                     # repeating it after reset_i2c_master() is unnecessary and unintended.
                     # Therefore, just check the I2C bus status here.
                     if i2c_mgr.is_bus_lock():
-                        msg = get_i2c_health_msg(27)
+                        msg = get_i2c_health_msg(28)
                         self.log_error(msg)
                         continue
 
