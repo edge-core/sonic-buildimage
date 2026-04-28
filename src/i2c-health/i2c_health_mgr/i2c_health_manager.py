@@ -5,8 +5,8 @@ from i2c_health_mgr.i2c_health_msgs import get_i2c_health_msg
 import i2c_health_mgr.i2c_platform_api as i2c_platform_api
 
 I2C_PMON_SERVICE_LIST = [
-            'pmon:psud',
-            'pmon:xcvrd',
+            'psud',
+            'xcvrd',
             'syseepromd',
             'thermalctld',
             'sensord'
