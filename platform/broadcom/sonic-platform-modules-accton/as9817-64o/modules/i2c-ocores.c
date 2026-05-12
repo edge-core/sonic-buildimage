@@ -27,6 +27,7 @@
 #include <linux/spinlock.h>
 #include <linux/jiffies.h>
 #include <linux/atomic.h>
+#include <linux/sysfs.h>
 
 /*
  * 'process_lock' exists because ocores_process() and ocores_process_timeout()
@@ -556,6 +557,210 @@ static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
     return 0;
 }
 
+/**
+ * ocores_bus_clock_to_prescale - Convert runtime bus clock to prescale bytes
+ * @bus_clock_khz: requested I2C bus clock in KHz
+ * @prelow: PRELOW register value
+ * @prehigh: PREHIGH register value
+ *
+ * Return: 0 on success, negative errno on failure.
+ */
+static int ocores_bus_clock_to_prescale(unsigned int bus_clock_khz,
+                                        u8 *prelow, u8 *prehigh)
+{
+    switch (bus_clock_khz) {
+    case 100:
+        *prelow = 0x2f;
+        *prehigh = 0x00;
+        break;
+    case 400:
+        *prelow = 0x0b;
+        *prehigh = 0x00;
+        break;
+    default:
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
+/**
+ * ocores_prescale_to_ip_clock - Reverse calculate OpenCores input clock
+ * @bus_clock_khz: requested I2C bus clock in KHz
+ * @prelow: PRELOW register value
+ * @prehigh: PREHIGH register value
+ *
+ * Return: OpenCores input clock in KHz.
+ */
+static unsigned int ocores_prescale_to_ip_clock(unsigned int bus_clock_khz,
+                                                u8 prelow, u8 prehigh)
+{
+    unsigned int prescale;
+
+    prescale = prelow | (((unsigned int)prehigh) << 8);
+
+    return bus_clock_khz * 5 * (prescale + 1);
+}
+
+static ssize_t bus_clock_khz_show(struct device *dev,
+                                  struct device_attribute *attr,
+                                  char *buf)
+{
+    struct ocores_i2c *i2c = dev_get_drvdata(dev);
+
+    if (!i2c) {
+        return -ENODEV;
+    }
+
+    return sprintf(buf, "%d\n", i2c->bus_clock_khz);
+}
+
+static int ocores_set_bus_clock_khz(struct device *dev,
+                                    struct ocores_i2c *i2c,
+                                    unsigned int bus_clock_khz)
+{
+    unsigned long flags;
+    unsigned int ip_clock_khz;
+    u8 prelow;
+    u8 prehigh;
+    u8 status;
+    u8 ctrl;
+    int ret;
+
+    ret = ocores_bus_clock_to_prescale(bus_clock_khz, &prelow, &prehigh);
+    if (ret) {
+        dev_err(dev, "Unsupported I2C bus clock: %u KHz\n",
+                bus_clock_khz);
+        return ret;
+    }
+
+    ip_clock_khz = ocores_prescale_to_ip_clock(bus_clock_khz,
+                                               prelow, prehigh);
+
+    /*
+     * Prevent new adapter-level transfers from entering this controller while
+     * the prescale registers are being changed.
+     *
+     * The I2C core serializes a complete i2c_transfer()/SMBus operation here,
+     * not each byte handled by ocores_process(). After this lock is held, no
+     * new complete transfer can start on this adapter.
+     */
+    i2c_lock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
+
+    /*
+     * Try to wait until the controller becomes idle before changing the
+     * prescale registers. If this times out, keep going because this sysfs
+     * operation is treated as a forced controller re-init:
+     *
+     *   disable controller -> update PRELOW/PREHIGH -> enable controller
+     *
+     * A timeout here usually means the previous adapter-level transfer has
+     * already left the I2C core path, but the controller, slave, or bus is
+     * still stuck in BUSY/TIP.
+     */
+    ret = ocores_wait(i2c, OCI2C_STATUS,
+                      OCI2C_STAT_BUSY | OCI2C_STAT_TIP, 0,
+                      msecs_to_jiffies(timeout));
+    if (ret) {
+        dev_warn(dev,
+                 "Controller is busy, force re-init while changing I2C bus clock\n");
+    }
+
+    /*
+     * Synchronize with the byte-level OpenCores state machine.
+     *
+     * ocores_process() advances one step of the current transfer from the IRQ
+     * or polling path. It may update i2c->state and touch OCI2C_DATA/CMD.
+     * Hold process_lock while forcing the controller re-init so that the
+     * prescale update does not race with an in-flight state-machine step.
+     */
+    spin_lock_irqsave(&i2c->process_lock, flags);
+
+    if (i2c->state != STATE_DONE && i2c->state != STATE_ERROR) {
+        dev_warn(dev,
+                 "Force I2C state from %d to error while changing bus clock\n",
+                 i2c->state);
+        i2c->state = STATE_ERROR;
+        wake_up(&i2c->wait);
+    }
+
+    /*
+     * Re-check the hardware status after process_lock is held. This is only a
+     * diagnostic check because the controller will be disabled below anyway.
+     */
+    status = oc_getreg(i2c, OCI2C_STATUS);
+    if (status & (OCI2C_STAT_BUSY | OCI2C_STAT_TIP)) {
+        dev_warn(dev,
+                 "Controller status is 0x%02x before forced bus clock update\n",
+                 status);
+    }
+
+    ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+
+    /*
+     * Update prescale while the I2C core is disabled. Restore the previous
+     * control value after PRELOW/PREHIGH are updated.
+     */
+    oc_setreg(i2c, OCI2C_CONTROL,
+              ctrl & ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN));
+
+    oc_setreg(i2c, OCI2C_PRELOW, prelow);
+    oc_setreg(i2c, OCI2C_PREHIGH, prehigh);
+
+    i2c->bus_clock_khz = bus_clock_khz;
+    i2c->ip_clock_khz = ip_clock_khz;
+
+    oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+
+    if (ctrl & OCI2C_CTRL_EN) {
+        oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+    }
+
+    spin_unlock_irqrestore(&i2c->process_lock, flags);
+    i2c_unlock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
+
+    dev_info(dev,
+             "Set I2C bus clock to %u KHz, ip clock to %u KHz, OCI2C_PRELOW=0x%02x OCI2C_PREHIGH=0x%02x\n",
+             bus_clock_khz, ip_clock_khz, prelow, prehigh);
+
+    return 0;
+}
+
+static ssize_t bus_clock_khz_store(struct device *dev,
+                                   struct device_attribute *attr,
+                                   const char *buf, size_t count)
+{
+    struct ocores_i2c *i2c = dev_get_drvdata(dev);
+    unsigned int bus_clock_khz;
+    int ret;
+
+    if (!i2c) {
+        return -ENODEV;
+    }
+
+    ret = kstrtouint(buf, 0, &bus_clock_khz);
+    if (ret) {
+        return ret;
+    }
+
+    ret = ocores_set_bus_clock_khz(dev, i2c, bus_clock_khz);
+    if (ret) {
+        return ret;
+    }
+
+    return count;
+}
+
+static DEVICE_ATTR_RW(bus_clock_khz);
+
+static struct attribute *ocores_i2c_attrs[] = {
+    &dev_attr_bus_clock_khz.attr,
+    NULL
+};
+
+static const struct attribute_group ocores_i2c_attr_group = {
+    .attrs = ocores_i2c_attrs,
+};
 
 static u32 ocores_func(struct i2c_adapter *adap)
 {
@@ -839,6 +1044,14 @@ static int ocores_i2c_probe(struct platform_device *pdev)
     if (ret) {
         goto err_clk;
     }
+
+    ret = sysfs_create_group(&i2c->adap.dev.kobj,
+                             &ocores_i2c_attr_group);
+    if (ret) {
+        dev_err(&pdev->dev, "Failed to create sysfs group: %d\n", ret);
+        goto err_del_adapter;
+    }
+
     /* add in known devices to the bus */
     if (pdata) {
         for (i = 0; i < pdata->num_devices; i++){
@@ -848,6 +1061,8 @@ static int ocores_i2c_probe(struct platform_device *pdev)
 
     return 0;
 
+err_del_adapter:
+    i2c_del_adapter(&i2c->adap);
 err_clk:
     clk_disable_unprepare(i2c->clk);
     return ret;
@@ -857,6 +1072,8 @@ static int ocores_i2c_remove(struct platform_device *pdev)
 {
     struct ocores_i2c *i2c = platform_get_drvdata(pdev);
     u8 ctrl;
+
+    sysfs_remove_group(&i2c->adap.dev.kobj, &ocores_i2c_attr_group);
 
     LOCK(&cpld_access_lock);
     ctrl = oc_getreg(i2c, OCI2C_CONTROL);
