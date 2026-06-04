@@ -59,6 +59,16 @@
 #define SPI_BUSY_MASK_CPLD1            0x01
 #define SPI_BUSY_MASK_CPLD2            0x02
 
+/*
+ * FPGA_SPI_WAIT_TIMEOUT_US:
+ * Timeout for waiting SPI busy bits to become stable idle.
+ *
+ * This timeout does not include the common wait_spi() guard delay or the
+ * post-write guard delay.  Those delays are applied only after the SPI busy
+ * status becomes idle.
+ */
+#define FPGA_SPI_WAIT_TIMEOUT_US       1000
+
 #define FPGA_PCIE_START_OFFSET         0x0000
 #define FPGA_BOARD_INFO_REG            (FPGA_PCIE_START_OFFSET + 0x00)
 
@@ -156,7 +166,8 @@ struct as9817_32_fpga_data {
 
 static struct platform_device *pdev = NULL;
 extern spinlock_t cpld_access_lock;
-extern int wait_spi(u32 mask, unsigned long timeout);
+extern int wait_spi(u32 mask, unsigned long timeout_us);
+extern unsigned int spi_post_write_guard_delay_us;
 extern void __iomem *spi_busy_reg;
 
 /***********************************************
@@ -363,16 +374,43 @@ static struct attribute_mapping attribute_mappings[] = {
     [MODULE_RX_LOS_33 ... MODULE_RX_LOS_34] = {MODULE_RX_LOS_33, SFP_RXLOSS_REG, 0},
 };
 
-static inline unsigned int fpga_read(const void __iomem *addr, u32 spi_mask)
+static inline unsigned int fpga_read(const void __iomem *addr, u32 spi_mask, u8 *val)
 {
-    wait_spi(spi_mask, usecs_to_jiffies(20));
-    return ioread8(addr);
+    int ret;
+
+    ret = wait_spi(spi_mask, FPGA_SPI_WAIT_TIMEOUT_US);
+    if (ret) {
+        return ret;
+    }
+
+    *val = ioread8(addr);
+
+    return 0;
 }
 
-static inline void fpga_write(void __iomem *addr, u8 val, u32 spi_mask)
+static inline int fpga_write(void __iomem *addr, u8 val, u32 spi_mask)
 {
-    wait_spi(spi_mask, usecs_to_jiffies(20));
+    unsigned int post_write_guard_delay_us;
+    int ret;
+
+    ret = wait_spi(spi_mask, FPGA_SPI_WAIT_TIMEOUT_US);
+    if (ret) {
+        return ret;
+    }
+
     iowrite8(val, addr);
+
+    /*
+     * Keep wait_spi() as the pre-access idle check.  Apply the shared
+     * post-write guard after the FPGA BAR write so sysfs register writes
+     * use the same settling delay as OpenCores register writes.
+     */
+    post_write_guard_delay_us = READ_ONCE(spi_post_write_guard_delay_us);
+    if (post_write_guard_delay_us) {
+        udelay(post_write_guard_delay_us);
+    }
+
+    return 0;
 }
 
 static ssize_t reg_read(struct device *dev, struct device_attribute *da, char *buf)
@@ -410,8 +448,11 @@ static ssize_t reg_read(struct device *dev, struct device_attribute *da, char *b
     }
 
     LOCK(&cpld_access_lock);
-    reg_val = fpga_read(addr, spi_mask);
+    ret = fpga_read(addr, spi_mask, &reg_val);
     UNLOCK(&cpld_access_lock);
+    if (ret) {
+        goto exit;
+    }
     ret = sprintf(buf, "0x%02x\n", reg_val);
 
 exit:
@@ -425,6 +466,7 @@ static ssize_t reg_write(struct device *dev, struct device_attribute *da,
     struct as9817_32_fpga_data *fpga_ctl = dev_get_drvdata(dev);
     void __iomem *base;
     int args;
+    int ret;
     char *opt, tmp[32] = {0};
     char *tmp_p;
     size_t copy_size;
@@ -473,8 +515,11 @@ static ssize_t reg_write(struct device *dev, struct device_attribute *da,
         case 2:
             /* Write value to register */
             LOCK(&cpld_access_lock);
-            fpga_write(base + input[0], input[1], spi_mask);
+            ret = fpga_write(base + input[0], input[1], spi_mask);
             UNLOCK(&cpld_access_lock);
+            if (ret) {
+                return ret;
+            }
             break;
         case 1:
             /* Read value from register */
@@ -501,33 +546,46 @@ static ssize_t status_read(struct device *dev, struct device_attribute *da, char
         case CPLD1_VERSION:
             LOCK(&cpld_access_lock);
             reg = CPLD1_MAJOR_VER_REG;
-            major = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg, 
-                              SPI_BUSY_MASK_CPLD1);
-            reg = CPLD1_MINOR_VER_REG;
-            minor = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg, 
-                              SPI_BUSY_MASK_CPLD1);
+            ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg,
+                            SPI_BUSY_MASK_CPLD1, &major);
+            if (!ret) {
+                reg = CPLD1_MINOR_VER_REG;
+                ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg,
+                                SPI_BUSY_MASK_CPLD1, &minor);
+            }
             UNLOCK(&cpld_access_lock);
+            if (ret) {
+                break;
+            }
 
             ret = sprintf(buf, "%d.%d\n", major, minor);
             break;
         case CPLD2_VERSION:
             LOCK(&cpld_access_lock);
             reg = CPLD2_MAJOR_VER_REG;
-            major = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg, 
-                              SPI_BUSY_MASK_CPLD2);
-            reg = CPLD2_MINOR_VER_REG;
-            minor = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg, 
-                              SPI_BUSY_MASK_CPLD2);
+            ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg,
+                            SPI_BUSY_MASK_CPLD2, &major);
+            if (!ret) {
+                reg = CPLD2_MINOR_VER_REG;
+                ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg,
+                                SPI_BUSY_MASK_CPLD2, &minor);
+            }
             UNLOCK(&cpld_access_lock);
+            if (ret) {
+                break;
+            }
 
             ret = sprintf(buf, "%d.%d\n", major, minor);
             break;
         case CPLD3_VERSION:
             LOCK(&cpld_access_lock);
             reg = CPLD3_VERSION_REG;
-            major = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg, 
-                              SPI_BUSY_MASK_CPLD2);
+            ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg,
+                            SPI_BUSY_MASK_CPLD2, &major);
             UNLOCK(&cpld_access_lock);
+            if (ret) {
+                break;
+            }
 
             ret = sprintf(buf, "%d\n", major);
             break;
@@ -535,13 +593,18 @@ static ssize_t status_read(struct device *dev, struct device_attribute *da, char
             reg = attribute_mappings[attr->index].reg;
             LOCK(&cpld_access_lock);
             if ((reg & 0xF000) == CPLD1_PCIE_START_OFFSET) {
-                reg_val = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg, 
-                                    SPI_BUSY_MASK_CPLD1);
+                ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr1 + reg,
+                                SPI_BUSY_MASK_CPLD1, &reg_val);
             } else if ((reg & 0xF000) == CPLD2_PCIE_START_OFFSET) {
-                reg_val = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg, 
-                                    SPI_BUSY_MASK_CPLD2);
+                ret = fpga_read(fpga_ctl->pci_fpga_dev.data_base_addr2 + reg,
+                                SPI_BUSY_MASK_CPLD2, &reg_val);
+            } else {
+                ret = -EINVAL;
             }
             UNLOCK(&cpld_access_lock);
+            if (ret) {
+                break;
+            }
 
             bits_shift = attr->index - attribute_mappings[attr->index].attr_base;
             reg_val = (reg_val >> bits_shift) & 0x01;
@@ -582,19 +645,26 @@ static ssize_t status_write(struct device *dev, struct device_attribute *da,
     } else if ((reg & 0xF000) == CPLD2_PCIE_START_OFFSET) {
         spi_mask = SPI_BUSY_MASK_CPLD2;
         addr = fpga_ctl->pci_fpga_dev.data_base_addr2;
+    } else {
+        return -EINVAL;
     }
     bit_mask = 0x01 << (attr->index - attribute_mappings[attr->index].attr_base);
     should_set_bit = attribute_mappings[attr->index].revert ? !input : input;
 
     LOCK(&cpld_access_lock);
-    reg_val = fpga_read(addr + reg, spi_mask);
-    if (should_set_bit) {
-        reg_val |= bit_mask;
-    } else {
-        reg_val &= ~bit_mask;
+    status = fpga_read(addr + reg, spi_mask, &reg_val);
+    if (!status) {
+        if (should_set_bit) {
+            reg_val |= bit_mask;
+        } else {
+            reg_val &= ~bit_mask;
+        }
+        status = fpga_write(addr + reg, reg_val, spi_mask);
     }
-    fpga_write(addr + reg, reg_val, spi_mask);
     UNLOCK(&cpld_access_lock);
+    if (status) {
+        return status;
+    }
 
     return count;
 }
