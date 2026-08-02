@@ -3,5 +3,10 @@
         "-A INPUT -p tcp --dport 22 -j ACCEPT",
         "-A INPUT -p tcp --dport 161 -j ACCEPT",
         "-A INPUT -p udp --dport 161 -j ACCEPT"
+    ],
+    "ipv6": [
+        "-A INPUT -p tcp --dport 22 -j ACCEPT",
+        "-A INPUT -p tcp --dport 161 -j ACCEPT",
+        "-A INPUT -p udp --dport 161 -j ACCEPT"
     ]
 }
