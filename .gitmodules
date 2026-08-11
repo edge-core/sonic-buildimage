@@ -139,7 +139,7 @@
 [submodule "src/sonic-ztp"]
 	path = src/sonic-ztp
 	url = https://github.com/edge-core/sonic-ztp.git
-	branch = 202311.X
+	branch = 202311.X_4630_10g_prod
 [submodule "src/sonic-stp"]
 	path = src/sonic-stp
 	url = https://github.com/edge-core/sonic-stp.git
