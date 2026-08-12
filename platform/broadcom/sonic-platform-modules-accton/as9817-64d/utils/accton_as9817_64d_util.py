@@ -206,7 +206,7 @@ kos = [
     'modprobe i2c_ismt',
     'modprobe optoe',
     'modprobe at24',
-    'modprobe i2c-ocores',
+    'modprobe accton_as9817_64_i2c-ocores',
     'modprobe accton_as9817_64_fpga',
     'modprobe accton_as9817_64_fan',
     'modprobe accton_as9817_64_psu',
