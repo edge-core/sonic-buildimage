@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-2.0
 /*
  * i2c-ocores.c: I2C bus driver for OpenCores I2C controller
@@ -26,8 +25,11 @@
 #include <linux/log2.h>
 #include <linux/spinlock.h>
 #include <linux/jiffies.h>
+#include <linux/ktime.h>
+#include <linux/timekeeping.h>
 #include <linux/atomic.h>
 #include <linux/sysfs.h>
+#include <linux/build_bug.h>  /* static_assert() */
 
 /*
  * 'process_lock' exists because ocores_process() and ocores_process_timeout()
@@ -45,6 +47,7 @@ struct ocores_i2c {
     int pos;
     int nmsgs;
     int state; /* see STATE_ */
+    int xfer_err;
     spinlock_t process_lock;
     struct clk *clk;
     int ip_clock_khz;
@@ -111,9 +114,481 @@ do {                                                \
     spin_unlock(lock);                              \
 } while (0)
 
+/*
+ * FPGA SPI busy polling workaround parameters.
+ *
+ * These values are now exposed as module parameters so the platform team can
+ * tune them at runtime during MCE reproduction, FPGA validation, or platform
+ * bring-up, without rebuilding the driver.  They are readable and writable
+ * through sysfs under (the exact module name depends on how the driver is
+ * built and loaded):
+ *
+ *   /sys/module/<module name>/parameters/spi_poll_delay_us
+ *   /sys/module/<module name>/parameters/spi_idle_stable_count
+ *   /sys/module/<module name>/parameters/spi_idle_guard_delay_us
+ *   /sys/module/<module name>/parameters/spi_post_write_guard_delay_us
+ *
+ * The *_DEFAULT macros below are only the build-time default values.  They are
+ * also used by the static_assert() further down, so the default combination is
+ * still checked at compile time.
+ *
+ * spi_poll_delay_us:
+ * Delay between two reads of the FPGA SPI busy register.
+ *
+ * The original code reads spi_busy_reg in a tight loop.  On AS9817-64O, this
+ * may create very high rate BAR0 MMIO reads.  A small delay can reduce the
+ * MMIO pressure to the FPGA PCIe endpoint.  It also gives the busy status more
+ * time to become stable if the status comes from another FPGA clock domain.
+ *
+ * Suggested tuning:
+ *   1 us  - Default value to try first.  Lower performance impact.
+ *   5 us  - More safe if MCE can still be reproduced.
+ *   10 us - Very safe.  Use only if needed because I2C polling will be slower.
+ *
+ * spi_idle_stable_count:
+ * Number of continuous idle samples before wait_spi() treats the SPI path as
+ * idle.
+ *
+ * This avoids using only one idle sample as the ready condition.  The FPGA
+ * busy bit may become idle before the whole FPGA internal path is ready for
+ * the next BAR access.  Requiring several idle samples makes the software flow
+ * control more conservative.
+ *
+ * Suggested tuning:
+ *   1 - Close to the old behavior.  Not suggested for this issue.
+ *   3 - Default value.  Good balance between safety and latency.
+ *   5 - More safe if the busy bit is suspected to be unstable.
+ *
+ * spi_idle_guard_delay_us:
+ * Common guard delay after stable idle before the next FPGA BAR access.
+ *
+ * This delay is added before the caller continues to access BAR1/BAR2
+ * OpenCores registers. The default is 0 so the read path keeps the original
+ * latency unless the value is changed at runtime.
+ *
+ * spi_post_write_guard_delay_us:
+ * Extra delay after writing one FPGA BAR register.
+ *
+ * wait_spi() only checks that the FPGA SPI path is idle before the register
+ * access. Some FPGA write paths may still need a short post-write settle time
+ * after the write accessor returns, so this delay is applied only after
+ * write accesses. The value is exported so the FPGA sysfs driver and the
+ * OpenCores register write path use the same tuning knob.
+ */
+#define OCORES_SPI_POLL_DELAY_US_DEFAULT        1
+#define OCORES_SPI_IDLE_STABLE_COUNT_DEFAULT    1
+#define OCORES_SPI_IDLE_GUARD_DELAY_US_DEFAULT  0
+#define OCORES_SPI_POST_WRITE_GUARD_DELAY_US_DEFAULT  15
+
+/*
+ * Allowed ranges for the runtime parameters.  Writes through sysfs or the
+ * kernel command line that fall outside these ranges are rejected, so a bad
+ * value can never take effect.  The upper bounds on the delays keep udelay()
+ * inside its safe range: udelay() is a busy loop whose internal math is only
+ * accurate for small delays, and a very large value would also busy wait for a
+ * long time inside the polling critical section (where local interrupts are
+ * disabled), which can trigger a soft lockup or watchdog reset.
+ */
+#define OCORES_SPI_POLL_DELAY_US_MIN            0
+#define OCORES_SPI_POLL_DELAY_US_MAX            1000
+#define OCORES_SPI_IDLE_STABLE_COUNT_MIN        1
+#define OCORES_SPI_IDLE_STABLE_COUNT_MAX        1000
+#define OCORES_SPI_IDLE_GUARD_DELAY_US_MIN      0
+#define OCORES_SPI_IDLE_GUARD_DELAY_US_MAX      1000
+#define OCORES_SPI_POST_WRITE_GUARD_DELAY_US_MIN 0
+#define OCORES_SPI_POST_WRITE_GUARD_DELAY_US_MAX 1000
+
+/**
+ * ocores_set_uint_range - Parse and range-check one uint module parameter
+ * @val: New value as a string, from sysfs or the kernel command line.
+ * @kp: Kernel parameter; kp->arg points to the unsigned int to update.
+ * @min: Smallest value that is allowed.
+ * @max: Largest value that is allowed.
+ *
+ * The new value is stored only if it parses and is inside [@min, @max].  An
+ * out of range value is rejected so a bad write cannot silently take effect;
+ * this also keeps the udelay() based delays inside their safe range.
+ *
+ * Return: 0 on success, negative errno on parse error or out of range value.
+ */
+static int ocores_set_uint_range(const char *val,
+                                 const struct kernel_param *kp,
+                                 unsigned int min, unsigned int max)
+{
+    unsigned int n;
+    int ret;
+
+    ret = kstrtouint(val, 0, &n);
+    if (ret) {
+        return ret;
+    }
+
+    if (n < min || n > max) {
+        pr_warn("%s: value %u is out of range [%u, %u]\n",
+                kp->name, n, min, max);
+        return -EINVAL;
+    }
+
+    *(unsigned int *)kp->arg = n;
+    return 0;
+}
+
+/* spi_post_write_guard_delay_us: parse with its own allowed range. */
+static int ocores_set_spi_post_write_guard_delay_us(const char *val,
+                                                    const struct kernel_param *kp)
+{
+    return ocores_set_uint_range(val, kp,
+                                 OCORES_SPI_POST_WRITE_GUARD_DELAY_US_MIN,
+                                 OCORES_SPI_POST_WRITE_GUARD_DELAY_US_MAX);
+}
+static const struct kernel_param_ops ocores_spi_post_write_guard_delay_us_ops = {
+    .set = ocores_set_spi_post_write_guard_delay_us,
+    .get = param_get_uint,
+};
+
+/* spi_poll_delay_us: parse with its own allowed range. */
+static int ocores_set_spi_poll_delay_us(const char *val,
+                                        const struct kernel_param *kp)
+{
+    return ocores_set_uint_range(val, kp,
+                                 OCORES_SPI_POLL_DELAY_US_MIN,
+                                 OCORES_SPI_POLL_DELAY_US_MAX);
+}
+static const struct kernel_param_ops ocores_spi_poll_delay_us_ops = {
+    .set = ocores_set_spi_poll_delay_us,
+    .get = param_get_uint,
+};
+
+/* spi_idle_stable_count: parse with its own allowed range. */
+static int ocores_set_spi_idle_stable_count(const char *val,
+                                            const struct kernel_param *kp)
+{
+    return ocores_set_uint_range(val, kp,
+                                 OCORES_SPI_IDLE_STABLE_COUNT_MIN,
+                                 OCORES_SPI_IDLE_STABLE_COUNT_MAX);
+}
+static const struct kernel_param_ops ocores_spi_idle_stable_count_ops = {
+    .set = ocores_set_spi_idle_stable_count,
+    .get = param_get_uint,
+};
+
+/* spi_idle_guard_delay_us: parse with its own allowed range. */
+static int ocores_set_spi_idle_guard_delay_us(const char *val,
+                                              const struct kernel_param *kp)
+{
+    return ocores_set_uint_range(val, kp,
+                                 OCORES_SPI_IDLE_GUARD_DELAY_US_MIN,
+                                 OCORES_SPI_IDLE_GUARD_DELAY_US_MAX);
+}
+static const struct kernel_param_ops ocores_spi_idle_guard_delay_us_ops = {
+    .set = ocores_set_spi_idle_guard_delay_us,
+    .get = param_get_uint,
+};
+
+static unsigned int spi_poll_delay_us = OCORES_SPI_POLL_DELAY_US_DEFAULT;
+module_param_cb(spi_poll_delay_us, &ocores_spi_poll_delay_us_ops,
+                &spi_poll_delay_us, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(spi_poll_delay_us, "Delay between FPGA SPI busy-register reads (us). Range [0, 1000].");
+
+static unsigned int spi_idle_stable_count = OCORES_SPI_IDLE_STABLE_COUNT_DEFAULT;
+module_param_cb(spi_idle_stable_count, &ocores_spi_idle_stable_count_ops,
+                &spi_idle_stable_count, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(spi_idle_stable_count, "Consecutive idle samples required before SPI is treated as idle. Range [1, 1000].");
+
+static unsigned int spi_idle_guard_delay_us = OCORES_SPI_IDLE_GUARD_DELAY_US_DEFAULT;
+module_param_cb(spi_idle_guard_delay_us, &ocores_spi_idle_guard_delay_us_ops,
+                &spi_idle_guard_delay_us, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(spi_idle_guard_delay_us, "Guard delay after stable idle before the next FPGA BAR access (us). Range [0, 1000].");
+
+unsigned int spi_post_write_guard_delay_us =
+    OCORES_SPI_POST_WRITE_GUARD_DELAY_US_DEFAULT;
+module_param_cb(spi_post_write_guard_delay_us,
+                &ocores_spi_post_write_guard_delay_us_ops,
+                &spi_post_write_guard_delay_us, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(spi_post_write_guard_delay_us,
+                 "Post-write guard delay after FPGA BAR write (us). Range [0, 1000].");
+EXPORT_SYMBOL(spi_post_write_guard_delay_us);
+
+/*
+ * spi_wait_timeout_us:
+ * Timeout for waiting SPI busy bits to become stable idle, in microseconds.
+ *
+ * This timeout does not include spi_idle_guard_delay_us.  The common guard
+ * delay is applied by wait_spi() after stable idle is detected.
+ *
+ * It also does not include spi_post_write_guard_delay_us, which is applied
+ * by write helpers after the BAR write accessor returns.
+ *
+ * This value is passed to wait_spi() as the per-call timeout at every checked
+ * register access site.  OCORES_SPI_WAIT_TIMEOUT_US_DEFAULT is only the
+ * build-time default and is also used by the static_assert() below.
+ */
+#define OCORES_SPI_WAIT_TIMEOUT_US_DEFAULT      1000
+#define OCORES_SPI_WAIT_TIMEOUT_US_MIN          1
+#define OCORES_SPI_WAIT_TIMEOUT_US_MAX          1000000
+
+/* spi_wait_timeout_us: parse with its own allowed range. */
+static int ocores_set_spi_wait_timeout_us(const char *val,
+                                          const struct kernel_param *kp)
+{
+    return ocores_set_uint_range(val, kp,
+                                 OCORES_SPI_WAIT_TIMEOUT_US_MIN,
+                                 OCORES_SPI_WAIT_TIMEOUT_US_MAX);
+}
+static const struct kernel_param_ops ocores_spi_wait_timeout_us_ops = {
+    .set = ocores_set_spi_wait_timeout_us,
+    .get = param_get_uint,
+};
+
+static unsigned int spi_wait_timeout_us = OCORES_SPI_WAIT_TIMEOUT_US_DEFAULT;
+module_param_cb(spi_wait_timeout_us, &ocores_spi_wait_timeout_us_ops,
+                &spi_wait_timeout_us, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(spi_wait_timeout_us, "Timeout for FPGA SPI to reach stable idle (us); guard delay excluded. Range [1, 1000000].");
+
+/*
+ * These three values are linked.  wait_spi() needs spi_idle_stable_count idle
+ * samples in a row, taken spi_poll_delay_us apart, and the timeout
+ * (spi_wait_timeout_us) is checked against the same time.  So the timeout must
+ * be long enough to fit the whole run of idle samples; if not, wait_spi() can
+ * return -ETIMEDOUT before it ever collects enough idle samples.  This is very
+ * likely once the first sample is busy, which is the normal reason we wait.
+ *
+ * Because all three are now runtime module parameters, this relation cannot be
+ * fully checked at compile time.  wait_spi() re-checks it at runtime (when
+ * debug is enabled) using the live parameter values and warns if the timeout
+ * is too small.  The static_assert() below only checks the build-time default
+ * combination, as a minimum sanity check (just the run of idle samples).
+ *
+ * To be safe, also leave extra room for an initial busy time, for example make
+ * the timeout a few times spi_idle_stable_count * spi_poll_delay_us.  If you
+ * raise spi_poll_delay_us or spi_idle_stable_count, raise spi_wait_timeout_us
+ * too.
+ */
+static_assert(OCORES_SPI_WAIT_TIMEOUT_US_DEFAULT >=
+              OCORES_SPI_IDLE_STABLE_COUNT_DEFAULT *
+              OCORES_SPI_POLL_DELAY_US_DEFAULT,
+              "OCORES_SPI_WAIT_TIMEOUT_US_DEFAULT too small for the SPI idle sample run");
+
 void __iomem    *spi_busy_reg=NULL;
 EXPORT_SYMBOL(spi_busy_reg);
-int wait_spi(u32 mask, unsigned long timeout) {
+
+/*
+ * wait_spi() implementation selection.
+ *
+ *   LEGACY - Original simple busy-poll: jiffies timeout, break on the first
+ *            idle sample, no stable-idle samples and no guard delay.  Kept as
+ *            the baseline for MCE reproduction / A-B comparison.  Note jiffies
+ *            does not advance while local interrupts are disabled, so this can
+ *            time out wrongly in polling mode.
+ *   STABLE - ktime deadline + several continuous idle samples
+ *            (spi_idle_stable_count) + common guard delay
+ *            (spi_idle_guard_delay_us). Default.
+ */
+#define OCORES_SPI_WAIT_IMPL_LEGACY  0
+#define OCORES_SPI_WAIT_IMPL_STABLE  1
+#define OCORES_SPI_WAIT_IMPL         OCORES_SPI_WAIT_IMPL_STABLE
+
+
+#if OCORES_SPI_WAIT_IMPL == OCORES_SPI_WAIT_IMPL_STABLE
+/**
+ * wait_spi - Wait until FPGA SPI busy bits are stable idle
+ * @mask: SPI busy bit mask.
+ * @timeout_us: Timeout in microseconds for waiting stable idle.
+ *
+ * The FPGA SPI busy register may not mean that the whole FPGA PCIe/MMIO path
+ * is ready for the next BAR access.  Do not use only one idle sample as the
+ * safe condition.  The selected busy bits must be idle for several continuous
+ * samples before the caller can access the next register.
+ *
+ * wait_spi() only applies spi_idle_guard_delay_us after stable idle.  The
+ * optional post-write guard is handled by write helpers after the BAR write
+ * accessor returns.
+ *
+ * Poll loop:
+ *
+ *   +--> read busy bit (status & mask)
+ *   |        |
+ *   |        v
+ *   |     busy ? --- yes ---> count = 0 ----------------+
+ *   |        | no                                       |
+ *   |        v                                          |
+ *   |     count++                                       |
+ *   |        |                                          |
+ *   |        v                                          |
+ *   |     count >= STABLE_COUNT ? --- yes ---> udelay(GUARD_DELAY)
+ *   |        | no                              return 0  (idle, ok)
+ *   |        v                                          |
+ *   |     <---------------------------------------------+
+ *   |        |
+ *   |        v
+ *   |     now > deadline ? --- yes ---> return -ETIMEDOUT
+ *   |        | no
+ *   |        v
+ *   |     udelay(POLL_DELAY)
+ *   |        |
+ *   +--------+
+ * Return: 0 on success, negative errno on failure.
+ */
+int wait_spi(u32 mask, unsigned long timeout_us)
+{
+    ktime_t start;
+    ktime_t deadline;
+    ktime_t read_start;
+    ktime_t now;
+    s64 last_read_us;
+    s64 max_read_us;
+    unsigned int stable;
+    unsigned int stable_count;
+    unsigned int poll_delay_us;
+    unsigned int guard_delay_us;
+    u32 data;
+    u32 busy;
+    u32 ri = 0;
+    int dbg;
+
+    /* pr_info("CPLD %u, Will time-out at jiffie %lu\n", cpld_id,timeout); */
+    if (!spi_busy_reg) {
+        return -EFAULT;
+    }
+
+    /*
+     * Take a single snapshot of the tunable parameters for the whole call.
+     * They are writable module parameters, so a concurrent sysfs write could
+     * change them in the middle of the poll loop.  READ_ONCE() keeps the value
+     * stable inside this call and stops the compiler from re-reading the
+     * globals on every loop pass.
+     */
+    stable_count = READ_ONCE(spi_idle_stable_count);
+    poll_delay_us = READ_ONCE(spi_poll_delay_us);
+    guard_delay_us = READ_ONCE(spi_idle_guard_delay_us);
+    dbg = READ_ONCE(debug);
+
+    if (!mask) {
+        if (dbg) {
+            pr_warn("wait_spi called with zero mask\n");
+        }
+
+        /*
+         * Keep compatible behavior.  A zero mask means there is no SPI busy
+         * bit to wait for.  Still add a guard delay before the next FPGA BAR
+         * access.
+         */
+        if (guard_delay_us) {
+            udelay(guard_delay_us);
+        }
+        return 0;
+    }
+
+    /*
+     * Warn if the timeout is too small to ever collect the required run of
+     * idle samples.  Cast to unsigned long before the multiply so the product
+     * cannot overflow unsigned int.  Only the bare minimum is checked here;
+     * extra room for an initial busy time is still recommended.
+     */
+    if (dbg &&
+        timeout_us < (unsigned long)stable_count * poll_delay_us) {
+        pr_warn_ratelimited("wait_spi timeout_us=%lu is smaller than stable_count(%u) * poll_delay_us(%u); it may always time out\n",
+                            timeout_us, stable_count, poll_delay_us);
+    }
+
+    /*
+     * Use a ktime based deadline.  jiffies does not advance while local
+     * interrupts are disabled (in polling mode this runs inside the
+     * process_lock critical section), so a jiffies based timeout could be far
+     * too long or, on a UP system, never fire.  ktime keeps advancing here.
+     *
+     * Keep the start timestamp too. It is used only for debug timeout logs so
+     * that stress logs can show how far the call went beyond the requested
+     * timeout window.
+     */
+    start = ktime_get();
+    deadline = ktime_add_us(start, timeout_us);
+    stable = 0;
+    last_read_us = 0;
+    max_read_us = 0;
+
+    while (1) {
+        /*
+         * Measure the BAR0 read latency around the SPI busy register access.
+         * This helps identify whether a timeout is related to a slow
+         * ioread32()/PCIe completion.
+         */
+        if (dbg) {
+            read_start = ktime_get();
+            data = ioread32(spi_busy_reg);
+            now = ktime_get();
+
+            last_read_us = ktime_us_delta(now, read_start);
+            if (last_read_us > max_read_us) {
+                max_read_us = last_read_us;
+            }
+        } else {
+            data = ioread32(spi_busy_reg);
+            now = ktime_get();
+        }
+
+        /* pr_info("@ %u, Read spi_busy_reg: 0x%08x 0x%08x\n", ri, data, mask); */
+        busy = ((data >> 24) & 0xff) & mask;
+
+        /*
+         * timeout_us is the deadline for accepting stable-idle samples.  Check
+         * the deadline after the BAR0 busy-register read and before counting the
+         * current idle sample.  Otherwise stable_count == 1 could return success
+         * even if the sample was observed after the timeout window had already
+         * expired.
+         *
+         * The common guard delay is intentionally not included in timeout_us.
+         */
+        if (ktime_after(now, deadline)) {
+            if (dbg) {
+                pr_warn("wait_spi timeout: reason=%s, elapsed_us=%lld, "
+                        "last_read_us=%lld, max_read_us=%lld, ri=%u, "
+                        "data=0x%08x, mask=0x%08x, busy=0x%08x, "
+                        "stable=%u/%u, timeout_us=%lu, guard_delay_us=%u\n",
+                        busy ? "busy_asserted" : "idle_not_stable_before_timeout",
+                        (long long)ktime_us_delta(now, start),
+                        (long long)last_read_us,
+                        (long long)max_read_us,
+                        ri, data, mask, busy, stable, stable_count,
+                        timeout_us, guard_delay_us);
+            }
+
+            return -ETIMEDOUT;
+        }
+
+        if (!busy) {
+            stable++;
+            if (stable >= stable_count) {
+                /*
+                 * The busy bit may become idle before the FPGA internal
+                 * bridge, CDC path, BAR decoder, or PCIe completion path is
+                 * ready.  Add a guard delay before the starting current BAR access.
+                 */
+                if (guard_delay_us) {
+                    udelay(guard_delay_us);
+                }
+                return 0;
+            }
+        } else {
+            stable = 0;
+        }
+
+        /*
+         * Do not keep reading the FPGA PCIe endpoint without any delay.  This
+         * reduces BAR0 MMIO read rate and gives the busy status time to become
+         * stable.
+         */
+        if (poll_delay_us) {
+            udelay(poll_delay_us);
+        } else {
+            cpu_relax();
+        }
+
+        ri++;
+    }
+}
+#else
+int wait_spi(u32 mask, unsigned long timeout_us) {
     u32 data;
     u32 ri = 0;
     unsigned long j;
@@ -123,8 +598,8 @@ int wait_spi(u32 mask, unsigned long timeout) {
         return -EFAULT;
     }
 
-    j = jiffies + timeout;
-    while(1) {
+    j = jiffies + usecs_to_jiffies(timeout_us);
+    while (1) {
         data = ioread32(spi_busy_reg);
         /* pr_info("@ %u, Read spi_busy_reg: 0x%08x 0x%08x\n", ri, data, mask); */
         if (!((( data >> 24) & 0xFF) & mask)) {
@@ -134,7 +609,7 @@ int wait_spi(u32 mask, unsigned long timeout) {
         if (time_after(jiffies, j)) {
             if (debug) {
                 pr_warn("@ %u, wait_spi TIMEOUT \n", ri);
-	    }
+            }
             return -ETIMEDOUT;
         }
 
@@ -143,11 +618,14 @@ int wait_spi(u32 mask, unsigned long timeout) {
 
     return 0;
 }
+#endif
 EXPORT_SYMBOL(wait_spi);
 
-static int wait_cpld(struct ocores_i2c *i2c, unsigned long timeout) {
+static int wait_cpld(struct ocores_i2c *i2c, unsigned long timeout_us)
+{
     struct platform_device *pdev;
     struct device *dev;
+    u32 mask;
 
     if (!i2c->adap.dev.parent) {
         return -EFAULT;
@@ -156,9 +634,133 @@ static int wait_cpld(struct ocores_i2c *i2c, unsigned long timeout) {
     /* Get SPI Busy mask from pdev->id */
     dev = i2c->adap.dev.parent;
     pdev = container_of(dev, struct platform_device, dev);
-    wait_spi((pdev->id & 0xFF00) >> 8, timeout);
+    mask = (pdev->id & 0xff00) >> 8;
+
+    return wait_spi(mask, timeout_us);
+}
+
+/**
+ * oc_setreg_checked - Wait for FPGA ready and write one OpenCores register
+ * @i2c: OpenCores I2C adapter data.
+ * @reg: OpenCores register offset.
+ * @value: Value to write.
+ *
+ * Return: 0 on success, negative errno on failure.
+ */
+static int oc_setreg_checked(struct ocores_i2c *i2c, int reg, u8 value)
+{
+    unsigned int post_write_guard_delay_us;
+    int ret;
+
+    ret = wait_cpld(i2c, spi_wait_timeout_us);
+    if (ret)
+        return ret;
+
+    i2c->setreg(i2c, reg, value);
+
+    /*
+     * Some FPGA write paths may need extra time after the BAR write has
+     * been issued.  Keep wait_spi() unchanged and apply this guard only
+     * after OpenCores register writes.
+     */
+    post_write_guard_delay_us = READ_ONCE(spi_post_write_guard_delay_us);
+    if (post_write_guard_delay_us) {
+        udelay(post_write_guard_delay_us);
+    }
 
     return 0;
+}
+
+/**
+ * oc_getreg_checked - Wait for FPGA ready and read one OpenCores register
+ * @i2c: OpenCores I2C adapter data.
+ * @reg: OpenCores register offset.
+ * @value: Output register value.
+ *
+ * Return: 0 on success, negative errno on failure.
+ */
+static int oc_getreg_checked(struct ocores_i2c *i2c, int reg, u8 *value)
+{
+    int ret;
+
+    ret = wait_cpld(i2c, spi_wait_timeout_us);
+    if (ret)
+        return ret;
+
+    *value = i2c->getreg(i2c, reg);
+
+    return 0;
+}
+
+/**
+ * ocores_map_pre_start_error - Map pre-START timeout for i2c-core retry
+ * @ret: Original error code.
+ * @xfer_started: Whether START command was accepted by the controller.
+ *
+ * i2c-core retries a transfer only when the adapter returns -EAGAIN and
+ * adap->retries is greater than zero.  Use -EAGAIN only before START is sent,
+ * because no slave device should have observed this transfer yet.
+ *
+ * After START is sent, keep the original error.  A STOP may be attempted later
+ * as best-effort cleanup, but STOP cannot roll back bytes already accepted by
+ * the slave.
+ *
+ * Return: -EAGAIN for pre-START timeout, otherwise the original error code.
+ */
+static int ocores_map_pre_start_error(int ret, bool xfer_started)
+{
+    if (ret == -ETIMEDOUT && !xfer_started)
+        return -EAGAIN;
+
+    return ret;
+}
+
+/**
+ * ocores_set_xfer_error - Save transfer error and wake the waiter
+ * @i2c: OpenCores I2C adapter data.
+ * @err: Error code to save.
+ *
+ * The first error is kept so the transfer path can return the original
+ * wait_cpld()/wait_spi() error to the I2C core.
+ */
+static void ocores_set_xfer_error(struct ocores_i2c *i2c, int err)
+{
+    unsigned long flags;
+
+    spin_lock_irqsave(&i2c->process_lock, flags);
+    if (!i2c->xfer_err)
+        i2c->xfer_err = err;
+    i2c->state = STATE_ERROR;
+    spin_unlock_irqrestore(&i2c->process_lock, flags);
+
+    wake_up(&i2c->wait);
+}
+
+/**
+ * ocores_try_stop_cleanup_locked - Try to send STOP as best-effort cleanup
+ * @i2c: OpenCores I2C adapter data.
+ *
+ * Caller must hold i2c->process_lock.
+ *
+ * This helper is only a cleanup attempt after the transfer is already in an
+ * error path.  STOP may fail because the same FPGA-side wait path is needed
+ * before writing OCI2C_CMD.  Therefore, a STOP failure must not be interpreted
+ * as successful bus recovery, and it must not cause a post-START error to be
+ * converted to -EAGAIN.
+ *
+ * Return: 0 if STOP command was written, negative errno on failure.
+ */
+static int ocores_try_stop_cleanup_locked(struct ocores_i2c *i2c)
+{
+    int ret;
+
+    ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+    if (ret && debug)
+        dev_warn(i2c->adap.dev.parent,
+             "I2C %s STOP cleanup failed: %d\n",
+             i2c->adap.name, ret);
+
+    return ret;
 }
 
 static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
@@ -221,23 +823,34 @@ static inline u8 oc_getreg_io_8(struct ocores_i2c *i2c, int reg)
     return inb(i2c->iobase + reg);
 }
 
+#if 0
+/*
+ * Keep the old unchecked wrappers temporarily for comparison only.
+ *
+ * These wrappers ignore the return value from wait_cpld(), so they must not be
+ * used by the normal access path.  All register accesses should go through
+ * oc_setreg_checked() or oc_getreg_checked() to propagate wait_spi() timeout.
+ */
 static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
 {
-    wait_cpld(i2c, usecs_to_jiffies(20));
+    wait_cpld(i2c, spi_wait_timeout_us);
     i2c->setreg(i2c, reg, value);
 }
 
 static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
 {
-    wait_cpld(i2c, usecs_to_jiffies(20));
+    wait_cpld(i2c, spi_wait_timeout_us);
     return i2c->getreg(i2c, reg);
 }
+#endif
 
-static void ocores_process(struct ocores_i2c *i2c, u8 stat)
+static int ocores_process(struct ocores_i2c *i2c, u8 stat)
 {
     struct i2c_msg *msg = i2c->msg;
     unsigned long flags;
     struct device *dev = i2c->adap.dev.parent;
+    u8 data;
+    int ret = 0;
 
     /*
      * If we spin here is because we are in timeout, so we are going
@@ -246,7 +859,9 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
     spin_lock_irqsave(&i2c->process_lock, flags);
     if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
         /* stop has been sent */
-        oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+        ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+        if (ret)
+            goto err;
         wake_up(&i2c->wait);
         goto out;
     }
@@ -257,7 +872,9 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
         if (debug) {
             dev_warn(dev, "I2C %s arbitration lost", i2c->adap.name);
         }
-        oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+        ret = ocores_try_stop_cleanup_locked(i2c);
+        if (ret)
+            goto err;
         goto out;
     }
 
@@ -268,14 +885,19 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
         if (stat & OCI2C_STAT_NACK) {
             i2c->state = STATE_ERROR;
             if (debug) {
-                dev_warn(dev, "I2C %s, no ACK from slave 0x%02x", 
-			 i2c->adap.name, msg->addr);
+                dev_warn(dev, "I2C %s, no ACK from slave 0x%02x",
+             i2c->adap.name, msg->addr);
             }
-            oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+            ret = ocores_try_stop_cleanup_locked(i2c);
+            if (ret)
+                goto err;
             goto out;
         }
     } else {
-        msg->buf[i2c->pos++] = oc_getreg(i2c, OCI2C_DATA);
+        ret = oc_getreg_checked(i2c, OCI2C_DATA, &data);
+        if (ret)
+            goto err;
+        msg->buf[i2c->pos++] = data;
     }
 
     /* end of msg? */
@@ -292,36 +914,64 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
 
                 i2c->state = STATE_START;
 
-                oc_setreg(i2c, OCI2C_DATA, addr);
-                oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+                ret = oc_setreg_checked(i2c, OCI2C_DATA, addr);
+                if (ret)
+                    goto err;
+                ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_START);
+                if (ret)
+                    goto err;
                 goto out;
             }
             i2c->state = (msg->flags & I2C_M_RD)
                          ? STATE_READ : STATE_WRITE;
         } else {
             i2c->state = STATE_DONE;
-            oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+            ret = ocores_try_stop_cleanup_locked(i2c);
+            if (ret)
+                goto err;
             goto out;
         }
     }
 
     if (i2c->state == STATE_READ) {
-        oc_setreg(i2c, OCI2C_CMD, i2c->pos == (msg->len-1) ?
-                  OCI2C_CMD_READ_NACK : OCI2C_CMD_READ_ACK);
+        ret = oc_setreg_checked(i2c, OCI2C_CMD,
+                    i2c->pos == (msg->len - 1) ?
+                    OCI2C_CMD_READ_NACK :
+                    OCI2C_CMD_READ_ACK);
+        if (ret)
+            goto err;
     } else {
-        oc_setreg(i2c, OCI2C_DATA, msg->buf[i2c->pos++]);
-        oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_WRITE);
+        ret = oc_setreg_checked(i2c, OCI2C_DATA, msg->buf[i2c->pos++]);
+        if (ret)
+            goto err;
+        ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_WRITE);
+        if (ret)
+            goto err;
     }
 
 out:
     spin_unlock_irqrestore(&i2c->process_lock, flags);
+    return ret;
 
+err:
+    if (!i2c->xfer_err)
+        i2c->xfer_err = ret;
+    i2c->state = STATE_ERROR;
+    wake_up(&i2c->wait);
+    goto out;
 }
 
 static irqreturn_t ocores_isr(int irq, void *dev_id)
 {
     struct ocores_i2c *i2c = dev_id;
-    u8 stat = oc_getreg(i2c, OCI2C_STATUS);
+    u8 stat;
+    int ret;
+
+    ret = oc_getreg_checked(i2c, OCI2C_STATUS, &stat);
+    if (ret) {
+        ocores_set_xfer_error(i2c, ret);
+        return IRQ_HANDLED;
+    }
 
     if (i2c->flags & OCORES_FLAG_BROKEN_IRQ) {
         if ((stat & OCI2C_STAT_IF) && !(stat & OCI2C_STAT_BUSY))
@@ -329,7 +979,10 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
     } else if (!(stat & OCI2C_STAT_IF)) {
         return IRQ_NONE;
     }
-    ocores_process(i2c, stat);
+
+    ret = ocores_process(i2c, stat);
+    if (ret)
+        return IRQ_HANDLED;
 
     return IRQ_HANDLED;
 }
@@ -341,10 +994,19 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
 static void ocores_process_timeout(struct ocores_i2c *i2c)
 {
     unsigned long flags;
+    int stop_ret;
 
     spin_lock_irqsave(&i2c->process_lock, flags);
     i2c->state = STATE_ERROR;
-    oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+    stop_ret = ocores_try_stop_cleanup_locked(i2c);
+    if (stop_ret && !i2c->xfer_err) {
+        /*
+         * This path is normally used after the transfer has already
+         * started.  STOP is only best-effort cleanup.  Save the STOP
+         * failure only if no earlier error has been recorded.
+         */
+        i2c->xfer_err = stop_ret;
+    }
     spin_unlock_irqrestore(&i2c->process_lock, flags);
 }
 
@@ -366,10 +1028,15 @@ static int ocores_wait(struct ocores_i2c *i2c,
                        const unsigned long timeout)
 {
     unsigned long j;
+    int ret;
 
     j = jiffies + timeout;
     while (1) {
-        u8 status = oc_getreg(i2c, reg);
+        u8 status;
+
+        ret = oc_getreg_checked(i2c, reg, &status);
+        if (ret)
+            return ret;
 
         if ((status & mask) == val)
             break;
@@ -445,6 +1112,9 @@ static int ocores_process_polling(struct ocores_i2c *i2c)
         }
 
         ret = ocores_isr(-1, i2c);
+        if (i2c->xfer_err)
+            return i2c->xfer_err;
+
         if (ret == IRQ_NONE)
             break; /* all messages have been transferred */
         else {
@@ -462,40 +1132,84 @@ static int ocores_xfer_core(struct ocores_i2c *i2c,
                             bool polling)
 {
     int ret = 0;
+    bool xfer_started = false;
     u8 ctrl;
 
     LOCK(&cpld_access_lock);
 
-    ctrl = oc_getreg(i2c, OCI2C_CONTROL);
-    if (polling)
-        oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~OCI2C_CTRL_IEN);
-    else
-        oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_IEN);
+    i2c->xfer_err = 0;
+
+    ret = oc_getreg_checked(i2c, OCI2C_CONTROL, &ctrl);
+    if (ret) {
+        ret = ocores_map_pre_start_error(ret, xfer_started);
+        goto out_unlock;
+    }
+
+    if (polling) {
+        ret = oc_setreg_checked(i2c, OCI2C_CONTROL,
+                    ctrl & ~OCI2C_CTRL_IEN);
+    } else {
+        ret = oc_setreg_checked(i2c, OCI2C_CONTROL,
+                    ctrl | OCI2C_CTRL_IEN);
+    }
+    if (ret) {
+        ret = ocores_map_pre_start_error(ret, xfer_started);
+        goto out_unlock;
+    }
 
     i2c->msg = msgs;
     i2c->pos = 0;
     i2c->nmsgs = num;
     i2c->state = STATE_START;
 
-    oc_setreg(i2c, OCI2C_DATA, i2c_8bit_addr_from_msg(i2c->msg));
-    oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+    ret = oc_setreg_checked(i2c, OCI2C_DATA,
+                i2c_8bit_addr_from_msg(i2c->msg));
+    if (ret) {
+        ret = ocores_map_pre_start_error(ret, xfer_started);
+        goto out_unlock;
+    }
+
+    ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_START);
+    if (ret) {
+        ret = ocores_map_pre_start_error(ret, xfer_started);
+        goto out_unlock;
+    }
+
+    /*
+     * START command was accepted by the controller from this point.
+     * Later errors remain as their original errno.  Do not map them to
+     * -EAGAIN because i2c-core would retry the whole transfer, and the
+     * slave may already have seen address or data bytes.
+     */
+    xfer_started = true;
 
     if (polling) {
         ret = ocores_process_polling(i2c);
     } else {
-           if (wait_event_timeout(i2c->wait,
-                                  (i2c->state == STATE_ERROR) ||
-                                  (i2c->state == STATE_DONE), HZ) == 0)
-                   ret = -ETIMEDOUT;
+        if (wait_event_timeout(i2c->wait,
+                               (i2c->state == STATE_ERROR) ||
+                               (i2c->state == STATE_DONE), HZ) == 0)
+            ret = -ETIMEDOUT;
+        else if (i2c->xfer_err)
+            ret = i2c->xfer_err;
     }
     if (ret) {
-        ocores_process_timeout(i2c);
-        UNLOCK(&cpld_access_lock);
-        return ret;
+        if (xfer_started) {
+            /*
+             * Best-effort cleanup only.  STOP may also fail when
+             * FPGA wait is still timing out.  Keep the original
+             * transfer error and do not request an i2c-core retry.
+             */
+            ocores_process_timeout(i2c);
+        }
+        goto out_unlock;
     }
 
+    ret = (i2c->state == STATE_DONE) ? num : -EIO;
+
+out_unlock:
     UNLOCK(&cpld_access_lock);
-    return (i2c->state == STATE_DONE) ? num : -EIO;
+    return ret;
 }
 
 static int ocores_xfer_polling(struct i2c_adapter *adap,
@@ -515,18 +1229,33 @@ static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
     struct device *org;
     int prescale;
     int diff;
+    int ret;
     u8 ctrl;
 
-    /* Temporary assignment for checking SPI Busy status. */
+    /*
+     * Temporary assignment for checking SPI busy status.
+     *
+     * The AS9817 FPGA SPI busy wait gets the SPI busy mask from the parent
+     * platform device ID.  During probe, the adapter is not added to i2c-core
+     * yet, so set the parent here before checked register access.
+     */
     org = i2c->adap.dev.parent;
     i2c->adap.dev.parent = dev;
 
     LOCK(&cpld_access_lock);
-    ctrl = oc_getreg(i2c, OCI2C_CONTROL);
 
-    /* make sure the device is disabled */
+    ret = oc_getreg_checked(i2c, OCI2C_CONTROL, &ctrl);
+    if (ret) {
+        goto out_unlock;
+    }
+
+    /* Make sure the device is disabled before updating prescale registers. */
     ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
-    oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL, ctrl);
+    if (ret) {
+        goto out_unlock;
+    }
+
     UNLOCK(&cpld_access_lock);
 
     prescale = (i2c->ip_clock_khz / (5 * i2c->bus_clock_khz)) - 1;
@@ -544,17 +1273,30 @@ static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
     dev_info(dev, "OCI2C_PRELOW=0x%02x OCI2C_PREHIGH=0x%02x\n",
                   prescale & 0xff, prescale >> 8);
     LOCK(&cpld_access_lock);
-    oc_setreg(i2c, OCI2C_PRELOW, prescale & 0xff);
-    oc_setreg(i2c, OCI2C_PREHIGH, prescale >> 8);
 
-    /* Init the device */
-    oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
-    oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN);
+    ret = oc_setreg_checked(i2c, OCI2C_PRELOW, prescale & 0xff);
+    if (ret) {
+        goto out_unlock;
+    }
+
+    ret = oc_setreg_checked(i2c, OCI2C_PREHIGH, prescale >> 8);
+    if (ret) {
+        goto out_unlock;
+    }
+
+    /* Init the device. */
+    ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+    if (ret) {
+        goto out_unlock;
+    }
+
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN);
+
+out_unlock:
     UNLOCK(&cpld_access_lock);
-
     i2c->adap.dev.parent = org;
 
-    return 0;
+    return ret;
 }
 
 /**
@@ -648,6 +1390,15 @@ static int ocores_set_bus_clock_khz(struct device *dev,
     i2c_lock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
 
     /*
+     * Serialize against all other FPGA BAR access (other adapters and the
+     * FPGA sysfs driver) on the shared SPI path.  cpld_access_lock is the
+     * global FPGA lock; process_lock below is per-adapter only, so it is not
+     * enough on its own.  Take cpld_access_lock outside process_lock to match
+     * the transfer path lock order in ocores_xfer_core().
+     */
+    LOCK(&cpld_access_lock);
+
+    /*
      * Try to wait until the controller becomes idle before changing the
      * prescale registers. If this times out, keep going because this sysfs
      * operation is treated as a forced controller re-init:
@@ -688,36 +1439,74 @@ static int ocores_set_bus_clock_khz(struct device *dev,
      * Re-check the hardware status after process_lock is held. This is only a
      * diagnostic check because the controller will be disabled below anyway.
      */
-    status = oc_getreg(i2c, OCI2C_STATUS);
+    ret = oc_getreg_checked(i2c, OCI2C_STATUS, &status);
+    if (ret) {
+        dev_warn(dev,
+                 "Failed to read controller status before forced bus clock update: %d\n",
+                 ret);
+        goto out_unlock;
+    }
+
     if (status & (OCI2C_STAT_BUSY | OCI2C_STAT_TIP)) {
         dev_warn(dev,
                  "Controller status is 0x%02x before forced bus clock update\n",
                  status);
     }
 
-    ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+    ret = oc_getreg_checked(i2c, OCI2C_CONTROL, &ctrl);
+    if (ret) {
+        dev_warn(dev,
+                 "Failed to read control register while changing bus clock: %d\n",
+                 ret);
+        goto out_unlock;
+    }
 
     /*
      * Update prescale while the I2C core is disabled. Restore the previous
      * control value after PRELOW/PREHIGH are updated.
      */
-    oc_setreg(i2c, OCI2C_CONTROL,
-              ctrl & ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN));
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL,
+                            ctrl & ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN));
+    if (ret) {
+        goto out_unlock;
+    }
 
-    oc_setreg(i2c, OCI2C_PRELOW, prelow);
-    oc_setreg(i2c, OCI2C_PREHIGH, prehigh);
+    ret = oc_setreg_checked(i2c, OCI2C_PRELOW, prelow);
+    if (ret) {
+        goto out_unlock;
+    }
+
+    ret = oc_setreg_checked(i2c, OCI2C_PREHIGH, prehigh);
+    if (ret) {
+        goto out_unlock;
+    }
 
     i2c->bus_clock_khz = bus_clock_khz;
     i2c->ip_clock_khz = ip_clock_khz;
 
-    oc_setreg(i2c, OCI2C_CONTROL, ctrl);
-
-    if (ctrl & OCI2C_CTRL_EN) {
-        oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL, ctrl);
+    if (ret) {
+        goto out_unlock;
     }
 
+    if (ctrl & OCI2C_CTRL_EN) {
+        ret = oc_setreg_checked(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+        if (ret) {
+            goto out_unlock;
+        }
+    }
+
+out_unlock:
     spin_unlock_irqrestore(&i2c->process_lock, flags);
+    UNLOCK(&cpld_access_lock);
     i2c_unlock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
+
+    if (ret) {
+        dev_warn(dev,
+                 "Failed to set I2C bus clock to %u KHz: %d\n",
+                 bus_clock_khz, ret);
+        return ret;
+    }
 
     dev_info(dev,
              "Set I2C bus clock to %u KHz, ip clock to %u KHz, OCI2C_PRELOW=0x%02x OCI2C_PREHIGH=0x%02x\n",
@@ -1039,6 +1828,13 @@ static int ocores_i2c_probe(struct platform_device *pdev)
     i2c->adap.dev.parent = &pdev->dev;
     i2c->adap.dev.of_node = pdev->dev.of_node;
 
+    /*
+     * i2c-core retries a transfer only when the adapter returns -EAGAIN.
+     * This driver returns -EAGAIN only for wait_cpld() timeout before the
+     * START command is accepted.
+     */
+    i2c->adap.retries = 1;
+
     /* add i2c adapter to i2c tree */
     ret = i2c_add_adapter(&i2c->adap);
     if (ret) {
@@ -1072,22 +1868,38 @@ static int ocores_i2c_remove(struct platform_device *pdev)
 {
     struct ocores_i2c *i2c = platform_get_drvdata(pdev);
     u8 ctrl;
+    int ret;
 
     sysfs_remove_group(&i2c->adap.dev.kobj, &ocores_i2c_attr_group);
 
     LOCK(&cpld_access_lock);
-    ctrl = oc_getreg(i2c, OCI2C_CONTROL);
 
-    /* disable i2c logic */
+    ret = oc_getreg_checked(i2c, OCI2C_CONTROL, &ctrl);
+    if (ret) {
+        dev_warn(&pdev->dev,
+                 "Failed to read control register during remove: %d\n",
+                 ret);
+        goto out_unlock;
+    }
+
+    /* Disable I2C logic. */
     ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
-    oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL, ctrl);
+    if (ret) {
+        dev_warn(&pdev->dev,
+                 "Failed to disable controller during remove: %d\n",
+                 ret);
+    }
+
+out_unlock:
     UNLOCK(&cpld_access_lock);
 
-    /* remove adapter & data */
+    /* Remove adapter and data even if controller cleanup failed. */
     i2c_del_adapter(&i2c->adap);
 
-    if (!IS_ERR(i2c->clk))
+    if (!IS_ERR(i2c->clk)) {
         clk_disable_unprepare(i2c->clk);
+    }
 
     return 0;
 }
@@ -1096,14 +1908,29 @@ static int ocores_i2c_remove(struct platform_device *pdev)
 static int ocores_i2c_suspend(struct device *dev)
 {
     struct ocores_i2c *i2c = dev_get_drvdata(dev);
-    u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+    u8 ctrl;
+    int ret;
 
-    /* make sure the device is disabled */
+    LOCK(&cpld_access_lock);
+
+    ret = oc_getreg_checked(i2c, OCI2C_CONTROL, &ctrl);
+    if (ret) {
+        UNLOCK(&cpld_access_lock);
+        return ret;
+    }
+
+    /* Make sure the device is disabled. */
     ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
-    oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+    ret = oc_setreg_checked(i2c, OCI2C_CONTROL, ctrl);
+    UNLOCK(&cpld_access_lock);
+    if (ret) {
+        return ret;
+    }
 
-    if (!IS_ERR(i2c->clk))
+    if (!IS_ERR(i2c->clk)) {
         clk_disable_unprepare(i2c->clk);
+    }
+
     return 0;
 }
 
@@ -1121,8 +1948,9 @@ static int ocores_i2c_resume(struct device *dev)
             return ret;
         }
         rate = clk_get_rate(i2c->clk) / 1000;
-        if (rate)
+        if (rate) {
             i2c->ip_clock_khz = rate;
+        }
     }
     return ocores_init(dev, i2c);
 }
@@ -1150,13 +1978,13 @@ static int __init ocores_i2c_as9817_64_init(void)
 {
     int err;
 
+    spin_lock_init(&cpld_access_lock);
+
     err = platform_driver_register(&ocores_i2c_driver);
     if (err < 0) {
         pr_err("Failed to register ocores_i2c_driver");
         return err;
     }
-
-    spin_lock_init(&cpld_access_lock);
 
     return 0;
 }
