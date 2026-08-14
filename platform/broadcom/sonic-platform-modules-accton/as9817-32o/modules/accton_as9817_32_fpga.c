@@ -37,7 +37,7 @@
  *       variable define
  * *********************************************/
 #define DRVNAME                        "as9817_32_fpga"
-#define OCORES_I2C_DRVNAME             "ocores-i2c"
+#define OCORES_I2C_DRVNAME             "as9817_32_ocores-i2c"
 
 #define PORT_NUM                       (32 + 2)  /* 32 OSFPs/QSFPDDs + 2 SFP28s */
 

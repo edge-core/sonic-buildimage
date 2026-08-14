@@ -1570,22 +1570,6 @@ static const struct i2c_adapter ocores_adapter = {
 };
 
 static const struct of_device_id ocores_i2c_match[] = {
-    {
-        .compatible = "opencores,i2c-ocores",
-        .data = (void *)TYPE_OCORES,
-    },
-    {
-        .compatible = "aeroflexgaisler,i2cmst",
-        .data = (void *)TYPE_GRLIB,
-    },
-    {
-        .compatible = "sifive,fu540-c000-i2c",
-        .data = (void *)TYPE_SIFIVE_REV0,
-    },
-    {
-        .compatible = "sifive,i2c0",
-        .data = (void *)TYPE_SIFIVE_REV0,
-    },
     {},
 };
 MODULE_DEVICE_TABLE(of, ocores_i2c_match);
@@ -1965,7 +1949,7 @@ static struct platform_driver ocores_i2c_driver = {
     .probe   = ocores_i2c_probe,
     .remove  = ocores_i2c_remove,
     .driver  = {
-        .name = "ocores-i2c",
+        .name = "as9817_64_ocores-i2c",
         .of_match_table = ocores_i2c_match,
         .pm = OCORES_I2C_PM,
     },
@@ -1999,6 +1983,7 @@ module_exit(ocores_i2c_as9817_64_exit);
 #endif
 
 MODULE_AUTHOR("Peter Korsgaard <peter@korsgaard.com>");
-MODULE_DESCRIPTION("OpenCores I2C bus driver");
+MODULE_AUTHOR("Ray Huang <rayx_huang@edge-core.com>");
+MODULE_DESCRIPTION("OpenCores I2C bus driver for AS9817-64D/AS9817-64O");
 MODULE_LICENSE("GPL");
-MODULE_ALIAS("platform:ocores-i2c");
+MODULE_ALIAS("platform:as9817_64_ocores-i2c");
