@@ -115,6 +115,15 @@ cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Acc
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O-2x400G/th5-as9817-32o-64x400G.config.yml
 cp -f $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O-100G/th5-as9817-32o-32x100G_ec.config.yml \
         $SONIC_BASE/sonic-buildimage/device/accton/x86_64-accton_as9817_32o-r0/Accton-AS9817-32O-100G/th5-as9817-32o-32x100G.config.yml
+
+## build EC hsdk 6.5.32 Kernel Module
+
+rm -rf $SONIC_BASE/sonic-buildimage/platform/broadcom/saibcm-modules/ 
+rm -f $SONIC_BASE/sonic-buildimage/target/debs/bullseye/opennsl-modules_*.deb*
+git clone --recurse-submodules git@gitlab.edge-core.com:root/sdk-build.git -b sai-xgs-kmod-6.5.32 $SONIC_BASE/sonic-buildimage/platform/broadcom/saibcm-modules/
+cp -f $SONIC_BASE/sonic-buildimage/platform/broadcom/sai-modules-ec.dep $SONIC_BASE/sonic-buildimage/platform/broadcom/sai-modules.dep
+cp -f $SONIC_BASE/sonic-buildimage/platform/broadcom/sai-modules-ec.mk $SONIC_BASE/sonic-buildimage/platform/broadcom/sai-modules.mk
+
 ## rebuild sonic-device-data
 rm -f $SONIC_BASE/sonic-buildimage/target/debs/bullseye/sonic-device-data_1.0-1_all.deb
 
