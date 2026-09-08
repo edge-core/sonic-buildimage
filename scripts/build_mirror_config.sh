@@ -32,6 +32,7 @@ fi
 
 if [ "$DISTRIBUTION" == "bullseye" ]; then
     DEFAULT_MIRROR_URLS=http://archive.debian.org/debian/
+    DEFAULT_MIRROR_SECURITY_URLS=http://snapshot.debian.org/archive/debian-security/20260820T000000Z/
 fi
 
 if [ "$MIRROR_SNAPSHOT" == y ]; then
