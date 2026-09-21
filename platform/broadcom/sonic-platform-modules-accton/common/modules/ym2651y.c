@@ -590,7 +590,8 @@ static ssize_t show_vout(struct device *dev, struct device_attribute *da,
 
     if (data->chip == YM2401 || data->chip==YM1401A || 
         (!strncmp("UPD1501SA-1190G", data->reg_val.mfr_model + 1, strlen("UPD1501SA-1190G"))) ||
-        (!strncmp("UPD1501SA-1290G", data->reg_val.mfr_model + 1, strlen("UPD1501SA-1290G")))) {
+        (!strncmp("UPD1501SA-1290G", data->reg_val.mfr_model + 1, strlen("UPD1501SA-1290G"))) ||
+        (!strncmp("UP1K21R-1085G", data->reg_val.mfr_model + 1, strlen("UP1K21R-1085G")))) {
         return show_vout_by_mode(dev, da, buf);
     }
     else {
