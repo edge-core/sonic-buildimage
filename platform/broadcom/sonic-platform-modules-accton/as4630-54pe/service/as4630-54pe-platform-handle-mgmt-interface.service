@@ -1,0 +1,14 @@
+[Unit]
+Description=Accton AS4630-54PE Platform handle management interface service
+Wants=systemd-udevd.service
+After=systemd-udevd.service
+Before=network-pre.target networking.service
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/handle_mgmt_interface.sh
+
+[Install]
+WantedBy=multi-user.target
