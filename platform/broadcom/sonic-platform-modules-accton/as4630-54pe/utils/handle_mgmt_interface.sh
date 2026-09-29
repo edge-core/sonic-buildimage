@@ -12,11 +12,9 @@
 
 RULE_FILE="/etc/udev/rules.d/70-persistent-net.rules"
 
-#From 70-persistent-net.rules we can use eth3 for the unused interface name
-PARK_NAME="eth3"
-
 log() {
-    command logger --id=$$ -t "handle_mgmt_interface" "$@"
+    echo "$@" | grep -qE "^ERROR" && priority=err || priority=info
+    command logger --id=$$ -p syslog."$priority" -t "handle_mgmt_interface" "$@"
 }
 
 # PCI address the udev rule wants to see as eth0
@@ -26,40 +24,60 @@ if [ -z "$MGMT_BUS" ]; then
     exit 1
 fi
 
-# Resolve the PCI bus address of an interface from sysfs.
-# /sys/class/net/<if>/device -> ../../../<domain:bus:dev.fn>
+# PCI address the udev rule wants to rename to eth3
+ETH3_BUS=$(sed -n 's/.*KERNELS=="\([^"]*\)".*NAME:="eth3".*/\1/p' "$RULE_FILE" | head -1)
+if [ -n "$ETH3_BUS" ]; then
+    udevadm settle --timeout=5 --exit-if-exists="/sys/bus/pci/devices/${ETH3_BUS}/net/eth3" \
+      || log "WARNING: cannot find eth3 on ${ETH3_BUS} after 5s"
+fi
+
+# Where to move the NIC that holds eth0: its own name from the rule file if it
+# has one, otherwise the lowest ethN that no interface has and no rule claims.
+# (amd-xgbe has no rule and can take eth0 if it registers after udev freed it.)
+park_name_for() {
+    local bus=$1
+    local name
+    local n
+    name=$(sed -n "s/.*KERNELS==\"$bus\".*NAME:=\"\([^\"]*\)\".*/\1/p" "$RULE_FILE" | head -1)
+    if [ -n "$name" ] && [ ! -e "/sys/class/net/$name" ]; then echo "$name"; return; fi
+    for n in $(seq 1 31); do
+        [ -e "/sys/class/net/eth$n" ] && continue
+        grep -q "NAME:=\"eth$n\"" "$RULE_FILE" && continue
+        echo "eth$n"; return
+    done
+}
+
+# PCI address of an interface, in the form the udev rule uses for KERNELS.
+# Read it from sysfs rather than 'ethtool -i': which ethtool runs depends on
+# PATH, and /usr/bin/ethtool is pmon's cmd_wrapper (docker exec pmon ethtool),
+# which a shell without the sbin directories on PATH picks up instead of the
+# real /usr/sbin/ethtool, and which fails whenever pmon is not running.
 bus_by_ifname() {
-    local bus target
-    target=$(readlink -f "/sys/class/net/$1/device" 2>/dev/null)
-    bus=$(basename "$target" 2>/dev/null)
-    # Only accept things that look like a PCI address (dddd:bb:dd.f). Virtual
-    # interfaces (bridge, veth, lo) have no 'device' symlink; guard those out.
-    case "$bus" in
-        [0-9a-fA-F]*:[0-9a-fA-F]*:*) ;;
-        *) bus="" ;;
-    esac
-    #log "DEBUG: sysfs device for $1 -> ${target:-<none>}"
-    #log "DEBUG: bus_by_ifname($1) -> ${bus:-<none>}"
-    echo "$bus"
+    local dev
+    # Interfaces without a parent device (lo, bridges, veth) have no address.
+    [ -e "/sys/class/net/$1/device" ] || return
+    dev=$(readlink -f "/sys/class/net/$1/device")
+    # The parent is not always the PCI function itself (virtio sits one level
+    # below it), so walk up to the nearest PCI address, as udev's KERNELS does.
+    while [ "$dev" != / ] && [ -n "$dev" ]; do
+        case "${dev##*/}" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f]:*) echo "${dev##*/}"; return ;;
+        esac
+        dev=${dev%/*}
+    done
 }
 
 ifname_by_bus() {
-    local dev ifname tries
-    for tries in $(seq 1 30); do
-        for dev in /sys/class/net/eth*; do
-            ifname=$(basename "$dev")
-            if [ "$(bus_by_ifname "$ifname")" = "$1" ]; then
-                echo "$ifname"
-                return 0
-            fi
-        done
-        log "DEBUG: ifname_by_bus($1) not found (attempt $tries), sleeping 1s"
-        sleep 1
+    local dev ifname
+    for dev in /sys/class/net/*; do
+        ifname=$(basename "$dev")
+        if [ "$(bus_by_ifname "$ifname")" = "$1" ]; then
+            echo "$ifname"
+            return 0
+        fi
     done
     return 1
 }
-
-
 
 MGMT_IF=$(ifname_by_bus "$MGMT_BUS")
 if [ -z "$MGMT_IF" ]; then
@@ -75,6 +93,7 @@ fi
 # eth0 is held by the wrong NIC (udev did not park it) - move it out of the way
 if [ -e /sys/class/net/eth0 ]; then
     OCCUPANT_BUS=$(bus_by_ifname eth0)
+    PARK_NAME=$(park_name_for "$OCCUPANT_BUS")
     log "eth0 is held by ${OCCUPANT_BUS:-unknown}, renaming it to $PARK_NAME"
     ip link set dev eth0 down
     if ! ip link set dev eth0 name "$PARK_NAME"; then
@@ -91,7 +110,4 @@ if ! ip link set dev "$MGMT_IF" name eth0; then
 fi
 
 log "eth0 is now $MGMT_BUS"
-
-ip link set dev eth0 up || log "ERROR: failed to set eth0 up"
-log "bring up eth0"
-
+exit 0

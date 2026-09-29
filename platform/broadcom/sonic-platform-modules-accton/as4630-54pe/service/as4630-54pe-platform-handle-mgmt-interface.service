@@ -9,6 +9,8 @@ Wants=network-pre.target
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/local/bin/handle_mgmt_interface.sh
+ExecStartPost=-/bin/systemctl --no-block try-restart networking.service
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
