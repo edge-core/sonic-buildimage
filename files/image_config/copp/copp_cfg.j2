@@ -43,6 +43,16 @@
 {% endif %}
 		    "red_action":"drop"
 	    },
+	    "queue4_group4": {
+		    "trap_action":"trap",
+		    "trap_priority":"6",
+		    "queue": "6",
+		    "meter_type":"packets",
+		    "mode":"sr_tcm",
+		    "cir":"100",
+		    "cbs":"100",
+		    "red_action":"drop"
+	    },
 {% if asic_type in ["broadcom"] %}
         "queue4_group6": {
             "trap_action":"trap",
@@ -145,6 +155,10 @@
 	    "sflow": {
 		    "trap_group": "queue2_group1",
 		    "trap_ids": "sample_packet"
+	    },
+	    "ospf": {
+		    "trap_ids": "ospf,ospfv6",
+		    "trap_group": "queue4_group4"
 	    }
 {% if asic_type in ["broadcom"] %}
         ,
