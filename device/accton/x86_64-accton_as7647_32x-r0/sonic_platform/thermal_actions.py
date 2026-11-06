@@ -1,0 +1,1 @@
+../../x86_64-accton_as9647_32d-r0/sonic_platform/thermal_actions.py

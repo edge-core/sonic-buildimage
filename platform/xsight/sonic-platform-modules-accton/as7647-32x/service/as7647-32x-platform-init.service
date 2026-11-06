@@ -1,0 +1,13 @@
+[Unit]
+Description=Accton AS7647-32X Platform initialization service
+Before=pmon.service
+After=sysinit.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/as7647_32x_util.py install
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
