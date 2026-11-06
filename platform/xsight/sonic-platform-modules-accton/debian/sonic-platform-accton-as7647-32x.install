@@ -1,0 +1,7 @@
+as7647-32x/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/x86_64-accton_as7647_32x-r0
+as7647-32x/files/link/70-xsight-eth10g0.link usr/lib/systemd/network
+as7647-32x/files/link/70-xsight-eth10g1.link usr/lib/systemd/network
+as7647-32x/files/link/70-xsight-eth10g2.link usr/lib/systemd/network
+as7647-32x/files/link/70-xsight-eth10g3.link usr/lib/systemd/network
+as7647-32x/files/link/70-xsight-eth1g0.link usr/lib/systemd/network
+as7647-32x/files/link/70-xsight-eth1g1.link usr/lib/systemd/network

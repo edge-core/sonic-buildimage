@@ -7,7 +7,9 @@ $(SONIC_ONE_IMAGE)_INSTALLS += $(SYSTEMD_SONIC_GENERATOR) $(KERNEL_XPCI)
 $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(ACCTON_ES9618XX_PLATFORM_MODULE) \
                                     $(ACCTON_ES9618XX_XPLT_PLATFORM_MODULE) \
                                     $(ACCTON_AS9647_32D_PLATFORM_MODULE) \
-                                    $(ACCTON_AS9647_32D_XPLT_PLATFORM_MODULE)
+                                    $(ACCTON_AS9647_32D_XPLT_PLATFORM_MODULE) \
+                                    $(ACCTON_AS7647_32X_PLATFORM_MODULE) \
+                                    $(ACCTON_AS7647_32X_XPLT_PLATFORM_MODULE)
 
 ifeq ($(INSTALL_DEBUG_TOOLS),y)
 $(SONIC_ONE_IMAGE)_DOCKERS += $(SONIC_INSTALL_DOCKER_DBG_IMAGES)
