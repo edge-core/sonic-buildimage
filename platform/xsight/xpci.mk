@@ -1,7 +1,7 @@
 # Xsight xpci
 
 # Fallback when no xpci-dkms_*.deb in SONiC root (/sonic)
-XPCI_VERSION_GITHUB ?= 1.0
+XPCI_VERSION_GITHUB ?= 20.72.16
 XPCI_GITHUB_URL = https://github.com/xsightlabs/sonic-xsight-binaries/raw/refs/heads/main/amd64/kernel
 
 XPCI_DKMS_CANDIDATES := $(sort $(wildcard xpci-dkms_*_amd64.deb))
